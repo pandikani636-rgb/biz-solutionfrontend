@@ -48,11 +48,12 @@ export const PdfCatalogViewer = () => {
       const res = await api.get('/pdf-catalog', {
         params: query ? { search: query } : {},
       });
-      if (res.data?.success && res.data?.data) {
-        setCatalogData(res.data.data);
+      const catalog = res?.data?.categories ? res.data : (res?.data || res);
+      if (catalog && (catalog.categories || catalog.totalCategories !== undefined)) {
+        setCatalogData(catalog);
         // Expand all subcategories by default
         const initialOpen = {};
-        res.data.data.categories?.forEach((cat, catIdx) => {
+        catalog.categories?.forEach((cat, catIdx) => {
           cat.subcategories?.forEach((sub, subIdx) => {
             initialOpen[`${catIdx}-${subIdx}`] = true;
           });

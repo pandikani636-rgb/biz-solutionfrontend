@@ -86,9 +86,33 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for centralized error handling
+// Response interceptor with dual-access compatibility for both res.success and res.data.success
 api.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    const payload = response.data;
+    if (payload && typeof payload === 'object') {
+      const handler = {
+        get(target, prop, receiver) {
+          if (prop === 'data') {
+            const inner = target.data;
+            if (inner !== undefined && inner !== null && typeof inner === 'object') {
+              return new Proxy(inner, {
+                get(iTarget, iProp) {
+                  if (iProp in iTarget) return iTarget[iProp];
+                  if (iProp in target) return target[iProp];
+                  return undefined;
+                },
+              });
+            }
+            return inner !== undefined ? inner : target;
+          }
+          return Reflect.get(target, prop, receiver);
+        },
+      };
+      return new Proxy(payload, handler);
+    }
+    return payload;
+  },
   (error) => {
     const message =
       error.response?.data?.message || error.message || 'An unexpected error occurred. Please try again.';
