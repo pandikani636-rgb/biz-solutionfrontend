@@ -24,7 +24,7 @@ export const INDUSTRIAL_IMAGE_CATALOG = {
   
   // 7. Pulleys & Taper-Lock Bushes (Cast iron SPA/SPB pulleys, 2517/2012 bushes)
   pulley: 'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80',
-  taperBush: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80',
+  taperBush: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
   
   // 8. Lubricants & Industrial Greases (SKF LGMT 2/1, high temp grease)
   grease: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=800&q=80',
@@ -36,11 +36,13 @@ export const INDUSTRIAL_IMAGE_CATALOG = {
   defaultIndustrial: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
 };
 
-// Known generic car / placeholder photo IDs to automatically replace
+// Known generic car / placeholder / broken photo IDs to automatically replace
 const UNRELATED_IMAGE_PATTERNS = [
   'photo-1617788138017', // Tesla / car wheel
   'photo-1454165804606', // Laptop / desk
   'photo-1486406146926', // Skyscraper building
+  'photo-1504917599217', // 404 broken Unsplash URL
+  'photo-1581092335397', // 404 broken Unsplash URL
 ];
 
 /**

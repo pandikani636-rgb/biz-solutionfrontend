@@ -47,9 +47,14 @@ export const Navbar = () => {
           const currentScrollY = window.scrollY;
           const delta = currentScrollY - lastScrollY.current;
 
+          const isNearBottom = window.innerHeight + currentScrollY >= document.documentElement.scrollHeight - 120;
+
           if (currentScrollY <= 35) {
             // Near top of page: always reveal top bar
             setIsTopBarHidden(false);
+            lastScrollY.current = currentScrollY;
+          } else if (isNearBottom) {
+            // Freeze state when near bottom of page to completely eliminate scroll shaking/jitter
             lastScrollY.current = currentScrollY;
           } else if (delta > scrollThreshold && currentScrollY > 70) {
             // Significant downward scroll: hide top bar smoothly
@@ -104,16 +109,6 @@ export const Navbar = () => {
             <span className="text-slate-200 inline-flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> {t('nav_genuine_mtc')}
             </span>
-
-            {/* Language Switcher Pill */}
-            <button
-              onClick={toggleLanguage}
-              className="ml-2 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-accent text-navy hover:bg-yellow-400 transition-smooth shadow-xs"
-              title="Change Language (English / தமிழ்)"
-            >
-              <Globe className="w-3 h-3" />
-              <span>{isTamil ? 'English' : 'தமிழ்'}</span>
-            </button>
 
             {isAdmin && (
               <Link to="/admin" className="text-accent hover:underline font-bold inline-flex items-center gap-1 ml-2">
@@ -303,14 +298,6 @@ export const Navbar = () => {
 
         {/* Mobile menu trigger */}
         <div className="flex md:hidden items-center gap-2">
-          {/* Mobile Language Switcher */}
-          <button
-            onClick={toggleLanguage}
-            className="px-2 py-1 rounded-lg text-xs font-black bg-accent text-navy"
-          >
-            {isTamil ? 'EN' : 'தமிழ்'}
-          </button>
-
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="p-2 rounded-xl text-slate-600 hover:bg-slate-100"

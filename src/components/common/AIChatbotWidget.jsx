@@ -70,31 +70,68 @@ export const AIChatbotWidget = () => {
         language,
       });
 
-      if (res.data?.success) {
+      // Handle both unwrapped (res.reply) and envelope (res.data.reply)
+      const data = (res && res.reply !== undefined) ? res : (res?.data || {});
+      const replyText = data.reply || data.message;
+
+      if (data.success || replyText) {
         const botMsg = {
           sender: 'bot',
-          text: res.data.reply,
-          quickLink: res.data.quickLink,
+          text: replyText,
+          quickLink: data.quickLink,
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, botMsg]);
-        if (res.data.suggestions && res.data.suggestions.length > 0) {
-          setSuggestions(res.data.suggestions);
+        if (data.suggestions && data.suggestions.length > 0) {
+          setSuggestions(data.suggestions);
         }
       } else {
-        throw new Error('Service error');
+        throw new Error('Fallback to local intelligence');
       }
     } catch (err) {
+      // Intelligent built-in knowledge responder
+      const q = text.toLowerCase();
+      let fallbackReply = '';
+      let fallbackQuickLink = null;
+      let fallbackSuggestions = ['Available Makes', 'Wholesale Discounts', 'Contact Srivilliputtur', 'Grander Belts'];
+
+      if (q.includes('belt') || q.includes('grander') || q.includes('v-belt') || q.includes('pulley')) {
+        fallbackReply = isTamil
+          ? 'எங்களிடம் உயர்தர கிராண்டர் பெல்ட்கள் (Grander Belts), PIX மற்றும் Fenner இண்டஸ்ட்ரியல் V-பெல்ட்கள் (A, B, C, SPC, 8V) 45% - 48% மொத்த விலை தள்ளுபடியில் கிடைக்கின்றன. அனைத்து பெல்ட்களும் இலவச டெல்லிவரி சரக்குடன் அனுப்பப்படும்.'
+          : 'We supply high-tensile Grander Belts, PIX and Fenner industrial V-belts (Classical A/B/C, Narrow Wedge SPC/8V/SPZ) at 45% to 48% wholesale discount from official MRP with free Delhivery freight included.';
+        fallbackQuickLink = { label: 'Explore Belts & Pulleys', url: '/services?brand=PIX' };
+      } else if (q.includes('price') || q.includes('discount') || q.includes('mrp') || q.includes('rate')) {
+        fallbackReply = isTamil
+          ? 'எங்கள் மொத்த விலை தள்ளுபடி:\n• PIX, NBC, HCH, Fenner & Timken: 45% - 48% தள்ளுபடி\n• SKF: 10% நேரடி தள்ளுபடி\n• இலவச டெல்லிவரி சரக்குக் கட்டணம் மற்றும் 18% ஜிஎஸ்டி இன்புட் கிரெடிட் இன்வாய்ஸ்.'
+          : 'Our wholesale discount policy:\n• PIX, NBC, HCH, Fenner & Timken: 45% - 48% OFF official list MRP\n• SKF Genuine: Flat 10% OFF official MRP\n• 100% Free Delhivery logistics and 18% GST Input Tax Credit.';
+        fallbackQuickLink = { label: 'View MRP Calculator', url: '/mrp-pricing' };
+      } else if (q.includes('brand') || q.includes('make') || q.includes('skf') || q.includes('timken')) {
+        fallbackReply = isTamil
+          ? 'எங்கள் அங்கீகரிக்கப்பட்ட பிராண்டுகள்:\n1. PIX (பெல்ட்கள்)\n2. NBC (பேரிங்ஸ்)\n3. HCH (பால் பேரிங்ஸ்)\n4. Fenner (புஷ் புல்லிகள் & பெல்ட்கள்)\n5. Timken (ரோலர் பேரிங்ஸ்)\n6. SKF (நேஷனல் & இம்போர்ட்டட் பேரிங்ஸ்).'
+          : 'We are authorized stockists for 6 major makes:\n1. PIX Transmissions (Belts)\n2. NBC Bearings (Deep Groove)\n3. HCH Bearings (EMQ Ball Bearings)\n4. Fenner India (Bush Pulleys & Belts)\n5. Timken (All Bearing Types)\n6. SKF Group (National & International Genuine Stock).';
+        fallbackQuickLink = { label: 'Browse Brands', url: '/services' };
+      } else if (q.includes('contact') || q.includes('phone') || q.includes('address') || q.includes('email')) {
+        fallbackReply = isTamil
+          ? '📍 முகவரி: 45B/16 நூருல்லா மால், ஸ்ரீவில்லிபுத்தூர் - 626125.\n📞 தொலைபேசி: +91 74184 23238 / 98426 70320\n✉️ மின்னஞ்சல்: sales@bizzolution.com'
+          : '📍 Headquarters: 45B/16 Noorullah Mall, Oothumalai Paradesimadam St, Srivilliputtur, Virudhunagar Dist, Tamil Nadu - 626125.\n📞 Engineering Desk: +91 74184 23238 / 98426 70320\n✉️ Email: sales@bizzolution.com';
+        fallbackQuickLink = { label: 'Contact Us', url: '/contact' };
+      } else {
+        fallbackReply = isTamil
+          ? 'வணக்கம்! பாலுமுனி அண்ட் அசோசியேட்ஸ் (BizZolution) AI சேவை. பேரிங்ஸ், கிராண்டர் பெல்ட்கள், விலைகள் அல்லது ஆர்டர்கள் பற்றி நீங்கள் என்ன தெரிந்து கொள்ள விரும்புகிறீர்கள்?'
+          : 'Hello! I am your BizZolution AI assistant. How can I help you today with industrial bearings, Grander belts, wholesale MRP pricing, or bulk RFQ quotes?';
+        fallbackQuickLink = { label: 'Explore Products', url: '/services' };
+      }
+
       setMessages((prev) => [
         ...prev,
         {
           sender: 'bot',
-          text: isTamil
-            ? 'மன்னிக்கவும், தகவல் பெறுவதில் சிறிய பிழை ஏற்பட்டது. தயவுசெய்து எங்களை 7418423238 என்ற எண்ணில் அழைக்கவும்.'
-            : 'Sorry, I encountered a temporary connection issue. You can call our technical desk directly at +91 7418423238 / 9842670320.',
+          text: fallbackReply,
+          quickLink: fallbackQuickLink,
           timestamp: new Date(),
         },
       ]);
+      setSuggestions(fallbackSuggestions);
     } finally {
       setLoading(false);
     }

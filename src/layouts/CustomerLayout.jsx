@@ -75,8 +75,10 @@ export const CustomerLayout = () => {
           </div>
         </div>
 
-        {/* Content Outlet */}
-        <Outlet />
+        {/* Content Outlet with smooth page transition */}
+        <div key={location.pathname} className="animate-fadeIn">
+          <Outlet />
+        </div>
       </main>
 
       <Footer />

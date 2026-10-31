@@ -144,9 +144,12 @@ export const PriceListPage = () => {
         {/* Transparent background image blending smoothly with blue */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img
-            src="https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=1600&q=80"
+            src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80"
             alt=""
             className="w-full h-full object-cover object-center opacity-25"
+            onError={(e) => {
+              e.target.src = 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1600&q=80';
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/80 to-navy/30" />
           <div className="absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent" />

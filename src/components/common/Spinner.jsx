@@ -1,16 +1,14 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { GranderBeltPreloader } from './GranderBeltPreloader';
 
-export const Spinner = ({ size = 'md', className = '' }) => {
-  const sizes = {
-    sm: 'w-4 h-4',
-    md: 'w-8 h-8',
-    lg: 'w-12 h-12',
-  };
-
+/**
+ * Animated Grander Belt Preloader
+ * Replaces generic spinner with authentic industrial Grander drive belt animation.
+ */
+export const Spinner = ({ size = 'md', className = '', text = 'Loading...' }) => {
   return (
-    <div className={`flex items-center justify-center p-4 ${className}`}>
-      <Loader2 className={`animate-spin text-primary ${sizes[size] || sizes.md}`} />
+    <div className={`flex items-center justify-center p-3 ${className}`}>
+      <GranderBeltPreloader size={size} text={text} />
     </div>
   );
 };

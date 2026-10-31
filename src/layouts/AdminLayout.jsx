@@ -34,7 +34,9 @@ export const AdminLayout = () => {
           onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         />
         <main className="flex-1 overflow-y-auto p-6 md:p-8">
-          <Outlet />
+          <div key={location.pathname} className="animate-fadeIn">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

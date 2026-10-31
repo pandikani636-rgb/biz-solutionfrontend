@@ -6,6 +6,7 @@ import {
   Zap,
   Award,
   ChevronRight,
+  ChevronLeft,
   CheckCircle2,
   HelpCircle,
   Sparkles,
@@ -153,24 +154,88 @@ export const HomePage = () => {
     fetchHomeData();
   }, []);
 
+  // 6 Rich Industrial Banners featuring Grander's Belts prominently
+  const defaultBanners = [
+    {
+      title: "Grander's Belts & Power Transmission",
+      badgeText: "GRANDER'S BELTS & V-BELTS",
+      subtitle: 'High-tensile industrial Grander belts, angle grinder drive belts, and classical wedge belts. Oil, heat, and vibration resistant for heavy workshop and factory operations.',
+      image: 'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=1600&q=80',
+      ctaText: "Browse Grander's Belts",
+      ctaLink: '/services?brand=PIX',
+      secondaryCtaText: 'Request Bulk RFQ',
+      secondaryCtaLink: '/rfq',
+    },
+    {
+      title: 'PIX Industrial Belts — SPC, 8V & C-70',
+      badgeText: '45% - 48% OFF MRP LIST',
+      subtitle: 'Authorized dealer of PIX Transmissions Ltd. Narrow wedge, raw edge cogged, and banded belts with factory matched precision.',
+      image: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1600&q=80',
+      ctaText: 'Explore PIX Belts',
+      ctaLink: '/services?brand=PIX',
+      secondaryCtaText: 'View Discount Matrix',
+      secondaryCtaLink: '/mrp-pricing',
+    },
+    {
+      title: 'Chrome Steel Deep Groove Ball Bearings',
+      badgeText: 'ELECTRIC MOTOR QUALITY (EMQ)',
+      subtitle: 'Premium deep groove ball bearings from SKF, NBC, and HCH (6200, 6300, 6400 series) with high-speed dual seals (2RS / ZZ).',
+      image: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1600&q=80',
+      ctaText: 'Browse Ball Bearings',
+      ctaLink: '/services',
+      secondaryCtaText: 'Download Price List',
+      secondaryCtaLink: '/mrp-pricing',
+    },
+    {
+      title: 'Heavy Duty Taper & Spherical Roller Bearings',
+      badgeText: 'TIMKEN & NBC HEAVY SERIES',
+      subtitle: 'Engineered for high shock loads, crusher plants, and heavy vibration. 100% authentic with factory serial tracing and Mill Test Certificates (MTC).',
+      image: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&fit=crop&w=1600&q=80',
+      ctaText: 'Browse Roller Bearings',
+      ctaLink: '/services?brand=Timken',
+      secondaryCtaText: 'Custom RFQ',
+      secondaryCtaLink: '/rfq',
+    },
+    {
+      title: 'Fenner Dual-Duty Pulleys & Taper Bushes',
+      badgeText: 'CAST IRON DYNAMICALLY BALANCED',
+      subtitle: 'J.K. Fenner taper-lock bush pulleys (SPA, SPB, SPC, 2517, 2012) for vibration-free power transmission across electric motors and pumps.',
+      image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80',
+      ctaText: 'Explore Pulleys',
+      ctaLink: '/services?brand=Fenner',
+      secondaryCtaText: 'Technical Inquiry',
+      secondaryCtaLink: '/contact',
+    },
+    {
+      title: 'SKF Genuine Bearings — National & Imported',
+      badgeText: 'SKF 100% GENUINE GUARANTEE',
+      subtitle: 'National (SKF India) & International (Imported European) stock with strict 10% discount from MRP and QR batch authentication.',
+      image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80',
+      ctaText: 'Browse SKF Bearings',
+      ctaLink: '/services?brand=SKF',
+      secondaryCtaText: 'Verify Batch Code',
+      secondaryCtaLink: '/contact',
+    },
+  ];
+
+  const activeBannersList = banners.length >= 5 ? banners : defaultBanners;
+  const currentBanner = activeBannersList[activeBannerIdx % activeBannersList.length] || defaultBanners[0];
+
   // Banner autoplay
   useEffect(() => {
-    if (banners.length <= 1) return;
+    if (activeBannersList.length <= 1) return;
     const timer = setInterval(() => {
-      setActiveBannerIdx((prev) => (prev + 1) % banners.length);
+      setActiveBannerIdx((prev) => (prev + 1) % activeBannersList.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, [banners.length]);
+  }, [activeBannersList.length]);
 
-  const currentBanner = banners[activeBannerIdx] || {
-    title: 'India’s Trusted Power Transmission & Bearings Distributor',
-    subtitle: 'Authorized dealer of PIX, NBC, HCH, Fenner, Timken, and SKF. Direct wholesale pricing with fast pan-India delivery.',
-    badgeText: '45% - 48% OFF MRP LIST',
-    image: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=1920&q=80',
-    ctaText: 'Explore Catalog',
-    ctaLink: '/services',
-    secondaryCtaText: 'Request Bulk Quote (RFQ)',
-    secondaryCtaLink: '/rfq',
+  const handlePrevSlide = () => {
+    setActiveBannerIdx((prev) => (prev - 1 + activeBannersList.length) % activeBannersList.length);
+  };
+
+  const handleNextSlide = () => {
+    setActiveBannerIdx((prev) => (prev + 1) % activeBannersList.length);
   };
 
   // Calculator computation
@@ -191,20 +256,23 @@ export const HomePage = () => {
 
   return (
     <div className="relative min-h-screen space-y-16 pb-20">
-      {/* Background image clearly visible across the entire Landing Page */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      {/* Background image clearly visible across the entire Landing Page (stops before footer) */}
+      <div className="absolute top-0 left-0 right-0 bottom-0 z-0 pointer-events-none overflow-hidden">
         <img
           src={currentBanner.image}
           alt="Landing Background"
-          className="w-full h-full object-cover object-center opacity-40 scale-100 transition-all duration-1000 ease-out"
+          className="w-full h-full object-cover object-center opacity-30 scale-100 transition-all duration-1000 ease-out"
+          onError={(e) => {
+            e.target.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80';
+          }}
         />
         {/* Very light blue transparent overlay across entire page */}
-        <div className="absolute inset-0 bg-blue-950/15" />
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/10 via-sky-950/10 to-slate-900/20" />
+        <div className="absolute inset-0 bg-blue-950/10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/10 via-sky-950/5 to-slate-900/15" />
       </div>
 
-      {/* 1. Industrial Hero Banner Section */}
-      <section className="relative overflow-hidden text-white min-h-[560px] md:min-h-[640px] flex items-center z-10">
+      {/* 1. Industrial Hero Banner Section with Grander's Belts & Prominent Image */}
+      <section className="relative overflow-hidden text-white min-h-[520px] md:min-h-[580px] flex items-center z-10 group">
         {/* Dynamic ambient glowing light orbs */}
         <div className="absolute top-10 right-24 w-80 h-80 rounded-full bg-accent/20 blur-3xl animate-pulse-slow pointer-events-none" />
         <div className="absolute -bottom-10 left-12 w-96 h-96 rounded-full bg-blue-500/15 blur-3xl animate-float pointer-events-none" />
@@ -215,9 +283,13 @@ export const HomePage = () => {
         {/* Background image displayed prominently */}
         <div className="absolute inset-0 z-0">
           <img
+            key={currentBanner.image}
             src={currentBanner.image}
-            alt={currentBanner.title}
+            alt={currentBanner.badgeText || 'Hero Banner'}
             className="w-full h-full object-cover object-center opacity-95 scale-100 transition-all duration-1000 ease-out"
+            onError={(e) => {
+              e.target.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80';
+            }}
           />
           {/* Very light blue transparent overlay (significantly reduced opacity for maximum image visibility) */}
           <div className="absolute inset-0 bg-blue-950/20" />
@@ -225,23 +297,39 @@ export const HomePage = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-navy/35 via-transparent to-transparent" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-          <div className="max-w-3xl space-y-6">
+        {/* Previous / Next Slide Controls */}
+        <button
+          onClick={handlePrevSlide}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center border border-white/20 shadow-xl backdrop-blur-md opacity-80 hover:opacity-100 transition-all duration-200"
+          aria-label="Previous Slide"
+        >
+          <ChevronLeft className="w-6 h-6 text-accent" />
+        </button>
+        <button
+          onClick={handleNextSlide}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center border border-white/20 shadow-xl backdrop-blur-md opacity-80 hover:opacity-100 transition-all duration-200"
+          aria-label="Next Slide"
+        >
+          <ChevronRight className="w-6 h-6 text-accent" />
+        </button>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-14 md:py-20 w-full">
+          <div className="max-w-2xl space-y-5">
+            {/* Badge */}
             {currentBanner.badgeText && (
-              <div className="animate-stagger-1">
-                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/70 border border-accent/60 text-amber-300 font-extrabold text-xs uppercase tracking-wider backdrop-blur-md shadow-lg">
+              <div className="animate-fadeIn">
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-950/75 border border-accent/60 text-amber-300 font-black text-xs uppercase tracking-wider backdrop-blur-md shadow-xl">
                   <Sparkles className="w-3.5 h-3.5 text-accent animate-pulse" />
                   {currentBanner.badgeText}
                 </span>
               </div>
             )}
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight animate-stagger-2 drop-shadow-[0_4px_12px_rgba(0,0,0,0.85)]">
-              {currentBanner.title}
-            </h1>
+            {/* Note: The giant headline words have been completely removed as requested in Requirement 1 for clean visual balance */}
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-950/50 backdrop-blur-md border border-white/15 shadow-xl max-w-2xl animate-stagger-3">
-              <p className="text-white text-base md:text-lg leading-relaxed font-medium drop-shadow-sm">
+            {/* Subtitle / Description Card */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-950/60 backdrop-blur-md border border-white/20 shadow-2xl max-w-xl animate-fadeIn">
+              <p className="text-white text-sm sm:text-base leading-relaxed font-semibold drop-shadow-sm">
                 {currentBanner.subtitle}
               </p>
             </div>
@@ -249,7 +337,7 @@ export const HomePage = () => {
             {/* Quick Part Number Search Box with glassmorphism */}
             <form
               onSubmit={handleSearchSubmit}
-              className="flex flex-col sm:flex-row items-stretch gap-2 pt-2 max-w-xl animate-stagger-4"
+              className="flex flex-col sm:flex-row items-stretch gap-2 pt-1 max-w-xl animate-fadeIn"
             >
               <div className="relative flex-1">
                 <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" />
@@ -267,7 +355,7 @@ export const HomePage = () => {
               </Button>
             </form>
 
-            <div className="flex flex-wrap items-center gap-4 pt-2 animate-stagger-4">
+            <div className="flex flex-wrap items-center gap-4 pt-1 animate-fadeIn">
               <Link to={currentBanner.ctaLink || '/services'}>
                 <Button variant="accent" size="lg" className="font-bold inline-flex items-center gap-2 shadow-lg hover:scale-[1.02] transition-smooth group">
                   <span>{currentBanner.ctaText || 'Browse All Products'}</span>
@@ -275,7 +363,7 @@ export const HomePage = () => {
                 </Button>
               </Link>
               <Link to={currentBanner.secondaryCtaLink || '/rfq'}>
-                <Button variant="secondary" size="lg" className="bg-white/10 text-white hover:bg-white/20 border border-white/25 backdrop-blur-md font-bold inline-flex items-center gap-2 hover:scale-[1.02] transition-smooth group">
+                <Button variant="secondary" size="lg" className="bg-slate-950/60 text-white hover:bg-slate-950/90 border border-white/25 backdrop-blur-md font-bold inline-flex items-center gap-2 hover:scale-[1.02] transition-smooth group shadow-lg">
                   <FileSpreadsheet className="w-4 h-4 text-accent group-hover:rotate-6 transition-smooth" />
                   <span>{currentBanner.secondaryCtaText || 'Request Bulk RFQ'}</span>
                 </Button>
@@ -283,21 +371,21 @@ export const HomePage = () => {
             </div>
           </div>
 
-          {/* Banner navigation dots */}
-          {banners.length > 1 && (
-            <div className="flex items-center gap-2 mt-10">
-              {banners.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveBannerIdx(idx)}
-                  className={`h-2.5 rounded-full transition-all ${
-                    idx === activeBannerIdx ? 'w-8 bg-accent' : 'w-2.5 bg-white/40 hover:bg-white/60'
-                  }`}
-                  aria-label={`Go to slide ${idx + 1}`}
-                />
-              ))}
-            </div>
-          )}
+          {/* Banner navigation indicator dots (6 slides) */}
+          <div className="flex items-center gap-2.5 mt-8">
+            {activeBannersList.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveBannerIdx(idx)}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  idx === (activeBannerIdx % activeBannersList.length)
+                    ? 'w-9 bg-accent shadow-md'
+                    : 'w-2.5 bg-white/40 hover:bg-white/70'
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -426,55 +514,58 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* 4. Interactive MRP Discount & Net Price Calculator */}
+      {/* 4. Interactive MRP Discount & Net Price Calculator - Light Blue Theme */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="bg-gradient-to-br from-navy via-navy-light to-navy rounded-3xl p-8 md:p-12 text-white shadow-2xl relative overflow-hidden border border-blue-900/40">
-          {/* Subtle rotating gear silhouette and glowing ambient backdrop */}
-          <div className="absolute -right-20 -top-20 w-80 h-80 border-2 border-dashed border-white/5 rounded-full animate-spin-slow pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse-slow pointer-events-none" />
+        <div className="bg-gradient-to-br from-blue-50/95 via-sky-50/90 to-blue-100/70 rounded-3xl p-8 md:p-12 text-slate-900 shadow-xl relative overflow-hidden border border-blue-200/80 backdrop-blur-md">
+          {/* Subtle rotating gear silhouette and glowing ambient light backdrop */}
+          <div className="absolute -right-20 -top-20 w-80 h-80 border-2 border-dashed border-blue-400/20 rounded-full animate-spin-slow pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-slow pointer-events-none" />
 
-          {/* Subtle transparent background image blending into blue */}
+          {/* Clean transparent industrial background image */}
           <div className="absolute inset-0 z-0 pointer-events-none">
             <img
-              src="https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=1600&q=80"
+              src="https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1600&q=80"
               alt=""
-              className="w-full h-full object-cover object-center opacity-45"
+              className="w-full h-full object-cover object-center opacity-15"
+              onError={(e) => {
+                e.target.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80';
+              }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-navy/70 via-navy/50 to-navy/30" />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-50/95 via-sky-50/80 to-white/70" />
           </div>
 
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             {/* Left Column: Explainer */}
             <div className="lg:col-span-5 space-y-4">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 border border-accent/40 text-amber-300 font-bold text-xs backdrop-blur-sm">
-                <Calculator className="w-3.5 h-3.5 text-accent animate-pulse" />
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 border border-blue-300/80 text-primary font-black text-xs shadow-xs">
+                <Calculator className="w-3.5 h-3.5 text-primary animate-pulse" />
                 Live Wholesale Pricing Engine
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-white">
+              <h2 className="text-2xl sm:text-3xl font-black text-navy">
                 Instant MRP Discount & Savings Calculator
               </h2>
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-medium">
                 Test any official price list MRP across our brands. See your exact net B2B wholesale rate with our guaranteed 45% - 48% discount schedule (or flat 10% on SKF Genuine) and zero shipping fees.
               </p>
 
-              <div className="space-y-2 pt-2 text-xs text-slate-300">
+              <div className="space-y-2.5 pt-2 text-xs text-slate-700 font-semibold">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>PIX, NBC, HCH, Fenner & Timken: <strong>46% off MRP</strong></span>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>PIX, NBC, HCH, Fenner & Timken: <strong className="text-primary font-black">46% off MRP</strong></span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>SKF Bearings: <strong>Flat 10% off MRP</strong> (National & International)</span>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>SKF Bearings: <strong className="text-primary font-black">Flat 10% off MRP</strong> (National & International)</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>Pan-India <strong>Delhivery Logistics 100% Free</strong></span>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Pan-India <strong className="text-emerald-700 font-black">Delhivery Logistics 100% Free</strong></span>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Interactive Widget with Glassmorphism */}
-            <div className="lg:col-span-7 bg-white/95 backdrop-blur-md text-darkText rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6">
+            {/* Right Column: Interactive Widget */}
+            <div className="lg:col-span-7 bg-white/95 backdrop-blur-md text-darkText rounded-2xl p-6 sm:p-8 shadow-xl border border-blue-100/90 space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Brand Selector */}
                 <div>
@@ -511,7 +602,7 @@ export const HomePage = () => {
               </div>
 
               {/* Live Price Calculation Display */}
-              <div className="bg-slate-50/90 backdrop-blur-sm rounded-2xl p-5 border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center shadow-xs">
+              <div className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-5 border border-blue-100 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center shadow-xs">
                 <div>
                   <span className="text-[11px] font-bold text-slate-400 uppercase">List MRP</span>
                   <p className="text-base font-extrabold text-slate-500 line-through">
@@ -611,19 +702,32 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* 6. Special Spotlight: Timken All-Types & SKF Origin */}
+      {/* 6. Special Spotlight: Timken All-Types & SKF Origin - Light Theme */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Timken Spotlight */}
-          <div className="bg-gradient-to-br from-amber-950/90 via-slate-900/95 to-slate-950 backdrop-blur-md rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-amber-500/25 hover:border-amber-500/50 transition-all duration-300">
+          {/* Timken Spotlight - Light Amber/Gold & Slate Card */}
+          <div className="bg-gradient-to-br from-amber-50/95 via-orange-50/70 to-white backdrop-blur-md rounded-3xl p-8 text-slate-900 relative overflow-hidden shadow-xl flex flex-col justify-between border border-amber-200/90 hover:border-amber-400 hover:shadow-2xl transition-all duration-300">
+            {/* Subtle background industrial bearing graphic */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              <img
+                src="https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=800&q=80"
+                alt=""
+                className="w-full h-full object-cover object-center opacity-15"
+                onError={(e) => {
+                  e.target.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80';
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-50/95 via-amber-50/80 to-transparent" />
+            </div>
+
             <div className="space-y-4 relative z-10">
-              <span className="bg-amber-400 text-slate-950 font-black text-xs px-3 py-1 rounded-md uppercase tracking-wider inline-block shadow-sm">
+              <span className="bg-amber-500 text-slate-950 font-black text-xs px-3 py-1 rounded-md uppercase tracking-wider inline-block shadow-xs">
                 Timken Make — All Types Available
               </span>
-              <h3 className="text-2xl font-black">
+              <h3 className="text-2xl font-black text-slate-950">
                 Featured 6313 Open Type & Full Timken Range
               </h3>
-              <p className="text-xs text-slate-200 leading-relaxed">
+              <p className="text-xs text-slate-700 leading-relaxed font-medium">
                 Need tapered roller bearings, spherical roller bearings, or heavy duty pillow blocks? We supply <strong>all types of Timken bearings</strong> at 45% - 48% off MRP with free insured delivery.
               </p>
             </div>
@@ -636,33 +740,37 @@ export const HomePage = () => {
                 </Button>
               </Link>
               <Link to="/rfq">
-                <Button variant="secondary" size="sm" className="bg-white/10 text-white hover:bg-white/20 border border-white/20 font-bold inline-flex items-center gap-1.5 hover:scale-[1.02] transition-smooth">
-                  <FileSpreadsheet className="w-3.5 h-3.5 text-accent" />
+                <Button variant="secondary" size="sm" className="bg-white text-slate-800 hover:bg-amber-100 border border-amber-300 font-bold inline-flex items-center gap-1.5 shadow-xs hover:scale-[1.02] transition-smooth">
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-amber-600" />
                   <span>Custom Timken RFQ</span>
                 </Button>
               </Link>
             </div>
           </div>
 
-          {/* SKF Spotlight */}
-          <div className="bg-gradient-to-br from-blue-950/90 via-navy/95 to-slate-950 backdrop-blur-md rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-blue-600/30 hover:border-blue-500/50 transition-all duration-300">
+          {/* SKF Spotlight - Light Blue Theme Card */}
+          <div className="bg-gradient-to-br from-blue-50/95 via-sky-50/70 to-white backdrop-blur-md rounded-3xl p-8 text-slate-900 relative overflow-hidden shadow-xl flex flex-col justify-between border border-blue-200/90 hover:border-primary/60 hover:shadow-2xl transition-all duration-300">
             {/* Transparent background image */}
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img
-                src="https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80"
+                src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80"
                 alt=""
-                className="w-full h-full object-cover object-center opacity-45"
+                className="w-full h-full object-cover object-center opacity-15"
+                onError={(e) => {
+                  e.target.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80';
+                }}
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-950/70 via-navy/50 to-blue-900/40" />
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-50/95 via-sky-50/80 to-transparent" />
             </div>
+
             <div className="space-y-4 relative z-10">
-              <span className="bg-blue-400 text-slate-950 font-black text-xs px-3 py-1 rounded-md uppercase tracking-wider inline-block shadow-sm">
+              <span className="bg-blue-600 text-white font-black text-xs px-3 py-1 rounded-md uppercase tracking-wider inline-block shadow-xs">
                 SKF Make — National & International Stock
               </span>
-              <h3 className="text-2xl font-black">
+              <h3 className="text-2xl font-black text-navy">
                 Genuine SKF 7322 & 7322 2X Angular Contact
               </h3>
-              <p className="text-xs text-slate-200 leading-relaxed">
+              <p className="text-xs text-slate-700 leading-relaxed font-medium">
                 Choose between <strong>National (SKF India)</strong> and <strong>International (Imported European)</strong> inventory. Strict 10% discount from official SKF MRP with full QR certificate verification.
               </p>
             </div>
@@ -675,8 +783,8 @@ export const HomePage = () => {
                 </Button>
               </Link>
               <Link to="/contact">
-                <Button variant="secondary" size="sm" className="bg-white/10 text-white hover:bg-white/20 border border-white/20 font-bold inline-flex items-center gap-1.5 hover:scale-[1.02] transition-smooth">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <Button variant="secondary" size="sm" className="bg-white text-slate-800 hover:bg-blue-100 border border-blue-300 font-bold inline-flex items-center gap-1.5 shadow-xs hover:scale-[1.02] transition-smooth">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Verify Authenticity</span>
                 </Button>
               </Link>

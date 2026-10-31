@@ -149,9 +149,12 @@ export const AboutPage = () => {
           <div className="lg:col-span-5 grid grid-cols-2 gap-4">
             <div className="space-y-4">
               <img
-                src="https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=600&q=80"
+                src="https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=600&q=80"
                 alt="Precision bearings"
                 className="rounded-3xl shadow-lg object-cover h-48 sm:h-56 w-full border border-slate-200"
+                onError={(e) => {
+                  e.target.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80';
+                }}
               />
               <div className="bg-navy text-white p-5 rounded-3xl space-y-2 border border-blue-900 shadow-md">
                 <ShieldCheck className="w-6 h-6 text-accent" />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Layers, ShieldCheck, Cpu, ArrowRight, CheckCircle2, Sparkles, Activity } from 'lucide-react';
+import { GranderBeltPreloader } from './GranderBeltPreloader';
 
 export const TechPreloader = ({ onFinish }) => {
   const [progress, setProgress] = useState(0);
@@ -126,26 +127,15 @@ export const TechPreloader = ({ onFinish }) => {
       <div className="relative z-10 my-auto flex flex-col items-center max-w-md w-full">
         <div className="bg-white/85 backdrop-blur-xl border border-slate-200/90 shadow-[0_20px_50px_-12px_rgba(30,58,138,0.1)] rounded-3xl p-8 sm:p-10 w-full flex flex-col items-center text-center space-y-6">
           
-          {/* Animated Concentric Mechanical Emblem */}
-          <div className="relative w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center">
-            {/* Outer Precision Dotted Ring - Clockwise */}
-            <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/30 animate-spin [animation-duration:22s]" />
-
-            {/* Middle Planetary Orbit Track - Counter Clockwise */}
-            <div className="absolute inset-2.5 rounded-full border border-slate-200 animate-spin [animation-duration:12s] [animation-direction:reverse]">
-              {/* Planetary Satellites */}
-              <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-accent border-2 border-white shadow-md shadow-amber-400/50" />
-              <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-primary border-2 border-white shadow-md shadow-blue-500/40" />
-              <div className="absolute top-1/2 -left-1.5 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white shadow-xs" />
-              <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-navy border-2 border-white shadow-xs" />
+          {/* Custom Animated Grander Belt Preloader */}
+          <div className="w-full py-2 flex flex-col items-center justify-center">
+            <div className="p-4 sm:p-5 rounded-2xl bg-blue-50/70 border border-blue-100 shadow-inner">
+              <GranderBeltPreloader size="lg" text="" />
             </div>
-
-            {/* Inner Glowing Badge Card */}
-            <div className="absolute inset-6 rounded-2xl bg-gradient-to-br from-lightBlue via-white to-slate-50 border border-blue-200/60 shadow-inner flex items-center justify-center">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-navy to-primary text-white flex items-center justify-center shadow-lg shadow-primary/25 transition-transform hover:scale-105">
-                <Layers className="w-7 h-7 text-accent animate-pulse" />
-              </div>
-            </div>
+            <span className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              High-Torque Grander Belt Transmission Active
+            </span>
           </div>
 
           {/* Brand Heading */}
