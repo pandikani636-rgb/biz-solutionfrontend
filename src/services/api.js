@@ -26,7 +26,27 @@ export const normalizeBaseUrl = (rawUrl) => {
   return url;
 };
 
-export const API_BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL);
+const resolveBaseUrl = () => {
+  // If explicitly configured in .env with a full URL, use it
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && envUrl.startsWith('http')) {
+    return normalizeBaseUrl(envUrl);
+  }
+
+  // If running in browser on Vercel or any cloud domain, automatically connect to deployed backend
+  if (
+    typeof window !== 'undefined' &&
+    window.location.hostname &&
+    window.location.hostname !== 'localhost' &&
+    window.location.hostname !== '127.0.0.1'
+  ) {
+    return 'https://biz-solution-backend.vercel.app/api/v1';
+  }
+
+  return normalizeBaseUrl(envUrl || '/api/v1');
+};
+
+export const API_BASE_URL = resolveBaseUrl();
 
 /**
  * Helper to resolve uploaded media or file asset URLs from the backend.
