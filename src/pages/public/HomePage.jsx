@@ -163,14 +163,14 @@ export const HomePage = () => {
   }, [banners.length]);
 
   const currentBanner = banners[activeBannerIdx] || {
-    title: 'Accelerate Your Business With Trusted Multi-Service Solutions',
-    subtitle: 'From national FASTag top-ups and corporate incorporation to luxury travel packages and verified freight transport.',
-    badgeText: 'All-In-One Enterprise Platform',
-    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80',
-    ctaText: 'Explore All Services',
+    title: 'India’s Trusted Power Transmission & Bearings Distributor',
+    subtitle: 'Authorized dealer of PIX, NBC, HCH, Fenner, Timken, and SKF. Direct wholesale pricing with fast pan-India delivery.',
+    badgeText: '45% - 48% OFF MRP LIST',
+    image: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=1920&q=80',
+    ctaText: 'Explore Catalog',
     ctaLink: '/services',
-    secondaryCtaText: 'Contact Our Experts',
-    secondaryCtaLink: '/contact',
+    secondaryCtaText: 'Request Bulk Quote (RFQ)',
+    secondaryCtaLink: '/rfq',
   };
 
   // Calculator computation
@@ -190,46 +190,61 @@ export const HomePage = () => {
   };
 
   return (
-    <div className="space-y-16 pb-20">
+    <div className="relative min-h-screen space-y-16 pb-20">
+      {/* Background image clearly visible across the entire Landing Page */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <img
+          src={currentBanner.image}
+          alt="Landing Background"
+          className="w-full h-full object-cover object-center opacity-40 scale-100 transition-all duration-1000 ease-out"
+        />
+        {/* Very light blue transparent overlay across entire page */}
+        <div className="absolute inset-0 bg-blue-950/15" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/10 via-sky-950/10 to-slate-900/20" />
+      </div>
+
       {/* 1. Industrial Hero Banner Section */}
-      <section className="relative overflow-hidden bg-navy text-white min-h-[540px] md:min-h-[620px] flex items-center">
+      <section className="relative overflow-hidden text-white min-h-[560px] md:min-h-[640px] flex items-center z-10">
         {/* Dynamic ambient glowing light orbs */}
         <div className="absolute top-10 right-24 w-80 h-80 rounded-full bg-accent/20 blur-3xl animate-pulse-slow pointer-events-none" />
         <div className="absolute -bottom-10 left-12 w-96 h-96 rounded-full bg-blue-500/15 blur-3xl animate-float pointer-events-none" />
 
         {/* Rotating technical gear silhouette watermark */}
-        <div className="absolute -right-24 -top-24 w-96 h-96 border-2 border-dashed border-white/5 rounded-full animate-spin-slow pointer-events-none" />
+        <div className="absolute -right-24 -top-24 w-96 h-96 border-2 border-dashed border-white/10 rounded-full animate-spin-slow pointer-events-none" />
 
-        {/* Background image with transparent blue theme blending */}
+        {/* Background image displayed prominently */}
         <div className="absolute inset-0 z-0">
           <img
             src={currentBanner.image}
             alt={currentBanner.title}
-            className="w-full h-full object-cover object-center opacity-30 scale-105 transition-all duration-1000 ease-out"
+            className="w-full h-full object-cover object-center opacity-95 scale-100 transition-all duration-1000 ease-out"
           />
-          {/* Smooth blue gradient overlay keeping the same blue color theme throughout */}
-          <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/80 to-navy/30" />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-transparent to-navy/30" />
+          {/* Very light blue transparent overlay (significantly reduced opacity for maximum image visibility) */}
+          <div className="absolute inset-0 bg-blue-950/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-navy/45 via-blue-900/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy/35 via-transparent to-transparent" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="max-w-3xl space-y-6">
             {currentBanner.badgeText && (
               <div className="animate-stagger-1">
-                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/20 border border-accent/40 text-amber-300 font-extrabold text-xs uppercase tracking-wider backdrop-blur-md shadow-sm">
+                <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/70 border border-accent/60 text-amber-300 font-extrabold text-xs uppercase tracking-wider backdrop-blur-md shadow-lg">
                   <Sparkles className="w-3.5 h-3.5 text-accent animate-pulse" />
                   {currentBanner.badgeText}
                 </span>
               </div>
             )}
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight animate-stagger-2 drop-shadow-sm">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight animate-stagger-2 drop-shadow-[0_4px_12px_rgba(0,0,0,0.85)]">
               {currentBanner.title}
             </h1>
 
-            <p className="text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl animate-stagger-3">
-              {currentBanner.subtitle}
-            </p>
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-950/50 backdrop-blur-md border border-white/15 shadow-xl max-w-2xl animate-stagger-3">
+              <p className="text-white text-base md:text-lg leading-relaxed font-medium drop-shadow-sm">
+                {currentBanner.subtitle}
+              </p>
+            </div>
 
             {/* Quick Part Number Search Box with glassmorphism */}
             <form
@@ -332,12 +347,12 @@ export const HomePage = () => {
       </section>
 
       {/* 2.5 Home Page Component Photo Upload (Max 20 Megapixels) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <ImageUploadSection />
       </section>
 
       {/* 3. Authorized Brands ("Make") Showcase */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
           <div>
             <span className="text-xs font-bold text-primary uppercase tracking-widest">
@@ -412,7 +427,7 @@ export const HomePage = () => {
       </section>
 
       {/* 4. Interactive MRP Discount & Net Price Calculator */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="bg-gradient-to-br from-navy via-navy-light to-navy rounded-3xl p-8 md:p-12 text-white shadow-2xl relative overflow-hidden border border-blue-900/40">
           {/* Subtle rotating gear silhouette and glowing ambient backdrop */}
           <div className="absolute -right-20 -top-20 w-80 h-80 border-2 border-dashed border-white/5 rounded-full animate-spin-slow pointer-events-none" />
@@ -423,9 +438,9 @@ export const HomePage = () => {
             <img
               src="https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=1600&q=80"
               alt=""
-              className="w-full h-full object-cover object-center opacity-15"
+              className="w-full h-full object-cover object-center opacity-45"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/85 to-navy/50" />
+            <div className="absolute inset-0 bg-gradient-to-r from-navy/70 via-navy/50 to-navy/30" />
           </div>
 
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -545,7 +560,7 @@ export const HomePage = () => {
       </section>
 
       {/* 5. Product Categories (Sections) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
           <div>
             <span className="text-xs font-bold text-primary uppercase tracking-widest">
@@ -597,7 +612,7 @@ export const HomePage = () => {
       </section>
 
       {/* 6. Special Spotlight: Timken All-Types & SKF Origin */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Timken Spotlight */}
           <div className="bg-gradient-to-br from-amber-950/90 via-slate-900/95 to-slate-950 backdrop-blur-md rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between border border-amber-500/25 hover:border-amber-500/50 transition-all duration-300">
@@ -636,9 +651,9 @@ export const HomePage = () => {
               <img
                 src="https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80"
                 alt=""
-                className="w-full h-full object-cover object-center opacity-20"
+                className="w-full h-full object-cover object-center opacity-45"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-950/90 via-navy/80 to-blue-900/60" />
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-950/70 via-navy/50 to-blue-900/40" />
             </div>
             <div className="space-y-4 relative z-10">
               <span className="bg-blue-400 text-slate-950 font-black text-xs px-3 py-1 rounded-md uppercase tracking-wider inline-block shadow-sm">
@@ -671,7 +686,7 @@ export const HomePage = () => {
       </section>
 
       {/* 7. Featured Industrial Products Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
           <div>
             <span className="text-xs font-bold text-primary uppercase tracking-widest">
@@ -714,7 +729,7 @@ export const HomePage = () => {
       </section>
 
       {/* 8. FAQs */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-10 space-y-2">
           <span className="text-xs font-bold text-primary uppercase tracking-widest">
             Common Questions
@@ -750,7 +765,7 @@ export const HomePage = () => {
       </section>
 
       {/* 9. Testimonials */}
-      <section className="bg-slate-100 py-16 border-y border-slate-200">
+      <section className="bg-white/80 backdrop-blur-md py-16 border-y border-slate-200/80 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-xl mx-auto mb-10">
             <span className="text-xs font-bold text-primary uppercase tracking-widest">
