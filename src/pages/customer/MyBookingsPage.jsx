@@ -16,6 +16,7 @@ import { Button } from '../../components/common/Button';
 import { Spinner } from '../../components/common/Spinner';
 import { Modal } from '../../components/common/Modal';
 import { showConfirmDialog, showSuccessAlert, showErrorAlert, showToast } from '../../utils/alerts';
+import { getProductImageUrl } from '../../utils/productImages';
 
 export const MyBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
@@ -123,13 +124,13 @@ export const MyBookingsPage = () => {
                 {/* Left: Service details */}
                 <div className="flex items-start gap-4">
                   <img
-                    src={
-                      booking.serviceSnapshot?.mainImage ||
-                      booking.service?.mainImage ||
-                      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=400&q=80'
-                    }
-                    alt={booking.serviceSnapshot?.name}
+                    src={getProductImageUrl(booking.serviceSnapshot || booking.service)}
+                    alt={booking.serviceSnapshot?.name || 'Industrial Component'}
                     className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-cover border border-slate-200 shrink-0"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=800&q=80';
+                    }}
                   />
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">

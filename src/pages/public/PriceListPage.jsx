@@ -144,7 +144,7 @@ export const PriceListPage = () => {
         {/* Transparent background image blending smoothly with blue */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img
-            src="https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1600&q=80"
+            src="https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=1600&q=80"
             alt=""
             className="w-full h-full object-cover object-center opacity-25"
           />

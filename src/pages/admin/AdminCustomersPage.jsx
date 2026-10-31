@@ -7,6 +7,7 @@ import { Modal } from '../../components/common/Modal';
 import { Spinner } from '../../components/common/Spinner';
 import { formatDate, formatCurrency } from '../../utils/formatters';
 import { showSuccessAlert, showErrorAlert, showToast } from '../../utils/alerts';
+import { getProductImageUrl } from '../../utils/productImages';
 
 export const AdminCustomersPage = () => {
   const [customers, setCustomers] = useState([]);
@@ -339,10 +340,17 @@ export const AdminCustomersPage = () => {
               </h4>
               <div className="space-y-1.5 max-h-48 overflow-y-auto">
                 {selectedUserDetail.bookings?.map((b) => (
-                  <div key={b._id} className="flex justify-between p-2.5 rounded-xl bg-slate-50 border">
-                    <div>
-                      <p className="font-mono font-bold text-primary">#{b.bookingNumber}</p>
-                      <p className="text-darkText font-semibold">{b.serviceSnapshot?.name}</p>
+                  <div key={b._id} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <img
+                        src={getProductImageUrl(b.serviceSnapshot)}
+                        alt=""
+                        className="w-8 h-8 rounded-lg object-cover border shrink-0"
+                      />
+                      <div>
+                        <p className="font-mono font-bold text-primary">#{b.bookingNumber}</p>
+                        <p className="text-darkText font-semibold line-clamp-1">{b.serviceSnapshot?.name}</p>
+                      </div>
                     </div>
                     <div className="text-right">
                       <p className="font-black text-navy">{formatCurrency(b.totalAmount)}</p>

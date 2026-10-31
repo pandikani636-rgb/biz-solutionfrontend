@@ -26,8 +26,10 @@ import { DynamicFormRenderer } from '../../components/dynamic/DynamicFormRendere
 import { Button } from '../../components/common/Button';
 import { Spinner } from '../../components/common/Spinner';
 import { Modal } from '../../components/common/Modal';
+import { PaymentModal } from '../../components/common/PaymentModal';
 import { formatCurrency } from '../../utils/formatters';
 import { showSuccessAlert, showErrorAlert, showToast } from '../../utils/alerts';
+import { getProductImageUrl } from '../../utils/productImages';
 
 const brandColors = {
   PIX: 'bg-amber-100 text-amber-900 border-amber-300',
@@ -64,6 +66,8 @@ export const ServiceDetailPage = () => {
   // Checkout Modal State
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [createdBooking, setCreatedBooking] = useState(null);
 
   // Quick RFQ Modal State
   const [isRfqModalOpen, setIsRfqModalOpen] = useState(false);
@@ -195,7 +199,7 @@ export const ServiceDetailPage = () => {
     setIsCheckoutModalOpen(true);
   };
 
-  // Proceed with Booking Order Creation & Instant Sandbox/Gateway Verification
+  // Proceed with Booking Order Creation and open Payment Modal
   const handleConfirmBookingAndPay = async () => {
     setBookingLoading(true);
     try {
@@ -214,39 +218,27 @@ export const ServiceDetailPage = () => {
       });
 
       if (!bookingRes.success || !bookingRes.data) {
-        throw new Error(bookingRes.message || 'Failed to create booking');
+        throw new Error(bookingRes.message || 'Failed to create booking order');
       }
 
       const booking = bookingRes.data;
-
-      // 2. Create payment order (sandbox or gateway)
-      const paymentOrderRes = await bookingService.createPaymentOrder(booking._id, 'sandbox');
-
-      if (!paymentOrderRes.success) {
-        throw new Error('Failed to initiate payment gateway');
-      }
-
-      // 3. Complete payment verification safely
-      const verifyRes = await bookingService.verifyPayment({
-        bookingId: booking._id,
-        orderId: paymentOrderRes.orderId,
-        paymentId: `pay_sandbox_${Date.now()}`,
-        signature: 'sandbox_verified',
-        provider: 'sandbox',
-      });
-
-      if (verifyRes.success) {
-        setIsCheckoutModalOpen(false);
-        await showSuccessAlert(
-          'Order Confirmed!',
-          `Order #${booking.bookingNumber} confirmed. Delhivery dispatch initiated and Tax Invoice generated.`
-        );
-        navigate(`/customer/bookings/${booking._id}`);
-      }
+      setCreatedBooking(booking);
+      setIsCheckoutModalOpen(false);
+      setIsPaymentModalOpen(true);
     } catch (err) {
       showErrorAlert('Order Failed', err.message);
     } finally {
       setBookingLoading(false);
+    }
+  };
+
+  // Called when payment verification succeeds
+  const handlePaymentCompleted = (paymentData) => {
+    setIsPaymentModalOpen(false);
+    if (createdBooking?._id) {
+      navigate(`/customer/bookings/${createdBooking._id}`);
+    } else {
+      navigate('/customer/dashboard');
     }
   };
 
@@ -403,9 +395,13 @@ export const ServiceDetailPage = () => {
         <div className="lg:col-span-5 space-y-3">
           <div className="relative rounded-2xl overflow-hidden shadow-md bg-slate-900 border border-slate-200">
             <img
-              src={service.mainImage}
+              src={getProductImageUrl(service)}
               alt={service.name}
               className="w-full h-64 md:h-80 object-cover"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=800&q=80';
+              }}
             />
             {service.brand && (
               <div className="absolute top-3 left-3">
@@ -740,11 +736,19 @@ export const ServiceDetailPage = () => {
               onClick={handleConfirmBookingAndPay}
             >
               <CreditCard className="w-4 h-4" />
-              <span>Pay {formatCurrency(pricing.total)} Now</span>
+              <span>Choose Payment Method ({formatCurrency(pricing.total)})</span>
             </Button>
           </div>
         </div>
       </Modal>
+
+      {/* Razorpay & Payment Options Modal */}
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        booking={createdBooking}
+        onPaymentSuccess={handlePaymentCompleted}
+      />
 
       {/* Quick RFQ Modal */}
       <Modal

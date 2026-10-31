@@ -634,7 +634,7 @@ export const HomePage = () => {
             {/* Transparent background image */}
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img
-                src="https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=800&q=80"
+                src="https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80"
                 alt=""
                 className="w-full h-full object-cover object-center opacity-20"
               />

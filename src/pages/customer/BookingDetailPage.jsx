@@ -15,27 +15,30 @@ import { bookingService } from '../../services/bookingService';
 import { formatCurrency, formatDateTime, formatDate, getStatusBadgeClass } from '../../utils/formatters';
 import { Button } from '../../components/common/Button';
 import { Spinner } from '../../components/common/Spinner';
+import { PaymentModal } from '../../components/common/PaymentModal';
+import { getProductImageUrl } from '../../utils/productImages';
 
 export const BookingDetailPage = () => {
   const { id } = useParams();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
+  const fetchBooking = async () => {
+    setLoading(true);
+    try {
+      const res = await bookingService.getBookingById(id);
+      if (res.success && res.data) {
+        setBooking(res.data);
+      }
+    } catch (err) {
+      console.error('[Booking Detail Error]', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchBooking = async () => {
-      setLoading(true);
-      try {
-        const res = await bookingService.getBookingById(id);
-        if (res.success && res.data) {
-          setBooking(res.data);
-        }
-      } catch (err) {
-        console.error('[Booking Detail Error]', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBooking();
   }, [id]);
 
@@ -166,8 +169,8 @@ export const BookingDetailPage = () => {
               <h3 className="text-base font-bold text-navy">Service & Package</h3>
               <div className="mt-3 flex items-start gap-3">
                 <img
-                  src={booking.serviceSnapshot?.mainImage || booking.service?.mainImage}
-                  alt={booking.serviceSnapshot?.name}
+                  src={getProductImageUrl(booking.serviceSnapshot || booking.service)}
+                  alt={booking.serviceSnapshot?.name || 'Product'}
                   className="w-16 h-16 rounded-xl object-cover border border-slate-200"
                 />
                 <div>
@@ -222,10 +225,26 @@ export const BookingDetailPage = () => {
             <div className="pt-4 border-t border-slate-100 space-y-2">
               <div className="flex justify-between items-center text-xs">
                 <span className="text-secondaryText">Payment Status:</span>
-                <span className="font-bold uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <span className={`font-bold uppercase px-2 py-0.5 rounded border text-[11px] ${
+                  booking.paymentStatus === 'paid' 
+                    ? 'text-emerald-700 bg-emerald-50 border-emerald-200' 
+                    : 'text-amber-700 bg-amber-50 border-amber-200'
+                }`}>
                   {booking.paymentStatus}
                 </span>
               </div>
+
+              {booking.paymentStatus !== 'paid' && booking.status !== 'cancelled' && (
+                <Button
+                  variant="accent"
+                  className="w-full justify-center font-bold inline-flex items-center gap-2 mt-2 shadow-sm"
+                  onClick={() => setIsPaymentModalOpen(true)}
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>Pay Now ({formatCurrency(booking.totalAmount)})</span>
+                </Button>
+              )}
+
               {booking.payment && (
                 <div className="text-[11px] text-secondaryText bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-0.5">
                   <p>Transaction ID: <span className="font-mono font-bold text-darkText">{booking.payment.transactionId}</span></p>
@@ -236,6 +255,14 @@ export const BookingDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Payment Gateway Modal */}
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        booking={booking}
+        onPaymentSuccess={fetchBooking}
+      />
     </div>
   );
 };

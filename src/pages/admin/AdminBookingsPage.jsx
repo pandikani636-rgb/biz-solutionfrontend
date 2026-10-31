@@ -19,6 +19,7 @@ import { Spinner } from '../../components/common/Spinner';
 import { formatCurrency, formatDateTime, formatDate, getStatusBadgeClass } from '../../utils/formatters';
 import { showSuccessAlert, showErrorAlert, showConfirmDialog, showToast } from '../../utils/alerts';
 import { BalumuniInvoice } from '../../components/common/BalumuniInvoice';
+import { getProductImageUrl } from '../../utils/productImages';
 
 export const AdminBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
@@ -247,8 +248,17 @@ export const AdminBookingsPage = () => {
                     </td>
 
                     <td className="py-3 px-4">
-                      <p className="font-medium text-darkText">{b.serviceSnapshot?.name}</p>
-                      <p className="text-[11px] text-primary font-bold">{b.packageSnapshot?.name}</p>
+                      <div className="flex items-center gap-2.5">
+                        <img
+                          src={getProductImageUrl(b.serviceSnapshot)}
+                          alt=""
+                          className="w-9 h-9 rounded-lg object-cover border border-slate-200 shrink-0"
+                        />
+                        <div>
+                          <p className="font-bold text-darkText line-clamp-1">{b.serviceSnapshot?.name}</p>
+                          <p className="text-[11px] text-primary font-bold">{b.packageSnapshot?.name}</p>
+                        </div>
+                      </div>
                     </td>
 
                     <td className="py-3 px-4 text-right font-black text-navy">

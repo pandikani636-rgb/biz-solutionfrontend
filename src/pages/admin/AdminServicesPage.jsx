@@ -22,6 +22,7 @@ import { Modal } from '../../components/common/Modal';
 import { Spinner } from '../../components/common/Spinner';
 import { formatCurrency } from '../../utils/formatters';
 import { showSuccessAlert, showErrorAlert, showConfirmDialog, showToast } from '../../utils/alerts';
+import { getProductImageUrl, INDUSTRIAL_IMAGE_CATALOG } from '../../utils/productImages';
 
 export const AdminServicesPage = () => {
   const { categories } = useSite();
@@ -46,7 +47,7 @@ export const AdminServicesPage = () => {
     processingTime: '24-48 Hours',
     shortDescription: '',
     fullDescription: '',
-    mainImage: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80',
+    mainImage: INDUSTRIAL_IMAGE_CATALOG.ballBearing,
     isFeatured: false,
     isActive: true,
     requiredFormFields: [],
@@ -305,9 +306,13 @@ export const AdminServicesPage = () => {
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <img
-                          src={s.mainImage}
+                          src={getProductImageUrl(s)}
                           alt={s.name}
                           className="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = INDUSTRIAL_IMAGE_CATALOG.ballBearing;
+                          }}
                         />
                         <div>
                           <div className="flex items-center gap-1.5 flex-wrap">

@@ -20,6 +20,8 @@ import {
   FileUp,
   FileCheck,
   Languages,
+  ShieldCheck,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -34,90 +36,125 @@ export const AdminSidebar = ({ isCollapsed, onToggle }) => {
     navigate('/login');
   };
 
-  const menuItems = [
-    { label: t('admin_dashboard') || 'Overview', to: '/admin', icon: LayoutDashboard, end: true },
-    { label: t('admin_quotations') || 'Quotations & RFQs', to: '/admin/quotations', icon: FileCheck },
-    { label: t('admin_orders') || 'Orders & Invoices', to: '/admin/bookings', icon: CalendarCheck },
-    { label: t('admin_customers') || 'Customers & Rates', to: '/admin/customers', icon: Users },
-    { label: t('admin_user_uploads') || 'User Uploaded Images', to: '/admin/user-uploads', icon: Camera },
-    { label: t('admin_pdf_catalog') || 'PDF Catalog Import', to: '/admin/pdf-catalog', icon: FileUp },
-    { label: t('admin_reports') || 'Reports & Export', to: '/admin/reports', icon: FileSpreadsheet },
-    { label: 'Products & Services', to: '/admin/services', icon: Briefcase },
-    { label: 'Categories', to: '/admin/categories', icon: Layers },
-    { label: 'Packages', to: '/admin/packages', icon: Package },
-    { label: 'Transactions', to: '/admin/payments', icon: CreditCard },
-    { label: 'Hero Banners', to: '/admin/banners', icon: ImageIcon },
-    { label: 'Coupons & Offers', to: '/admin/coupons', icon: TicketPercent },
-    { label: 'Enquiries', to: '/admin/enquiries', icon: MessageSquare },
-    { label: 'FAQs & Reviews', to: '/admin/content', icon: HelpCircle },
-    { label: 'Platform Settings', to: '/admin/settings', icon: Settings },
+  const navGroups = [
+    {
+      groupTitle: 'Operations & Orders',
+      items: [
+        { label: t('admin_dashboard') || 'Overview', to: '/admin', icon: LayoutDashboard, end: true },
+        { label: t('admin_quotations') || 'Quotations & RFQs', to: '/admin/quotations', icon: FileCheck },
+        { label: t('admin_orders') || 'Orders & Invoices', to: '/admin/bookings', icon: CalendarCheck },
+        { label: 'Transactions', to: '/admin/payments', icon: CreditCard },
+        { label: t('admin_customers') || 'Customers & Rates', to: '/admin/customers', icon: Users },
+      ],
+    },
+    {
+      groupTitle: 'Catalog & Inventory',
+      items: [
+        { label: 'Products & Bearings', to: '/admin/services', icon: Briefcase },
+        { label: 'Categories', to: '/admin/categories', icon: Layers },
+        { label: 'Packages & Tiers', to: '/admin/packages', icon: Package },
+        { label: t('admin_pdf_catalog') || 'PDF Catalog Import', to: '/admin/pdf-catalog', icon: FileUp },
+        { label: t('admin_user_uploads') || 'Part Photo Uploads', to: '/admin/user-uploads', icon: Camera },
+      ],
+    },
+    {
+      groupTitle: 'Growth & System',
+      items: [
+        { label: 'Hero Banners', to: '/admin/banners', icon: ImageIcon },
+        { label: 'Coupons & Deals', to: '/admin/coupons', icon: TicketPercent },
+        { label: 'Enquiries & Leads', to: '/admin/enquiries', icon: MessageSquare },
+        { label: t('admin_reports') || 'Reports & Exports', to: '/admin/reports', icon: FileSpreadsheet },
+        { label: 'FAQs & Content', to: '/admin/content', icon: HelpCircle },
+        { label: 'Platform Settings', to: '/admin/settings', icon: Settings },
+      ],
+    },
   ];
 
   return (
     <aside
-      className={`bg-navy text-white flex flex-col justify-between transition-all duration-300 z-30 shrink-0 ${
+      className={`bg-slate-950 text-slate-200 border-r border-slate-800 flex flex-col h-full transition-all duration-300 z-30 shrink-0 select-none ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
-      <div>
-        {/* Brand Area */}
-        <div className="h-20 flex items-center px-6 border-b border-navy-light/40 justify-between">
-          {!isCollapsed && (
-            <Link to="/admin" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
-                <Layers className="w-5 h-5 text-accent" />
-              </div>
-              <span className="font-extrabold text-lg text-white tracking-tight">
-                Biz<span className="text-accent">Admin</span>
-              </span>
-            </Link>
-          )}
-
-          {isCollapsed && (
-            <div className="mx-auto w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <Layers className="w-6 h-6 text-accent" />
+      {/* Brand & Workspace Area */}
+      <div className="h-20 flex items-center px-5 border-b border-slate-800/80 shrink-0">
+        {!isCollapsed ? (
+          <Link to="/admin" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-navy border border-blue-400/40 flex items-center justify-center text-white shadow-md shadow-blue-900/30">
+              <Layers className="w-5 h-5 text-accent" />
             </div>
-          )}
-        </div>
-
-        {/* Navigation list */}
-        <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-160px)]">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-smooth ${
-                    isActive
-                      ? 'bg-primary text-white shadow-md border-l-4 border-accent'
-                      : 'text-slate-300 hover:bg-navy-light/40 hover:text-white'
-                  } ${isCollapsed ? 'justify-center px-0' : ''}`
-                }
-                title={isCollapsed ? item.label : undefined}
-              >
-                <Icon className="w-4 h-4 shrink-0 text-accent" />
-                {!isCollapsed && <span>{item.label}</span>}
-              </NavLink>
-            );
-          })}
-        </nav>
+            <div className="min-w-0">
+              <span className="font-black text-base text-white tracking-tight leading-none block">
+                Biz<span className="text-accent">Zolution</span>
+              </span>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-blue-400 block mt-1">
+                Admin Console
+              </span>
+            </div>
+          </Link>
+        ) : (
+          <Link to="/admin" className="mx-auto" title="BizZolution Admin Console">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-navy border border-blue-400/40 flex items-center justify-center text-white shadow-md">
+              <Layers className="w-5 h-5 text-accent" />
+            </div>
+          </Link>
+        )}
       </div>
 
-      {/* Footer Area: User Profile & Public Site Shortcut */}
-      <div className="p-3 border-t border-navy-light/40 space-y-2">
+      {/* Navigation Groups List */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-4 space-y-6">
+        {navGroups.map((group, groupIdx) => (
+          <div key={groupIdx} className="space-y-1">
+            {!isCollapsed && (
+              <p className="px-3 pb-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                {group.groupTitle}
+              </p>
+            )}
+            {isCollapsed && groupIdx > 0 && (
+              <div className="w-8 h-px bg-slate-800 mx-auto my-2" />
+            )}
+
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 group relative ${
+                        isActive
+                          ? 'bg-blue-600/90 text-white shadow-md shadow-blue-600/20 font-bold border-l-4 border-accent'
+                          : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                      } ${isCollapsed ? 'justify-center px-0 h-10' : ''}`
+                    }
+                    title={isCollapsed ? item.label : undefined}
+                  >
+                    <Icon className="w-4 h-4 shrink-0 text-accent group-hover:scale-110 transition-transform" />
+                    {!isCollapsed && (
+                      <span className="truncate">{item.label}</span>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer Area: Public Link, Language Toggle, and Log Out */}
+      <div className="p-3 border-t border-slate-800/80 bg-slate-950/60 space-y-1.5 shrink-0">
         <button
           onClick={toggleLanguage}
-          className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-bold text-accent bg-navy-light/60 hover:bg-navy-light transition-smooth ${
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-accent bg-slate-900 border border-slate-800 hover:bg-slate-850 hover:border-slate-700 transition-smooth ${
             isCollapsed ? 'justify-center px-0' : ''
           }`}
-          title="Toggle Tamil / English Language"
+          title="Toggle Tamil / English"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Languages className="w-4 h-4 text-accent shrink-0" />
-            {!isCollapsed && <span>{isTamil ? 'தமிழ் இடைமுகம்' : 'Tamil Mode'}</span>}
+            {!isCollapsed && <span>{isTamil ? 'தமிழ் இடைமுகம்' : 'Tamil View'}</span>}
           </div>
           {!isCollapsed && (
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent uppercase font-black">
@@ -129,17 +166,23 @@ export const AdminSidebar = ({ isCollapsed, onToggle }) => {
         <Link
           to="/"
           target="_blank"
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-navy-light/40 transition-smooth"
+          className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/70 transition-smooth ${
+            isCollapsed ? 'justify-center px-0' : ''
+          }`}
+          title={isCollapsed ? 'View Public Site' : undefined}
         >
-          <ExternalLink className="w-4 h-4 text-accent" />
-          {!isCollapsed && <span>View Public Site</span>}
+          <ExternalLink className="w-4 h-4 text-accent shrink-0" />
+          {!isCollapsed && <span>View Storefront</span>}
         </Link>
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-300 hover:text-white hover:bg-rose-900/40 transition-smooth"
+          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-300 hover:text-white hover:bg-rose-950/50 hover:border-rose-900 border border-transparent transition-smooth ${
+            isCollapsed ? 'justify-center px-0' : ''
+          }`}
+          title={isCollapsed ? 'Log Out' : undefined}
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-4 h-4 shrink-0 text-rose-400" />
           {!isCollapsed && <span>Log Out</span>}
         </button>
       </div>

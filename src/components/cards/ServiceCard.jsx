@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Clock, Star, Truck, ShieldCheck, Tag } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
+import { getProductImageUrl } from '../../utils/productImages';
 
 const brandColors = {
   PIX: 'bg-amber-100 text-amber-900 border-amber-300',
@@ -43,10 +44,14 @@ export const ServiceCard = ({ service }) => {
       {/* Top Image Container */}
       <div className="relative h-48 w-full overflow-hidden bg-slate-900">
         <img
-          src={mainImage}
+          src={getProductImageUrl(service)}
           alt={name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-smooth duration-500 opacity-90"
+          className="w-full h-full object-cover group-hover:scale-105 transition-smooth duration-500 opacity-95"
           loading="lazy"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=800&q=80';
+          }}
         />
 
         {/* Brand Badge (Top-Left) */}

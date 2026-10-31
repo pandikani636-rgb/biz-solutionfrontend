@@ -171,7 +171,7 @@ export const AboutPage = () => {
                 </p>
               </div>
               <img
-                src="https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=600&q=80"
+                src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80"
                 alt="Industrial power transmission"
                 className="rounded-3xl shadow-lg object-cover h-48 sm:h-56 w-full border border-slate-200"
               />
