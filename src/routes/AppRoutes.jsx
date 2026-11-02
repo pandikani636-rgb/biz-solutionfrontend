@@ -1,100 +1,111 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Spinner } from '../components/common/Spinner';
 
-// Layouts
+// Layouts (Loaded eagerly for instant structure)
 import { PublicLayout } from '../layouts/PublicLayout';
 import { CustomerLayout } from '../layouts/CustomerLayout';
 import { AdminLayout } from '../layouts/AdminLayout';
 
-// Public Pages
-import { HomePage } from '../pages/public/HomePage';
-import { ServicesPage } from '../pages/public/ServicesPage';
-import { ServiceDetailPage } from '../pages/public/ServiceDetailPage';
-import { AboutPage } from '../pages/public/AboutPage';
-import { ContactPage } from '../pages/public/ContactPage';
-import { RfqPage } from '../pages/public/RfqPage';
-import { PriceListPage } from '../pages/public/PriceListPage';
+// Public Pages (Lazy loaded for fast initial page load)
+const HomePage = lazy(() => import('../pages/public/HomePage').then((m) => ({ default: m.HomePage })));
+const ServicesPage = lazy(() => import('../pages/public/ServicesPage').then((m) => ({ default: m.ServicesPage })));
+const ServiceDetailPage = lazy(() => import('../pages/public/ServiceDetailPage').then((m) => ({ default: m.ServiceDetailPage })));
+const AboutPage = lazy(() => import('../pages/public/AboutPage').then((m) => ({ default: m.AboutPage })));
+const ContactPage = lazy(() => import('../pages/public/ContactPage').then((m) => ({ default: m.ContactPage })));
+const RfqPage = lazy(() => import('../pages/public/RfqPage').then((m) => ({ default: m.RfqPage })));
+const PriceListPage = lazy(() => import('../pages/public/PriceListPage').then((m) => ({ default: m.PriceListPage })));
 
 // Auth Pages
-import { LoginPage } from '../pages/auth/LoginPage';
-import { RegisterPage } from '../pages/auth/RegisterPage';
+const LoginPage = lazy(() => import('../pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import('../pages/auth/RegisterPage').then((m) => ({ default: m.RegisterPage })));
 
 // Customer Pages
-import { UserDashboardPage } from '../pages/customer/UserDashboardPage';
-import { MyBookingsPage } from '../pages/customer/MyBookingsPage';
-import { BookingDetailPage } from '../pages/customer/BookingDetailPage';
-import { CustomerPaymentsPage } from '../pages/customer/CustomerPaymentsPage';
-import { CustomerProfilePage } from '../pages/customer/CustomerProfilePage';
+const UserDashboardPage = lazy(() => import('../pages/customer/UserDashboardPage').then((m) => ({ default: m.UserDashboardPage })));
+const MyBookingsPage = lazy(() => import('../pages/customer/MyBookingsPage').then((m) => ({ default: m.MyBookingsPage })));
+const BookingDetailPage = lazy(() => import('../pages/customer/BookingDetailPage').then((m) => ({ default: m.BookingDetailPage })));
+const CustomerPaymentsPage = lazy(() => import('../pages/customer/CustomerPaymentsPage').then((m) => ({ default: m.CustomerPaymentsPage })));
+const CustomerProfilePage = lazy(() => import('../pages/customer/CustomerProfilePage').then((m) => ({ default: m.CustomerProfilePage })));
 
 // Admin Pages
-import { AdminDashboardOverview } from '../pages/admin/AdminDashboardOverview';
-import { AdminServicesPage } from '../pages/admin/AdminServicesPage';
-import { AdminCategoriesPage } from '../pages/admin/AdminCategoriesPage';
-import { AdminPackagesPage } from '../pages/admin/AdminPackagesPage';
-import { AdminBookingsPage } from '../pages/admin/AdminBookingsPage';
-import { AdminCustomersPage } from '../pages/admin/AdminCustomersPage';
-import { AdminPaymentsPage } from '../pages/admin/AdminPaymentsPage';
-import { AdminBannersPage } from '../pages/admin/AdminBannersPage';
-import { AdminCouponsPage } from '../pages/admin/AdminCouponsPage';
-import { AdminEnquiriesPage } from '../pages/admin/AdminEnquiriesPage';
-import { AdminQuotationsPage } from '../pages/admin/AdminQuotationsPage';
-import { AdminUserUploadsPage } from '../pages/admin/AdminUserUploadsPage';
-import { AdminPdfCatalogPage } from '../pages/admin/AdminPdfCatalogPage';
-import { AdminContentPage } from '../pages/admin/AdminContentPage';
-import { AdminSettingsPage } from '../pages/admin/AdminSettingsPage';
-import { AdminReportsPage } from '../pages/admin/AdminReportsPage';
-import { AdminPurchasesPage } from '../pages/admin/AdminPurchasesPage';
+const AdminDashboardOverview = lazy(() => import('../pages/admin/AdminDashboardOverview').then((m) => ({ default: m.AdminDashboardOverview })));
+const AdminServicesPage = lazy(() => import('../pages/admin/AdminServicesPage').then((m) => ({ default: m.AdminServicesPage })));
+const AdminCategoriesPage = lazy(() => import('../pages/admin/AdminCategoriesPage').then((m) => ({ default: m.AdminCategoriesPage })));
+const AdminPackagesPage = lazy(() => import('../pages/admin/AdminPackagesPage').then((m) => ({ default: m.AdminPackagesPage })));
+const AdminBookingsPage = lazy(() => import('../pages/admin/AdminBookingsPage').then((m) => ({ default: m.AdminBookingsPage })));
+const AdminCustomersPage = lazy(() => import('../pages/admin/AdminCustomersPage').then((m) => ({ default: m.AdminCustomersPage })));
+const AdminPaymentsPage = lazy(() => import('../pages/admin/AdminPaymentsPage').then((m) => ({ default: m.AdminPaymentsPage })));
+const AdminBannersPage = lazy(() => import('../pages/admin/AdminBannersPage').then((m) => ({ default: m.AdminBannersPage })));
+const AdminCouponsPage = lazy(() => import('../pages/admin/AdminCouponsPage').then((m) => ({ default: m.AdminCouponsPage })));
+const AdminEnquiriesPage = lazy(() => import('../pages/admin/AdminEnquiriesPage').then((m) => ({ default: m.AdminEnquiriesPage })));
+const AdminQuotationsPage = lazy(() => import('../pages/admin/AdminQuotationsPage').then((m) => ({ default: m.AdminQuotationsPage })));
+const AdminUserUploadsPage = lazy(() => import('../pages/admin/AdminUserUploadsPage').then((m) => ({ default: m.AdminUserUploadsPage })));
+const AdminPdfCatalogPage = lazy(() => import('../pages/admin/AdminPdfCatalogPage').then((m) => ({ default: m.AdminPdfCatalogPage })));
+const AdminContentPage = lazy(() => import('../pages/admin/AdminContentPage').then((m) => ({ default: m.AdminContentPage })));
+const AdminSettingsPage = lazy(() => import('../pages/admin/AdminSettingsPage').then((m) => ({ default: m.AdminSettingsPage })));
+const AdminReportsPage = lazy(() => import('../pages/admin/AdminReportsPage').then((m) => ({ default: m.AdminReportsPage })));
+const AdminPurchasesPage = lazy(() => import('../pages/admin/AdminPurchasesPage').then((m) => ({ default: m.AdminPurchasesPage })));
+
+const PageLoadingFallback = () => (
+  <div className="min-h-[50vh] flex items-center justify-center p-8">
+    <Spinner size="lg" text="Loading..." />
+  </div>
+);
 
 export const AppRoutes = () => {
   return (
-    <Routes>
-      {/* Public Pages */}
-      <Route element={<PublicLayout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/services" element={<ServicesPage />} />
-        <Route path="/services/:identifier" element={<ServiceDetailPage />} />
-        <Route path="/rfq" element={<RfqPage />} />
-        <Route path="/mrp-pricing" element={<PriceListPage />} />
-        <Route path="/price-list" element={<PriceListPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-      </Route>
+    <Suspense fallback={<PageLoadingFallback />}>
+      <Routes>
+        {/* Public Pages */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/services/:identifier" element={<ServiceDetailPage />} />
+          <Route path="/rfq" element={<RfqPage />} />
+          <Route path="/mrp-pricing" element={<PriceListPage />} />
+          <Route path="/price-list" element={<PriceListPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Route>
 
-      {/* Customer Portal (Protected) */}
-      <Route path="/customer" element={<CustomerLayout />}>
-        <Route index element={<UserDashboardPage />} />
-        <Route path="dashboard" element={<UserDashboardPage />} />
-        <Route path="bookings" element={<MyBookingsPage />} />
-        <Route path="bookings/:id" element={<BookingDetailPage />} />
-        <Route path="payments" element={<CustomerPaymentsPage />} />
-        <Route path="profile" element={<CustomerProfilePage />} />
-      </Route>
+        {/* Customer Portal (Protected) */}
+        <Route element={<CustomerLayout />}>
+          <Route path="/customer" element={<UserDashboardPage />} />
+          <Route path="/customer/dashboard" element={<UserDashboardPage />} />
+          <Route path="/customer/bookings" element={<MyBookingsPage />} />
+          <Route path="/customer/bookings/:id" element={<BookingDetailPage />} />
+          <Route path="/customer/payments" element={<CustomerPaymentsPage />} />
+          <Route path="/customer/profile" element={<CustomerProfilePage />} />
+        </Route>
 
-      {/* Admin Portal (Protected, Admin Only) */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminDashboardOverview />} />
-        <Route path="purchases" element={<AdminPurchasesPage />} />
-        <Route path="services" element={<AdminServicesPage />} />
-        <Route path="categories" element={<AdminCategoriesPage />} />
-        <Route path="packages" element={<AdminPackagesPage />} />
-        <Route path="bookings" element={<AdminBookingsPage />} />
-        <Route path="customers" element={<AdminCustomersPage />} />
-        <Route path="payments" element={<AdminPaymentsPage />} />
-        <Route path="quotations" element={<AdminQuotationsPage />} />
-        <Route path="user-uploads" element={<AdminUserUploadsPage />} />
-        <Route path="pdf-catalog" element={<AdminPdfCatalogPage />} />
-        <Route path="banners" element={<AdminBannersPage />} />
-        <Route path="coupons" element={<AdminCouponsPage />} />
-        <Route path="enquiries" element={<AdminEnquiriesPage />} />
-        <Route path="content" element={<AdminContentPage />} />
-        <Route path="settings" element={<AdminSettingsPage />} />
-        <Route path="reports" element={<AdminReportsPage />} />
-      </Route>
+        {/* Admin Portal (Protected, Admin Only) */}
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminDashboardOverview />} />
+          <Route path="/admin/purchases" element={<AdminPurchasesPage />} />
+          <Route path="/admin/services" element={<AdminServicesPage />} />
+          <Route path="/admin/categories" element={<AdminCategoriesPage />} />
+          <Route path="/admin/packages" element={<AdminPackagesPage />} />
+          <Route path="/admin/bookings" element={<AdminBookingsPage />} />
+          <Route path="/admin/customers" element={<AdminCustomersPage />} />
+          <Route path="/admin/payments" element={<AdminPaymentsPage />} />
+          <Route path="/admin/quotations" element={<AdminQuotationsPage />} />
+          <Route path="/admin/user-uploads" element={<AdminUserUploadsPage />} />
+          <Route path="/admin/pdf-catalog" element={<AdminPdfCatalogPage />} />
+          <Route path="/admin/banners" element={<AdminBannersPage />} />
+          <Route path="/admin/coupons" element={<AdminCouponsPage />} />
+          <Route path="/admin/enquiries" element={<AdminEnquiriesPage />} />
+          <Route path="/admin/content" element={<AdminContentPage />} />
+          <Route path="/admin/settings" element={<AdminSettingsPage />} />
+          <Route path="/admin/reports" element={<AdminReportsPage />} />
+        </Route>
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 };
+
+export default AppRoutes;
