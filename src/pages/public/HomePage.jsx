@@ -108,6 +108,135 @@ const brandsList = [
   },
 ];
 
+const allFourteenBrands = [
+  {
+    id: 'pix',
+    name: 'PIX',
+    fullName: 'PIX Transmissions Ltd',
+    logo: '/brands/individual/pix.png',
+    category: 'Industrial V-Belts & Drives',
+    badge: 'Authorised Dealer',
+    discount: '45% - 48% OFF',
+  },
+  {
+    id: 'jk-fenner',
+    name: 'JK Fenner',
+    fullName: 'J.K. Fenner (India) Limited',
+    logo: '/brands/individual/jk-fenner.png',
+    category: 'Belts, Pulleys & Couplings',
+    badge: 'Authorised Stockist',
+    discount: '45% - 48% OFF',
+  },
+  {
+    id: 'diamond',
+    name: 'Diamond',
+    fullName: 'Diamond Industrial Chains',
+    logo: '/brands/individual/diamond.png',
+    category: 'Roller Chains & Sprockets',
+    badge: 'Industrial Stockist',
+    discount: 'Wholesale Rates',
+  },
+  {
+    id: 'nbc',
+    name: 'NBC',
+    fullName: 'NBC Bearings (NEI)',
+    logo: '/brands/individual/nbc.png',
+    category: 'Ball & Taper Roller Bearings',
+    badge: 'Direct Stockist',
+    discount: '45% - 48% OFF',
+  },
+  {
+    id: 'shanthi-gears',
+    name: 'Shanthi Gears',
+    fullName: 'Shanthi Gears (Murugappa)',
+    logo: '/brands/individual/shanthi-gears.png',
+    category: 'Industrial Gearboxes & Spares',
+    badge: 'Authorised Partner',
+    discount: 'OEM Pricing',
+  },
+  {
+    id: 'skf',
+    name: 'SKF',
+    fullName: 'SKF India Limited',
+    logo: '/brands/individual/skf.png',
+    category: 'Deep Groove & Roller Bearings',
+    badge: 'Genuine Stockist',
+    discount: 'Competitive Rates',
+  },
+  {
+    id: 'fag',
+    name: 'FAG',
+    fullName: 'FAG Bearings (Schaeffler)',
+    logo: '/brands/individual/fag.png',
+    category: 'Spherical & Cylindrical Bearings',
+    badge: 'Authorised Stockist',
+    discount: 'Volume Discounts',
+  },
+  {
+    id: 'timken',
+    name: 'Timken',
+    fullName: 'The Timken Company',
+    logo: '/brands/individual/timken.png',
+    category: 'Tapered Roller & Heavy Bearings',
+    badge: 'Certified Partner',
+    discount: '45% - 48% OFF',
+  },
+  {
+    id: 'ntn',
+    name: 'NTN',
+    fullName: 'NTN Bearing Corporation',
+    logo: '/brands/individual/ntn.png',
+    category: 'High-Precision Machine Bearings',
+    badge: 'Imported Genuine',
+    discount: 'Best Market Rates',
+  },
+  {
+    id: 'vignessh-gears',
+    name: 'Vignessh Gears',
+    fullName: 'Vignessh Gears & Transmission',
+    logo: '/brands/individual/vignessh-gears.png',
+    category: 'Industrial Pinions & Spur Gears',
+    badge: 'Regional Partner',
+    discount: 'Direct Factory',
+  },
+  {
+    id: 'siemens',
+    name: 'Siemens',
+    fullName: 'Siemens Industrial Drives & Motors',
+    logo: '/brands/individual/siemens.png',
+    category: 'Energy Efficient IE2/IE3 Motors',
+    badge: 'Authorised Channel',
+    discount: 'Project Discounts',
+  },
+  {
+    id: 'crompton',
+    name: 'Crompton',
+    fullName: 'Crompton Greaves Consumer & Ind.',
+    logo: '/brands/individual/crompton.png',
+    category: 'Heavy Duty Induction Motors',
+    badge: 'Stockist & Dealer',
+    discount: 'Wholesale B2B',
+  },
+  {
+    id: 'abb-motors',
+    name: 'ABB Motors',
+    fullName: 'ABB India Limited',
+    logo: '/brands/individual/abb-motors.png',
+    category: 'High Efficiency IE3 / IE4 Motors',
+    badge: 'Direct Supplier',
+    discount: 'Industrial Rates',
+  },
+  {
+    id: 'bharat-bijlee',
+    name: 'Bharat Bijlee',
+    fullName: 'Bharat Bijlee Limited',
+    logo: '/brands/individual/bharat-bijlee.png',
+    category: 'Heavy Duty AC Motors & Drives',
+    badge: 'Authorised Partner',
+    discount: 'Standard Pricing',
+  },
+];
+
 export const HomePage = () => {
   const navigate = useNavigate();
 
@@ -154,67 +283,67 @@ export const HomePage = () => {
     fetchHomeData();
   }, []);
 
-  // 6 Rich Industrial Banners featuring Grander's Belts prominently
+  // All 6 Industrial Banners featuring images from Banner folder
   const defaultBanners = [
     {
       title: "Grander's Belts & Power Transmission",
       badgeText: "GRANDER'S BELTS & V-BELTS",
       subtitle: 'High-tensile industrial Grander belts, angle grinder drive belts, and classical wedge belts. Oil, heat, and vibration resistant for heavy workshop and factory operations.',
-      image: 'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=1600&q=80',
+      image: '/banners/img2.png',
       ctaText: "Browse Grander's Belts",
       ctaLink: '/services?brand=PIX',
       secondaryCtaText: 'Request Bulk RFQ',
       secondaryCtaLink: '/rfq',
     },
     {
-      title: 'PIX Industrial Belts — SPC, 8V & C-70',
-      badgeText: '45% - 48% OFF MRP LIST',
-      subtitle: 'Authorized dealer of PIX Transmissions Ltd. Narrow wedge, raw edge cogged, and banded belts with factory matched precision.',
-      image: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1600&q=80',
-      ctaText: 'Explore PIX Belts',
-      ctaLink: '/services?brand=PIX',
+      title: 'Fenner B 36 Wet Grinder Belts',
+      badgeText: 'GENUINE FENNER GRINDER SERIES',
+      subtitle: 'Original Fenner B 36 precision wet grinder drive belts. Engineered for whisper-quiet vibration damping and maximum drive efficiency.',
+      image: '/banners/img5.jpg',
+      ctaText: 'Explore Fenner Belts',
+      ctaLink: '/services?brand=Fenner',
       secondaryCtaText: 'View Discount Matrix',
       secondaryCtaLink: '/mrp-pricing',
     },
     {
-      title: 'Chrome Steel Deep Groove Ball Bearings',
-      badgeText: 'ELECTRIC MOTOR QUALITY (EMQ)',
-      subtitle: 'Premium deep groove ball bearings from SKF, NBC, and HCH (6200, 6300, 6400 series) with high-speed dual seals (2RS / ZZ).',
-      image: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1600&q=80',
-      ctaText: 'Browse Ball Bearings',
-      ctaLink: '/services',
+      title: 'Fenner A 48 Wet Grinder Belts',
+      badgeText: 'INDUSTRIAL & COMMERCIAL DRIVES',
+      subtitle: 'Heavy-duty Fenner A 48 wet grinder and machine transmission belts. Oil-resistant and heat-stable for rigorous wet grinding environments.',
+      image: '/banners/img4.jpg',
+      ctaText: 'Explore Wet Grinder Belts',
+      ctaLink: '/services?brand=Fenner',
       secondaryCtaText: 'Download Price List',
       secondaryCtaLink: '/mrp-pricing',
     },
     {
-      title: 'Heavy Duty Taper & Spherical Roller Bearings',
-      badgeText: 'TIMKEN & NBC HEAVY SERIES',
-      subtitle: 'Engineered for high shock loads, crusher plants, and heavy vibration. 100% authentic with factory serial tracing and Mill Test Certificates (MTC).',
-      image: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?auto=format&fit=crop&w=1600&q=80',
-      ctaText: 'Browse Roller Bearings',
-      ctaLink: '/services?brand=Timken',
+      title: 'Veegrip Grind Power Industrial V-Belts',
+      badgeText: 'IS 2494 HEAVY DUTY CERTIFIED',
+      subtitle: 'Veegrip Grind Power transmission belts engineered to IS 2494 standards. Exceptional tensile cord reinforcement and minimal elongation under load.',
+      image: '/banners/img3.jpg',
+      ctaText: 'Browse Grind Power Belts',
+      ctaLink: '/services?section=Belt',
       secondaryCtaText: 'Custom RFQ',
       secondaryCtaLink: '/rfq',
     },
     {
-      title: 'Fenner Dual-Duty Pulleys & Taper Bushes',
-      badgeText: 'CAST IRON DYNAMICALLY BALANCED',
-      subtitle: 'J.K. Fenner taper-lock bush pulleys (SPA, SPB, SPC, 2517, 2012) for vibration-free power transmission across electric motors and pumps.',
-      image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80',
-      ctaText: 'Explore Pulleys',
-      ctaLink: '/services?brand=Fenner',
+      title: 'Classical Industrial V-Belts — Section A & C',
+      badgeText: 'HIGH-TORQUE DRIVE SOLUTIONS',
+      subtitle: 'Complete range of industrial wrapped classical V-belts including A 951 Lp / A36A and C Section belts for industrial machinery and machine tools.',
+      image: '/banners/img1.jpg',
+      ctaText: 'Explore Classical Belts',
+      ctaLink: '/services?section=Belt',
       secondaryCtaText: 'Technical Inquiry',
       secondaryCtaLink: '/contact',
     },
     {
-      title: 'SKF Genuine Bearings — National & Imported',
-      badgeText: 'SKF 100% GENUINE GUARANTEE',
-      subtitle: 'National (SKF India) & International (Imported European) stock with strict 10% discount from MRP and QR batch authentication.',
-      image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80',
-      ctaText: 'Browse SKF Bearings',
-      ctaLink: '/services?brand=SKF',
-      secondaryCtaText: 'Verify Batch Code',
-      secondaryCtaLink: '/contact',
+      title: 'Veehold Domestic & Heavy Industrial Belts',
+      badgeText: 'DOMESTIC & HEAVY PLANT LINEUP',
+      subtitle: 'Veehold Domestic WG 341 and heavy-duty transmission belts for domestic machinery, mill drives, and workshop machinery.',
+      image: '/banners/img6.jpg',
+      ctaText: 'Browse Veehold Lineup',
+      ctaLink: '/services?section=Belt',
+      secondaryCtaText: 'Request Bulk Quote',
+      secondaryCtaLink: '/rfq',
     },
   ];
 
@@ -263,7 +392,7 @@ export const HomePage = () => {
           alt="Landing Background"
           className="w-full h-full object-cover object-center opacity-30 scale-100 transition-all duration-1000 ease-out"
           onError={(e) => {
-            e.target.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80';
+            e.target.src = '/banners/img5.jpg';
           }}
         />
         {/* Very light blue transparent overlay across entire page */}
@@ -288,7 +417,7 @@ export const HomePage = () => {
             alt={currentBanner.badgeText || 'Hero Banner'}
             className="w-full h-full object-cover object-center opacity-95 scale-100 transition-all duration-1000 ease-out"
             onError={(e) => {
-              e.target.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80';
+              e.target.src = '/banners/img5.jpg';
             }}
           />
           {/* Very light blue transparent overlay (significantly reduced opacity for maximum image visibility) */}
@@ -300,25 +429,25 @@ export const HomePage = () => {
         {/* Previous / Next Slide Controls */}
         <button
           onClick={handlePrevSlide}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center border border-white/20 shadow-xl backdrop-blur-md opacity-80 hover:opacity-100 transition-all duration-200"
+          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center border border-white/20 shadow-xl backdrop-blur-md opacity-80 hover:opacity-100 transition-all duration-200"
           aria-label="Previous Slide"
         >
-          <ChevronLeft className="w-6 h-6 text-accent" />
+          <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6 text-accent" />
         </button>
         <button
           onClick={handleNextSlide}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center border border-white/20 shadow-xl backdrop-blur-md opacity-80 hover:opacity-100 transition-all duration-200"
+          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center border border-white/20 shadow-xl backdrop-blur-md opacity-80 hover:opacity-100 transition-all duration-200"
           aria-label="Next Slide"
         >
-          <ChevronRight className="w-6 h-6 text-accent" />
+          <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6 text-accent" />
         </button>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-14 md:py-20 w-full">
+        <div className="relative z-10 max-w-7xl mx-auto px-10 sm:px-12 lg:px-14 py-12 sm:py-16 md:py-20 w-full">
           <div className="max-w-2xl space-y-5">
             {/* Badge */}
             {currentBanner.badgeText && (
               <div className="animate-fadeIn">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-950/75 border border-accent/60 text-amber-300 font-black text-xs uppercase tracking-wider backdrop-blur-md shadow-xl">
+                <span className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-slate-950/75 border border-accent/60 text-amber-300 font-black text-xs uppercase tracking-wider backdrop-blur-md shadow-xl">
                   <Sparkles className="w-3.5 h-3.5 text-accent animate-pulse" />
                   {currentBanner.badgeText}
                 </span>
@@ -329,7 +458,7 @@ export const HomePage = () => {
 
             {/* Subtitle / Description Card */}
             <div className="p-4 sm:p-5 rounded-2xl bg-slate-950/60 backdrop-blur-md border border-white/20 shadow-2xl max-w-xl animate-fadeIn">
-              <p className="text-white text-sm sm:text-base leading-relaxed font-semibold drop-shadow-sm">
+              <p className="text-white text-xs sm:text-base leading-relaxed font-semibold drop-shadow-sm">
                 {currentBanner.subtitle}
               </p>
             </div>
@@ -346,24 +475,24 @@ export const HomePage = () => {
                   placeholder="Enter Part Number (e.g., 6204, SPC 2360, 7322, 2517)..."
                   value={partSearch}
                   onChange={(e) => setPartSearch(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-white/95 backdrop-blur-md text-darkText rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-accent shadow-lg border border-white/40"
+                  className="w-full pl-11 pr-4 py-3 bg-white/95 backdrop-blur-md text-darkText rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-accent shadow-lg border border-white/40"
                 />
               </div>
-              <Button type="submit" variant="accent" size="md" className="font-bold whitespace-nowrap inline-flex items-center gap-1.5 shadow-md hover:scale-[1.02] transition-smooth">
+              <Button type="submit" variant="accent" size="md" className="font-bold whitespace-nowrap inline-flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] transition-smooth">
                 <Search className="w-4 h-4" />
                 <span>Search Part</span>
               </Button>
             </form>
 
-            <div className="flex flex-wrap items-center gap-4 pt-1 animate-fadeIn">
-              <Link to={currentBanner.ctaLink || '/services'}>
-                <Button variant="accent" size="lg" className="font-bold inline-flex items-center gap-2 shadow-lg hover:scale-[1.02] transition-smooth group">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1 animate-fadeIn">
+              <Link to={currentBanner.ctaLink || '/services'} className="w-full sm:w-auto">
+                <Button variant="accent" size="lg" className="w-full font-bold inline-flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-smooth group">
                   <span>{currentBanner.ctaText || 'Browse All Products'}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-smooth" />
                 </Button>
               </Link>
-              <Link to={currentBanner.secondaryCtaLink || '/rfq'}>
-                <Button variant="secondary" size="lg" className="bg-slate-950/60 text-white hover:bg-slate-950/90 border border-white/25 backdrop-blur-md font-bold inline-flex items-center gap-2 hover:scale-[1.02] transition-smooth group shadow-lg">
+              <Link to={currentBanner.secondaryCtaLink || '/rfq'} className="w-full sm:w-auto">
+                <Button variant="secondary" size="lg" className="w-full bg-slate-950/60 text-white hover:bg-slate-950/90 border border-white/25 backdrop-blur-md font-bold inline-flex items-center justify-center gap-2 hover:scale-[1.02] transition-smooth group shadow-lg">
                   <FileSpreadsheet className="w-4 h-4 text-accent group-hover:rotate-6 transition-smooth" />
                   <span>{currentBanner.secondaryCtaText || 'Request Bulk RFQ'}</span>
                 </Button>
@@ -372,15 +501,15 @@ export const HomePage = () => {
           </div>
 
           {/* Banner navigation indicator dots (6 slides) */}
-          <div className="flex items-center gap-2.5 mt-8">
+          <div className="flex items-center gap-2 mt-6 sm:mt-8">
             {activeBannersList.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setActiveBannerIdx(idx)}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
+                className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${
                   idx === (activeBannerIdx % activeBannersList.length)
-                    ? 'w-9 bg-accent shadow-md'
-                    : 'w-2.5 bg-white/40 hover:bg-white/70'
+                    ? 'w-7 sm:w-9 bg-accent shadow-md'
+                    : 'w-2 sm:w-2.5 bg-white/40 hover:bg-white/70'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
@@ -390,9 +519,9 @@ export const HomePage = () => {
       </section>
 
       {/* 2. Commercial Trust & Free Freight Bar (Translucent Glass Panel) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-slate-200/80 grid grid-cols-1 md:grid-cols-4 gap-6 hover:shadow-3xl transition-all duration-300">
-          <div className="flex items-center gap-4 border-b md:border-b-0 md:border-r border-slate-200/70 pb-4 md:pb-0 md:pr-4 group">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 sm:-mt-8 relative z-20">
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 sm:p-6 shadow-2xl border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 hover:shadow-3xl transition-all duration-300">
+          <div className="flex items-center gap-4 border-b sm:border-b-0 lg:border-r border-slate-200/70 pb-4 sm:pb-0 lg:pr-4 group">
             <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-smooth shadow-xs">
               <BadgePercent className="w-6 h-6" />
             </div>
@@ -402,7 +531,7 @@ export const HomePage = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 border-b md:border-b-0 md:border-r border-slate-200/70 pb-4 md:pb-0 md:pr-4 group">
+          <div className="flex items-center gap-4 border-b sm:border-b-0 lg:border-r border-slate-200/70 pb-4 sm:pb-0 lg:pr-4 group">
             <div className="w-12 h-12 rounded-xl bg-blue-50 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-smooth shadow-xs">
               <Truck className="w-6 h-6" />
             </div>
@@ -412,7 +541,7 @@ export const HomePage = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 border-b md:border-b-0 md:border-r border-slate-200/70 pb-4 md:pb-0 md:pr-4 group">
+          <div className="flex items-center gap-4 border-b sm:border-b-0 lg:border-r border-slate-200/70 pb-4 sm:pb-0 lg:pr-4 group">
             <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-smooth shadow-xs">
               <ShieldCheck className="w-6 h-6" />
             </div>
@@ -439,7 +568,93 @@ export const HomePage = () => {
         <ImageUploadSection />
       </section>
 
-      {/* 3. Authorized Brands ("Make") Showcase */}
+      {/* 3. Official Industrial Equipments Partner Brands (All 14 Logos from First Image) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="bg-gradient-to-br from-slate-900 via-navy to-slate-900 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl border border-slate-700/60 text-white relative overflow-hidden">
+          {/* Subtle background glow */}
+          <div className="absolute top-0 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Section Heading */}
+          <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between mb-8 pb-6 border-b border-slate-700/80 gap-4">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 text-xs font-black uppercase tracking-wider mb-2">
+                <Sparkles className="w-3.5 h-3.5" />
+                INDUSTRIAL EQUIPMENTS • ALL 14 OFFICIAL MAKES
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+                Authorised Stockist & Dealer Network
+              </h2>
+              <p className="text-sm text-slate-300 mt-2 max-w-3xl">
+                Balumuni and Associates is proud to supply 100% genuine products directly sourced from India's premier industrial equipment, bearing, belt, gear, and motor manufacturers.
+              </p>
+            </div>
+            <div className="shrink-0 flex items-center gap-3">
+              <span className="text-xs font-semibold text-slate-300">14 Trusted Industrial Brands</span>
+              <Link
+                to="/services"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition-all shadow-md hover:scale-105"
+              >
+                <span>View Full Catalog</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* All 14 Brand Logos Grid */}
+          <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
+            {allFourteenBrands.map((b) => (
+              <Link
+                key={b.id}
+                to={`/services?search=${encodeURIComponent(b.name)}`}
+                className="group bg-white rounded-2xl p-4 flex flex-col items-center justify-between text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary border border-slate-200/90"
+              >
+                <div className="w-full h-16 sm:h-18 flex items-center justify-center p-2 rounded-xl bg-slate-50 group-hover:bg-blue-50/50 transition-colors">
+                  <img
+                    src={b.logo}
+                    alt={`${b.fullName} Logo`}
+                    className="max-h-full max-w-full object-contain filter group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="mt-3 w-full">
+                  <h4 className="font-black text-xs sm:text-sm text-slate-900 group-hover:text-primary transition-colors truncate">
+                    {b.name}
+                  </h4>
+                  <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5 leading-tight">
+                    {b.category}
+                  </p>
+                </div>
+                <span className="mt-2 text-[9px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 group-hover:bg-amber-100 px-2 py-0.5 rounded-full border border-amber-200 w-full truncate">
+                  {b.badge}
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          {/* Master Industrial Equipment Composite Banner */}
+          <div className="relative z-10 mt-8 pt-6 border-t border-slate-700/80 flex flex-col lg:flex-row items-center justify-between gap-6 bg-slate-800/60 rounded-2xl p-4 sm:p-6 border border-slate-700">
+            <div className="lg:max-w-md">
+              <h4 className="font-extrabold text-base text-white flex items-center gap-2">
+                <Award className="w-5 h-5 text-amber-400" />
+                Comprehensive Industrial Equipments Source
+              </h4>
+              <p className="text-xs text-slate-300 mt-1">
+                From high-speed bearings to extreme-torque belts, geared motors, and industrial transmission drives — all under one roof at Balumuni and Associates.
+              </p>
+            </div>
+            <div className="w-full lg:max-w-xl bg-white p-2 rounded-xl shadow-md border border-slate-300 overflow-hidden">
+              <img
+                src="/brands/industrial-equipments-brands.png"
+                alt="Balumuni and Associates - Industrial Equipments Brand Partners"
+                className="w-full h-auto object-contain rounded"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3.1 Authorized Brands ("Make") Showcase with Discounts */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
           <div>

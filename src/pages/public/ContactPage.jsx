@@ -111,13 +111,39 @@ export const ContactPage = () => {
         
         {/* Left Column: Contact Channels & Location Information */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-navy text-white rounded-3xl p-8 shadow-xl space-y-8 border border-blue-900/60">
-            <div>
-              <span className="text-xs font-black text-accent uppercase tracking-wider">Headquarters & Desk</span>
-              <h2 className="text-2xl font-bold text-white mt-1">Balumuni and Associates</h2>
-              <p className="text-xs text-slate-300 mt-1">
-                Authorized Industrial Stockist & Wholesale Distributor
-              </p>
+          <div className="bg-navy text-white rounded-3xl p-8 shadow-xl space-y-7 border border-blue-900/60">
+            {/* Header with Official BM Logo */}
+            <div className="flex items-center gap-4 pb-4 border-b border-white/10">
+              <div className="bg-white p-2 rounded-2xl shadow-md shrink-0">
+                <img
+                  src="/bm-logo.png"
+                  alt="Balumuni and Associates BM Logo"
+                  className="h-12 w-auto object-contain"
+                />
+              </div>
+              <div>
+                <span className="text-[11px] font-black text-amber-300 uppercase tracking-widest block">
+                  Industrial Power Transmission &amp; Bearings
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-white mt-0.5">
+                  Balumuni and Associates
+                </h2>
+              </div>
+            </div>
+
+            {/* Proprietor Badge */}
+            <div className="bg-white/10 rounded-2xl p-4 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                  Proprietor
+                </span>
+                <span className="text-base font-black text-amber-300">
+                  K. Karthick Kumar
+                </span>
+              </div>
+              <span className="text-[10px] font-mono font-bold bg-amber-400 text-slate-950 px-2.5 py-1 rounded-md shadow-xs self-start sm:self-auto">
+                GSTIN: 33HONPK5547G2Z
+              </span>
             </div>
 
             <div className="space-y-6 text-xs text-slate-200">
@@ -126,11 +152,8 @@ export const ContactPage = () => {
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-bold text-white text-sm">Headquarters</p>
-                  <p className="mt-0.5 leading-relaxed text-slate-300">{officeAddress}</p>
-                  <span className="inline-block mt-1 font-mono text-[10px] text-amber-300 font-bold bg-white/10 px-2 py-0.5 rounded">
-                    GSTIN: 33HONPK5547G2Z
-                  </span>
+                  <p className="font-bold text-white text-sm">Official Registered Address</p>
+                  <p className="mt-0.5 leading-relaxed text-slate-300 break-words">{officeAddress}</p>
                 </div>
               </div>
 
@@ -139,9 +162,14 @@ export const ContactPage = () => {
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="font-bold text-white text-sm">Sales & Support Phone</p>
-                  <p className="mt-0.5 font-bold text-base text-amber-300 font-mono">{phoneNumbers}</p>
-                  <p className="text-[10px] text-slate-400">Available Mon-Sat 9:00 AM - 7:00 PM IST</p>
+                  <p className="font-bold text-white text-sm">Direct Phone / WhatsApp</p>
+                  <a href="tel:+917418423238" className="mt-0.5 block font-bold text-base text-amber-300 font-mono hover:underline">
+                    +91-74184 23238
+                  </a>
+                  <a href="tel:+919842670320" className="block font-semibold text-xs text-slate-300 font-mono hover:underline">
+                    Alt: +91 98426 70320
+                  </a>
+                  <p className="text-[10px] text-slate-400 mt-1">Available Mon-Sat 9:00 AM - 7:00 PM IST</p>
                 </div>
               </div>
 
@@ -151,8 +179,10 @@ export const ContactPage = () => {
                 </div>
                 <div>
                   <p className="font-bold text-white text-sm">Official Email Enquiries</p>
-                  <p className="mt-0.5 font-semibold text-white">{emailAddress}</p>
-                  <p className="text-[10px] text-emerald-400 font-bold">Average response time: &lt; 1 hour</p>
+                  <a href="mailto:balumuniandassociates@gmail.com" className="mt-0.5 block font-semibold text-white hover:text-accent underline break-all">
+                    {emailAddress}
+                  </a>
+                  <p className="text-[10px] text-emerald-400 font-bold mt-0.5">Direct sales desk</p>
                 </div>
               </div>
 
@@ -163,19 +193,33 @@ export const ContactPage = () => {
                 <div>
                   <p className="font-bold text-white text-sm">Business Hours</p>
                   <p className="mt-0.5 text-slate-300">Monday – Saturday: 9:00 AM – 7:00 PM</p>
-                  <p className="text-[10px] text-slate-400">Sunday: Closed for routine warehouse maintenance</p>
+                  <p className="text-[10px] text-slate-400">Sunday: Closed for maintenance</p>
                 </div>
               </div>
             </div>
 
-            {/* Tamil Tagline card */}
+            {/* Corporate Commitment Card */}
             <div className="p-4 rounded-2xl bg-white/10 border border-white/10 text-center space-y-1">
               <p className="text-sm font-black text-amber-300">
-                உங்கள் நம்பிக்கையில் எங்கள் பயணம்!
+                Powering Industrial Excellence Across India
               </p>
               <p className="text-[10px] text-slate-300">
                 Quality • Integrity • Fast Delhivery Logistics
               </p>
+            </div>
+          </div>
+
+          {/* Business Card Display */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+            <h3 className="text-xs font-bold text-navy uppercase tracking-wider">
+              Official Corporate Business Card
+            </h3>
+            <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-xs bg-slate-50">
+              <img
+                src="/balumuni-visiting-card.png"
+                alt="Balumuni and Associates Corporate Card"
+                className="w-full h-auto object-contain hover:scale-105 transition-smooth duration-500"
+              />
             </div>
           </div>
         </div>

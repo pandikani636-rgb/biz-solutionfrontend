@@ -5,16 +5,22 @@ import React from 'react';
  * Features a high-speed continuous industrial drive belt looping over two rotating pulleys
  * with dynamic cogged ribs and synchronized rotation.
  */
-export const GranderBeltPreloader = ({ size = 'md', text = 'Synchronizing...', className = '' }) => {
+export const GranderBeltPreloader = ({ 
+  size = 'md', 
+  text = '', 
+  className = '',
+  showLabel = true 
+}) => {
   const isSmall = size === 'sm';
   const isLarge = size === 'lg';
+  const isXLarge = size === 'xl';
 
   // Dimensions
-  const width = isSmall ? 80 : isLarge ? 180 : 130;
-  const height = isSmall ? 40 : isLarge ? 85 : 60;
+  const width = isSmall ? 90 : isXLarge ? 300 : isLarge ? 240 : 150;
+  const height = isSmall ? 45 : isXLarge ? 128 : isLarge ? 104 : 65;
 
   return (
-    <div className={`flex flex-col items-center justify-center gap-2.5 select-none ${className}`}>
+    <div className={`flex flex-col items-center justify-center gap-3 select-none ${className}`}>
       <style>{`
         @keyframes granderBeltMove {
           0% { stroke-dashoffset: 0; }
@@ -49,7 +55,7 @@ export const GranderBeltPreloader = ({ size = 'md', text = 'Synchronizing...', c
           viewBox="0 0 140 60"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="overflow-visible"
+          className="overflow-visible max-w-full h-auto"
         >
           {/* Defs for gradients & metal sheens */}
           <defs>
@@ -79,7 +85,7 @@ export const GranderBeltPreloader = ({ size = 'md', text = 'Synchronizing...', c
                A 20 20 0 0 1 32 10 Z"
             fill="none"
             stroke="#0F172A"
-            strokeWidth={isSmall ? 4 : 5.5}
+            strokeWidth={isSmall ? 4 : isXLarge ? 6 : 5.5}
             strokeLinejoin="round"
           />
 
@@ -92,7 +98,7 @@ export const GranderBeltPreloader = ({ size = 'md', text = 'Synchronizing...', c
                A 20 20 0 0 1 32 10 Z"
             fill="none"
             stroke="#FACC15"
-            strokeWidth={isSmall ? 2 : 2.8}
+            strokeWidth={isSmall ? 2 : isXLarge ? 3.2 : 2.8}
             strokeLinecap="round"
             className="animate-grander-belt"
           />
@@ -127,14 +133,14 @@ export const GranderBeltPreloader = ({ size = 'md', text = 'Synchronizing...', c
         </svg>
       </div>
 
-      {/* Descriptive Text for Large & Medium views */}
-      {!isSmall && (
+      {/* Descriptive Text matching uploaded image */}
+      {!isSmall && showLabel && (
         <div className="text-center">
-          <p className="text-[11px] font-black uppercase tracking-wider text-navy flex items-center justify-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            Grander Belt Drive
+          <p className="text-xs sm:text-sm font-black uppercase tracking-wider text-navy flex items-center justify-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+            GRANDER BELT DRIVE
           </p>
-          {isLarge && text && (
+          {(isLarge || isXLarge) && text && (
             <p className="text-[10px] text-slate-500 font-medium mt-0.5">{text}</p>
           )}
         </div>

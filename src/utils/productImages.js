@@ -1,53 +1,102 @@
 /**
- * Verified high-resolution industrial assets for bearings, belts, pulleys, and transmission components.
- * Completely replaces generic/unrelated vehicle or car images with authentic industrial engineering assets.
+ * Verified industrial assets and authentic local photo assets for bearings, belts, and banners.
+ * All downloaded authentic photos from Belts, Bearings, and Banner folders are seamlessly integrated.
  */
 
 export const INDUSTRIAL_IMAGE_CATALOG = {
-  // 1. Deep Groove Ball Bearings (6200, 6300 series, SKF, NBC, HCH)
-  ballBearing: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=800&q=80',
-  
-  // 2. Angular Contact Bearings (7300 series, high thrust, SKF)
-  angularContact: 'https://images.unsplash.com/photo-1563770660941-20978e870e26?auto=format&fit=crop&w=800&q=80',
-  
-  // 3. Spherical Roller Bearings & Taper Bearings (22200 series, Timken, ZKL)
-  rollerBearing: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
-  
-  // 4. Mounted Units & Pillow Blocks (UCP 205, UCP 208, Plummer block)
+  // Bearings
+  ballBearing: '/bearings/imgg14.jpg',
+  angularContact: '/bearings/img1.jpg',
+  rollerBearing: '/bearings/img3.jpg',
   pillowBlock: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80',
   
-  // 5. Industrial V-Belts & Wedge Belts (PIX Classical A/B/C, Narrow Wedge SPZ/SPA/SPB/SPC, Fenner)
-  vBelt: 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png',
+  // Belts
+  vBelt: '/belts/PIX C 70 Classical V-Belt.jpg',
+  timingBelt: '/belts/PIX SPC PT 3150 Power Transmission.jpg',
+  wedgeBelt: '/belts/PIX SPC 2360 Wedge Belt.jpg',
   
-  // 6. Timing Belts & Synchronous Cogged Belts (HTD 8M, 14M)
-  timingBelt: 'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80',
-  
-  // 7. Pulleys & Taper-Lock Bushes (Cast iron SPA/SPB pulleys, 2517/2012 bushes)
+  // Pulleys & Transmission
   pulley: 'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80',
   taperBush: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
-  
-  // 8. Lubricants & Industrial Greases (SKF LGMT 2/1, high temp grease)
   grease: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=800&q=80',
-  
-  // 9. Laser Alignment & Vibration Diagnostics
   diagnostics: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
-
-  // 10. General Industrial Fallback
-  defaultIndustrial: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+  defaultIndustrial: '/bearings/imgg14.jpg',
 };
 
-// Known generic car / placeholder / broken photo IDs to automatically replace
-const UNRELATED_IMAGE_PATTERNS = [
-  'photo-1617788138017', // Tesla / car wheel
-  'photo-1454165804606', // Laptop / desk
-  'photo-1486406146926', // Skyscraper building
-  'photo-1504917599217', // 404 broken Unsplash URL
-  'photo-1581092335397', // 404 broken Unsplash URL
-];
+// Direct, authentic product photo mappings from the Belts and Bearings folders
+export const PRODUCT_SPECIFIC_IMAGES = {
+  // ---------------- Belts Folder ----------------
+  'pix spc 2360': '/belts/PIX SPC 2360 Wedge Belt.jpg',
+  'spc 2360': '/belts/PIX SPC 2360 Wedge Belt.jpg',
+  '8v-1900': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  'pix 8v-1900': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  'pix spc pt 3150': '/belts/PIX SPC PT 3150 Power Transmission.jpg',
+  'pix c 70': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'fenner c 70': '/belts/Fenner C 70 Classical V-Belt.jpg',
+  'fenner spc pt 3150': '/belts/Fenner SPC PT 3150 Power Transmissio.jpg',
+
+  // ---------------- Bearings Folder ----------------
+  // NBC
+  'nbc 6405zz': '/bearings/img10.jpg',
+  '6405zz': '/bearings/img10.jpg',
+  '6405': '/bearings/img10.jpg',
+  
+  // Timken
+  'timken': '/bearings/img3.jpg',
+  '6313': '/bearings/img3.jpg',
+
+  // SKF
+  '7322 2x': '/bearings/img1.jpg',
+  'skf 7322 2x': '/bearings/img1.jpg',
+  '7322': '/bearings/img2.jpg',
+  'skf 7322': '/bearings/img2.jpg',
+
+  // HCH Matched Set
+  '6201_6202': '/bearings/img5.jpg',
+  'matched set': '/bearings/img5.jpg',
+
+  // HCH 6205 & 6205ZZ
+  'hch 6205zz': '/bearings/img4.jpg',
+  '6205zz': '/bearings/img4.jpg',
+  'hch 6205': '/bearings/img11.jpg',
+  '6205': '/bearings/img11.jpg',
+
+  // HCH 6306 & 6306ZZ
+  'hch 6306zz': '/bearings/img9.jpg',
+  '6306zz': '/bearings/img9.jpg',
+  'hch 6306': '/bearings/img9.jpg',
+  '6306': '/bearings/img9.jpg',
+
+  // HCH 6203 & 6203ZZ
+  'hch 6203zz': '/bearings/image12.jpg',
+  '6203zz': '/bearings/image12.jpg',
+  'hch 6203': '/bearings/imgg14.jpg',
+  '6203': '/bearings/imgg14.jpg',
+
+  // HCH 6204 & 6204ZZ
+  'hch 6204zz': '/bearings/img7.jpg',
+  '6204zz': '/bearings/img7.jpg',
+  'hch 6204': '/bearings/img6.jpg',
+  '6204': '/bearings/img6.jpg',
+
+  // HCH 6305 & 6305ZZ
+  'hch 6305zz': '/bearings/img4.jpg',
+  '6305zz': '/bearings/img4.jpg',
+  'hch 6305': '/bearings/img8.jpg',
+  '6305': '/bearings/img8.jpg',
+
+  // HCH 6307
+  'hch 6307': '/bearings/img15.jpg',
+  '6307': '/bearings/img15.jpg',
+
+  // HCH 6309
+  'hch 6309': '/bearings/imgg14.jpg',
+  '6309': '/bearings/imgg14.jpg',
+};
 
 /**
- * Intelligently resolves the most accurate, relevant industrial engineering image
- * based on product title, part number, brand, and category.
+ * Intelligently resolves the most accurate, authentic industrial engineering image
+ * prioritizing local photo assets from the Belts and Bearings directories.
  */
 export const getProductImageUrl = (productOrImage, optionalCategory = '') => {
   if (!productOrImage) return INDUSTRIAL_IMAGE_CATALOG.defaultIndustrial;
@@ -72,16 +121,43 @@ export const getProductImageUrl = (productOrImage, optionalCategory = '') => {
     brand = productOrImage.brand || '';
   }
 
-  // Check if current image is a valid non-car image that was explicitly uploaded by user
-  const isCarOrGenericImage = UNRELATED_IMAGE_PATTERNS.some((pattern) => currentImage.includes(pattern));
-
-  if (currentImage && !isCarOrGenericImage && !currentImage.includes('unsplash.com/photo-1617788138017')) {
+  // 1. If image is already an authentic local path (belts, bearings, banners, uploads), return immediately
+  if (
+    currentImage &&
+    (currentImage.startsWith('/belts/') ||
+      currentImage.startsWith('/bearings/') ||
+      currentImage.startsWith('/banners/') ||
+      currentImage.startsWith('/uploads/') ||
+      currentImage.startsWith('data:image'))
+  ) {
     return currentImage;
   }
 
+  // 2. Exact lookup by part number, name, or key combinations
+  const pNorm = (partNumber || '').trim().toLowerCase();
+  const nNorm = (name || '').trim().toLowerCase();
+  const bNorm = (brand || '').trim().toLowerCase();
+  const combined = `${bNorm} ${pNorm} ${nNorm}`.toLowerCase();
+
+  for (const [key, imagePath] of Object.entries(PRODUCT_SPECIFIC_IMAGES)) {
+    if (
+      pNorm === key ||
+      nNorm.includes(key) ||
+      combined.includes(key)
+    ) {
+      return imagePath;
+    }
+  }
+
+  // 3. Fallback to generic non-unsplash image if present and not car-related
+  if (currentImage && !currentImage.includes('unsplash.com')) {
+    return currentImage;
+  }
+
+  // 4. Category-based fallback
   const query = `${name} ${partNumber} ${brand} ${categoryName}`.toLowerCase();
 
-  // 1. V-Belts & Wedge Belts
+  // V-Belts
   if (
     query.includes('belt') ||
     query.includes('spz') ||
@@ -91,62 +167,16 @@ export const getProductImageUrl = (productOrImage, optionalCategory = '') => {
     query.includes('wedge') ||
     query.includes('fenner') ||
     query.includes('pix') ||
-    query.includes('c 70') ||
-    query.includes('a 45') ||
-    query.includes('b 60') ||
-    query.includes('c 90')
+    query.includes('c 70')
   ) {
-    if (query.includes('timing') || query.includes('cogged') || query.includes('htd')) {
-      return INDUSTRIAL_IMAGE_CATALOG.timingBelt;
-    }
     return INDUSTRIAL_IMAGE_CATALOG.vBelt;
   }
 
-  // 2. Pulleys & Taper Bushes
-  if (query.includes('pulley') || query.includes('groove') || query.includes('sheave')) {
-    return INDUSTRIAL_IMAGE_CATALOG.pulley;
-  }
-  if (query.includes('bush') || query.includes('taper-lock') || query.includes('2517') || query.includes('2012')) {
-    return INDUSTRIAL_IMAGE_CATALOG.taperBush;
-  }
-
-  // 3. Angular Contact Bearings
-  if (query.includes('angular') || query.includes('7322') || query.includes('72') || query.includes('73')) {
-    return INDUSTRIAL_IMAGE_CATALOG.angularContact;
-  }
-
-  // 4. Mounted Units & Pillow Blocks
-  if (query.includes('pillow') || query.includes('ucp') || query.includes('plummer') || query.includes('housing')) {
-    return INDUSTRIAL_IMAGE_CATALOG.pillowBlock;
-  }
-
-  // 5. Spherical & Taper Roller Bearings
-  if (
-    query.includes('spherical') ||
-    query.includes('taper') ||
-    query.includes('roller') ||
-    query.includes('22220') ||
-    query.includes('22218') ||
-    query.includes('30206') ||
-    query.includes('32210')
-  ) {
-    return INDUSTRIAL_IMAGE_CATALOG.rollerBearing;
-  }
-
-  // 6. Lubrication & Industrial Grease
-  if (query.includes('grease') || query.includes('lgmt') || query.includes('lubricant') || query.includes('oil')) {
-    return INDUSTRIAL_IMAGE_CATALOG.grease;
-  }
-
-  // 7. Laser Alignment & Vibration
-  if (query.includes('laser') || query.includes('alignment') || query.includes('vibration') || query.includes('diagnostic')) {
-    return INDUSTRIAL_IMAGE_CATALOG.diagnostics;
-  }
-
-  // 8. Ball Bearings (Default for bearing category: 6204, 6306, 6205, etc.)
-  if (query.includes('bearing') || query.includes('skf') || query.includes('nbc') || query.includes('hch') || query.includes('ball')) {
-    return INDUSTRIAL_IMAGE_CATALOG.ballBearing;
-  }
+  // Bearings fallback
+  if (query.includes('nbc')) return '/bearings/img10.jpg';
+  if (query.includes('timken')) return '/bearings/img3.jpg';
+  if (query.includes('skf')) return '/bearings/img1.jpg';
+  if (query.includes('hch')) return '/bearings/imgg14.jpg';
 
   return INDUSTRIAL_IMAGE_CATALOG.ballBearing;
 };

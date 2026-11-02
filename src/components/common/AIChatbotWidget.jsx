@@ -150,7 +150,7 @@ export const AIChatbotWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 select-none print:hidden font-sans">
+    <div className="fixed bottom-3 right-3 sm:bottom-5 sm:right-5 z-50 select-none print:hidden font-sans max-w-[calc(100vw-1.5rem)]">
       {/* Floating Trigger Button */}
       {!isOpen && (
         <button
@@ -158,11 +158,11 @@ export const AIChatbotWidget = () => {
             setIsOpen(true);
             setIsMinimized(false);
           }}
-          className="group relative flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-navy via-navy-light to-navy text-white rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-accent/40"
+          className="group relative flex items-center gap-2 px-3.5 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-navy via-navy-light to-navy text-white rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-accent/40"
           aria-label="Open AI Assistant"
         >
           <div className="relative">
-            <Bot className="w-6 h-6 text-accent group-hover:rotate-12 transition-smooth" />
+            <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-accent group-hover:rotate-12 transition-smooth" />
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-navy animate-pulse" />
           </div>
           <span className="text-xs font-black tracking-tight text-white pr-1">
@@ -174,8 +174,8 @@ export const AIChatbotWidget = () => {
       {/* Chat Window */}
       {isOpen && (
         <div
-          className={`w-[92vw] sm:w-[400px] bg-white rounded-3xl shadow-2xl border border-slate-300 flex flex-col overflow-hidden transition-all duration-300 ${
-            isMinimized ? 'h-14' : 'h-[540px] max-h-[85vh]'
+          className={`w-[calc(100vw-1.5rem)] sm:w-[400px] max-w-[420px] bg-white rounded-3xl shadow-2xl border border-slate-300 flex flex-col overflow-hidden transition-all duration-300 ${
+            isMinimized ? 'h-14' : 'h-[520px] max-h-[82vh]'
           }`}
         >
           {/* Header */}

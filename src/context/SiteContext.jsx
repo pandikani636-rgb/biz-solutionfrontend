@@ -16,6 +16,7 @@ export const SiteProvider = ({ children }) => {
   });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showPreloader, setShowPreloader] = useState(true);
 
   const fetchSiteData = async () => {
     try {
@@ -47,6 +48,8 @@ export const SiteProvider = ({ children }) => {
         settings,
         categories,
         loading,
+        showPreloader,
+        setShowPreloader,
         refreshSiteData: fetchSiteData,
       }}
     >

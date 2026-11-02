@@ -22,11 +22,12 @@ import {
   Languages,
   ShieldCheck,
   ChevronRight,
+  ShoppingBag,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 
-export const AdminSidebar = ({ isCollapsed, onToggle }) => {
+export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggle }) => {
   const { logout, user } = useAuth();
   const { isTamil, toggleLanguage, t } = useLanguage();
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ export const AdminSidebar = ({ isCollapsed, onToggle }) => {
       groupTitle: 'Operations & Orders',
       items: [
         { label: t('admin_dashboard') || 'Overview', to: '/admin', icon: LayoutDashboard, end: true },
+        { label: 'Material Purchases', to: '/admin/purchases', icon: ShoppingBag },
         { label: t('admin_quotations') || 'Quotations & RFQs', to: '/admin/quotations', icon: FileCheck },
         { label: t('admin_orders') || 'Orders & Invoices', to: '/admin/bookings', icon: CalendarCheck },
         { label: 'Transactions', to: '/admin/payments', icon: CreditCard },
@@ -72,30 +74,34 @@ export const AdminSidebar = ({ isCollapsed, onToggle }) => {
 
   return (
     <aside
-      className={`bg-slate-950 text-slate-200 border-r border-slate-800 flex flex-col h-full transition-all duration-300 z-30 shrink-0 select-none ${
-        isCollapsed ? 'w-20' : 'w-64'
+      className={`bg-slate-950 text-slate-200 border-r border-slate-800 flex flex-col h-full transition-all duration-300 z-40 select-none ${
+        isMobileOpen
+          ? 'fixed inset-y-0 left-0 w-64 shadow-2xl translate-x-0'
+          : 'fixed inset-y-0 left-0 w-64 -translate-x-full md:relative md:translate-x-0'
+      } ${
+        isCollapsed ? 'md:w-20' : 'md:w-64'
       }`}
     >
       {/* Brand & Workspace Area */}
-      <div className="h-20 flex items-center px-5 border-b border-slate-800/80 shrink-0">
+      <div className="h-20 flex items-center px-4 border-b border-slate-800/80 shrink-0">
         {!isCollapsed ? (
-          <Link to="/admin" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-navy border border-blue-400/40 flex items-center justify-center text-white shadow-md shadow-blue-900/30">
-              <Layers className="w-5 h-5 text-accent" />
+          <Link to="/admin" className="flex items-center gap-3 group min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-md shrink-0">
+              <img src="/bm-logo.png" alt="BM Logo" className="w-full h-full object-contain" />
             </div>
-            <div className="min-w-0">
-              <span className="font-black text-base text-white tracking-tight leading-none block">
-                Biz<span className="text-accent">Zolution</span>
+            <div className="min-w-0 flex-1">
+              <span className="font-black text-sm text-white tracking-tight leading-none block truncate">
+                Balumuni &amp; Associates
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-blue-400 block mt-1">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-blue-400 block mt-1">
                 Admin Console
               </span>
             </div>
           </Link>
         ) : (
-          <Link to="/admin" className="mx-auto" title="BizZolution Admin Console">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-navy border border-blue-400/40 flex items-center justify-center text-white shadow-md">
-              <Layers className="w-5 h-5 text-accent" />
+          <Link to="/admin" className="mx-auto" title="Balumuni and Associates Admin">
+            <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-md">
+              <img src="/bm-logo.png" alt="BM Logo" className="w-full h-full object-contain" />
             </div>
           </Link>
         )}
@@ -122,6 +128,9 @@ export const AdminSidebar = ({ isCollapsed, onToggle }) => {
                     key={item.to}
                     to={item.to}
                     end={item.end}
+                    onClick={() => {
+                      if (onCloseMobile) onCloseMobile();
+                    }}
                     className={({ isActive }) =>
                       `flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 group relative ${
                         isActive

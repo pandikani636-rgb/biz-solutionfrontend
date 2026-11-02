@@ -26,32 +26,49 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
-            <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-md">
-                <Layers className="w-6 h-6 text-accent" />
+            <Link to="/" className="inline-flex items-center gap-3">
+              <div className="bg-white p-1 rounded-xl shadow-md">
+                <img
+                  src="/bm-logo.png"
+                  alt="Balumuni and Associates BM Logo"
+                  className="h-10 w-auto object-contain"
+                />
               </div>
-              <span className="text-2xl font-black text-white tracking-tight">
-                Biz<span className="text-accent">Zolution</span>
-              </span>
+              <div>
+                <span className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight block">
+                  Balumuni <span className="text-accent font-extrabold">and Associates</span>
+                </span>
+              </div>
             </Link>
 
-            <p className="text-slate-200 text-sm leading-relaxed max-w-sm font-medium">
-              {settings.tagLine ||
-                'BizZolution is the premier unified enterprise platform connecting modern consumers with digital toll recharges, corporate registration, vetted freight logistics, and curated travel experiences.'}
-            </p>
+            <div className="text-[11px] font-semibold text-slate-300 space-y-0.5">
+              <p><span className="text-slate-400">Proprietor:</span> <strong className="text-white">K. Karthick Kumar</strong></p>
+              <p className="text-slate-300 text-xs leading-relaxed pt-1">
+                Authorized industrial distributor for world-class mechanical transmission belts, bearings, taper pulleys, and industrial equipment.
+              </p>
+            </div>
 
-            <div className="pt-2 space-y-2 text-xs text-slate-200">
+            <div className="pt-2 space-y-2.5 text-xs text-slate-200">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                <span>{settings.address}</span>
+                <span className="leading-relaxed break-words">
+                  45B/16 Noorullah Mall, Oothumalai Paradesimadam Street, Srivilliputtur, Virudhunagar Dist, Tamilnadu – 626125
+                </span>
               </div>
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 flex-wrap">
                 <Phone className="w-4 h-4 text-accent shrink-0" />
-                <span>{settings.contactPhone}</span>
+                <a href="tel:+917418423238" className="hover:text-accent font-mono font-bold">
+                  +91-74184 23238 / 98426 70320
+                </a>
               </div>
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 flex-wrap">
                 <Mail className="w-4 h-4 text-accent shrink-0" />
-                <span>{settings.contactEmail}</span>
+                <a href="mailto:balumuniandassociates@gmail.com" className="hover:text-accent underline break-all">
+                  balumuniandassociates@gmail.com
+                </a>
+              </div>
+              <div className="inline-block mt-1 font-mono text-[10px] text-amber-300 font-bold bg-white/10 px-2.5 py-1 rounded border border-white/10">
+                GSTIN: 33HONPK5547G2Z
               </div>
             </div>
           </div>
@@ -151,7 +168,7 @@ export const Footer = () => {
 
         {/* Bottom Credits & Copyright */}
         <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-300">
-          <p>© {new Date().getFullYear()} BizZolution Platform. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Balumuni and Associates. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <span className="text-slate-300">ISO 9001:2015 Certified Solutions Provider</span>
             <Link to="/about" className="hover:text-accent">

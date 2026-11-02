@@ -43,6 +43,7 @@ import { AdminPdfCatalogPage } from '../pages/admin/AdminPdfCatalogPage';
 import { AdminContentPage } from '../pages/admin/AdminContentPage';
 import { AdminSettingsPage } from '../pages/admin/AdminSettingsPage';
 import { AdminReportsPage } from '../pages/admin/AdminReportsPage';
+import { AdminPurchasesPage } from '../pages/admin/AdminPurchasesPage';
 
 export const AppRoutes = () => {
   return (
@@ -74,6 +75,7 @@ export const AppRoutes = () => {
       {/* Admin Portal (Protected, Admin Only) */}
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboardOverview />} />
+        <Route path="purchases" element={<AdminPurchasesPage />} />
         <Route path="services" element={<AdminServicesPage />} />
         <Route path="categories" element={<AdminCategoriesPage />} />
         <Route path="packages" element={<AdminPackagesPage />} />
