@@ -33,14 +33,14 @@ const resolveBaseUrl = () => {
     return normalizeBaseUrl(envUrl);
   }
 
-  // If running in browser on Vercel or any cloud domain, automatically connect to deployed backend
+  // If running in browser on custom domain or Vercel, use same-origin relative API
   if (
     typeof window !== 'undefined' &&
     window.location.hostname &&
     window.location.hostname !== 'localhost' &&
     window.location.hostname !== '127.0.0.1'
   ) {
-    return 'https://biz-solution-backend.vercel.app/api/v1';
+    return `${window.location.origin}/api/v1`;
   }
 
   return normalizeBaseUrl(envUrl || '/api/v1');
