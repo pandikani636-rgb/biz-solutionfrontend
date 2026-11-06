@@ -140,19 +140,19 @@ export const PriceListPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       {/* Header Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-navy via-navy-light to-navy rounded-3xl p-8 md:p-12 text-white shadow-xl border border-blue-900/40">
-        {/* Transparent background image blending smoothly with blue */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-3xl p-8 md:p-12 text-white shadow-xl border border-blue-400/40">
+        {/* Industrial machinery background banner */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img
-            src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80"
-            alt=""
-            className="w-full h-full object-cover object-center opacity-25"
+            src="/banners/img6.jpg"
+            alt="Industrial Parts & Bearings"
+            className="w-full h-full object-cover object-center opacity-30 mix-blend-overlay"
             onError={(e) => {
-              e.target.src = 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1600&q=80';
+              e.target.src = '/banners/img4.jpg';
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/80 to-navy/30" />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-800/60 to-indigo-900/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 via-transparent to-transparent" />
         </div>
 
         <div className="relative z-10 space-y-4">
@@ -167,7 +167,7 @@ export const PriceListPage = () => {
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
           MRP Price List & Wholesale Discounts
         </h1>
-        <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+        <p className="text-xs sm:text-sm text-blue-100 max-w-2xl leading-relaxed">
           Transparent wholesale pricing policy. We pass maximum distribution margins directly to plants and OEMs: 45% - 48% off MRP on standard lines with free freight, and strictly 10% on genuine SKF.
         </p>
         </div>
@@ -289,7 +289,7 @@ export const PriceListPage = () => {
               <span className="font-black text-amber-700">- {formatCurrency(discountAmount)}</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-secondaryText">Delhivery Freight Freight:</span>
+              <span className="text-secondaryText">Delhivery Freight:</span>
               <span className="font-bold text-emerald-700">₹0 (Free / Included)</span>
             </div>
             <div className="flex justify-between text-xs">
@@ -313,10 +313,13 @@ export const PriceListPage = () => {
       {/* Extracted PDF Catalog & Category Hierarchy (Requirement 3) */}
       <PdfCatalogViewer />
 
-      {/* Complete Itemized Part Number Price List Table */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
+      {/* Complete Itemized Part Number Price List Table (With Freeze Effect Container) */}
+      <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 md:p-8 border border-blue-200/80 shadow-[0_16px_45px_-12px_rgba(37,99,235,0.12)] space-y-6 relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold uppercase tracking-wider mb-1.5">
+              <span>Verified Catalog</span>
+            </div>
             <h3 className="text-xl font-black text-navy">Itemized Product Catalog & Part Numbers</h3>
             <p className="text-xs text-secondaryText mt-0.5">
               Live price list of all stocked components from Karthick Kumar K’s inventory.
@@ -353,15 +356,14 @@ export const PriceListPage = () => {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[600px] scrollbar-thin">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+            <thead className="sticky top-0 z-10 bg-slate-100/95 backdrop-blur-sm text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200 shadow-2xs">
               <tr>
                 <th className="py-3 px-4">Make</th>
                 <th className="py-3 px-4">Part / Code</th>
                 <th className="py-3 px-4">Section / Description</th>
                 <th className="py-3 px-4 text-right">List MRP</th>
-                <th className="py-3 px-4 text-center">Discount</th>
                 <th className="py-3 px-4 text-right">Net Wholesale</th>
                 <th className="py-3 px-4 text-center">Delivery</th>
                 <th className="py-3 px-4 text-center">Action</th>
@@ -381,13 +383,6 @@ export const PriceListPage = () => {
                     </td>
                     <td className="py-3.5 px-4 text-right font-medium text-slate-400 line-through">
                       {formatCurrency(officialMrp)}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className={`px-2 py-0.5 rounded font-black text-[11px] ${
-                        p.brand === 'SKF' ? 'bg-blue-100 text-blue-900' : 'bg-amber-100 text-amber-900'
-                      }`}>
-                        {p.discountPercentage}% OFF
-                      </span>
                     </td>
                     <td className="py-3.5 px-4 text-right font-black text-navy text-sm">
                       {formatCurrency(netPrice)}

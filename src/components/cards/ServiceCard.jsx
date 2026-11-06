@@ -35,9 +35,8 @@ export const ServiceCard = ({ service }) => {
   } = service;
 
   const displayPrice = discountPrice > 0 && discountPrice < basePrice ? discountPrice : basePrice;
-  const officialMrp = mrp > 0 ? mrp : Math.round(displayPrice / (1 - (discountPercentage || 46) / 100));
-  const hasDiscount = officialMrp > displayPrice;
-  const discountLabel = discountPercentage ? `${discountPercentage}% OFF` : '46% OFF';
+  const cleanName = (name || '').replace(/authori[sz]ed\s*/gi, '');
+  const cleanDescription = (shortDescription || '').replace(/authori[sz]ed\s*/gi, '');
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-xl transition-smooth flex flex-col group relative">
@@ -45,7 +44,7 @@ export const ServiceCard = ({ service }) => {
       <div className="relative h-48 w-full overflow-hidden bg-slate-900">
         <img
           src={getProductImageUrl(service)}
-          alt={name}
+          alt={cleanName}
           className="w-full h-full object-cover group-hover:scale-105 transition-smooth duration-500 opacity-95"
           loading="lazy"
           onError={(e) => {
@@ -67,17 +66,14 @@ export const ServiceCard = ({ service }) => {
           </div>
         )}
 
-        {/* Discount Tag (Top-Right) */}
-        <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
-          <span className="bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-1 rounded-md shadow flex items-center gap-1">
-            <Tag className="w-3 h-3 fill-slate-950" /> {discountLabel}
-          </span>
-          {isFeatured && (
+        {/* Feature Tag (Top-Right) - Offer info removed */}
+        {isFeatured && (
+          <div className="absolute top-3 right-3">
             <span className="bg-navy/90 text-white font-bold text-[10px] px-2 py-0.5 rounded shadow flex items-center gap-1">
               <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /> Top Demand
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Section / Category Pill (Bottom-Left) */}
         <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
@@ -105,11 +101,11 @@ export const ServiceCard = ({ service }) => {
           )}
 
           <h3 className="font-bold text-base md:text-lg text-darkText group-hover:text-primary transition-smooth line-clamp-1">
-            {name}
+            {cleanName}
           </h3>
 
           <p className="text-secondaryText text-xs mt-1.5 line-clamp-2 leading-relaxed">
-            {shortDescription}
+            {cleanDescription}
           </p>
         </div>
 
@@ -124,18 +120,12 @@ export const ServiceCard = ({ service }) => {
           </div>
         </div>
 
-        {/* Pricing Footer */}
+        {/* Pricing Footer - Offer info removed */}
         <div className="pt-3 border-t border-slate-100 space-y-3">
           <div className="flex items-end justify-between">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-secondaryText">MRP List:</span>
-                <span className="text-xs text-slate-400 line-through font-medium">
-                  {formatCurrency(officialMrp)}
-                </span>
-              </div>
-              <div className="flex items-baseline gap-1 mt-0.5">
-                <span className="text-xs font-bold text-emerald-700">Net:</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-xs font-bold text-slate-600">Price:</span>
                 <span className="text-xl font-black text-navy">
                   {formatCurrency(displayPrice)}
                 </span>

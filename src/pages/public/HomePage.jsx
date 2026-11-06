@@ -115,7 +115,7 @@ const allFourteenBrands = [
     fullName: 'PIX Transmissions Ltd',
     logo: '/brands/individual/pix.png',
     category: 'Industrial V-Belts & Drives',
-    badge: 'Authorised Dealer',
+    badge: 'Industrial Dealer',
     discount: '45% - 48% OFF',
   },
   {
@@ -124,7 +124,7 @@ const allFourteenBrands = [
     fullName: 'J.K. Fenner (India) Limited',
     logo: '/brands/individual/jk-fenner.png',
     category: 'Belts, Pulleys & Couplings',
-    badge: 'Authorised Stockist',
+    badge: 'Industrial Stockist',
     discount: '45% - 48% OFF',
   },
   {
@@ -151,7 +151,7 @@ const allFourteenBrands = [
     fullName: 'Shanthi Gears (Murugappa)',
     logo: '/brands/individual/shanthi-gears.png',
     category: 'Industrial Gearboxes & Spares',
-    badge: 'Authorised Partner',
+    badge: 'Industrial Partner',
     discount: 'OEM Pricing',
   },
   {
@@ -169,7 +169,7 @@ const allFourteenBrands = [
     fullName: 'FAG Bearings (Schaeffler)',
     logo: '/brands/individual/fag.png',
     category: 'Spherical & Cylindrical Bearings',
-    badge: 'Authorised Stockist',
+    badge: 'Industrial Stockist',
     discount: 'Volume Discounts',
   },
   {
@@ -205,7 +205,7 @@ const allFourteenBrands = [
     fullName: 'Siemens Industrial Drives & Motors',
     logo: '/brands/individual/siemens.png',
     category: 'Energy Efficient IE2/IE3 Motors',
-    badge: 'Authorised Channel',
+    badge: 'Channel Partner',
     discount: 'Project Discounts',
   },
   {
@@ -232,7 +232,7 @@ const allFourteenBrands = [
     fullName: 'Bharat Bijlee Limited',
     logo: '/brands/individual/bharat-bijlee.png',
     category: 'Heavy Duty AC Motors & Drives',
-    badge: 'Authorised Partner',
+    badge: 'Industrial Partner',
     discount: 'Standard Pricing',
   },
 ];
@@ -248,9 +248,6 @@ export const HomePage = () => {
   const [faqs, setFaqs] = useState([]);
   const [activeFaq, setActiveFaq] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // Quick Part Search State
-  const [partSearch, setPartSearch] = useState('');
 
   // Discount Calculator State
   const [calcBrand, setCalcBrand] = useState('PIX');
@@ -292,7 +289,7 @@ export const HomePage = () => {
       image: '/banners/img2.png',
       ctaText: "Browse Grander's Belts",
       ctaLink: '/services?brand=PIX',
-      secondaryCtaText: 'Request Bulk RFQ',
+      secondaryCtaText: 'Request Quotation',
       secondaryCtaLink: '/rfq',
     },
     {
@@ -342,7 +339,7 @@ export const HomePage = () => {
       image: '/banners/img6.jpg',
       ctaText: 'Browse Veehold Lineup',
       ctaLink: '/services?section=Belt',
-      secondaryCtaText: 'Request Bulk Quote',
+      secondaryCtaText: 'Request Quotation',
       secondaryCtaLink: '/rfq',
     },
   ];
@@ -375,13 +372,6 @@ export const HomePage = () => {
   const netPrice = Math.max(0, parsedMrp - discountAmount);
   const gstAmount = Math.round(((netPrice * 18) / 100) * 100) / 100;
   const totalPrice = Math.round((netPrice + gstAmount) * 100) / 100;
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (partSearch.trim()) {
-      navigate(`/services?search=${encodeURIComponent(partSearch.trim())}`);
-    }
-  };
 
   return (
     <div className="relative min-h-screen space-y-16 pb-20">
@@ -429,91 +419,135 @@ export const HomePage = () => {
         {/* Previous / Next Slide Controls */}
         <button
           onClick={handlePrevSlide}
-          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center border border-white/20 shadow-xl backdrop-blur-md opacity-80 hover:opacity-100 transition-all duration-200"
+          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-blue-900/60 hover:bg-blue-900/90 text-white flex items-center justify-center border border-white/20 shadow-xl backdrop-blur-md opacity-80 hover:opacity-100 transition-all duration-200"
           aria-label="Previous Slide"
         >
           <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6 text-accent" />
         </button>
         <button
           onClick={handleNextSlide}
-          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center border border-white/20 shadow-xl backdrop-blur-md opacity-80 hover:opacity-100 transition-all duration-200"
+          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-blue-900/60 hover:bg-blue-900/90 text-white flex items-center justify-center border border-white/20 shadow-xl backdrop-blur-md opacity-80 hover:opacity-100 transition-all duration-200"
           aria-label="Next Slide"
         >
           <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6 text-accent" />
         </button>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-10 sm:px-12 lg:px-14 py-12 sm:py-16 md:py-20 w-full">
-          <div className="max-w-2xl space-y-5">
-            {/* Badge */}
-            {currentBanner.badgeText && (
-              <div className="animate-fadeIn">
-                <span className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-slate-950/75 border border-accent/60 text-amber-300 font-black text-xs uppercase tracking-wider backdrop-blur-md shadow-xl">
-                  <Sparkles className="w-3.5 h-3.5 text-accent animate-pulse" />
-                  {currentBanner.badgeText}
-                </span>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-10 sm:py-14 md:py-16 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            {/* Left: Hero Banner Text & Actions */}
+            <div className={`${categories && categories.length > 0 ? 'lg:col-span-7' : 'lg:col-span-12'} space-y-5`}>
+              {/* Badge */}
+              {currentBanner.badgeText && (
+                <div className="animate-fadeIn">
+                  <span className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-blue-950/70 border border-blue-400/40 text-amber-300 font-black text-xs uppercase tracking-wider backdrop-blur-md shadow-xl">
+                    <Sparkles className="w-3.5 h-3.5 text-accent animate-pulse" />
+                    {currentBanner.badgeText}
+                  </span>
+                </div>
+              )}
+
+              {/* Subtitle / Description Card */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-blue-900/60 backdrop-blur-md border border-white/20 shadow-2xl max-w-xl animate-fadeIn">
+                <p className="text-white text-xs sm:text-base leading-relaxed font-semibold drop-shadow-sm">
+                  {currentBanner.subtitle}
+                </p>
+              </div>
+
+              {/* Action Buttons - Request Quotation */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1 animate-fadeIn">
+                <Link to={currentBanner.ctaLink || '/services'} className="w-full sm:w-auto">
+                  <Button variant="accent" size="lg" className="w-full font-bold inline-flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-smooth group">
+                    <span>{currentBanner.ctaText || 'Browse All Products'}</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-smooth" />
+                  </Button>
+                </Link>
+                <Link to={currentBanner.secondaryCtaLink || '/rfq'} className="w-full sm:w-auto">
+                  <Button variant="secondary" size="lg" className="w-full bg-blue-950/60 text-white hover:bg-blue-950/90 border border-white/25 backdrop-blur-md font-bold inline-flex items-center justify-center gap-2 hover:scale-[1.02] transition-smooth group shadow-lg">
+                    <FileSpreadsheet className="w-4 h-4 text-accent group-hover:rotate-6 transition-smooth" />
+                    <span>{currentBanner.secondaryCtaText || 'Request Quotation'}</span>
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Banner navigation indicator dots */}
+              <div className="flex items-center gap-2 pt-2">
+                {activeBannersList.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveBannerIdx(idx)}
+                    className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${
+                      idx === (activeBannerIdx % activeBannersList.length)
+                        ? 'w-7 sm:w-9 bg-accent shadow-md'
+                        : 'w-2 sm:w-2.5 bg-white/40 hover:bg-white/70'
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Right: Available Product Categories Display Section (Dynamically updated from Admin Panel) */}
+            {categories && categories.length > 0 && (
+              <div className="lg:col-span-5 animate-fadeIn">
+                <div className="bg-blue-900/80 backdrop-blur-md rounded-3xl p-5 sm:p-6 border border-white/20 shadow-2xl text-white space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-primary/30 border border-primary/50 flex items-center justify-center text-amber-400">
+                        <Layers className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h3 className="font-extrabold text-sm sm:text-base text-white tracking-tight">
+                          Product Categories
+                        </h3>
+                        <p className="text-[11px] text-slate-300">
+                          {categories.length} categories available
+                        </p>
+                      </div>
+                    </div>
+                    <Link
+                      to="/services"
+                      className="text-[11px] font-bold text-amber-400 hover:text-amber-300 inline-flex items-center gap-1"
+                    >
+                      <span>Explore</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+
+                  {/* Dynamic Category List */}
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                    {categories.map((cat) => {
+                      const IconComp = iconMap[cat.icon] || Briefcase;
+                      return (
+                        <Link
+                          key={cat._id}
+                          to={`/services?category=${cat._id}`}
+                          className="group flex items-center justify-between p-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all hover:scale-[1.01]"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-9 h-9 rounded-xl bg-primary/40 flex items-center justify-center text-amber-300 group-hover:scale-110 transition-smooth shrink-0">
+                              <IconComp className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-xs sm:text-sm text-white group-hover:text-amber-300 transition-colors truncate">
+                                {cat.name}
+                              </h4>
+                              {cat.description && (
+                                <p className="text-[10px] text-slate-300 truncate">
+                                  {cat.description}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-amber-300 group-hover:translate-x-1 transition-all shrink-0 ml-2" />
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* Note: The giant headline words have been completely removed as requested in Requirement 1 for clean visual balance */}
-
-            {/* Subtitle / Description Card */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-950/60 backdrop-blur-md border border-white/20 shadow-2xl max-w-xl animate-fadeIn">
-              <p className="text-white text-xs sm:text-base leading-relaxed font-semibold drop-shadow-sm">
-                {currentBanner.subtitle}
-              </p>
-            </div>
-
-            {/* Quick Part Number Search Box with glassmorphism */}
-            <form
-              onSubmit={handleSearchSubmit}
-              className="flex flex-col sm:flex-row items-stretch gap-2 pt-1 max-w-xl animate-fadeIn"
-            >
-              <div className="relative flex-1">
-                <Search className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" />
-                <input
-                  type="text"
-                  placeholder="Enter Part Number (e.g., 6204, SPC 2360, 7322, 2517)..."
-                  value={partSearch}
-                  onChange={(e) => setPartSearch(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-white/95 backdrop-blur-md text-darkText rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-accent shadow-lg border border-white/40"
-                />
-              </div>
-              <Button type="submit" variant="accent" size="md" className="font-bold whitespace-nowrap inline-flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] transition-smooth">
-                <Search className="w-4 h-4" />
-                <span>Search Part</span>
-              </Button>
-            </form>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1 animate-fadeIn">
-              <Link to={currentBanner.ctaLink || '/services'} className="w-full sm:w-auto">
-                <Button variant="accent" size="lg" className="w-full font-bold inline-flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-smooth group">
-                  <span>{currentBanner.ctaText || 'Browse All Products'}</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-smooth" />
-                </Button>
-              </Link>
-              <Link to={currentBanner.secondaryCtaLink || '/rfq'} className="w-full sm:w-auto">
-                <Button variant="secondary" size="lg" className="w-full bg-slate-950/60 text-white hover:bg-slate-950/90 border border-white/25 backdrop-blur-md font-bold inline-flex items-center justify-center gap-2 hover:scale-[1.02] transition-smooth group shadow-lg">
-                  <FileSpreadsheet className="w-4 h-4 text-accent group-hover:rotate-6 transition-smooth" />
-                  <span>{currentBanner.secondaryCtaText || 'Request Bulk RFQ'}</span>
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          {/* Banner navigation indicator dots (6 slides) */}
-          <div className="flex items-center gap-2 mt-6 sm:mt-8">
-            {activeBannersList.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveBannerIdx(idx)}
-                className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${
-                  idx === (activeBannerIdx % activeBannersList.length)
-                    ? 'w-7 sm:w-9 bg-accent shadow-md'
-                    : 'w-2 sm:w-2.5 bg-white/40 hover:bg-white/70'
-                }`}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            ))}
           </div>
         </div>
       </section>
@@ -570,7 +604,7 @@ export const HomePage = () => {
 
       {/* 3. Official Industrial Equipments Partner Brands (All 14 Logos from First Image) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="bg-gradient-to-br from-slate-900 via-navy to-slate-900 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl border border-slate-700/60 text-white relative overflow-hidden">
+        <div className="bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-800 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl border border-blue-400/40 text-white relative overflow-hidden">
           {/* Subtle background glow */}
           <div className="absolute top-0 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -583,7 +617,7 @@ export const HomePage = () => {
                 INDUSTRIAL EQUIPMENTS • ALL 14 OFFICIAL MAKES
               </div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
-                Authorised Stockist & Dealer Network
+                Stockist & Dealer Network
               </h2>
               <p className="text-sm text-slate-300 mt-2 max-w-3xl">
                 Balumuni and Associates is proud to supply 100% genuine products directly sourced from India's premier industrial equipment, bearing, belt, gear, and motor manufacturers.
@@ -659,7 +693,7 @@ export const HomePage = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
           <div>
             <span className="text-xs font-bold text-primary uppercase tracking-widest">
-              Authorized Stockist & Distributors
+              Stockist & Distributors
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-navy mt-1">
               Shop by Brand / Make
@@ -743,7 +777,7 @@ export const HomePage = () => {
               alt=""
               className="w-full h-full object-cover object-center opacity-15"
               onError={(e) => {
-                e.target.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80';
+                e.target.src = '/banners/img6.jpg';
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-blue-50/95 via-sky-50/80 to-white/70" />
@@ -757,7 +791,7 @@ export const HomePage = () => {
                 Live Wholesale Pricing Engine
               </span>
               <h2 className="text-2xl sm:text-3xl font-black text-navy">
-                Instant MRP Discount & Savings Calculator
+                Instant MRP Discount &amp; Savings Calculator
               </h2>
               <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-medium">
                 Test any official price list MRP across our brands. See your exact net B2B wholesale rate with our guaranteed 45% - 48% discount schedule (or flat 10% on SKF Genuine) and zero shipping fees.
@@ -766,11 +800,11 @@ export const HomePage = () => {
               <div className="space-y-2.5 pt-2 text-xs text-slate-700 font-semibold">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>PIX, NBC, HCH, Fenner & Timken: <strong className="text-primary font-black">46% off MRP</strong></span>
+                  <span>PIX, NBC, HCH, Fenner &amp; Timken: <strong className="text-primary font-black">46% off MRP</strong></span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>SKF Bearings: <strong className="text-primary font-black">Flat 10% off MRP</strong> (National & International)</span>
+                  <span>SKF Bearings: <strong className="text-primary font-black">Flat 10% off MRP</strong> (National &amp; International Genuine Stock)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -817,31 +851,31 @@ export const HomePage = () => {
               </div>
 
               {/* Live Price Calculation Display */}
-              <div className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-5 border border-blue-100 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center shadow-xs">
-                <div>
-                  <span className="text-[11px] font-bold text-slate-400 uppercase">List MRP</span>
-                  <p className="text-base font-extrabold text-slate-500 line-through">
+              <div className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-blue-100 grid grid-cols-2 sm:grid-cols-4 gap-3.5 text-center shadow-xs">
+                <div className="p-2 sm:p-2.5 rounded-xl bg-white/60 border border-slate-200/60 flex flex-col justify-center">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tight block">List MRP</span>
+                  <p className="text-sm sm:text-base font-extrabold text-slate-500 line-through mt-0.5 whitespace-nowrap">
                     {formatCurrency(parsedMrp)}
                   </p>
                 </div>
 
-                <div>
-                  <span className="text-[11px] font-bold text-amber-600 uppercase">Discount ({discountPercent}%)</span>
-                  <p className="text-base font-black text-amber-600">
+                <div className="p-2 sm:p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/60 flex flex-col justify-center">
+                  <span className="text-[11px] font-bold text-amber-700 uppercase tracking-tight block">Discount ({discountPercent}%)</span>
+                  <p className="text-sm sm:text-base font-black text-amber-600 mt-0.5 whitespace-nowrap">
                     - {formatCurrency(discountAmount)}
                   </p>
                 </div>
 
-                <div>
-                  <span className="text-[11px] font-bold text-emerald-700 uppercase">Net B2B Rate</span>
-                  <p className="text-xl font-black text-emerald-700">
+                <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200/60 flex flex-col justify-center">
+                  <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-tight block">Net B2B Rate</span>
+                  <p className="text-base sm:text-lg font-black text-emerald-700 mt-0.5 whitespace-nowrap">
                     {formatCurrency(netPrice)}
                   </p>
                 </div>
 
-                <div>
-                  <span className="text-[11px] font-bold text-navy uppercase">Total + 18% GST</span>
-                  <p className="text-xl font-black text-navy">
+                <div className="p-2 sm:p-2.5 rounded-xl bg-blue-100/80 border border-blue-300/80 shadow-2xs flex flex-col justify-center">
+                  <span className="text-[11px] font-black text-blue-900 uppercase tracking-tight block">Total + 18% GST</span>
+                  <p className="text-base sm:text-lg font-black text-blue-950 font-mono mt-0.5 whitespace-nowrap overflow-visible">
                     {formatCurrency(totalPrice)}
                   </p>
                 </div>
@@ -929,7 +963,7 @@ export const HomePage = () => {
                 alt=""
                 className="w-full h-full object-cover object-center opacity-15"
                 onError={(e) => {
-                  e.target.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80';
+                  e.target.src = '/banners/img3.jpg';
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-r from-amber-50/95 via-amber-50/80 to-transparent" />
@@ -968,11 +1002,11 @@ export const HomePage = () => {
             {/* Transparent background image */}
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img
-                src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80"
-                alt=""
-                className="w-full h-full object-cover object-center opacity-15"
+                src="/banners/img1.jpg"
+                alt="SKF industrial bearings"
+                className="w-full h-full object-cover object-center opacity-20"
                 onError={(e) => {
-                  e.target.src = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80';
+                  e.target.src = '/bearings/img1.jpg';
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-r from-blue-50/95 via-sky-50/80 to-transparent" />
@@ -1008,46 +1042,53 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* 7. Featured Industrial Products Grid */}
+      {/* 7. Featured Industrial Products Grid (With Freeze Effect Container) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
-          <div>
-            <span className="text-xs font-bold text-primary uppercase tracking-widest">
-              Immediate Dispatch Inventory
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-navy mt-1">
-              Featured Bearings, Belts & Pulleys
-            </h2>
-          </div>
-          <Link
-            to="/services"
-            className="text-xs font-bold text-primary hover:text-primary-dark mt-2 md:mt-0 flex items-center gap-1"
-          >
-            View All {featuredServices.length}+ Products <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
+        <div className="bg-gradient-to-br from-white/95 via-sky-50/70 to-blue-50/60 backdrop-blur-md rounded-3xl p-6 sm:p-10 border border-blue-200/80 shadow-[0_16px_45px_-12px_rgba(37,99,235,0.12)] relative overflow-hidden">
+          {/* Subtle ice / freeze ambient accent */}
+          <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-bl from-blue-300/20 via-sky-200/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-tr from-sky-300/20 via-blue-200/15 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <CardSkeleton key={n} />
-            ))}
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 relative z-10">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100/90 border border-blue-200 text-blue-800 text-[11px] font-extrabold uppercase tracking-widest mb-2 shadow-2xs backdrop-blur-xs">
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                <span>Verified Product Catalog & Freeze Dispatch Inventory</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-navy mt-1">
+                Featured Bearings, Belts & Pulleys
+              </h2>
+            </div>
+            <Link
+              to="/services"
+              className="text-xs font-bold text-primary hover:text-primary-dark mt-2 md:mt-0 flex items-center gap-1"
+            >
+              View All {featuredServices.length}+ Products <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredServices.slice(0, 9).map((service) => (
-              <ServiceCard key={service._id} service={service} />
-            ))}
-          </div>
-        )}
 
-        <div className="text-center mt-10">
-          <Link to="/services">
-            <Button variant="outline" size="lg" className="font-bold inline-flex items-center gap-2 shadow-sm hover:scale-[1.02] transition-smooth">
-              <span>Explore Complete 24+ Parts Catalog</span>
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Link>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <CardSkeleton key={n} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
+              {featuredServices.slice(0, 9).map((service) => (
+                <ServiceCard key={service._id} service={service} />
+              ))}
+            </div>
+          )}
+
+          <div className="text-center mt-10 relative z-10">
+            <Link to="/services">
+              <Button variant="outline" size="lg" className="font-bold inline-flex items-center gap-2 shadow-sm hover:scale-[1.02] transition-smooth bg-white/90 border-blue-300 hover:bg-blue-50 text-blue-900">
+                <span>Explore Complete 24+ Parts Catalog</span>
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 

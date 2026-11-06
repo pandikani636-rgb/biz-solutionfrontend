@@ -73,14 +73,17 @@ export const ContactPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 animate-fadeIn">
       {/* 1. Header Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-navy via-navy-light to-navy rounded-3xl p-8 md:p-12 text-white shadow-xl border border-blue-900/40 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-3xl p-8 md:p-12 text-white shadow-xl border border-blue-400/40 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img
-            src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80"
-            alt=""
-            className="w-full h-full object-cover object-center opacity-20"
+            src="/banners/img3.jpg"
+            alt="Industrial Engineering Desk"
+            className="w-full h-full object-cover object-center opacity-25 mix-blend-overlay"
+            onError={(e) => {
+              e.target.src = '/banners/img4.jpg';
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/80 to-navy/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-800/60 to-indigo-900/60" />
         </div>
 
         <div className="relative z-10 space-y-3 max-w-2xl">
@@ -91,7 +94,7 @@ export const ContactPage = () => {
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
             Get in Touch with Our Engineering Desk
           </h1>
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">
             Have questions regarding bearing tolerances, belt pitch lengths, taper lock bush sizing, or bulk dispatch tracking? Speak with our sales engineers in Srivilliputtur.
           </p>
         </div>
@@ -111,7 +114,7 @@ export const ContactPage = () => {
         
         {/* Left Column: Contact Channels & Location Information */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-navy text-white rounded-3xl p-8 shadow-xl space-y-7 border border-blue-900/60">
+          <div className="bg-gradient-to-br from-blue-800 via-blue-700 to-indigo-800 text-white rounded-3xl p-8 shadow-xl space-y-7 border border-blue-500/40">
             {/* Header with Official BM Logo */}
             <div className="flex items-center gap-4 pb-4 border-b border-white/10">
               <div className="bg-white p-2 rounded-2xl shadow-md shrink-0">
@@ -134,15 +137,15 @@ export const ContactPage = () => {
             {/* Proprietor Badge */}
             <div className="bg-white/10 rounded-2xl p-4 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                <span className="text-[10px] uppercase font-bold text-slate-300 block tracking-wider">
                   Proprietor
                 </span>
                 <span className="text-base font-black text-amber-300">
                   K. Karthick Kumar
                 </span>
               </div>
-              <span className="text-[10px] font-mono font-bold bg-amber-400 text-slate-950 px-2.5 py-1 rounded-md shadow-xs self-start sm:self-auto">
-                GSTIN: 33HONPK5547G2Z
+              <span className="text-[10px] font-mono font-bold bg-amber-400 text-slate-950 px-2.5 py-1 rounded-md shadow-xs self-start sm:self-auto whitespace-nowrap">
+                GSTIN: 33HONPK5547G2ZK
               </span>
             </div>
 

@@ -16,8 +16,8 @@ export const INDUSTRIAL_IMAGE_CATALOG = {
   wedgeBelt: '/belts/PIX SPC 2360 Wedge Belt.jpg',
   
   // Pulleys & Transmission
-  pulley: 'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=800&q=80',
-  taperBush: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+  pulley: '/banners/img4.jpg',
+  taperBush: '/banners/img4.jpg',
   grease: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=800&q=80',
   diagnostics: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
   defaultIndustrial: '/bearings/imgg14.jpg',

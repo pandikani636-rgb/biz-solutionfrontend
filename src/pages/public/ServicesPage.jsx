@@ -106,31 +106,34 @@ export const ServicesPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Title & Industrial Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-navy via-navy-light to-navy rounded-3xl p-8 md:p-10 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl border border-blue-900/40">
-        {/* Transparent background image blending smoothly with blue */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-3xl p-8 md:p-10 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl border border-blue-400/40">
+        {/* Authentic industrial equipment banner */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img
-            src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80"
-            alt=""
-            className="w-full h-full object-cover object-center opacity-25"
+            src="/banners/img5.jpg"
+            alt="Industrial Machinery & Belts"
+            className="w-full h-full object-cover object-center opacity-30 mix-blend-overlay"
+            onError={(e) => {
+              e.target.src = '/banners/img4.jpg';
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/80 to-navy/30" />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-800/60 to-indigo-900/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 via-transparent to-transparent" />
         </div>
 
         <div className="relative z-10 space-y-3 max-w-xl">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-black text-amber-300 uppercase tracking-widest bg-amber-400/20 px-3 py-1 rounded-full border border-amber-400/30">
-              45% - 48% Off MRP List
+              Verified Wholesale Catalog
             </span>
-            <span className="text-xs font-bold text-slate-300 bg-white/10 px-3 py-1 rounded-full">
+            <span className="text-xs font-bold text-blue-100 bg-white/15 px-3 py-1 rounded-full">
               🚚 Free Delhivery Included
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-white">
             Industrial Bearings, Belts & Pulleys
           </h1>
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">
             Direct B2B wholesale prices on genuine PIX, NBC, HCH, Fenner, Timken, and SKF. Fast pan-India delivery, official GST invoices, and mill test certificates.
           </p>
         </div>
@@ -350,8 +353,8 @@ export const ServicesPage = () => {
       {viewMode === 'pdf' ? (
         <PdfCatalogViewer />
       ) : (
-        <>
-          {/* Product Cards Grid */}
+        <div className="bg-gradient-to-br from-white/95 via-sky-50/70 to-blue-50/60 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-blue-200/80 shadow-[0_16px_45px_-12px_rgba(37,99,235,0.12)] space-y-6">
+          {/* Product Cards Grid (With Freeze Effect Container) */}
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((n) => (
@@ -407,7 +410,7 @@ export const ServicesPage = () => {
               </Button>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

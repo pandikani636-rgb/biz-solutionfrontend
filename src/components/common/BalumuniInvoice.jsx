@@ -133,8 +133,8 @@ export const BalumuniInvoice = ({ invoice, onPrint, onClose }) => {
 
             {/* GSTIN and Mail Bar */}
             <div className="border-t-2 border-slate-900 grid grid-cols-2 text-[11px] sm:text-xs font-bold bg-white">
-              <div className="p-1.5 pl-3 border-r-2 border-slate-900">
-                GSTIN: <span className="font-mono">33HONPK5547G2Z</span>
+              <div className="p-1.5 pl-3 border-r-2 border-slate-900 whitespace-nowrap">
+                GSTIN: <span className="font-mono font-bold">33HONPK5547G2ZK</span>
               </div>
               <div className="p-1.5 pl-3 text-blue-900 truncate">
                 Mail : <span className="underline">balumuniandassociates@gmail.com</span>
@@ -271,12 +271,12 @@ export const BalumuniInvoice = ({ invoice, onPrint, onClose }) => {
         <div className="grid grid-cols-12 border-x-2 border-b-2 border-slate-900 text-xs">
           {/* Left space */}
           <div className="col-span-7 border-r-2 border-slate-900 p-2 flex flex-col justify-end">
-            <div className="grid grid-cols-3 border-t border-slate-900 pt-1 text-[11px]">
+            <div className="grid grid-cols-3 border-t border-slate-900 pt-1 text-[11px] whitespace-nowrap">
               <div className="font-bold">TAXABLE VALUE</div>
               <div className="font-bold text-center">IGST RATE</div>
               <div className="font-bold text-right">IGST AMOUNT</div>
             </div>
-            <div className="grid grid-cols-3 text-xs font-mono font-bold pt-1">
+            <div className="grid grid-cols-3 text-xs font-mono font-bold pt-1 whitespace-nowrap">
               <div>{formatCurrency(subtotal)}</div>
               <div className="text-center">{taxRate}%</div>
               <div className="text-right">{formatCurrency(taxAmount)}</div>
@@ -376,7 +376,7 @@ export const BalumuniInvoice = ({ invoice, onPrint, onClose }) => {
               </div>
               <div className="grid grid-cols-12 p-1 pl-2">
                 <span className="col-span-5 font-bold text-slate-700">Name:</span>
-                <span className="col-span-7 font-extrabold text-slate-950">Balumuni And</span>
+                <span className="col-span-7 font-extrabold text-slate-950">Balumuni and Associates</span>
               </div>
               <div className="grid grid-cols-12 p-1 pl-2">
                 <span className="col-span-5 font-bold text-slate-700">A/C No.:</span>

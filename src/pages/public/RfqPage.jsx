@@ -92,19 +92,19 @@ RFQ Submission Details:
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       {/* Header Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-navy via-navy-light to-navy rounded-3xl p-8 md:p-12 text-white shadow-xl border border-blue-900/40 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-        {/* Transparent background image blending smoothly with blue */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-3xl p-8 md:p-12 text-white shadow-xl border border-blue-400/40 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+        {/* Authentic industrial equipment banner */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img
-            src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80"
-            alt=""
-            className="w-full h-full object-cover object-center opacity-25"
+            src="/banners/img1.jpg"
+            alt="Industrial Machinery & Bearings"
+            className="w-full h-full object-cover object-center opacity-30 mix-blend-overlay"
             onError={(e) => {
-              e.target.src = 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=1600&q=80';
+              e.target.src = '/banners/img4.jpg';
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/80 to-navy/30" />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-800/60 to-indigo-900/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 via-transparent to-transparent" />
         </div>
 
         <div className="relative z-10 space-y-3 max-w-2xl">
@@ -114,7 +114,7 @@ RFQ Submission Details:
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
             Request for Quotation (RFQ)
           </h1>
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">
             Direct factory procurement for industrial plants, textile mills, cement plants, and OEMs. Submit part numbers across PIX, NBC, HCH, Fenner, Timken (all types), and SKF.
           </p>
         </div>

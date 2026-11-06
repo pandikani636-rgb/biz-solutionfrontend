@@ -6,8 +6,11 @@ import {
   Camera,
   MapPin,
   FileImage,
-  Sparkles,
-  Info,
+  Building2,
+  User,
+  Phone,
+  Mail,
+  FileText,
   ShieldCheck,
   Send,
   X,
@@ -20,7 +23,7 @@ import { showSuccessAlert, showErrorAlert, showToast } from '../../utils/alerts'
 import api from '../../services/api';
 
 export const ImageUploadSection = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const { isTamil, t } = useLanguage();
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -28,35 +31,39 @@ export const ImageUploadSection = () => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0, megapixels: 0 });
   const [validationError, setValidationError] = useState('');
 
-  // Form Fields
-  const [customerName, setCustomerName] = useState('');
-  const [customerEmail, setCustomerEmail] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
-  const [city, setCity] = useState('');
-  const [partNotes, setPartNotes] = useState('');
+  // The 7 Required Form Fields
+  const [companyName, setCompanyName] = useState('');
+  const [contactPerson, setContactPerson] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
+  const [emailId, setEmailId] = useState('');
+  const [location, setLocation] = useState('');
+  const [gstNumber, setGstNumber] = useState('');
+  const [notes, setNotes] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [uploadedRecord, setUploadedRecord] = useState(null);
 
-  // Sync logged in user details
+  // Sync logged in user details if available
   useEffect(() => {
     if (user) {
-      setCustomerName(user.name || '');
-      setCustomerEmail(user.email || '');
-      setCustomerPhone(user.phone || '');
-      if (user.address?.city) setCity(user.address.city);
+      if (user.company) setCompanyName(user.company);
+      if (user.name) setContactPerson(user.name);
+      if (user.phone) setContactNumber(user.phone);
+      if (user.email) setEmailId(user.email);
+      if (user.address?.city) setLocation(user.address.city);
+      if (user.gstin) setGstNumber(user.gstin);
     }
   }, [user]);
 
-  // Try auto-detecting city if empty
+  // Fallback sensible default location
   useEffect(() => {
-    if (!city) {
-      // Fallback sensible default or browser timezone inference
+    if (!location) {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
       if (tz.includes('Calcutta') || tz.includes('Kolkata')) {
-        setCity('Srivilliputtur / Tamil Nadu');
+        setLocation('Srivilliputtur / Tamil Nadu');
       }
     }
-  }, [city]);
+  }, [location]);
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -129,11 +136,18 @@ export const ImageUploadSection = () => {
       return;
     }
 
-    if (!customerName || (!customerPhone && !customerEmail)) {
+    if (!contactPerson.trim()) {
+      setValidationError(
+        isTamil ? 'தயவுசெய்து தொடர்பு கொள்ள வேண்டிய நபரின் பெயரை உள்ளிடவும்.' : 'Please enter contact person name.'
+      );
+      return;
+    }
+
+    if (!contactNumber.trim() && !emailId.trim()) {
       setValidationError(
         isTamil
-          ? 'தயவுசெய்து உங்கள் பெயர் மற்றும் தொலைபேசி எண்/மின்னஞ்சலை உள்ளிடவும்.'
-          : 'Please provide your name and phone number or email address.'
+          ? 'தயவுசெய்து தொலைபேசி எண் அல்லது மின்னஞ்சலை உள்ளிடவும்.'
+          : 'Please enter contact phone number or email address.'
       );
       return;
     }
@@ -144,11 +158,18 @@ export const ImageUploadSection = () => {
     try {
       const formData = new FormData();
       formData.append('image', selectedFile);
-      formData.append('customerName', customerName);
-      formData.append('customerEmail', customerEmail);
-      formData.append('customerPhone', customerPhone);
-      formData.append('city', city || 'Not specified');
-      formData.append('partNotes', partNotes);
+      formData.append('companyName', companyName.trim());
+      formData.append('contactPerson', contactPerson.trim());
+      formData.append('customerName', contactPerson.trim());
+      formData.append('contactNumber', contactNumber.trim());
+      formData.append('customerPhone', contactNumber.trim());
+      formData.append('emailId', emailId.trim());
+      formData.append('customerEmail', emailId.trim());
+      formData.append('location', location.trim() || 'Not specified');
+      formData.append('city', location.trim() || 'Not specified');
+      formData.append('gstNumber', gstNumber.trim());
+      formData.append('notes', notes.trim());
+      formData.append('partNotes', notes.trim());
       formData.append('width', String(dimensions.width));
       formData.append('height', String(dimensions.height));
 
@@ -161,11 +182,11 @@ export const ImageUploadSection = () => {
         await showSuccessAlert(
           isTamil ? 'படம் வெற்றிகரமாக பதிவேற்றப்பட்டது!' : 'Part Image Uploaded Successfully!',
           isTamil
-            ? `உங்கள் படம் (${dimensions.megapixels} MP) மற்றும் தகவல்கள் எங்கள் பொறியியல் குழுவிடம் சமர்ப்பிக்கப்பட்டுள்ளது. நகரம்: ${city || 'Not specified'}.`
-            : `Your high-resolution part photo (${dimensions.megapixels} MP) has been forwarded to our engineering team for specification matching from ${city || 'your location'}.`
+            ? `உங்கள் படம் (${dimensions.megapixels} MP) மற்றும் விவரங்கள் சமர்ப்பிக்கப்பட்டுள்ளது.`
+            : `Your part photo (${dimensions.megapixels} MP) and details have been submitted to our technical team.`
         );
         handleClearSelected();
-        setPartNotes('');
+        setNotes('');
       } else {
         throw new Error(res.data?.message || 'Upload failed');
       }
@@ -178,192 +199,224 @@ export const ImageUploadSection = () => {
   };
 
   return (
-    <section className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-md space-y-8 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-blue-50/70 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+    <section className="bg-white rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-md space-y-6 relative overflow-hidden">
+      {/* Background ambient decoration */}
+      <div className="absolute top-0 right-0 w-72 h-72 bg-blue-50/70 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16" />
 
       {/* Header */}
-      <div className="max-w-3xl space-y-2">
+      <div className="max-w-3xl space-y-1.5">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lightBlue border border-blue-200 text-primary font-bold text-xs uppercase tracking-wider">
           <Camera className="w-3.5 h-3.5 text-primary" />
           <span>High-Resolution Spec Verification (Up to 20 MP)</span>
         </div>
-        <h2 className="text-2xl sm:text-3xl font-black text-navy tracking-tight">
-          {t('upload_section_title')}
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-navy tracking-tight">
+          {t('upload_section_title') || 'Upload Industrial Component Photo'}
         </h2>
         <p className="text-xs sm:text-sm text-secondaryText leading-relaxed">
-          {t('upload_section_subtitle')}
+          {t('upload_section_subtitle') || 'Upload component photos for instant engineering identification and quotation.'}
         </p>
       </div>
 
-      {/* Form Container */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      {/* Main Grid: Form on Left (7 cols), Image Upload Section on Right (5 cols) */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* Left: Dropzone and Preview */}
-          <div className="lg:col-span-6 space-y-4">
+          {/* Left: Input Fields (1. Company Name, 2. Contact Person Name, 3. Contact Number, 4. Email ID, 5. Location, 6. GST Number, 7. Notes) */}
+          <div className="lg:col-span-7 space-y-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {/* 1. Company Name */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 flex items-center gap-1">
+                  <Building2 className="w-3.5 h-3.5 text-primary" />
+                  <span>Company Name</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Acme Industrial Works"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary bg-slate-50"
+                />
+              </div>
+
+              {/* 2. Contact Person Name */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 flex items-center gap-1">
+                  <User className="w-3.5 h-3.5 text-primary" />
+                  <span>Contact Person Name</span> <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Ramesh Patel"
+                  value={contactPerson}
+                  onChange={(e) => setContactPerson(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary bg-slate-50"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {/* 3. Contact Number */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 flex items-center gap-1">
+                  <Phone className="w-3.5 h-3.5 text-primary" />
+                  <span>Contact Number</span> <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="+91 98765 43210"
+                  value={contactNumber}
+                  onChange={(e) => setContactNumber(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary bg-slate-50"
+                />
+              </div>
+
+              {/* 4. Email ID */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 flex items-center gap-1">
+                  <Mail className="w-3.5 h-3.5 text-primary" />
+                  <span>Email ID</span>
+                </label>
+                <input
+                  type="email"
+                  placeholder="name@company.com"
+                  value={emailId}
+                  onChange={(e) => setEmailId(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary bg-slate-50"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {/* 5. Location */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                  <span>Location</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Srivilliputtur, Madurai..."
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary bg-slate-50"
+                />
+              </div>
+
+              {/* 6. GST Number */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 flex items-center gap-1">
+                  <FileText className="w-3.5 h-3.5 text-primary" />
+                  <span>GST Number</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 33AAAAA0000A1Z5"
+                  value={gstNumber}
+                  onChange={(e) => setGstNumber(e.target.value.toUpperCase())}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-mono uppercase focus:outline-none focus:ring-2 focus:ring-primary bg-slate-50"
+                />
+              </div>
+            </div>
+
+            {/* 7. Notes */}
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-slate-700">
+                <span>Notes</span>
+              </label>
+              <textarea
+                rows={2}
+                placeholder="Mention bearing markings, belt pitch length, machine type, quantity needed..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary bg-slate-50"
+              />
+            </div>
+
+            {validationError && (
+              <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{validationError}</span>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              variant="accent"
+              size="md"
+              className="w-full justify-center font-bold inline-flex items-center gap-2 shadow-sm"
+              disabled={loading || !selectedFile}
+              isLoading={loading}
+            >
+              <Send className="w-4 h-4" />
+              <span>Submit Part Image for Verification</span>
+            </Button>
+          </div>
+
+          {/* Right: Moved Image Upload Section (Slightly Reduced Size) */}
+          <div className="lg:col-span-5 space-y-3">
+            <span className="block text-xs font-bold text-slate-700">
+              Upload Part Photo <span className="text-danger">*</span>
+            </span>
+
             {!previewUrl ? (
-              <label className="border-2 border-dashed border-slate-300 hover:border-primary bg-slate-50 hover:bg-lightBlue/30 rounded-3xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 group min-h-[260px]">
+              <label className="border-2 border-dashed border-slate-300 hover:border-primary bg-slate-50 hover:bg-lightBlue/20 rounded-2xl p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 group min-h-[210px]">
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
                   onChange={handleFileChange}
                   className="hidden"
                 />
-                <div className="w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-primary group-hover:scale-110 transition-smooth mb-4">
-                  <UploadCloud className="w-8 h-8" />
+                <div className="w-12 h-12 rounded-xl bg-white shadow-xs border border-slate-200 flex items-center justify-center text-primary group-hover:scale-105 transition-smooth mb-2.5">
+                  <UploadCloud className="w-6 h-6" />
                 </div>
-                <p className="font-extrabold text-sm text-navy group-hover:text-primary">
-                  {isTamil ? 'படத்தை பதிவேற்ற இங்கே கிளிக் செய்யவும்' : 'Click to select or drag & drop part photo'}
+                <p className="font-bold text-xs text-navy group-hover:text-primary">
+                  Click to select or drop part photo
                 </p>
-                <p className="text-xs text-secondaryText mt-1">
-                  Supports JPEG, PNG, WEBP (Max resolution: <strong>20 Megapixels</strong>)
+                <p className="text-[11px] text-secondaryText mt-0.5">
+                  JPEG, PNG, WEBP (Max <strong>20 MP</strong>)
                 </p>
-                <div className="mt-4 flex items-center gap-2 text-[11px] text-slate-500 bg-white/80 px-3 py-1 rounded-full border">
+                <div className="mt-3 flex items-center gap-1.5 text-[10px] text-slate-500 bg-white px-2.5 py-1 rounded-full border border-slate-200">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Automatic pixel resolution & dimension check</span>
+                  <span>Auto pixel & dimension verification</span>
                 </div>
               </label>
             ) : (
-              <div className="bg-slate-50 rounded-3xl p-4 border border-slate-200 space-y-3">
-                <div className="relative rounded-2xl overflow-hidden bg-slate-900 flex justify-center items-center max-h-[300px]">
+              <div className="bg-slate-50 rounded-2xl p-3 border border-slate-200 space-y-2.5">
+                <div className="relative rounded-xl overflow-hidden bg-slate-900 flex justify-center items-center max-h-[220px]">
                   <img
                     src={previewUrl}
                     alt="Uploaded preview"
-                    className="max-h-[300px] w-auto object-contain rounded-2xl"
+                    className="max-h-[220px] w-auto object-contain rounded-xl"
                   />
                   <button
                     type="button"
                     onClick={handleClearSelected}
-                    className="absolute top-3 right-3 p-1.5 rounded-full bg-slate-900/80 text-white hover:bg-rose-600 transition-smooth shadow-md"
+                    className="absolute top-2 right-2 p-1 rounded-full bg-slate-900/80 text-white hover:bg-rose-600 transition-smooth shadow"
                     title="Remove Image"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                {/* Image Specs Verification Badges */}
-                <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-white rounded-xl border border-slate-200 text-xs">
-                  <div className="flex items-center gap-2">
-                    <FileImage className="w-4 h-4 text-primary shrink-0" />
-                    <div>
-                      <p className="font-bold text-darkText truncate max-w-[180px]">
-                        {selectedFile?.name}
-                      </p>
-                      <p className="text-[11px] text-secondaryText">
-                        {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                      ✓ {dimensions.megapixels} MP ({dimensions.width}×{dimensions.height}px)
+                {/* Verification spec badge */}
+                <div className="flex items-center justify-between gap-2 p-2 bg-white rounded-xl border border-slate-200 text-xs">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <FileImage className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <span className="font-bold text-darkText truncate text-[11px]">
+                      {selectedFile?.name}
                     </span>
-                    <p className="text-[10px] text-emerald-700 font-bold mt-0.5">
-                      Within 20 MP Limit
-                    </p>
                   </div>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0">
+                    ✓ {dimensions.megapixels} MP
+                  </span>
                 </div>
-              </div>
-            )}
-
-            {validationError && (
-              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{validationError}</span>
               </div>
             )}
           </div>
 
-          {/* Right: User Information & City Tracking */}
-          <div className="lg:col-span-6 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">
-                  {isTamil ? 'உங்கள் பெயர்' : 'Full Name'} <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Ramesh Patel"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary bg-slate-50"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">
-                  {isTamil ? 'நகரம் / இருப்பிடம்' : 'Upload City / Location'} <span className="text-primary">*</span>
-                </label>
-                <div className="relative">
-                  <MapPin className="w-4 h-4 text-rose-500 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Srivilliputtur, Madurai, Coimbatore..."
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="w-full pl-9 pr-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary bg-slate-50 text-navy"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">
-                  {isTamil ? 'தொலைபேசி எண்' : 'Contact Phone'} <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="tel"
-                  placeholder="+91 98765 43210"
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary bg-slate-50"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">
-                  {isTamil ? 'மின்னஞ்சல்' : 'Email Address'}
-                </label>
-                <input
-                  type="email"
-                  placeholder="name@example.com"
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary bg-slate-50"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">
-                {isTamil ? 'உதிரிபாக குறிப்பு / அளவு விவரங்கள்' : 'Part Notes / Inscription Markings (Optional)'}
-              </label>
-              <textarea
-                rows={3}
-                placeholder="Mention any markings visible on bearing shield, belt pitch length, machine type, or required quantity..."
-                value={partNotes}
-                onChange={(e) => setPartNotes(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary bg-slate-50"
-              />
-            </div>
-
-            <Button
-              type="submit"
-              variant="accent"
-              size="lg"
-              className="w-full justify-center font-black inline-flex items-center gap-2 shadow-sm"
-              disabled={loading || !selectedFile}
-              isLoading={loading}
-            >
-              <Send className="w-4 h-4" />
-              <span>{isTamil ? 'உதிரிபாக படத்தை சமர்ப்பிக்கவும்' : 'Submit Part Image for Verification'}</span>
-            </Button>
-          </div>
         </div>
       </form>
     </section>

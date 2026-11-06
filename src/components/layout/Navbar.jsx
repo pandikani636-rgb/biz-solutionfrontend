@@ -67,57 +67,57 @@ export const Navbar = () => {
 
   return (
     <>
-      {/* 1. Top Utility Info Bar (Desktop) - Natural scroll (hides automatically on scroll down) */}
-      <div className="bg-slate-900 text-slate-300 text-xs hidden md:block border-b border-slate-800 select-none animate-fadeIn">
+      {/* 1. Top Utility Info Bar (Desktop) - Clean Professional Lighter Blue Theme */}
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 text-blue-100 text-xs hidden md:block border-b border-blue-500/40 select-none animate-fadeIn">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between flex-nowrap whitespace-nowrap gap-4">
           {/* Left: Hotline & Email */}
           <div className="flex items-center gap-4 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="text-slate-400 font-medium whitespace-nowrap">
+            <span className="text-blue-100 font-medium whitespace-nowrap">
               Industrial Power Transmission &amp; Bearings
             </span>
 
-            <span className="text-slate-700">|</span>
+            <span className="text-blue-400/50">|</span>
 
             <a
               href="tel:+917418423238"
               className="inline-flex items-center gap-1.5 hover:text-white transition-colors whitespace-nowrap"
               title="Direct Sales Hotline"
             >
-              <Phone className="w-3.5 h-3.5 text-primary shrink-0" />
+              <Phone className="w-3.5 h-3.5 text-amber-300 shrink-0" />
               <span>+91-74184 23238</span>
             </a>
 
-            <span className="text-slate-700">|</span>
+            <span className="text-blue-400/50">|</span>
 
             <a
               href="mailto:balumuniandassociates@gmail.com"
               className="inline-flex items-center gap-1.5 hover:text-white transition-colors whitespace-nowrap"
               title="Official Business Email"
             >
-              <Mail className="w-3.5 h-3.5 text-primary shrink-0" />
+              <Mail className="w-3.5 h-3.5 text-amber-300 shrink-0" />
               <span>balumuniandassociates@gmail.com</span>
             </a>
           </div>
 
           {/* Right Info: GSTIN, MTC, Admin */}
           <div className="flex items-center gap-4 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="text-slate-400 whitespace-nowrap">
-              GSTIN: <span className="font-mono font-bold text-slate-200">33HONPK5547G2Z</span>
+            <span className="text-blue-100 whitespace-nowrap">
+              GSTIN: <span className="font-mono font-bold text-white">33HONPK5547G2ZK</span>
             </span>
 
-            <span className="text-slate-700">|</span>
+            <span className="text-blue-400/50">|</span>
 
-            <span className="text-emerald-400 font-bold inline-flex items-center gap-1 whitespace-nowrap">
+            <span className="text-emerald-300 font-bold inline-flex items-center gap-1 whitespace-nowrap">
               <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
               <span>100% Genuine MTC Certified</span>
             </span>
 
             {isAdmin && (
               <>
-                <span className="text-slate-700">|</span>
+                <span className="text-blue-400/50">|</span>
                 <Link
                   to="/admin"
-                  className="text-amber-400 hover:text-amber-300 font-bold inline-flex items-center gap-1 transition-colors whitespace-nowrap"
+                  className="text-amber-300 hover:text-amber-200 font-bold inline-flex items-center gap-1 transition-colors whitespace-nowrap"
                 >
                   <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
                   <span>Admin Console</span>
@@ -144,8 +144,9 @@ export const Navbar = () => {
               className="w-full h-full object-contain"
             />
           </div>
-          <span className="text-sm sm:text-base lg:text-xl font-black text-slate-900 tracking-tight whitespace-nowrap group-hover:text-primary transition-colors shrink-0">
-            Balumuni <span className="text-primary font-bold">and Associates</span>
+          <span className="text-sm sm:text-base lg:text-xl font-extrabold tracking-wide whitespace-nowrap shrink-0 transition-colors">
+            <span className="text-amber-500 font-black">Balumuni</span>{' '}
+            <span className="text-slate-800 font-bold">and Associates</span>
           </span>
         </Link>
 

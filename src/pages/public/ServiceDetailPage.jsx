@@ -17,6 +17,7 @@ import {
   BadgePercent,
   X,
   Send,
+  Search,
 } from 'lucide-react';
 import { contentService } from '../../services/contentService';
 import { bookingService } from '../../services/bookingService';
@@ -82,6 +83,40 @@ export const ServiceDetailPage = () => {
     targetPrice: '',
     message: '',
   });
+
+  // Top Product Number Search State
+  const [productNumberQuery, setProductNumberQuery] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchMessage, setSearchMessage] = useState('');
+
+  const handleProductSearch = async (e) => {
+    e.preventDefault();
+    const query = productNumberQuery.trim();
+    if (!query) return;
+
+    setSearchLoading(true);
+    setSearchMessage('');
+
+    try {
+      const res = await contentService.getServices({ search: query, limit: 10 });
+      if (res.success && res.data && res.data.length > 0) {
+        // Find matching product by partNumber or name
+        const match = res.data.find(
+          (s) => s.partNumber?.toLowerCase() === query.toLowerCase()
+        ) || res.data[0];
+
+        // Navigate to the matched product so only that product is displayed
+        navigate(`/services/${match.slug || match._id}`);
+        setSearchMessage('');
+      } else {
+        setSearchMessage(`No product found matching product number "${query}".`);
+      }
+    } catch (err) {
+      setSearchMessage('Search request failed. Please check your connection and try again.');
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchServiceData = async () => {
@@ -304,7 +339,44 @@ export const ServiceDetailPage = () => {
   const discountLabel = service.discountPercentage ? `${service.discountPercentage}% OFF` : '46% OFF';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Top Search Bar for Specific Product Number */}
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm">
+        <form onSubmit={handleProductSearch} className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative flex-1 w-full">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search product number / item code (e.g., 6204, SPC 2360, 7322, 2517)..."
+              value={productNumberQuery}
+              onChange={(e) => {
+                setProductNumberQuery(e.target.value);
+                if (searchMessage) setSearchMessage('');
+              }}
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white text-navy transition-all"
+            />
+          </div>
+          <Button
+            type="submit"
+            variant="accent"
+            size="md"
+            className="w-full sm:w-auto font-bold inline-flex items-center justify-center gap-2 whitespace-nowrap shadow-xs"
+            disabled={searchLoading}
+            isLoading={searchLoading}
+          >
+            <Search className="w-4 h-4" />
+            <span>Search Product</span>
+          </Button>
+        </form>
+
+        {searchMessage && (
+          <div className="mt-3 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{searchMessage}</span>
+          </div>
+        )}
+      </div>
+
       {/* 1. Header Banner & Main Media */}
       <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         <div className="lg:col-span-7 space-y-4">
@@ -324,8 +396,8 @@ export const ServiceDetailPage = () => {
                 Section: {service.section}
               </span>
             )}
-            <span className="bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-1 rounded-lg shadow-xs flex items-center gap-1">
-              <Tag className="w-3.5 h-3.5" /> {discountLabel} MRP List
+            <span className="bg-blue-100 text-blue-900 border border-blue-200 font-extrabold text-xs px-2.5 py-1 rounded-lg shadow-xs flex items-center gap-1">
+              <Tag className="w-3.5 h-3.5 text-blue-700" /> B2B Wholesale Pricing
             </span>
             <span className="bg-emerald-50 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-lg border border-emerald-200 flex items-center gap-1">
               <Truck className="w-3.5 h-3.5" /> Free Delhivery Included
@@ -386,7 +458,7 @@ export const ServiceDetailPage = () => {
               className="text-xs font-bold text-primary hover:text-navy underline flex items-center gap-1.5"
             >
               <FileSpreadsheet className="w-4 h-4 text-accent-hover" />
-              Need 20+ units or custom project pricing? Request Bulk RFQ →
+              Need 20+ units or custom project pricing? Request Quotation →
             </button>
           </div>
         </div>
@@ -633,7 +705,7 @@ export const ServiceDetailPage = () => {
               onClick={() => setIsRfqModalOpen(true)}
             >
               <FileSpreadsheet className="w-3.5 h-3.5 mr-1.5 text-primary" />
-              Request Bulk RFQ (Higher Quantities)
+              Request Quotation (Higher Quantities)
             </Button>
           </div>
 
@@ -754,7 +826,7 @@ export const ServiceDetailPage = () => {
       <Modal
         isOpen={isRfqModalOpen}
         onClose={() => setIsRfqModalOpen(false)}
-        title="Request Bulk Quotation (RFQ)"
+        title="Request Quotation"
       >
         <form onSubmit={handleSubmitRfq} className="space-y-4 text-xs">
           <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-900">

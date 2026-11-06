@@ -21,9 +21,9 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="relative z-30 bg-[#0B1528] text-white pt-16 pb-10 border-t border-slate-800 shadow-2xl opacity-100">
+    <footer className="relative z-30 bg-gradient-to-b from-blue-900 via-[#1b3b6f] to-[#12284c] text-white pt-16 pb-10 border-t border-blue-700/60 shadow-2xl opacity-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-blue-800/50">
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
             <Link to="/" className="inline-flex items-center gap-3">
@@ -35,8 +35,9 @@ export const Footer = () => {
                 />
               </div>
               <div>
-                <span className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight block">
-                  Balumuni <span className="text-accent font-extrabold">and Associates</span>
+                <span className="text-xl sm:text-2xl font-extrabold tracking-wide leading-tight block">
+                  <span className="text-amber-400 font-black">Balumuni</span>{' '}
+                  <span className="text-slate-100 font-bold">and Associates</span>
                 </span>
               </div>
             </Link>
@@ -67,8 +68,8 @@ export const Footer = () => {
                   balumuniandassociates@gmail.com
                 </a>
               </div>
-              <div className="inline-block mt-1 font-mono text-[10px] text-amber-300 font-bold bg-white/10 px-2.5 py-1 rounded border border-white/10">
-                GSTIN: 33HONPK5547G2Z
+              <div className="inline-block mt-1 font-mono text-[10px] text-amber-300 font-bold bg-white/10 px-2.5 py-1 rounded border border-white/20 shadow-xs whitespace-nowrap">
+                GSTIN: 33HONPK5547G2ZK
               </div>
             </div>
           </div>
@@ -94,7 +95,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link to="/rfq" className="hover:text-white transition-smooth text-amber-300 font-bold">
-                  Request Bulk RFQ
+                  Request Quotation
                 </Link>
               </li>
               <li>
@@ -152,7 +153,7 @@ export const Footer = () => {
                     placeholder="Enter your email"
                     value={newsletterEmail}
                     onChange={(e) => setNewsletterEmail(e.target.value)}
-                    className="w-full pl-3 pr-10 py-2.5 bg-slate-900 text-xs text-white placeholder-slate-400 rounded-xl border border-slate-700 focus:outline-none focus:border-accent"
+                    className="w-full pl-3 pr-10 py-2.5 bg-blue-950/60 text-xs text-white placeholder-blue-300/60 rounded-xl border border-blue-700/80 focus:outline-none focus:border-accent"
                   />
                   <button
                     type="submit"
@@ -167,8 +168,11 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Credits & Copyright */}
-        <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-300">
+        <div className="pt-8 border-t border-blue-800/50 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-blue-200/80">
           <p>© {new Date().getFullYear()} Balumuni and Associates. All rights reserved.</p>
+          <p className="font-semibold text-amber-300">
+            Designed by Anjana Infotech, Rajapalayam
+          </p>
           <div className="flex items-center gap-6">
             <span className="text-slate-300">ISO 9001:2015 Certified Solutions Provider</span>
             <Link to="/about" className="hover:text-accent">

@@ -29,7 +29,7 @@ const translations = {
     hero_search_placeholder: 'Enter Part Number (e.g., 6204, SPC 2360, 7322, 2517)...',
     hero_search_btn: 'Search Part',
     hero_browse_btn: 'Browse All Products',
-    hero_rfq_btn: 'Request Bulk RFQ',
+    hero_rfq_btn: 'Request Quotation',
     upload_section_title: 'Upload Part or Sample Image',
     upload_section_subtitle: 'Upload high-resolution component photos (up to 20 Megapixels) for instant engineering identification & quotation.',
 

@@ -148,7 +148,7 @@ export const PdfCatalogViewer = () => {
   }, [filteredCategories]);
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/90 shadow-md p-6 md:p-8 space-y-8 animate-fadeIn">
+    <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-blue-200/80 shadow-[0_16px_45px_-12px_rgba(37,99,235,0.12)] p-6 md:p-8 space-y-8 animate-fadeIn relative overflow-hidden">
       {/* Top Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-100 pb-6">
         <div>
@@ -202,8 +202,8 @@ export const PdfCatalogViewer = () => {
         </div>
       </div>
 
-      {/* Interactive Controls Bar: Search, Category Tabs, Brand Filter, View Switcher */}
-      <div className="space-y-4">
+      {/* Interactive Controls Bar: Search, Category Tabs, Brand Filter, View Switcher (Sticky Freeze) */}
+      <div className="sticky top-16 z-20 bg-white/95 backdrop-blur-md py-3 -mx-2 px-2 rounded-2xl border-y border-blue-100 shadow-xs space-y-4">
         {/* Search & Mode Bar */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           <form onSubmit={handleSearch} className="flex-1 flex gap-2">
@@ -492,9 +492,9 @@ export const PdfCatalogViewer = () => {
                                       <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg text-[10px] font-black bg-navy text-accent shadow-2xs">
                                         {p.brand}
                                       </span>
-                                      {/* Discount Badge */}
-                                      <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-lg text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-200 shadow-2xs">
-                                        {p.discountPercentage}% OFF
+                                      {/* Verified OEM Badge (Offer % removed) */}
+                                      <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-lg text-[10px] font-black bg-blue-50 text-blue-800 border border-blue-200 shadow-2xs">
+                                        Verified OEM
                                       </span>
                                     </div>
 
@@ -581,14 +581,13 @@ export const PdfCatalogViewer = () => {
                             <div className="space-y-4">
                               <div className="overflow-x-auto rounded-2xl border border-slate-200/90 bg-white">
                                 <table className="w-full text-left text-xs">
-                                  <thead className="bg-slate-100 text-slate-600 font-black uppercase text-[10px] tracking-wider border-b border-slate-200">
+                                  <thead className="sticky top-0 z-10 bg-slate-100/95 backdrop-blur-sm text-slate-600 font-black uppercase text-[10px] tracking-wider border-b border-slate-200 shadow-2xs">
                                     <tr>
                                       <th className="py-3 px-3">{isTamil ? 'படம்' : 'Image'}</th>
                                       <th className="py-3 px-3">{isTamil ? 'பிராண்ட்' : 'Brand'}</th>
                                       <th className="py-3 px-3">{isTamil ? 'பாகம் எண்' : 'Part Number'}</th>
                                       <th className="py-3 px-4">{isTamil ? 'தயாரிப்பு & குறிப்புகள்' : 'Product & Specs'}</th>
                                       <th className="py-3 px-3 text-right">{isTamil ? 'அசல் விலை (MRP)' : 'List MRP'}</th>
-                                      <th className="py-3 px-3 text-center">{isTamil ? 'தள்ளுபடி' : 'Discount'}</th>
                                       <th className="py-3 px-3 text-right">{isTamil ? 'மொத்த விலை' : 'Wholesale Price'}</th>
                                       <th className="py-3 px-3 text-center">{isTamil ? 'போக்குவரத்து' : 'Freight'}</th>
                                       <th className="py-3 px-3 text-center">{isTamil ? 'செயல்' : 'Action'}</th>
@@ -622,11 +621,6 @@ export const PdfCatalogViewer = () => {
                                         </td>
                                         <td className="py-2.5 px-3 text-right line-through text-slate-400">
                                           {formatCurrency(p.mrp)}
-                                        </td>
-                                        <td className="py-2.5 px-3 text-center">
-                                          <span className="px-2 py-0.5 rounded font-black text-[10px] bg-amber-100 text-amber-900 border border-amber-200">
-                                            {p.discountPercentage}% OFF
-                                          </span>
                                         </td>
                                         <td className="py-2.5 px-3 text-right font-black text-navy text-xs">
                                           {formatCurrency(p.wholesalePrice)}
@@ -730,9 +724,9 @@ export const PdfCatalogViewer = () => {
                 <span>Standard List MRP:</span>
                 <span className="line-through">{formatCurrency(selectedProduct.mrp)}</span>
               </div>
-              <div className="flex justify-between items-center text-amber-700 font-bold">
-                <span>Contract Trade Discount:</span>
-                <span>{selectedProduct.discountPercentage}% OFF</span>
+              <div className="flex justify-between items-center text-blue-700 font-bold">
+                <span>Contract Trade Status:</span>
+                <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 text-[11px]">Wholesale Direct</span>
               </div>
               <div className="flex justify-between items-center text-navy font-black text-sm pt-2 border-t border-slate-200">
                 <span>Direct B2B Wholesale Rate:</span>
