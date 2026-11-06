@@ -170,8 +170,18 @@ export const Footer = () => {
         {/* Bottom Credits & Copyright */}
         <div className="pt-8 border-t border-blue-800/50 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-blue-200/80">
           <p>© {new Date().getFullYear()} Balumuni and Associates. All rights reserved.</p>
-          <p className="font-semibold text-amber-300">
-            Designed by Anjana Infotech, Rajapalayam
+          <p className="font-semibold text-blue-200/90">
+            Designed by{' '}
+            <a
+              href="https://anjanainfotech.in/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-amber-300 hover:text-white underline underline-offset-2 transition-smooth font-bold"
+              title="Visit Anjana Infotech"
+            >
+              Anjana Infotech
+            </a>
+            , Rajapalayam
           </p>
           <div className="flex items-center gap-6">
             <span className="text-slate-300">ISO 9001:2015 Certified Solutions Provider</span>
