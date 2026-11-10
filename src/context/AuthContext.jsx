@@ -31,6 +31,13 @@ export const AuthProvider = ({ children }) => {
     verifyAuth();
   }, [token]);
 
+  
+
+  
+   
+
+  
+
   const login = async (email, password) => {
     const res = await authService.login({ email, password });
     if (res.success && res.token) {
@@ -42,6 +49,9 @@ export const AuthProvider = ({ children }) => {
     return res;
   };
 
+
+ 
+
   const register = async (userData) => {
     const res = await authService.register(userData);
     if (res.success && res.token) {
@@ -52,6 +62,8 @@ export const AuthProvider = ({ children }) => {
     }
     return res;
   };
+  
+  
 
   const logout = () => {
     setUser(null);
@@ -65,6 +77,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('bizzolution_user', JSON.stringify(updatedUser));
   };
 
+
+  
+  
   const isAuthenticated = Boolean(user && token);
   const isAdmin = user?.role === 'admin';
 

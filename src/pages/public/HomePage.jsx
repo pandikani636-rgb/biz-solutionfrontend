@@ -718,9 +718,6 @@ export const HomePage = () => {
                   <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider border shadow-xs ${brand.tagColor}`}>
                     {brand.name}
                   </span>
-                  <span className="bg-slate-900 text-amber-300 font-extrabold text-xs px-2.5 py-1 rounded-md shadow-xs">
-                    {brand.discount}
-                  </span>
                 </div>
 
                 <div>
