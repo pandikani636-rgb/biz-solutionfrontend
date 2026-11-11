@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
   ArrowRight,
   Layers,
+  Ticket,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useSite } from '../../context/SiteContext';
@@ -266,12 +267,17 @@ export const Navbar = () => {
             <span>{t('nav_mrp_discounts') || 'MRP Discounts'}</span>
           </NavLink>
 
-          {/* 5. Request RFQ */}
+          <NavLink to="/ticket-booking" className={navLinkClass}>
+            <Ticket className="h-3.5 w-3.5" />
+            <span>Ticket Booking</span>
+          </NavLink>
+
+          {/* 6. Request RFQ */}
           <NavLink to="/rfq" className={navLinkClass}>
             <span>{t('nav_rfq') || 'Request RFQ'}</span>
           </NavLink>
 
-          {/* 6. Contact */}
+          {/* 7. Contact */}
           <NavLink to="/contact" className={navLinkClass}>
             <span>{t('nav_contact') || 'Contact'}</span>
           </NavLink>
@@ -337,6 +343,15 @@ export const Navbar = () => {
                     >
                       <Calendar className="w-4 h-4 text-slate-400" />
                       <span>{t('nav_my_orders') || 'Orders & Invoices'}</span>
+                    </Link>
+
+                    <Link
+                      to="/customer/ticket-bookings"
+                      onClick={() => setIsUserDropdownOpen(false)}
+                      className="inline-flex items-center gap-2 w-full px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-xl transition-colors"
+                    >
+                      <Ticket className="w-4 h-4 text-slate-400" />
+                      <span>My Ticket Bookings</span>
                     </Link>
 
                     <Link
@@ -496,6 +511,18 @@ export const Navbar = () => {
               }
             >
               {t('nav_rfq') || 'Request RFQ'}
+            </NavLink>
+
+            <NavLink
+              to="/ticket-booking"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `block px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                  isActive ? 'bg-blue-50 text-primary font-bold' : 'text-slate-800 hover:bg-slate-50'
+                }`
+              }
+            >
+              Ticket Booking
             </NavLink>
 
             <NavLink

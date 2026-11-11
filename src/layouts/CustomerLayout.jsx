@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink, Navigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, User, CreditCard, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Calendar, User, CreditCard, ShieldCheck, Ticket } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
@@ -25,6 +25,7 @@ export const CustomerLayout = () => {
   const tabs = [
     { label: 'User Dashboard', to: '/customer', icon: LayoutDashboard, end: true },
     { label: 'My Orders', to: '/customer/bookings', icon: Calendar },
+    { label: 'Ticket Bookings', to: '/customer/ticket-bookings', icon: Ticket },
     { label: 'Payment History', to: '/customer/payments', icon: CreditCard },
     { label: 'Account Profile', to: '/customer/profile', icon: User },
   ];

@@ -23,6 +23,7 @@ import {
   ShieldCheck,
   ChevronRight,
   ShoppingBag,
+  Ticket,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -43,6 +44,7 @@ export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggl
       items: [
         { label: t('admin_dashboard') || 'Overview', to: '/admin', icon: LayoutDashboard, end: true },
         { label: 'Material Purchases', to: '/admin/purchases', icon: ShoppingBag },
+        { label: 'Ticket Bookings', to: '/admin/ticket-bookings', icon: Ticket },
         { label: t('admin_quotations') || 'Quotations & RFQs', to: '/admin/quotations', icon: FileCheck },
         { label: t('admin_orders') || 'Orders & Invoices', to: '/admin/bookings', icon: CalendarCheck },
         { label: 'Transactions', to: '/admin/payments', icon: CreditCard },
