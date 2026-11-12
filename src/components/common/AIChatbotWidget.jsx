@@ -24,8 +24,8 @@ export const AIChatbotWidget = () => {
     {
       sender: 'bot',
       text: isTamil
-        ? 'வணக்கம்! நான் பாலுமுனி அண்ட் அசோசியேட்ஸ் (BizZolution) AI உதவியாளர். இண்டஸ்ட்ரியல் பேரிங்ஸ், பெல்ட்கள், மொத்த விலை தள்ளுபடிகள் மற்றும் ஆர்டர் தகவல்களை என்னிடம் கேட்கலாம்.'
-        : 'Hello! Welcome to Balumuni & Associates (BizZolution). How can I assist you with industrial bearings, belts, wholesale pricing, or bulk RFQs today?',
+        ? 'வணக்கம்! நான் பாலுமுனி அண்ட் அசோசியேட்ஸ் (Balumuni and Associates) AI உதவியாளர். இண்டஸ்ட்ரியல் பேரிங்ஸ், பெல்ட்கள், மொத்த விலை தள்ளுபடிகள் மற்றும் ஆர்டர் தகவல்களை என்னிடம் கேட்கலாம்.'
+        : 'Hello! Welcome to Balumuni and Associates. How can I assist you with industrial bearings, belts, wholesale pricing, or bulk RFQs today?',
       timestamp: new Date(),
     },
   ]);
@@ -97,13 +97,13 @@ export const AIChatbotWidget = () => {
 
       if (q.includes('belt') || q.includes('grander') || q.includes('v-belt') || q.includes('pulley')) {
         fallbackReply = isTamil
-          ? 'எங்களிடம் உயர்தர கிராண்டர் பெல்ட்கள் (Grander Belts), PIX மற்றும் Fenner இண்டஸ்ட்ரியல் V-பெல்ட்கள் (A, B, C, SPC, 8V) 45% - 48% மொத்த விலை தள்ளுபடியில் கிடைக்கின்றன. அனைத்து பெல்ட்களும் இலவச டெல்லிவரி சரக்குடன் அனுப்பப்படும்.'
-          : 'We supply high-tensile Grander Belts, PIX and Fenner industrial V-belts (Classical A/B/C, Narrow Wedge SPC/8V/SPZ) at 45% to 48% wholesale discount from official MRP with free Delhivery freight included.';
+          ? 'எங்களிடம் உயர்தர கிராண்டர் பெல்ட்கள் (Grander Belts), PIX மற்றும் Fenner இண்டஸ்ட்ரியல் V-பெல்ட்கள் (A, B, C, SPC, 8V) 45% - 48% மொத்த விலை தள்ளுபடியில் கிடைக்கின்றன. அனைத்து பெல்ட்களும் விரைவான சரக்குடன் அனுப்பப்படும்.'
+          : 'We supply high-tensile Grander Belts, PIX and Fenner industrial V-belts (Classical A/B/C, Narrow Wedge SPC/8V/SPZ) at 45% to 48% wholesale discount from official MRP.';
         fallbackQuickLink = { label: 'Explore Belts & Pulleys', url: '/services?brand=PIX' };
       } else if (q.includes('price') || q.includes('discount') || q.includes('mrp') || q.includes('rate')) {
         fallbackReply = isTamil
-          ? 'எங்கள் மொத்த விலை தள்ளுபடி:\n• PIX, NBC, HCH, Fenner & Timken: 45% - 48% தள்ளுபடி\n• SKF: 10% நேரடி தள்ளுபடி\n• இலவச டெல்லிவரி சரக்குக் கட்டணம் மற்றும் 18% ஜிஎஸ்டி இன்புட் கிரெடிட் இன்வாய்ஸ்.'
-          : 'Our wholesale discount policy:\n• PIX, NBC, HCH, Fenner & Timken: 45% - 48% OFF official list MRP\n• SKF Genuine: Flat 10% OFF official MRP\n• 100% Free Delhivery logistics and 18% GST Input Tax Credit.';
+          ? 'எங்கள் மொத்த விலை தள்ளுபடி:\n• PIX, NBC, HCH, Fenner & Timken: 45% - 48% தள்ளுபடி\n• SKF: 10% நேரடி தள்ளுபடி\n• நேரடி ஜிஎஸ்டி இன்புட் கிரெடிட் இன்வாய்ஸ்.'
+          : 'Our wholesale discount policy:\n• PIX, NBC, HCH, Fenner & Timken: 45% - 48% OFF official list MRP\n• SKF Genuine: Flat 10% OFF official MRP\n• Official GST Input Tax Credit.';
         fallbackQuickLink = { label: 'View MRP Calculator', url: '/mrp-pricing' };
       } else if (q.includes('brand') || q.includes('make') || q.includes('skf') || q.includes('timken')) {
         fallbackReply = isTamil
@@ -112,13 +112,13 @@ export const AIChatbotWidget = () => {
         fallbackQuickLink = { label: 'Browse Brands', url: '/services' };
       } else if (q.includes('contact') || q.includes('phone') || q.includes('address') || q.includes('email')) {
         fallbackReply = isTamil
-          ? '📍 முகவரி: 45B/16 நூருல்லா மால், ஸ்ரீவில்லிபுத்தூர் - 626125.\n📞 தொலைபேசி: +91 74184 23238 / 98426 70320\n✉️ மின்னஞ்சல்: sales@bizzolution.com'
-          : '📍 Headquarters: 45B/16 Noorullah Mall, Oothumalai Paradesimadam St, Srivilliputtur, Virudhunagar Dist, Tamil Nadu - 626125.\n📞 Engineering Desk: +91 74184 23238 / 98426 70320\n✉️ Email: sales@bizzolution.com';
+          ? '📍 முகவரி: 45B/16 நூருல்லா மால், ஸ்ரீவில்லிபுத்தூர் - 626125.\n📞 தொலைபேசி: +91 74184 23238 / 98426 70320\n✉️ மின்னஞ்சல்: balumuniandassociates@gmail.com'
+          : '📍 Headquarters: 45B/16 Noorullah Mall, Oothumalai Paradesimadam St, Srivilliputtur, Virudhunagar Dist, Tamil Nadu - 626125.\n📞 Engineering Desk: +91 74184 23238 / 98426 70320\n✉️ Email: balumuniandassociates@gmail.com';
         fallbackQuickLink = { label: 'Contact Us', url: '/contact' };
       } else {
         fallbackReply = isTamil
-          ? 'வணக்கம்! பாலுமுனி அண்ட் அசோசியேட்ஸ் (BizZolution) AI சேவை. பேரிங்ஸ், கிராண்டர் பெல்ட்கள், விலைகள் அல்லது ஆர்டர்கள் பற்றி நீங்கள் என்ன தெரிந்து கொள்ள விரும்புகிறீர்கள்?'
-          : 'Hello! I am your BizZolution AI assistant. How can I help you today with industrial bearings, Grander belts, wholesale MRP pricing, or bulk RFQ quotes?';
+          ? 'வணக்கம்! பாலுமுனி அண்ட் அசோசியேட்ஸ் (Balumuni and Associates) AI சேவை. பேரிங்ஸ், கிராண்டர் பெல்ட்கள், விலைகள் அல்லது ஆர்டர்கள் பற்றி நீங்கள் என்ன தெரிந்து கொள்ள விரும்புகிறீர்கள்?'
+          : 'Hello! I am your Balumuni and Associates AI assistant. How can I help you today with industrial bearings, Grander belts, wholesale MRP pricing, or bulk RFQ quotes?';
         fallbackQuickLink = { label: 'Explore Products', url: '/services' };
       }
 
@@ -166,7 +166,7 @@ export const AIChatbotWidget = () => {
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-navy animate-pulse" />
           </div>
           <span className="text-xs font-black tracking-tight text-white pr-1">
-            {isTamil ? 'AI உதவியாளர்' : 'BizZolution AI'}
+            {isTamil ? 'AI உதவியாளர்' : 'Balumuni AI'}
           </span>
         </button>
       )}
@@ -186,7 +186,7 @@ export const AIChatbotWidget = () => {
               </div>
               <div>
                 <h3 className="font-bold text-xs leading-none flex items-center gap-1.5">
-                  <span>Balumuni & BizZolution AI</span>
+                  <span>Balumuni and Associates AI</span>
                   <span className="text-[10px] bg-emerald-500/30 text-emerald-300 font-semibold px-1.5 py-0.2 rounded">
                     Live
                   </span>

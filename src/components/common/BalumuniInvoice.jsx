@@ -195,7 +195,7 @@ export const BalumuniInvoice = ({ invoice, onPrint, onClose }) => {
             </div>
 
             <div className="p-1.5">
-              <span className="font-bold">Delivery:</span> <span>Doorstep Delhivery (Freight Included)</span>
+              <span className="font-bold">Delivery:</span> <span>Doorstep Dispatch</span>
             </div>
 
             <div className="p-1.5">

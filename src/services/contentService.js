@@ -23,6 +23,15 @@ export const contentService = {
   // Site Settings
   getSettings: () => api.get('/settings'),
 
+  // Scrap Material Prices (Homepage Table)
+  getScrapPrices: () => api.get('/scrap-prices'),
+
+  // Advertisements (Active Popup)
+  getActiveAdvertisement: () => api.get('/advertisements/active'),
+
+  // Labour Insurance
+  submitLabourInsurance: (data) => api.post('/labour-insurance', data),
+
   // Contact Enquiry
   submitEnquiry: (data) => api.post('/enquiries', data),
 };

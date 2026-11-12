@@ -19,7 +19,22 @@ import { Button } from '../../components/common/Button';
 import { PdfCatalogViewer } from '../../components/common/PdfCatalogViewer';
 import { LayoutGrid, FileText } from 'lucide-react';
 
-const brands = ['PIX', 'NBC', 'HCH', 'Fenner', 'Timken', 'SKF'];
+const brands = [
+  'PIX',
+  'JK Fenner',
+  'Diamond',
+  'NBC',
+  'SKF',
+  'FAG',
+  'TMB Ken',
+  'NTN',
+  'Siemens',
+  'Crompton',
+  'ABB',
+  'Bharat Bijlee',
+  'Shanthi Gears',
+  'Vignesh Gears',
+];
 const sections = ['Bearing', 'Belt', 'Bush Pulley'];
 
 export const ServicesPage = () => {
@@ -127,7 +142,7 @@ export const ServicesPage = () => {
               Verified Wholesale Catalog
             </span>
             <span className="text-xs font-bold text-blue-100 bg-white/15 px-3 py-1 rounded-full">
-              🚚 Free Delhivery Included
+              🚚 Insured Tracked Logistics
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-white">
@@ -192,12 +207,15 @@ export const ServicesPage = () => {
           </button>
           {brands.map((b) => {
             const isSkf = b === 'SKF';
-            const isSelected = selectedBrand.toLowerCase() === b.toLowerCase();
+            const isSelected =
+              selectedBrand.toLowerCase() === b.toLowerCase() ||
+              (selectedBrand.toLowerCase() === 'timken' && b === 'TMB Ken') ||
+              (selectedBrand.toLowerCase() === 'fenner' && b === 'JK Fenner');
             return (
               <button
                 key={b}
                 onClick={() => handleBrandChange(b)}
-                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-smooth flex items-center gap-1.5 ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-smooth flex items-center gap-1.5 whitespace-nowrap ${
                   isSelected
                     ? 'bg-primary text-white shadow-md'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'

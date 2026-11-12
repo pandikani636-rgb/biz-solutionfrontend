@@ -284,7 +284,7 @@ export const AboutPage = () => {
                   <Truck className="w-4 h-4" />
                 </div>
                 <div>
-                  <h5 className="font-black text-xs text-amber-950 uppercase tracking-wider">Free Delhivery</h5>
+                  <h5 className="font-black text-xs text-amber-950 uppercase tracking-wider">Fast Logistics</h5>
                   <p className="text-[10px] text-slate-500 leading-tight">Nationwide insured dispatch</p>
                 </div>
               </div>

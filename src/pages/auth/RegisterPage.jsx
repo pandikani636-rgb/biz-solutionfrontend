@@ -49,7 +49,7 @@ export const RegisterPage = () => {
       });
 
       if (res.success) {
-        showToast('Account created successfully! Welcome to BizZolution.');
+        showToast('Account created successfully! Welcome to Balumuni and Associates.');
         navigate('/customer/bookings');
       }
     } catch (err) {

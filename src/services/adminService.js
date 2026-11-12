@@ -64,6 +64,26 @@ export const adminService = {
   // Settings
   updateSettings: (data) => api.put('/settings', data),
 
+  // Scrap Material Prices
+  getAllScrapPrices: () => api.get('/scrap-prices/admin/all'),
+  createScrapPrice: (data) => api.post('/scrap-prices', data),
+  updateScrapPrice: (id, data) => api.put(`/scrap-prices/${id}`, data),
+  deleteScrapPrice: (id) => api.delete(`/scrap-prices/${id}`),
+  resetDefaultScrapPrices: () => api.post('/scrap-prices/admin/reset-defaults'),
+
+  // Advertisements
+  getAllAdvertisements: () => api.get('/advertisements'),
+  createAdvertisement: (data) => api.post('/advertisements', data),
+  updateAdvertisement: (id, data) => api.put(`/advertisements/${id}`, data),
+  deleteAdvertisement: (id) => api.delete(`/advertisements/${id}`),
+  toggleAdvertisement: (id) => api.patch(`/advertisements/${id}/toggle`),
+
+  // Labour Insurance
+  getLabourInsuranceInquiries: (params) => api.get('/labour-insurance', { params }),
+  getLabourInsuranceById: (id) => api.get(`/labour-insurance/${id}`),
+  updateLabourInsuranceStatus: (id, data) => api.patch(`/labour-insurance/${id}/status`, data),
+  deleteLabourInsuranceInquiry: (id) => api.delete(`/labour-insurance/${id}`),
+
   // Uploads
   uploadImage: (formData) =>
     api.post('/uploads/image', formData, {

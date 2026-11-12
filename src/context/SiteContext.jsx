@@ -5,11 +5,13 @@ const SiteContext = createContext(null);
 
 export const SiteProvider = ({ children }) => {
   const [settings, setSettings] = useState({
-    siteName: 'BizZolution',
-    tagLine: 'Your Comprehensive Business & Lifestyle Solutions Partner',
-    contactEmail: 'contact@bizzolution.com',
-    contactPhone: '+91 98765 43210',
-    address: 'Tech Innovation Park, Bangalore - 560100',
+    siteName: 'Balumuni and Associates',
+    siteNameFirstPart: 'Balumuni',
+    siteNameRemainingPart: 'and Associates',
+    tagLine: 'Authorized Industrial Power Transmission & Bearings Distributor',
+    contactEmail: 'balumuniandassociates@gmail.com',
+    contactPhone: '+91 74184 23238',
+    address: 'Near Madurai Logistics Hub, Tamil Nadu, India',
     currency: 'INR',
     currencySymbol: '₹',
     defaultTaxRate: 18,

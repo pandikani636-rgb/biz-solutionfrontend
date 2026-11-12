@@ -124,7 +124,7 @@ RFQ Submission Details:
             <Clock className="w-4 h-4 text-accent" /> 1-Hour Quote Turnaround
           </p>
           <p className="flex items-center gap-1.5">
-            <Truck className="w-4 h-4 text-emerald-400" /> Free Delhivery Shipping
+            <Truck className="w-4 h-4 text-emerald-400" /> Insured Tracked Shipping
           </p>
           <p className="flex items-center gap-1.5">
             <ShieldCheck className="w-4 h-4 text-blue-400" /> MTC & Mill Test Certified
@@ -392,8 +392,8 @@ RFQ Submission Details:
               </div>
 
               <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-                <p className="font-extrabold text-emerald-900">Free Delhivery Freight</p>
-                <p className="text-emerald-800 mt-0.5">Nationwide door-to-door delivery charges included in product pricing.</p>
+                <p className="font-extrabold text-emerald-900">Insured Dispatch</p>
+                <p className="text-emerald-800 mt-0.5">Nationwide door-to-door insured logistics with factory packaging.</p>
               </div>
             </div>
           </div>
@@ -408,7 +408,7 @@ RFQ Submission Details:
                 <Phone className="w-4 h-4 text-accent" /> +91 98765 43210
               </p>
               <p className="flex items-center gap-2 text-slate-300">
-                <Mail className="w-4 h-4 text-accent" /> sales@bizzolution.com
+                <Mail className="w-4 h-4 text-accent" /> balumuniandassociates@gmail.com
               </p>
             </div>
           </div>

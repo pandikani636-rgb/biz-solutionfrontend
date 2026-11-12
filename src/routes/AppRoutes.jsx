@@ -17,6 +17,7 @@ const RfqPage = lazy(() => import('../pages/public/RfqPage').then((m) => ({ defa
 const PriceListPage = lazy(() => import('../pages/public/PriceListPage').then((m) => ({ default: m.PriceListPage })));
 const TicketBookingPage = lazy(() => import('../pages/public/TicketBookingPage').then((m) => ({ default: m.TicketBookingPage })));
 const TransportBookingPage = lazy(() => import('../pages/public/TransportBookingPage').then((m) => ({ default: m.TransportBookingPage })));
+const LabourInsurancePage = lazy(() => import('../pages/public/LabourInsurancePage').then((m) => ({ default: m.LabourInsurancePage })));
 
 // Auth Pages
 const LoginPage = lazy(() => import('../pages/auth/LoginPage').then((m) => ({ default: m.LoginPage })));
@@ -49,6 +50,9 @@ const AdminSettingsPage = lazy(() => import('../pages/admin/AdminSettingsPage').
 const AdminReportsPage = lazy(() => import('../pages/admin/AdminReportsPage').then((m) => ({ default: m.AdminReportsPage })));
 const AdminPurchasesPage = lazy(() => import('../pages/admin/AdminPurchasesPage').then((m) => ({ default: m.AdminPurchasesPage })));
 const AdminTicketBookingsPage = lazy(() => import('../pages/admin/AdminTicketBookingsPage').then((m) => ({ default: m.AdminTicketBookingsPage })));
+const AdminScrapPricesPage = lazy(() => import('../pages/admin/AdminScrapPricesPage').then((m) => ({ default: m.AdminScrapPricesPage })));
+const AdminAdvertisementsPage = lazy(() => import('../pages/admin/AdminAdvertisementsPage').then((m) => ({ default: m.AdminAdvertisementsPage })));
+const AdminLabourInsurancePage = lazy(() => import('../pages/admin/AdminLabourInsurancePage').then((m) => ({ default: m.AdminLabourInsurancePage })));
 
 const PageLoadingFallback = () => (
   <div className="min-h-[50vh] flex items-center justify-center p-8">
@@ -70,6 +74,7 @@ export const AppRoutes = () => {
           <Route path="/price-list" element={<PriceListPage />} />
           <Route path="/ticket-booking" element={<TicketBookingPage />} />
           <Route path="/ticket-booking/:type" element={<TransportBookingPage />} />
+          <Route path="/labour-insurance" element={<LabourInsurancePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -106,6 +111,9 @@ export const AppRoutes = () => {
           <Route path="/admin/enquiries" element={<AdminEnquiriesPage />} />
           <Route path="/admin/content" element={<AdminContentPage />} />
           <Route path="/admin/settings" element={<AdminSettingsPage />} />
+          <Route path="/admin/scrap-prices" element={<AdminScrapPricesPage />} />
+          <Route path="/admin/advertisements" element={<AdminAdvertisementsPage />} />
+          <Route path="/admin/labour-insurance" element={<AdminLabourInsurancePage />} />
           <Route path="/admin/reports" element={<AdminReportsPage />} />
         </Route>
 

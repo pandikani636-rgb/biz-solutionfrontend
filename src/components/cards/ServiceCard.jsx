@@ -93,13 +93,6 @@ export const ServiceCard = ({ service }) => {
       {/* Card Body */}
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div>
-          {/* Part Number Banner */}
-          {partNumber && (
-            <div className="inline-block px-2.5 py-0.5 bg-slate-100 rounded text-xs font-mono font-bold text-slate-800 border border-slate-200 mb-2">
-              Item Code: <span className="text-primary font-black">{partNumber}</span>
-            </div>
-          )}
-
           <h3 className="font-bold text-base md:text-lg text-darkText group-hover:text-primary transition-smooth line-clamp-1">
             {cleanName}
           </h3>
@@ -113,7 +106,7 @@ export const ServiceCard = ({ service }) => {
         <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 flex items-center justify-between text-xs">
           <div className="flex items-center gap-1.5 text-slate-700 font-medium">
             <Truck className="w-3.5 h-3.5 text-primary" />
-            <span>{deliveryIncluded ? 'Free Delhivery Included' : 'Standard Shipping'}</span>
+            <span>Express Dispatch</span>
           </div>
           <div className="flex items-center gap-1 text-emerald-700 font-bold text-[11px]">
             <ShieldCheck className="w-3.5 h-3.5" /> 100% Genuine

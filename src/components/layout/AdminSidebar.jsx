@@ -24,6 +24,9 @@ import {
   ChevronRight,
   ShoppingBag,
   Ticket,
+  TrendingUp,
+  Sparkles,
+  HardHat,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -43,8 +46,9 @@ export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggl
       groupTitle: 'Operations & Orders',
       items: [
         { label: t('admin_dashboard') || 'Overview', to: '/admin', icon: LayoutDashboard, end: true },
-        { label: 'Material Purchases', to: '/admin/purchases', icon: ShoppingBag },
+        { label: 'Labour Insurance', to: '/admin/labour-insurance', icon: HardHat },
         { label: 'Ticket Bookings', to: '/admin/ticket-bookings', icon: Ticket },
+        { label: 'Material Purchases', to: '/admin/purchases', icon: ShoppingBag },
         { label: t('admin_quotations') || 'Quotations & RFQs', to: '/admin/quotations', icon: FileCheck },
         { label: t('admin_orders') || 'Orders & Invoices', to: '/admin/bookings', icon: CalendarCheck },
         { label: 'Transactions', to: '/admin/payments', icon: CreditCard },
@@ -54,6 +58,7 @@ export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggl
     {
       groupTitle: 'Catalog & Inventory',
       items: [
+        { label: 'Scrap Price Table', to: '/admin/scrap-prices', icon: TrendingUp },
         { label: 'Products & Bearings', to: '/admin/services', icon: Briefcase },
         { label: 'Categories', to: '/admin/categories', icon: Layers },
         { label: 'Packages & Tiers', to: '/admin/packages', icon: Package },
@@ -64,6 +69,7 @@ export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggl
     {
       groupTitle: 'Growth & System',
       items: [
+        { label: 'Popup Advertisements', to: '/admin/advertisements', icon: Sparkles },
         { label: 'Hero Banners', to: '/admin/banners', icon: ImageIcon },
         { label: 'Coupons & Deals', to: '/admin/coupons', icon: TicketPercent },
         { label: 'Enquiries & Leads', to: '/admin/enquiries', icon: MessageSquare },
@@ -88,12 +94,14 @@ export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggl
       <div className="h-20 flex items-center px-4 border-b border-slate-800/80 shrink-0">
         {!isCollapsed ? (
           <Link to="/admin" className="flex items-center gap-3 group min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-md shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-md shrink-0">
               <img src="/bm-logo.png" alt="BM Logo" className="w-full h-full object-contain" />
             </div>
             <div className="min-w-0 flex-1">
-              <span className="font-black text-sm text-white tracking-tight leading-none block truncate">
-                Balumuni &amp; Associates
+              <span className="font-black text-sm tracking-tight leading-none block truncate">
+                <span className="text-amber-400">Balumuni</span>{' '}
+                <span className="text-white">and</span>{' '}
+                <span className="text-amber-400">Associates</span>
               </span>
               <span className="text-[10px] uppercase font-bold tracking-wider text-blue-400 block mt-1">
                 Admin Console
@@ -102,7 +110,7 @@ export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggl
           </Link>
         ) : (
           <Link to="/admin" className="mx-auto" title="Balumuni and Associates Admin">
-            <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-md">
+            <div className="w-12 h-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-md">
               <img src="/bm-logo.png" alt="BM Logo" className="w-full h-full object-contain" />
             </div>
           </Link>

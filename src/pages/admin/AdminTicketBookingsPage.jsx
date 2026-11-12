@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { BusFront, CalendarDays, CheckCircle2, CreditCard, Plane, RefreshCw, Search, TicketCheck, TrainFront } from 'lucide-react';
+import { CalendarDays, CheckCircle2, CreditCard, Plane, RefreshCw, Search, TicketCheck, TrainFront, Users, Compass, HardHat } from 'lucide-react';
 import { ticketBookingService } from '../../services/ticketBookingService';
 import { showErrorAlert, showSuccessAlert } from '../../utils/alerts';
 import { Spinner } from '../../components/common/Spinner';
 
 const formatDateTime = (value) => new Date(value).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
-const icons = { bus: BusFront, train: TrainFront, flight: Plane };
+const icons = { train: TrainFront, flight: Plane };
 
 export const AdminTicketBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
@@ -93,7 +93,7 @@ export const AdminTicketBookingsPage = () => {
           <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search reference, route, customer…" className="h-11 w-full text-sm outline-none" />
         </label>
         <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700">
-          <option value="">All travel types</option><option value="bus">Bus</option><option value="train">Train</option><option value="flight">Flight</option>
+          <option value="">All travel types</option><option value="train">Train Booking</option><option value="flight">Flight Booking</option>
         </select>
         <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700">
           <option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="rejected">Rejected</option><option value="cancelled">Cancelled</option>
@@ -114,6 +114,9 @@ export const AdminTicketBookingsPage = () => {
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-mono text-xs font-black text-blue-800">{booking.bookingNumber}</span>
                         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase text-slate-700">{booking.transportType} · {booking.status}</span>
+                        <span className="rounded-full bg-blue-100 text-blue-900 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide">
+                          {booking.bookingType || 'General'} Booking
+                        </span>
                         <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${booking.paymentStatus === 'paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>Payment {booking.paymentStatus}</span>
                       </div>
                       <h2 className="mt-1 text-lg font-black text-slate-900">{booking.source} <span className="text-slate-400">→</span> {booking.destination}</h2>

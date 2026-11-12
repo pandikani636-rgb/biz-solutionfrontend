@@ -24,7 +24,7 @@ const discountMatrix = [
     section: 'Industrial Belts (SPC, 8V, Classical C)',
     discount: '45% - 48% OFF MRP',
     discountPct: 46,
-    freight: 'Included (Delhivery)',
+    freight: 'Standard Shipping',
     warranty: '100% Genuine Factory Warranty',
     notes: 'Includes high torque narrow wedge, deep wedge 8V, and classical wrapped belts.',
     color: 'border-amber-300 bg-amber-50/50',
@@ -36,7 +36,7 @@ const discountMatrix = [
     section: 'Industrial Bearings (6400 Heavy Series)',
     discount: '45% - 48% OFF MRP',
     discountPct: 46,
-    freight: 'Included (Delhivery)',
+    freight: 'Standard Shipping',
     warranty: 'Factory Hologram & Traceability',
     notes: 'Heavy deep groove ball bearings with C3 clearance and ZZ shields.',
     color: 'border-emerald-300 bg-emerald-50/50',
@@ -48,7 +48,7 @@ const discountMatrix = [
     section: 'Ball Bearings & Matched Sets (6200/6300)',
     discount: '45% - 48% OFF MRP',
     discountPct: 46,
-    freight: 'Included (Delhivery)',
+    freight: 'Standard Shipping',
     warranty: 'Electric Motor Quality (EMQ)',
     notes: 'Open and ZZ shielded ball bearings, armature sets (6201_6202), and heavy sizes.',
     color: 'border-sky-300 bg-sky-50/50',
@@ -60,7 +60,7 @@ const discountMatrix = [
     section: 'Bush Pulleys & PB Belts (200 X 3C / C 70)',
     discount: '45% - 48% OFF MRP',
     discountPct: 46,
-    freight: 'Included (Delhivery)',
+    freight: 'Standard Shipping',
     warranty: 'Precision Built (PB) Certification',
     notes: 'Taper Lock Pulleys (2517 bush), finished bore 60mm, and matched wedge/classical belts.',
     color: 'border-rose-300 bg-rose-50/50',
@@ -72,7 +72,7 @@ const discountMatrix = [
     section: 'Industrial Bearings (All Types Available)',
     discount: '45% - 48% OFF MRP',
     discountPct: 46,
-    freight: 'Included (Delhivery)',
+    freight: 'Standard Shipping',
     warranty: 'Timken Authenticity MTC',
     notes: 'Featured 6313 open type + full Timken range (tapered, spherical, ball) on demand.',
     color: 'border-orange-300 bg-orange-50/50',
@@ -84,7 +84,7 @@ const discountMatrix = [
     section: 'Angular Contact & Deep Groove Bearings',
     discount: 'Strictly Flat 10% OFF MRP',
     discountPct: 10,
-    freight: 'Included (Delhivery)',
+    freight: 'Standard Shipping',
     warranty: 'SKF Authenticate App QR Verified',
     notes: 'Stocked in both National (SKF India) and International (Imported European) batches.',
     color: 'border-blue-300 bg-blue-50/50',
@@ -161,14 +161,14 @@ export const PriceListPage = () => {
             Official B2B Discount Schedule
           </span>
           <span className="bg-emerald-500/20 text-emerald-300 font-bold text-xs px-3 py-1 rounded-full border border-emerald-400/30">
-            🚚 Delhivery Charges 100% Included
+            🚚 Insured Tracked Dispatch
           </span>
         </div>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
           MRP Price List & Wholesale Discounts
         </h1>
         <p className="text-xs sm:text-sm text-blue-100 max-w-2xl leading-relaxed">
-          Transparent wholesale pricing policy. We pass maximum distribution margins directly to plants and OEMs: 45% - 48% off MRP on standard lines with free freight, and strictly 10% on genuine SKF.
+          Transparent wholesale pricing policy. We pass maximum distribution margins directly to plants and OEMs: 45% - 48% off MRP on standard lines, and strictly 10% on genuine SKF.
         </p>
         </div>
       </div>
@@ -239,8 +239,8 @@ export const PriceListPage = () => {
             </span>
             <h3 className="text-xl font-black text-navy mt-1">Calculate Your Net B2B Savings</h3>
           </div>
-          <span className="text-xs bg-emerald-50 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-200">
-            Delhivery Shipping Included
+          <span className="text-xs bg-slate-100 text-slate-800 font-bold px-3 py-1 rounded-full border border-slate-200">
+            Standard Shipping
           </span>
         </div>
 
@@ -289,8 +289,8 @@ export const PriceListPage = () => {
               <span className="font-black text-amber-700">- {formatCurrency(discountAmount)}</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-secondaryText">Delhivery Freight:</span>
-              <span className="font-bold text-emerald-700">₹0 (Free / Included)</span>
+              <span className="text-secondaryText">Shipping:</span>
+              <span className="font-bold text-slate-700">Standard Insured Logistics</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-secondaryText">Applicable GST (18%):</span>
@@ -302,7 +302,7 @@ export const PriceListPage = () => {
             <div className="flex justify-between items-baseline pt-1">
               <div>
                 <span className="text-sm font-black text-navy">Net B2B Payable:</span>
-                <p className="text-[10px] text-slate-400">Doorstep delivery via Delhivery</p>
+                <p className="text-[10px] text-slate-400">Direct factory dispatch</p>
               </div>
               <span className="text-2xl font-black text-emerald-700">{formatCurrency(grandTotal)}</span>
             </div>
@@ -388,8 +388,8 @@ export const PriceListPage = () => {
                       {formatCurrency(netPrice)}
                     </td>
                     <td className="py-3.5 px-4 text-center">
-                      <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                        Delhivery Free
+                      <span className="text-[10px] text-slate-700 font-bold bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                        Standard Shipping
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-center">

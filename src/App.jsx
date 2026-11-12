@@ -7,6 +7,7 @@ import { AppRoutes } from './routes/AppRoutes';
 import { AIChatbotWidget } from './components/common/AIChatbotWidget';
 import { TechPreloader } from './components/common/TechPreloader';
 import { ScrollToTop } from './components/common/ScrollToTop';
+import { AdvertisementModal } from './components/common/AdvertisementModal';
 
 function AppContent() {
   const { showPreloader, setShowPreloader } = useSite();
@@ -15,7 +16,12 @@ function AppContent() {
     <>
       {showPreloader && <TechPreloader onFinish={() => setShowPreloader(false)} />}
       <AppRoutes />
-      {!showPreloader && <AIChatbotWidget />}
+      {!showPreloader && (
+        <>
+          <AIChatbotWidget />
+          <AdvertisementModal />
+        </>
+      )}
     </>
   );
 }

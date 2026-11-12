@@ -18,7 +18,14 @@ import {
   X,
   Send,
   Search,
+  Calculator,
+  FileText,
+  Layers,
+  Eye,
+  CheckCircle2,
+  ExternalLink,
 } from 'lucide-react';
+import api from '../../services/api';
 import { contentService } from '../../services/contentService';
 import { bookingService } from '../../services/bookingService';
 import { useAuth } from '../../context/AuthContext';
@@ -41,6 +48,23 @@ const brandColors = {
   SKF: 'bg-blue-100 text-blue-900 border-blue-300',
   General: 'bg-slate-100 text-slate-800 border-slate-300',
 };
+
+const brandsList = [
+  { name: 'PIX', discount: '45% - 48% OFF', discountNum: 46 },
+  { name: 'JK Fenner', discount: '45% - 48% OFF', discountNum: 46 },
+  { name: 'Diamond', discount: '45% - 48% OFF', discountNum: 46 },
+  { name: 'NBC', discount: '45% - 48% OFF', discountNum: 46 },
+  { name: 'SKF', discount: 'Flat 10% OFF', discountNum: 10 },
+  { name: 'FAG', discount: '45% - 48% OFF', discountNum: 46 },
+  { name: 'TMB Ken', discount: '45% - 48% OFF', discountNum: 46 },
+  { name: 'NTN', discount: '45% - 48% OFF', discountNum: 46 },
+  { name: 'Siemens', discount: '40% - 45% OFF', discountNum: 42 },
+  { name: 'Crompton', discount: '40% - 45% OFF', discountNum: 42 },
+  { name: 'ABB', discount: '40% - 45% OFF', discountNum: 42 },
+  { name: 'Bharat Bijlee', discount: '40% - 45% OFF', discountNum: 42 },
+  { name: 'Shanthi Gears', discount: '35% - 40% OFF', discountNum: 38 },
+  { name: 'Vignesh Gears', discount: '35% - 40% OFF', discountNum: 38 },
+];
 
 export const ServiceDetailPage = () => {
   const { identifier } = useParams();
@@ -89,6 +113,35 @@ export const ServiceDetailPage = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchMessage, setSearchMessage] = useState('');
 
+  // Relocated Savings Calculator State
+  const [calcBrand, setCalcBrand] = useState('PIX');
+  const [calcMrp, setCalcMrp] = useState(2000);
+
+  // Dedicated PDF Viewer & Category Data Extraction State
+  const [pdfCatalog, setPdfCatalog] = useState(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [selectedPdfCatIndex, setSelectedPdfCatIndex] = useState(0);
+  const [selectedPdfItem, setSelectedPdfItem] = useState(null);
+  const [pdfActiveTab, setPdfActiveTab] = useState('extracted'); // 'extracted' or 'pdf_viewer'
+
+  useEffect(() => {
+    const fetchCatalog = async () => {
+      setPdfLoading(true);
+      try {
+        const res = await api.get('/pdf-catalog');
+        const catData = res?.data?.categories ? res.data : (res?.data?.data || res?.data);
+        if (catData) {
+          setPdfCatalog(catData);
+        }
+      } catch (err) {
+        console.error('[Service Detail PDF Catalog]', err);
+      } finally {
+        setPdfLoading(false);
+      }
+    };
+    fetchCatalog();
+  }, []);
+
   const handleProductSearch = async (e) => {
     e.preventDefault();
     const query = productNumberQuery.trim();
@@ -125,6 +178,13 @@ export const ServiceDetailPage = () => {
         const res = await contentService.getServiceBySlugOrId(identifier);
         if (res.success && res.data) {
           setService(res.data);
+          if (res.data.brand) {
+            const match = brandsList.find((b) => b.name.toLowerCase() === res.data.brand.toLowerCase());
+            if (match) setCalcBrand(match.name);
+          }
+          if (res.data.officialMrp > 0) {
+            setCalcMrp(res.data.officialMrp);
+          }
           setRelatedServices(res.related || []);
 
           // Fetch packages for this service
@@ -400,7 +460,7 @@ export const ServiceDetailPage = () => {
               <Tag className="w-3.5 h-3.5 text-blue-700" /> B2B Wholesale Pricing
             </span>
             <span className="bg-emerald-50 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-lg border border-emerald-200 flex items-center gap-1">
-              <Truck className="w-3.5 h-3.5" /> Free Delhivery Included
+              <Truck className="w-3.5 h-3.5" /> Express Dispatch
             </span>
           </div>
 
@@ -444,7 +504,7 @@ export const ServiceDetailPage = () => {
               <ShieldCheck className="w-4 h-4" /> 100% Genuine MTC Certified
             </span>
             <span className="flex items-center gap-1.5 text-primary">
-              <Truck className="w-4 h-4" /> Delhivery Shipping Included
+              <Truck className="w-4 h-4" /> Nationwide Dispatch
             </span>
             <span className="flex items-center gap-1.5 text-purple-700">
               <FileSpreadsheet className="w-4 h-4" /> B2B Input Tax Invoice
@@ -563,6 +623,140 @@ export const ServiceDetailPage = () => {
         </div>
       )}
 
+      {/* Relocated Savings Calculator with Industrial Image - Exact Match to User Screenshot */}
+      <section className="bg-gradient-to-br from-blue-50/95 via-sky-50/90 to-blue-100/70 rounded-3xl p-8 md:p-12 text-slate-900 shadow-xl relative overflow-hidden border border-blue-200/80 backdrop-blur-md">
+        {/* Subtle rotating gear silhouette and glowing ambient light backdrop */}
+        <div className="absolute -right-20 -top-20 w-80 h-80 border-2 border-dashed border-blue-400/20 rounded-full animate-spin-slow pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-slow pointer-events-none" />
+
+        {/* Clean ambient gradient backdrop */}
+        <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-r from-blue-50/95 via-sky-50/80 to-white/70" />
+
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          {/* Left Column: Explainer */}
+          <div className="lg:col-span-5 space-y-4">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 border border-blue-300/80 text-primary font-black text-xs shadow-xs">
+              <Calculator className="w-3.5 h-3.5 text-primary animate-pulse" />
+              Live Wholesale Pricing Engine
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-navy leading-tight">
+              Instant MRP Discount &amp; Savings Calculator
+            </h2>
+            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-medium">
+              Test any official price list MRP across our brands. See your exact net B2B wholesale rate with our guaranteed 45% - 48% discount schedule (or flat 10% on SKF Genuine) and zero shipping fees.
+            </p>
+
+            <div className="space-y-2.5 pt-2 text-xs text-slate-700 font-semibold">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>PIX, NBC, HCH, Fenner &amp; Timken: <strong className="text-primary font-black">46% off MRP</strong></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>SKF Bearings: <strong className="text-primary font-black">Flat 10% off MRP</strong> (National &amp; International Genuine Stock)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Factory Authentic <strong className="text-emerald-700 font-black">MTC &amp; Serial Traceability</strong></span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Interactive Widget */}
+          <div className="lg:col-span-7 bg-white/95 backdrop-blur-md text-darkText rounded-2xl p-6 sm:p-8 shadow-xl border border-blue-100/90 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Brand Selector */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  1. SELECT BRAND / MAKE
+                </label>
+                <select
+                  value={calcBrand}
+                  onChange={(e) => setCalcBrand(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm font-bold text-darkText focus:ring-2 focus:ring-primary focus:outline-none"
+                >
+                  {brandsList.map((b) => (
+                    <option key={b.name} value={b.name}>
+                      {b.name} — {b.discount}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* MRP Input */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  2. ENTER OFFICIAL LIST MRP (₹)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={calcMrp}
+                  onChange={(e) => setCalcMrp(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm font-black text-navy focus:ring-2 focus:ring-primary focus:outline-none"
+                  placeholder="e.g. 2000"
+                />
+              </div>
+            </div>
+
+            {/* Live Price Calculation Display Cards */}
+            {(() => {
+              const activeBrandObj = brandsList.find((b) => b.name === calcBrand) || { name: calcBrand, discountNum: 46, discount: '45% - 48% OFF' };
+              const activeDiscPct = activeBrandObj.discountNum;
+              const parsedMrpVal = Math.max(0, Number(calcMrp) || 0);
+              const discAmountVal = Math.round((parsedMrpVal * activeDiscPct) / 100);
+              const netB2BVal = Math.max(0, parsedMrpVal - discAmountVal);
+              const totalGstVal = Math.round((netB2BVal * 1.18) * 10) / 10;
+              return (
+                <div className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-blue-100 grid grid-cols-2 sm:grid-cols-4 gap-3.5 text-center shadow-xs">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-white/60 border border-slate-200/60 flex flex-col justify-center">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tight block">LIST MRP</span>
+                    <p className="text-sm sm:text-base font-extrabold text-slate-500 line-through mt-0.5 whitespace-nowrap">
+                      ₹{parsedMrpVal.toLocaleString('en-IN')}
+                    </p>
+                  </div>
+
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/60 flex flex-col justify-center">
+                    <span className="text-[11px] font-bold text-amber-700 uppercase tracking-tight block">DISCOUNT ({activeDiscPct}%)</span>
+                    <p className="text-sm sm:text-base font-black text-amber-600 mt-0.5 whitespace-nowrap">
+                      - ₹{discAmountVal.toLocaleString('en-IN')}
+                    </p>
+                  </div>
+
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200/60 flex flex-col justify-center">
+                    <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-tight block">NET B2B RATE</span>
+                    <p className="text-base sm:text-lg font-black text-emerald-700 mt-0.5 whitespace-nowrap">
+                      ₹{netB2BVal.toLocaleString('en-IN')}
+                    </p>
+                  </div>
+
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-blue-100/80 border border-blue-300/80 shadow-2xs flex flex-col justify-center">
+                    <span className="text-[11px] font-black text-blue-900 uppercase tracking-tight block">TOTAL + 18% GST</span>
+                    <p className="text-base sm:text-lg font-black text-blue-950 font-mono mt-0.5 whitespace-nowrap overflow-visible">
+                      ₹{totalGstVal.toLocaleString('en-IN')}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+              <span className="text-xs text-slate-600 flex items-center gap-1.5 font-medium">
+                <Truck className="w-4 h-4 text-emerald-600" />
+                <span><strong>Logistics:</strong> Nationwide Tracked Dispatch</span>
+              </span>
+
+              <Link to={`/services?brand=${encodeURIComponent(calcBrand)}`}>
+                <Button variant="accent" size="sm" className="font-bold w-full sm:w-auto inline-flex items-center gap-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-400 shadow-sm hover:scale-[1.02] transition-smooth cursor-pointer">
+                  <span>View {calcBrand} Products</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 2. Packages Selection Grid */}
       <div className="space-y-6">
         <div className="flex items-end justify-between">
@@ -572,7 +766,7 @@ export const ServiceDetailPage = () => {
             </span>
             <h2 className="text-2xl font-black text-navy mt-1">Available Order Packages</h2>
           </div>
-          <span className="text-xs text-slate-500 font-medium">Free Delhivery included on all tiers</span>
+          <span className="text-xs text-slate-500 font-medium">Bulk wholesale rates on all tiers</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -599,7 +793,7 @@ export const ServiceDetailPage = () => {
             </span>
             <h3 className="text-xl font-bold text-navy mt-1">Order Specifications</h3>
             <p className="text-xs text-secondaryText mt-1">
-              Provide delivery pincode for Delhivery freight and optional GSTIN for 18% tax credit.
+              Provide delivery pincode and optional GSTIN for 18% tax credit.
             </p>
           </div>
 
@@ -641,9 +835,9 @@ export const ServiceDetailPage = () => {
               </div>
             )}
 
-            <div className="flex justify-between items-center text-emerald-700 font-bold">
-              <span>Delhivery Shipping & Handling</span>
-              <span className="uppercase">Free (Included)</span>
+            <div className="flex justify-between items-center text-slate-600 font-medium">
+              <span>Shipping &amp; Handling</span>
+              <span className="uppercase text-slate-700 font-bold">Standard</span>
             </div>
 
             <div className="flex justify-between items-center text-slate-500">
@@ -656,7 +850,7 @@ export const ServiceDetailPage = () => {
             <div className="flex justify-between items-baseline pt-1">
               <div>
                 <span className="text-sm font-extrabold text-navy">Total Amount</span>
-                <p className="text-[10px] text-slate-400">Includes GST & Free Delhivery</p>
+                <p className="text-[10px] text-slate-400">Includes 18% Statutory GST</p>
               </div>
               <span className="text-2xl font-black text-navy">{formatCurrency(pricing.total)}</span>
             </div>
@@ -694,7 +888,7 @@ export const ServiceDetailPage = () => {
               className="w-full justify-center shadow-md py-3.5 text-base font-black"
               onClick={handleOpenCheckout}
             >
-              <span>Confirm & Dispatch via Delhivery</span>
+              <span>Confirm Order &amp; Dispatch</span>
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
 
@@ -750,18 +944,233 @@ export const ServiceDetailPage = () => {
         )}
       </div>
 
+      {/* 5. Dedicated PDF Catalog Viewer & Category Data Extraction */}
+      <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-md space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-primary text-xs font-black uppercase tracking-wider mb-1.5">
+              <FileText className="w-3.5 h-3.5" />
+              <span>Official Technical PDF Catalog &amp; Dimensions</span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-navy">
+              {pdfCatalog?.title || 'Component PDF Catalog & Specifications'}
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Scroll through the document directly or browse structured categories extracted from the admin-uploaded PDF.
+            </p>
+          </div>
+
+          {/* Toggle between Category-Wise Data and In-Page Scrollable PDF Viewer */}
+          <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl shrink-0">
+            <button
+              type="button"
+              onClick={() => setPdfActiveTab('extracted')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                pdfActiveTab === 'extracted'
+                  ? 'bg-white text-primary shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Category Extracted Data</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPdfActiveTab('pdf_viewer')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                pdfActiveTab === 'pdf_viewer'
+                  ? 'bg-white text-primary shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>Scroll PDF In-Page</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Tab 1: Category-Wise Extracted Information Display */}
+        {pdfActiveTab === 'extracted' && (
+          <div className="space-y-6">
+            {pdfCatalog?.categories && pdfCatalog.categories.length > 0 ? (
+              <div className="space-y-5">
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                  {pdfCatalog.categories.map((cat, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setSelectedPdfCatIndex(idx);
+                        setSelectedPdfItem(null);
+                      }}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                        selectedPdfCatIndex === idx
+                          ? 'bg-primary text-white shadow-md'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Subcategories and Extracted Items Grid */}
+                {(() => {
+                  const currentCat = pdfCatalog.categories[selectedPdfCatIndex] || pdfCatalog.categories[0];
+                  const allProducts = currentCat?.subcategories
+                    ? currentCat.subcategories.flatMap((sub) => sub.products || [])
+                    : [];
+
+                  return (
+                    <div className="space-y-5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                          Extracted Items in {currentCat?.name} ({allProducts.length} items)
+                        </span>
+                        <span className="text-[11px] text-primary font-bold">
+                          Click any item to view dimensions &amp; pricing
+                        </span>
+                      </div>
+
+                      {/* Extracted Product Items Quick Grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5 max-h-64 overflow-y-auto p-2 border border-slate-100 rounded-2xl bg-slate-50/50">
+                        {allProducts.slice(0, 48).map((prod, pIdx) => {
+                          const isItemSelected = selectedPdfItem?.name === prod.name;
+                          return (
+                            <button
+                              key={pIdx}
+                              type="button"
+                              onClick={() => setSelectedPdfItem(prod)}
+                              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                                isItemSelected
+                                  ? 'bg-blue-50 border-primary ring-2 ring-primary/40 shadow-sm'
+                                  : 'bg-white border-slate-200/80 hover:border-slate-300'
+                              }`}
+                            >
+                              <p className="text-xs font-black text-slate-900 truncate">{prod.name}</p>
+                              {prod.mrp ? (
+                                <p className="text-[11px] font-bold text-primary mt-0.5">₹{prod.mrp}</p>
+                              ) : (
+                                <p className="text-[10px] text-slate-500">Standard Spec</p>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Selected Item Detail Panel */}
+                      {selectedPdfItem && (
+                        <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/50 border border-blue-200/80 animate-fadeIn space-y-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-blue-200/60 pb-3">
+                            <div>
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Selected Extracted Item</span>
+                              <h4 className="text-lg font-black text-navy">{selectedPdfItem.name}</h4>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {selectedPdfItem.mrp && (
+                                <span className="text-xs font-bold text-slate-700 bg-white px-3 py-1 rounded-lg border border-blue-200 shadow-2xs">
+                                  List MRP: <strong className="text-navy">₹{selectedPdfItem.mrp}</strong>
+                                </span>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="primary"
+                                onClick={() => {
+                                  setRfqData((prev) => ({
+                                    ...prev,
+                                    message: `Inquiry for catalog extracted item: ${selectedPdfItem.name} (${currentCat?.name})`,
+                                  }));
+                                  setIsRfqModalOpen(true);
+                                }}
+                              >
+                                Quote This Item
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                            <div className="bg-white p-2.5 rounded-xl border border-blue-100">
+                              <span className="text-slate-400 block text-[10px] uppercase font-bold">Category</span>
+                              <span className="font-bold text-slate-900">{currentCat?.name}</span>
+                            </div>
+                            {selectedPdfItem.pitchLength && (
+                              <div className="bg-white p-2.5 rounded-xl border border-blue-100">
+                                <span className="text-slate-400 block text-[10px] uppercase font-bold">Pitch Length</span>
+                                <span className="font-bold text-slate-900 font-mono">{selectedPdfItem.pitchLength} mm</span>
+                              </div>
+                            )}
+                            {selectedPdfItem.insideLength && (
+                              <div className="bg-white p-2.5 rounded-xl border border-blue-100">
+                                <span className="text-slate-400 block text-[10px] uppercase font-bold">Inside Length</span>
+                                <span className="font-bold text-slate-900 font-mono">{selectedPdfItem.insideLength} mm / inches</span>
+                              </div>
+                            )}
+                            {selectedPdfItem.brand && (
+                              <div className="bg-white p-2.5 rounded-xl border border-blue-100">
+                                <span className="text-slate-400 block text-[10px] uppercase font-bold">Brand / Make</span>
+                                <span className="font-bold text-primary">{selectedPdfItem.brand}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            ) : (
+              <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200">
+                <Spinner size="md" className="mx-auto mb-2 text-primary" />
+                <p className="text-xs text-slate-600 font-medium">Extracting categories from official catalog PDF...</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 2: In-Page Scrollable PDF Viewer (No Download Required) */}
+        {pdfActiveTab === 'pdf_viewer' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between text-xs text-slate-500">
+              <span className="flex items-center gap-1.5 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                Viewing document inside page without downloading. Scroll up/down to navigate pages.
+              </span>
+              {pdfCatalog?.fileUrl && (
+                <a
+                  href={pdfCatalog.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  <span>Fullscreen View</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
+            </div>
+
+            <div className="w-full h-[620px] rounded-2xl border border-slate-300 bg-slate-100 overflow-hidden shadow-inner relative">
+              <iframe
+                src={`${pdfCatalog?.fileUrl || '/sample-catalog.pdf'}#toolbar=0&navpanes=0&scrollbar=1`}
+                title="Catalog PDF In-Page Scroll Viewer"
+                className="w-full h-full rounded-2xl border-0"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Checkout & Payment Confirmation Modal */}
       <Modal
         isOpen={isCheckoutModalOpen}
         onClose={() => setIsCheckoutModalOpen(false)}
-        title="Confirm Order & Delhivery Dispatch"
+        title="Confirm Order &amp; Dispatch"
       >
         <div className="space-y-6">
           <div className="p-4 bg-lightBlue rounded-xl border border-blue-200 text-xs text-navy space-y-1">
             <p className="font-black text-sm text-primary">{service.name}</p>
             <p>Part Code: <strong>{service.partNumber}</strong> | Make: <strong>{service.brand}</strong></p>
             <p>Package Tier: <strong>{selectedPackage?.name}</strong></p>
-            <p>Delivery: <strong>Delhivery Free Freight Included</strong></p>
+            <p>Logistics: <strong>Tracked Factory Dispatch</strong></p>
           </div>
 
           <div className="space-y-2 text-xs">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
@@ -21,8 +21,11 @@ import {
   Cog,
   Briefcase,
   Layers,
+  HardHat,
+  TrainFront,
 } from 'lucide-react';
 import { contentService } from '../../services/contentService';
+import { ScrapPriceTable } from '../../components/common/ScrapPriceTable';
 import { ServiceCard } from '../../components/cards/ServiceCard';
 import { TestimonialCard } from '../../components/cards/TestimonialCard';
 import { Button } from '../../components/common/Button';
@@ -46,7 +49,7 @@ const brandsList = [
     section: 'Industrial Belts',
     discount: '45% - 48% OFF',
     discountNum: 46,
-    delivery: 'Free Delhivery',
+    delivery: 'Insured Logistics',
     popularParts: ['SPC 2360', '8V-1900', 'SPC PT 3150', 'C 70'],
     color: 'from-amber-500/20 to-amber-600/10 border-amber-300',
     tagColor: 'bg-amber-100 text-amber-900 border-amber-300',
@@ -57,7 +60,7 @@ const brandsList = [
     section: 'Deep Groove Bearings',
     discount: '45% - 48% OFF',
     discountNum: 46,
-    delivery: 'Free Delhivery',
+    delivery: 'Insured Logistics',
     popularParts: ['6405ZZ C3'],
     color: 'from-emerald-500/20 to-emerald-600/10 border-emerald-300',
     tagColor: 'bg-emerald-100 text-emerald-900 border-emerald-300',
@@ -68,7 +71,7 @@ const brandsList = [
     section: 'Ball Bearings & Sets',
     discount: '45% - 48% OFF',
     discountNum: 46,
-    delivery: 'Free Delhivery',
+    delivery: 'Insured Logistics',
     popularParts: ['6203', '6204', '6205', '6305', '6201_6202 set', '6203ZZ', '6307'],
     color: 'from-sky-500/20 to-sky-600/10 border-sky-300',
     tagColor: 'bg-sky-100 text-sky-900 border-sky-300',
@@ -79,7 +82,7 @@ const brandsList = [
     section: 'Bush Pulleys & Belts',
     discount: '45% - 48% OFF',
     discountNum: 46,
-    delivery: 'Free Delhivery',
+    delivery: 'Insured Logistics',
     popularParts: ['200 X 3C (2517)', 'C 70', 'SPC PT 3150'],
     color: 'from-rose-500/20 to-rose-600/10 border-rose-300',
     tagColor: 'bg-rose-100 text-rose-900 border-rose-300',
@@ -90,7 +93,7 @@ const brandsList = [
     section: 'Bearings (All Types)',
     discount: '45% - 48% OFF',
     discountNum: 46,
-    delivery: 'Free Delhivery',
+    delivery: 'Insured Logistics',
     popularParts: ['6313 Open Type', 'All Types on RFQ'],
     color: 'from-orange-500/20 to-orange-600/10 border-orange-300',
     tagColor: 'bg-orange-100 text-orange-900 border-orange-300',
@@ -146,15 +149,6 @@ const allFourteenBrands = [
     discount: '45% - 48% OFF',
   },
   {
-    id: 'shanthi-gears',
-    name: 'Shanthi Gears',
-    fullName: 'Shanthi Gears (Murugappa)',
-    logo: '/brands/individual/shanthi-gears.png',
-    category: 'Industrial Gearboxes & Spares',
-    badge: 'Industrial Partner',
-    discount: 'OEM Pricing',
-  },
-  {
     id: 'skf',
     name: 'SKF',
     fullName: 'SKF India Limited',
@@ -173,9 +167,9 @@ const allFourteenBrands = [
     discount: 'Volume Discounts',
   },
   {
-    id: 'timken',
-    name: 'Timken',
-    fullName: 'The Timken Company',
+    id: 'tmb-ken',
+    name: 'TMB Ken',
+    fullName: 'The Timken Company (TMB Ken)',
     logo: '/brands/individual/timken.png',
     category: 'Tapered Roller & Heavy Bearings',
     badge: 'Certified Partner',
@@ -189,15 +183,6 @@ const allFourteenBrands = [
     category: 'High-Precision Machine Bearings',
     badge: 'Imported Genuine',
     discount: 'Best Market Rates',
-  },
-  {
-    id: 'vignessh-gears',
-    name: 'Vignessh Gears',
-    fullName: 'Vignessh Gears & Transmission',
-    logo: '/brands/individual/vignessh-gears.png',
-    category: 'Industrial Pinions & Spur Gears',
-    badge: 'Regional Partner',
-    discount: 'Direct Factory',
   },
   {
     id: 'siemens',
@@ -218,8 +203,8 @@ const allFourteenBrands = [
     discount: 'Wholesale B2B',
   },
   {
-    id: 'abb-motors',
-    name: 'ABB Motors',
+    id: 'abb',
+    name: 'ABB',
     fullName: 'ABB India Limited',
     logo: '/brands/individual/abb-motors.png',
     category: 'High Efficiency IE3 / IE4 Motors',
@@ -235,6 +220,24 @@ const allFourteenBrands = [
     badge: 'Industrial Partner',
     discount: 'Standard Pricing',
   },
+  {
+    id: 'shanthi-gears',
+    name: 'Shanthi Gears',
+    fullName: 'Shanthi Gears (Murugappa)',
+    logo: '/brands/individual/shanthi-gears.png',
+    category: 'Industrial Gearboxes & Spares',
+    badge: 'Industrial Partner',
+    discount: 'OEM Pricing',
+  },
+  {
+    id: 'vignesh-gears',
+    name: 'Vignesh Gears',
+    fullName: 'Vignesh Gears & Transmission',
+    logo: '/brands/individual/vignessh-gears.png',
+    category: 'Industrial Pinions & Spur Gears',
+    badge: 'Regional Partner',
+    discount: 'Direct Factory',
+  },
 ];
 
 export const HomePage = () => {
@@ -248,10 +251,6 @@ export const HomePage = () => {
   const [faqs, setFaqs] = useState([]);
   const [activeFaq, setActiveFaq] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // Discount Calculator State
-  const [calcBrand, setCalcBrand] = useState('PIX');
-  const [calcMrp, setCalcMrp] = useState(2000);
 
   useEffect(() => {
     const fetchHomeData = async () => {
@@ -352,8 +351,24 @@ export const HomePage = () => {
     if (activeBannersList.length <= 1) return;
     const timer = setInterval(() => {
       setActiveBannerIdx((prev) => (prev + 1) % activeBannersList.length);
-    }, 6000);
+    }, 5500);
     return () => clearInterval(timer);
+  }, [activeBannersList.length]);
+
+  // Synchronize category card and image while scrolling
+  const lastScrollPos = useRef(0);
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentPos = window.scrollY;
+      // Cycle category based on scroll position inside hero banner area (0 - 600px)
+      if (currentPos < 650 && Math.abs(currentPos - lastScrollPos.current) > 100) {
+        const index = Math.floor(currentPos / 100) % activeBannersList.length;
+        setActiveBannerIdx(index);
+        lastScrollPos.current = currentPos;
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [activeBannersList.length]);
 
   const handlePrevSlide = () => {
@@ -363,15 +378,6 @@ export const HomePage = () => {
   const handleNextSlide = () => {
     setActiveBannerIdx((prev) => (prev + 1) % activeBannersList.length);
   };
-
-  // Calculator computation
-  const selectedBrandObj = brandsList.find((b) => b.name === calcBrand) || brandsList[0];
-  const discountPercent = selectedBrandObj.discountNum;
-  const parsedMrp = Math.max(0, Number(calcMrp) || 0);
-  const discountAmount = Math.round((parsedMrp * discountPercent) / 100);
-  const netPrice = Math.max(0, parsedMrp - discountAmount);
-  const gstAmount = Math.round(((netPrice * 18) / 100) * 100) / 100;
-  const totalPrice = Math.round((netPrice + gstAmount) * 100) / 100;
 
   return (
     <div className="relative min-h-screen space-y-16 pb-20">
@@ -435,8 +441,8 @@ export const HomePage = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-10 sm:py-14 md:py-16 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
-            {/* Left: Hero Banner Text & Actions */}
-            <div className={`${categories && categories.length > 0 ? 'lg:col-span-7' : 'lg:col-span-12'} space-y-5`}>
+            {/* Left: Dynamic Category-Based Card synced with Image Slider */}
+            <div key={activeBannerIdx} className="lg:col-span-6 space-y-5 animate-fadeIn transition-all duration-500">
               {/* Badge */}
               {currentBanner.badgeText && (
                 <div className="animate-fadeIn">
@@ -487,72 +493,16 @@ export const HomePage = () => {
               </div>
             </div>
 
-            {/* Right: Available Product Categories Display Section (Dynamically updated from Admin Panel) */}
-            {categories && categories.length > 0 && (
-              <div className="lg:col-span-5 animate-fadeIn">
-                <div className="bg-blue-900/80 backdrop-blur-md rounded-3xl p-5 sm:p-6 border border-white/20 shadow-2xl text-white space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-xl bg-primary/30 border border-primary/50 flex items-center justify-center text-amber-400">
-                        <Layers className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <h3 className="font-extrabold text-sm sm:text-base text-white tracking-tight">
-                          Product Categories
-                        </h3>
-                        <p className="text-[11px] text-slate-300">
-                          {categories.length} categories available
-                        </p>
-                      </div>
-                    </div>
-                    <Link
-                      to="/services"
-                      className="text-[11px] font-bold text-amber-400 hover:text-amber-300 inline-flex items-center gap-1"
-                    >
-                      <span>Explore</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-
-                  {/* Dynamic Category List */}
-                  <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                    {categories.map((cat) => {
-                      const IconComp = iconMap[cat.icon] || Briefcase;
-                      return (
-                        <Link
-                          key={cat._id}
-                          to={`/services?category=${cat._id}`}
-                          className="group flex items-center justify-between p-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/10 transition-all hover:scale-[1.01]"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-9 h-9 rounded-xl bg-primary/40 flex items-center justify-center text-amber-300 group-hover:scale-110 transition-smooth shrink-0">
-                              <IconComp className="w-4 h-4" />
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="font-bold text-xs sm:text-sm text-white group-hover:text-amber-300 transition-colors truncate">
-                                {cat.name}
-                              </h4>
-                              {cat.description && (
-                                <p className="text-[10px] text-slate-300 truncate">
-                                  {cat.description}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-amber-300 group-hover:translate-x-1 transition-all shrink-0 ml-2" />
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* Right: Transparent 3 Columns x 10 Rows Scrap Material Price Table */}
+            <div className="lg:col-span-6 animate-fadeIn">
+              <ScrapPriceTable />
+            </div>
 
           </div>
         </div>
       </section>
 
-      {/* 2. Commercial Trust & Free Freight Bar (Translucent Glass Panel) */}
+      {/* 2. Commercial Trust Bar (Translucent Glass Panel) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 sm:-mt-8 relative z-20">
         <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 sm:p-6 shadow-2xl border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 hover:shadow-3xl transition-all duration-300">
           <div className="flex items-center gap-4 border-b sm:border-b-0 lg:border-r border-slate-200/70 pb-4 sm:pb-0 lg:pr-4 group">
@@ -570,8 +520,8 @@ export const HomePage = () => {
               <Truck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-bold text-sm text-darkText group-hover:text-primary transition-smooth">Free Delhivery Included</h4>
-              <p className="text-xs text-secondaryText">No freight or handling surcharges</p>
+              <h4 className="font-bold text-sm text-darkText group-hover:text-primary transition-smooth">Fast Logistics Dispatch</h4>
+              <p className="text-xs text-secondaryText">Insured nationwide express courier</p>
             </div>
           </div>
 
@@ -600,6 +550,85 @@ export const HomePage = () => {
       {/* 2.5 Home Page Component Photo Upload (Max 20 Megapixels) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <ImageUploadSection />
+      </section>
+
+      {/* 2.8 Labour Insurance & Workforce Security Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+            <div className="lg:col-span-8 space-y-4">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider">
+                <HardHat className="w-4 h-4 text-amber-400" />
+                <span>Statutory Labour Insurance &amp; Compliance</span>
+              </span>
+
+              <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                Protect Your Workforce with Certified Labour Insurance
+              </h2>
+
+              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl">
+                Mandatory under the Employees' Compensation Act and Contract Labour Regulations. Instant policy coverage tailored for manufacturing factories, construction sites, and mechanical workshops.
+              </p>
+
+              {/* Coverage & Period Pills */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div className="p-3.5 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md">
+                  <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wide block mb-1">
+                    Coverage Tiers Available
+                  </span>
+                  <div className="flex flex-wrap gap-1.5 text-xs font-extrabold text-white">
+                    <span className="bg-white/10 px-2 py-0.5 rounded">₹1 Lakh</span>
+                    <span className="bg-white/10 px-2 py-0.5 rounded">₹3 Lakhs</span>
+                    <span className="bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded border border-amber-400/30">₹5 Lakhs (Popular)</span>
+                    <span className="bg-white/10 px-2 py-0.5 rounded">₹10 Lakhs</span>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md">
+                  <span className="text-[11px] font-bold text-blue-300 uppercase tracking-wide block mb-1">
+                    Flexible Working Periods
+                  </span>
+                  <div className="flex flex-wrap gap-1.5 text-xs font-extrabold text-white">
+                    <span className="bg-white/10 px-2 py-0.5 rounded">3 Months</span>
+                    <span className="bg-white/10 px-2 py-0.5 rounded">6 Months</span>
+                    <span className="bg-blue-400/20 text-blue-200 px-2 py-0.5 rounded border border-blue-400/30">12 Months (Annual)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-4 flex flex-col items-stretch gap-3">
+              <div className="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/15 space-y-3">
+                <div className="flex items-center gap-2 text-xs text-emerald-300 font-bold">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>GST Registered Corporate Invoices</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-emerald-300 font-bold">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>Accidental Death &amp; PTD Cover</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-emerald-300 font-bold">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>Official Certificate of Insurance</span>
+                </div>
+              </div>
+
+              <Link to="/labour-insurance" className="w-full">
+                <Button
+                  variant="accent"
+                  size="lg"
+                  className="w-full font-black text-sm py-3.5 shadow-xl hover:scale-[1.02] transition-smooth flex items-center justify-center gap-2 text-slate-950"
+                >
+                  <HardHat className="w-4 h-4" />
+                  <span>Get Instant Labour Insurance Quote</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* 3. Official Industrial Equipments Partner Brands (All 14 Logos from First Image) */}
@@ -666,23 +695,46 @@ export const HomePage = () => {
             ))}
           </div>
 
-          {/* Master Industrial Equipment Composite Banner */}
+          {/* Master Industrial Equipment Section & Direct Travel Navigation */}
           <div className="relative z-10 mt-8 pt-6 border-t border-slate-700/80 flex flex-col lg:flex-row items-center justify-between gap-6 bg-slate-800/60 rounded-2xl p-4 sm:p-6 border border-slate-700">
-            <div className="lg:max-w-md">
+            <div className="lg:max-w-md space-y-3">
               <h4 className="font-extrabold text-base text-white flex items-center gap-2">
                 <Award className="w-5 h-5 text-amber-400" />
                 Comprehensive Industrial Equipments Source
               </h4>
-              <p className="text-xs text-slate-300 mt-1">
+              <p className="text-xs text-slate-300 leading-relaxed">
                 From high-speed bearings to extreme-torque belts, geared motors, and industrial transmission drives — all under one roof at Balumuni and Associates.
               </p>
+
+              {/* Navigation Option to Access Travels Section */}
+              <div className="pt-1">
+                <Link
+                  to="/ticket-booking"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all shadow-md group cursor-pointer"
+                >
+                  <TrainFront className="w-4 h-4 text-slate-950 group-hover:scale-110 transition-transform" />
+                  <span>Looking for Travel Desk? Book Flights, Trains & Buses</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
             </div>
-            <div className="w-full lg:max-w-xl bg-white p-2 rounded-xl shadow-md border border-slate-300 overflow-hidden">
-              <img
-                src="/brands/industrial-equipments-brands.png"
-                alt="Balumuni and Associates - Industrial Equipments Brand Partners"
-                className="w-full h-auto object-contain rounded"
-              />
+
+            <div className="w-full lg:max-w-xl bg-white p-3.5 rounded-2xl shadow-xl border border-slate-200">
+              <div className="text-center font-black text-[11px] text-slate-800 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1 flex items-center justify-center gap-1.5">
+                <span>INDUSTRIAL EQUIPMENTS • 14 AUTHORIZED MAKES</span>
+              </div>
+              <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                {allFourteenBrands.map((b) => (
+                  <Link
+                    key={b.id}
+                    to={`/services?search=${encodeURIComponent(b.name)}`}
+                    className="h-11 p-1 flex items-center justify-center bg-slate-50 hover:bg-blue-50/80 rounded-xl border border-slate-200/60 transition-all hover:scale-105"
+                    title={b.fullName}
+                  >
+                    <img src={b.logo} alt={b.name} className="max-h-full max-w-full object-contain" />
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -757,142 +809,6 @@ export const HomePage = () => {
               </div>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* 4. Interactive MRP Discount & Net Price Calculator - Light Blue Theme */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="bg-gradient-to-br from-blue-50/95 via-sky-50/90 to-blue-100/70 rounded-3xl p-8 md:p-12 text-slate-900 shadow-xl relative overflow-hidden border border-blue-200/80 backdrop-blur-md">
-          {/* Subtle rotating gear silhouette and glowing ambient light backdrop */}
-          <div className="absolute -right-20 -top-20 w-80 h-80 border-2 border-dashed border-blue-400/20 rounded-full animate-spin-slow pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-slow pointer-events-none" />
-
-          {/* Clean transparent industrial background image */}
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            <img
-              src="https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1600&q=80"
-              alt=""
-              className="w-full h-full object-cover object-center opacity-15"
-              onError={(e) => {
-                e.target.src = '/banners/img6.jpg';
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-50/95 via-sky-50/80 to-white/70" />
-          </div>
-
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Column: Explainer */}
-            <div className="lg:col-span-5 space-y-4">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 border border-blue-300/80 text-primary font-black text-xs shadow-xs">
-                <Calculator className="w-3.5 h-3.5 text-primary animate-pulse" />
-                Live Wholesale Pricing Engine
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-navy">
-                Instant MRP Discount &amp; Savings Calculator
-              </h2>
-              <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-medium">
-                Test any official price list MRP across our brands. See your exact net B2B wholesale rate with our guaranteed 45% - 48% discount schedule (or flat 10% on SKF Genuine) and zero shipping fees.
-              </p>
-
-              <div className="space-y-2.5 pt-2 text-xs text-slate-700 font-semibold">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>PIX, NBC, HCH, Fenner &amp; Timken: <strong className="text-primary font-black">46% off MRP</strong></span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>SKF Bearings: <strong className="text-primary font-black">Flat 10% off MRP</strong> (National &amp; International Genuine Stock)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Pan-India <strong className="text-emerald-700 font-black">Delhivery Logistics 100% Free</strong></span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column: Interactive Widget */}
-            <div className="lg:col-span-7 bg-white/95 backdrop-blur-md text-darkText rounded-2xl p-6 sm:p-8 shadow-xl border border-blue-100/90 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Brand Selector */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    1. Select Brand / Make
-                  </label>
-                  <select
-                    value={calcBrand}
-                    onChange={(e) => setCalcBrand(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm font-bold text-darkText focus:ring-2 focus:ring-primary focus:outline-none"
-                  >
-                    {brandsList.map((b) => (
-                      <option key={b.name} value={b.name}>
-                        {b.name} — {b.discount}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* MRP Input */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    2. Enter Official List MRP (₹)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={calcMrp}
-                    onChange={(e) => setCalcMrp(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm font-black text-navy focus:ring-2 focus:ring-primary focus:outline-none"
-                    placeholder="e.g. 2000"
-                  />
-                </div>
-              </div>
-
-              {/* Live Price Calculation Display */}
-              <div className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-blue-100 grid grid-cols-2 sm:grid-cols-4 gap-3.5 text-center shadow-xs">
-                <div className="p-2 sm:p-2.5 rounded-xl bg-white/60 border border-slate-200/60 flex flex-col justify-center">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tight block">List MRP</span>
-                  <p className="text-sm sm:text-base font-extrabold text-slate-500 line-through mt-0.5 whitespace-nowrap">
-                    {formatCurrency(parsedMrp)}
-                  </p>
-                </div>
-
-                <div className="p-2 sm:p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/60 flex flex-col justify-center">
-                  <span className="text-[11px] font-bold text-amber-700 uppercase tracking-tight block">Discount ({discountPercent}%)</span>
-                  <p className="text-sm sm:text-base font-black text-amber-600 mt-0.5 whitespace-nowrap">
-                    - {formatCurrency(discountAmount)}
-                  </p>
-                </div>
-
-                <div className="p-2 sm:p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200/60 flex flex-col justify-center">
-                  <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-tight block">Net B2B Rate</span>
-                  <p className="text-base sm:text-lg font-black text-emerald-700 mt-0.5 whitespace-nowrap">
-                    {formatCurrency(netPrice)}
-                  </p>
-                </div>
-
-                <div className="p-2 sm:p-2.5 rounded-xl bg-blue-100/80 border border-blue-300/80 shadow-2xs flex flex-col justify-center">
-                  <span className="text-[11px] font-black text-blue-900 uppercase tracking-tight block">Total + 18% GST</span>
-                  <p className="text-base sm:text-lg font-black text-blue-950 font-mono mt-0.5 whitespace-nowrap overflow-visible">
-                    {formatCurrency(totalPrice)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-                <span className="text-xs text-slate-600 flex items-center gap-1.5 font-medium">
-                  <Truck className="w-4 h-4 text-emerald-600" />
-                  <strong>Zero Freight:</strong> Delhivery shipping charges included!
-                </span>
-
-                <Link to={`/services?brand=${calcBrand}`}>
-                  <Button variant="accent" size="sm" className="font-bold w-full sm:w-auto inline-flex items-center gap-1.5 shadow-sm hover:scale-[1.02] transition-smooth">
-                    <span>View {calcBrand} Products</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 

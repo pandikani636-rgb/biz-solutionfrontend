@@ -19,13 +19,13 @@ const translations = {
     nav_profile: 'Company Profile',
     nav_logout: 'Log Out',
     nav_quick_quote: 'Quick Quote',
-    nav_free_shipping: 'Free Delhivery Included on 45-48% Off Catalog',
+    nav_free_shipping: 'Insured Tracked Logistics on 45-48% Off Catalog',
     nav_genuine_mtc: '100% Genuine MTC Certified',
 
     // Hero & Home
     hero_badge: 'Official B2B Stockist & Wholesale Distributor',
     hero_title: 'Genuine Bearings, Belts & Power Transmission Components',
-    hero_subtitle: 'Direct manufacturer distribution for PIX, NBC, HCH, Fenner, Timken, and SKF. Maximum wholesale discount tiers with free Delhivery freight.',
+    hero_subtitle: 'Direct manufacturer distribution for PIX, NBC, HCH, Fenner, Timken, and SKF. Maximum wholesale discount tiers with express dispatch.',
     hero_search_placeholder: 'Enter Part Number (e.g., 6204, SPC 2360, 7322, 2517)...',
     hero_search_btn: 'Search Part',
     hero_browse_btn: 'Browse All Products',
@@ -80,13 +80,13 @@ const translations = {
     nav_profile: 'நிறுவன விபரம்',
     nav_logout: 'வெளியேறு',
     nav_quick_quote: 'விரைவு விலைப்புள்ளி',
-    nav_free_shipping: 'டெல்லிவரி (Delhivery) இலவச சரக்கு போக்குவரத்து உண்டு',
+    nav_free_shipping: 'பாதுகாப்பான விரைவு சரக்கு போக்குவரத்து உண்டு',
     nav_genuine_mtc: '100% அசல் சான்றளிக்கப்பட்ட பாகங்கள்',
 
     // Hero & Home
     hero_badge: 'அங்கீகரிக்கப்பட்ட மொத்த விநியோகஸ்தர்',
     hero_title: 'அசல் தொழில்துறை பேரிங்ஸ் & பவர் டிரான்ஸ்மிஷன் பெல்ட்கள்',
-    hero_subtitle: 'PIX, NBC, HCH, Fenner, Timken மற்றும் SKF தொழிற்சாலை நேரடி விநியோகம். 45% - 48% அதிகபட்ச மொத்த தள்ளுபடி மற்றும் இலவச டெல்லிவரி போக்குவரத்து.',
+    hero_subtitle: 'PIX, NBC, HCH, Fenner, Timken மற்றும் SKF தொழிற்சாலை நேரடி விநியோகம். 45% - 48% அதிகபட்ச மொத்த தள்ளுபடி மற்றும் நேரடி விநியோகம்.',
     hero_search_placeholder: 'பகுதி எண் உள்ளிடவும் (எ.கா. 6204, SPC 2360, 7322, 2517)...',
     hero_search_btn: 'பாகத்தை தேடுக',
     hero_browse_btn: 'அனைத்து தயாரிப்புகளையும் காண்க',

@@ -1,28 +1,28 @@
-import React, { useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate, useParams, Navigate } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRightLeft, BusFront, Check, MapPin, Plane, ShieldCheck, TrainFront,
-  UserRound, Users,
+  ArrowLeft,
+  ArrowRightLeft,
+  Check,
+  MapPin,
+  Plane,
+  ShieldCheck,
+  TrainFront,
+  Bus,
+  UserRound,
+  Users,
+  Compass,
+  CalendarDays,
+  Baby,
+  Hotel,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ticketBookingService } from '../../services/ticketBookingService';
 import { showErrorAlert, showSuccessAlert } from '../../utils/alerts';
 
 const configs = {
-  bus: {
-    title: 'Bus journey',
-    subtitle: 'A comfortable ride, arranged around your route.',
-    icon: BusFront,
-    theme: 'amber',
-    classes: [
-      ['seater', 'Standard seater', 499],
-      ['sleeper', 'Sleeper', 799],
-      ['ac_sleeper', 'AC sleeper', 1299],
-    ],
-    seats: ['Window seat', 'Aisle seat', 'Lower berth', 'Upper berth', 'Any available'],
-  },
   train: {
-    title: 'Train journey',
+    title: 'Train Journey',
     subtitle: 'Share your station, quota, and berth requirements.',
     icon: TrainFront,
     theme: 'emerald',
@@ -36,7 +36,7 @@ const configs = {
     seats: ['Lower berth', 'Middle berth', 'Upper berth', 'Side lower', 'Side upper', 'No preference'],
   },
   flight: {
-    title: 'Flight journey',
+    title: 'Flight Journey',
     subtitle: 'Set your airports, cabin, and return-trip preferences.',
     icon: Plane,
     theme: 'sky',
@@ -48,13 +48,33 @@ const configs = {
     ],
     seats: ['Window', 'Aisle', 'Extra legroom', 'No preference'],
   },
+  bus: {
+    title: 'Bus Journey',
+    subtitle: 'Choose luxury multi-axle sleeper or push-back seater with pickup points.',
+    icon: Bus,
+    theme: 'amber',
+    classes: [
+      ['seater', '2+2 Push-Back Seater', 499],
+      ['sleeper', 'Luxury Sleeper (Single/Double)', 799],
+      ['ac_sleeper', 'AC Multi-Axle Sleeper', 1299],
+    ],
+    seats: ['Window', 'Aisle', 'Lower berth', 'Upper berth', 'No preference'],
+  },
 };
 
-const inputClass = 'mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100';
+const inputClass =
+  'mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100';
 const labelClass = 'block text-xs font-bold text-slate-700';
-const defaultPassenger = () => ({ name: '', age: '', gender: '' });
+const defaultPassenger = (type = 'adult', age = 30) => ({
+  name: '',
+  age: age,
+  gender: '',
+  isChild: type === 'child',
+});
 
-const toLocalDateTime = (date, time) => (date && time ? new Date(`${date}T${time}`).toISOString() : '');
+const toLocalDateTime = (date, time) =>
+  date && time ? new Date(`${date}T${time}`).toISOString() : '';
+
 const initialForm = (type, user) => {
   const saved = sessionStorage.getItem(`ticket-booking-draft-${type}`);
   if (saved) {
@@ -65,6 +85,24 @@ const initialForm = (type, user) => {
     }
   }
   return {
+    bookingType: 'general', // 'general' | 'group' | 'tourism'
+    adultCount: 1, // Max 6 in General Booking
+    childCount: 0, // Max 2 in General Booking
+    childrenAges: [2], // 1 to 4 years
+    groupDetails: {
+      groupName: '',
+      groupSize: 12,
+      coordinatorName: user?.name || '',
+      coordinatorPhone: user?.phone || '',
+      specialRequests: '',
+    },
+    tourismDetails: {
+      theme: 'Heritage & Sightseeing',
+      duration: '4 Days / 3 Nights',
+      hotelPreference: '3-Star Hotel',
+      localCabRequired: true,
+      destinationHighlights: '',
+    },
     source: '',
     destination: '',
     travelDate: '',
@@ -73,14 +111,10 @@ const initialForm = (type, user) => {
     returnTime: '18:00',
     fareClass: configs[type]?.classes[0][0] || '',
     seatPreference: '',
-    passengers: [defaultPassenger()],
+    passengers: [defaultPassenger('adult', 30)],
     passengerContact: { email: user?.email || '', phone: user?.phone || '' },
     travelDetails: {
       tripType: 'one_way',
-      operator: '',
-      boardingPoint: '',
-      droppingPoint: '',
-      busType: '',
       trainNumber: '',
       trainName: '',
       boardingStation: '',
@@ -90,13 +124,19 @@ const initialForm = (type, user) => {
       cabinClass: 'economy',
       originCode: '',
       destinationCode: '',
+      boardingPoint: '',
+      droppingPoint: '',
+      busType: 'ac_sleeper',
+      operator: '',
     },
   };
 };
 
 const SectionHeading = ({ number, title, detail, icon: Icon }) => (
   <div className="mb-5 flex items-center gap-3">
-    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-xs font-black text-white">{number}</span>
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-xs font-black text-white">
+      {number}
+    </span>
     <div className="min-w-0 flex-1">
       <h2 className="text-base font-black text-slate-900">{title}</h2>
       <p className="mt-0.5 text-xs text-slate-500">{detail}</p>
@@ -106,43 +146,112 @@ const SectionHeading = ({ number, title, detail, icon: Icon }) => (
 );
 
 const Field = ({ label, children }) => (
-  <label className={labelClass}>{label}{children}</label>
+  <label className={labelClass}>
+    {label}
+    {children}
+  </label>
 );
 
 export const TransportBookingPage = () => {
   const { type } = useParams();
+
+  // Validate transport type (train, flight, bus)
+  if (!configs[type]) {
+    return <Navigate to="/ticket-booking" replace />;
+  }
+
   const config = configs[type];
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
   const [form, setForm] = useState(() => initialForm(type, user));
   const [submitting, setSubmitting] = useState(false);
 
-  const Icon = config?.icon || BusFront;
+  const Icon = config?.icon || TrainFront;
   const selectedClass = useMemo(
     () => config?.classes.find(([value]) => value === form.fareClass),
     [config, form.fareClass]
   );
-  const tripMultiplier = type === 'flight' && form.travelDetails.tripType === 'round_trip' ? 2 : 1;
-  const estimatedTotal = (selectedClass?.[2] || 0) * form.passengers.length * tripMultiplier;
+  const tripMultiplier =
+    type === 'flight' && form.travelDetails.tripType === 'round_trip' ? 2 : 1;
+
+  // Passenger count is either form.passengers.length or groupSize for groups
+  const effectivePassengerCount =
+    form.bookingType === 'group'
+      ? Math.max(1, Number(form.groupDetails?.groupSize) || 10)
+      : form.passengers.length;
+
+  const estimatedTotal =
+    (selectedClass?.[2] || 0) * effectivePassengerCount * tripMultiplier;
 
   if (!config) {
     return (
       <div className="mx-auto max-w-xl px-4 py-20 text-center">
         <h1 className="text-2xl font-black">Travel type not found</h1>
-        <Link className="mt-4 inline-flex text-blue-700 underline" to="/ticket-booking">Back to ticket booking</Link>
+        <p className="mt-2 text-xs text-slate-500">
+          Only Train Bookings and Flight Bookings are supported.
+        </p>
+        <Link className="mt-4 inline-flex text-blue-700 underline" to="/ticket-booking">
+          Back to Ticket Booking
+        </Link>
       </div>
     );
   }
 
-  const updateForm = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const updateForm = (key, value) =>
+    setForm((current) => ({ ...current, [key]: value }));
+
   const updateTravelDetail = (key, value) =>
-    setForm((current) => ({ ...current, travelDetails: { ...current.travelDetails, [key]: value } }));
+    setForm((current) => ({
+      ...current,
+      travelDetails: { ...current.travelDetails, [key]: value },
+    }));
+
   const updatePassenger = (index, key, value) =>
     setForm((current) => ({
       ...current,
-      passengers: current.passengers.map((passenger, i) => i === index ? { ...passenger, [key]: value } : passenger),
+      passengers: current.passengers.map((passenger, i) =>
+        i === index ? { ...passenger, [key]: value } : passenger
+      ),
     }));
+
+  // Synchronize General Booking Passenger Fields with Adult & Child Counts
+  const handleGeneralCountsChange = (adults, children, childAgesList) => {
+    const totalAdults = Math.min(6, Math.max(1, Number(adults) || 1));
+    const totalChildren = Math.min(2, Math.max(0, Number(children) || 0));
+
+    const updatedPassengers = [];
+    // Keep existing adult names if available
+    for (let i = 0; i < totalAdults; i++) {
+      const existing = form.passengers[i];
+      updatedPassengers.push({
+        name: existing && !existing.isChild ? existing.name : '',
+        age: existing && !existing.isChild && existing.age ? existing.age : 30,
+        gender: existing?.gender || '',
+        isChild: false,
+      });
+    }
+
+    // Children (ages 1 to 4)
+    for (let i = 0; i < totalChildren; i++) {
+      const childAge = childAgesList[i] || 2;
+      updatedPassengers.push({
+        name: '',
+        age: childAge,
+        gender: '',
+        isChild: true,
+      });
+    }
+
+    setForm((current) => ({
+      ...current,
+      adultCount: totalAdults,
+      childCount: totalChildren,
+      childrenAges: childAgesList,
+      passengers: updatedPassengers,
+    }));
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -155,14 +264,24 @@ export const TransportBookingPage = () => {
       showErrorAlert('Check your route', 'Source and destination must be different.');
       return;
     }
+
     setSubmitting(true);
     try {
-      const res = await ticketBookingService.create({
+      await ticketBookingService.create({
         transportType: type,
+        bookingType: form.bookingType,
+        adultCount: form.adultCount,
+        childCount: form.childCount,
+        childrenAges: form.childrenAges,
+        groupDetails: form.groupDetails,
+        tourismDetails: form.tourismDetails,
         source: form.source,
         destination: form.destination,
         travelAt: toLocalDateTime(form.travelDate, form.travelTime),
-        returnAt: form.travelDetails.tripType === 'round_trip' ? toLocalDateTime(form.returnDate, form.returnTime) : undefined,
+        returnAt:
+          form.travelDetails.tripType === 'round_trip'
+            ? toLocalDateTime(form.returnDate, form.returnTime)
+            : undefined,
         travelDetails: form.travelDetails,
         passengers: form.passengers,
         passengerContact: form.passengerContact,
@@ -170,177 +289,838 @@ export const TransportBookingPage = () => {
         seatPreference: form.seatPreference,
       });
       sessionStorage.removeItem(`ticket-booking-draft-${type}`);
-      await showSuccessAlert('Request received', 'Your booking request is with our admin team. Payment will be available after availability and fare are confirmed.');
+      await showSuccessAlert(
+        'Request Received!',
+        `Your ${form.bookingType.toUpperCase()} ${type.toUpperCase()} booking request has been submitted. Our ticketing team will confirm availability and send your itinerary.`
+      );
       navigate('/customer/ticket-bookings');
     } catch (error) {
-      showErrorAlert('Booking could not be submitted', error.message);
+      showErrorAlert('Booking could not be submitted', error.response?.data?.message || error.message);
     } finally {
       setSubmitting(false);
     }
   };
 
   const now = new Date();
-  const minDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  const minDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 10);
+
   const theme = {
-    bus: { hero: 'from-amber-950 via-orange-950 to-slate-950', accent: 'text-amber-700', light: 'bg-amber-50', badge: 'bg-amber-100 text-amber-900', border: 'border-amber-200' },
-    train: { hero: 'from-emerald-950 via-teal-950 to-slate-950', accent: 'text-emerald-700', light: 'bg-emerald-50', badge: 'bg-emerald-100 text-emerald-900', border: 'border-emerald-200' },
-    flight: { hero: 'from-blue-950 via-sky-950 to-slate-950', accent: 'text-blue-700', light: 'bg-blue-50', badge: 'bg-blue-100 text-blue-900', border: 'border-blue-200' },
+    train: {
+      hero: 'from-emerald-950 via-teal-950 to-slate-950',
+      accent: 'text-emerald-700',
+      light: 'bg-emerald-50',
+      badge: 'bg-emerald-100 text-emerald-900',
+      border: 'border-emerald-200',
+    },
+    flight: {
+      hero: 'from-blue-950 via-sky-950 to-slate-950',
+      accent: 'text-blue-700',
+      light: 'bg-blue-50',
+      badge: 'bg-blue-100 text-blue-900',
+      border: 'border-blue-200',
+    },
+    bus: {
+      hero: 'from-amber-950 via-orange-950 to-slate-950',
+      accent: 'text-amber-700',
+      light: 'bg-amber-50',
+      badge: 'bg-amber-100 text-amber-900',
+      border: 'border-amber-200',
+    },
   }[type];
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-14">
+    <div className="min-h-screen bg-slate-50 pb-16">
+      {/* Header Banner */}
       <div className={`bg-gradient-to-r ${theme.hero} text-white`}>
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <Link to="/ticket-booking" className="inline-flex items-center gap-2 text-xs font-bold text-white/75 hover:text-white">
+          <Link
+            to="/ticket-booking"
+            className="inline-flex items-center gap-2 text-xs font-bold text-white/75 hover:text-white"
+          >
             <ArrowLeft className="h-4 w-4" /> All travel options
           </Link>
-          <div className="mt-6 flex items-end justify-between gap-5">
+          <div className="mt-6 flex flex-col sm:flex-row sm:items-end justify-between gap-5">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold">
                 <Icon className="h-4 w-4" /> {type.toUpperCase()} BOOKING
               </span>
-              <h1 className="mt-3 text-3xl font-black text-white sm:text-4xl">{config.title}</h1>
-              <p className="mt-2 max-w-xl text-sm text-white/75">{config.subtitle}</p>
+              <h1 className="mt-3 text-3xl font-black text-white sm:text-4xl">
+                {config.title}
+              </h1>
+              <p className="mt-2 max-w-xl text-xs sm:text-sm text-white/75">
+                {config.subtitle}
+              </p>
             </div>
-            <div className="hidden items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-xs font-semibold sm:flex">
-              <ShieldCheck className="h-5 w-5 text-emerald-300" /> Admin-confirmed availability
+            <div className="items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-xs font-semibold flex">
+              <ShieldCheck className="h-5 w-5 text-emerald-300" /> Authorized IRCTC &amp; IATA Desk
             </div>
           </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="mx-auto max-w-7xl px-4 pt-7 sm:px-6 lg:px-8">
-        <div className={`mb-6 flex flex-col gap-3 rounded-2xl border ${theme.border} ${theme.light} p-4 text-xs leading-5 text-slate-700 sm:flex-row sm:items-center`}>
-          <ShieldCheck className={`h-5 w-5 shrink-0 ${theme.accent}`} />
-          <p>Fare shown below is an estimate based on travel class. Your booking stays pending until an administrator confirms availability and the final fare. No payment is taken at this step.</p>
-        </div>
+      <form onSubmit={handleSubmit} className="mx-auto max-w-7xl px-4 pt-7 sm:px-6 lg:px-8 space-y-6">
+        {/* Step 0: Choose Booking Type (General / Group / Tourism) */}
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <SectionHeading
+            number="01"
+            title="Select Booking Type"
+            detail="Choose your travel classification"
+            icon={Users}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* 1. General Booking */}
+            <button
+              type="button"
+              onClick={() => updateForm('bookingType', 'general')}
+              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                form.bookingType === 'general'
+                  ? 'border-blue-600 bg-blue-50/70 ring-2 ring-blue-500/20'
+                  : 'border-slate-200 hover:border-slate-300 bg-white'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-extrabold text-sm text-slate-900">General Booking</span>
+                <CalendarDays className="w-4 h-4 text-primary" />
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Standard travel: Up to <strong>6 Adults</strong> &amp; <strong>2 Children</strong> (Ages 1 to 4 years).
+              </p>
+            </button>
 
-        {type === 'bus' && (
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="space-y-5">
-              <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-                <SectionHeading number="01" title="Route and schedule" detail="Choose your trip endpoints and boarding time." icon={MapPin} />
-                <div className="grid gap-4 sm:grid-cols-[1fr_auto_1fr] sm:items-end">
-                  <Field label="Leaving from"><input required maxLength={120} className={inputClass} value={form.source} onChange={(e) => updateForm('source', e.target.value)} placeholder="City or bus stop" /></Field>
-                  <div className="hidden h-12 items-center text-slate-400 sm:flex"><ArrowRightLeft className="h-5 w-5" /></div>
-                  <Field label="Going to"><input required maxLength={120} className={inputClass} value={form.destination} onChange={(e) => updateForm('destination', e.target.value)} placeholder="City or bus stop" /></Field>
-                </div>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <Field label="Departure date"><input required type="date" min={minDate} className={inputClass} value={form.travelDate} onChange={(e) => updateForm('travelDate', e.target.value)} /></Field>
-                  <Field label="Preferred departure time"><input required type="time" className={inputClass} value={form.travelTime} onChange={(e) => updateForm('travelTime', e.target.value)} /></Field>
-                  <Field label="Boarding point"><input required className={inputClass} value={form.travelDetails.boardingPoint} onChange={(e) => updateTravelDetail('boardingPoint', e.target.value)} placeholder="Pickup stop" /></Field>
-                  <Field label="Drop-off point"><input required className={inputClass} value={form.travelDetails.droppingPoint} onChange={(e) => updateTravelDetail('droppingPoint', e.target.value)} placeholder="Drop-off stop" /></Field>
-                </div>
-              </section>
-              <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-                <SectionHeading number="02" title="Coach and seat" detail="Tell us what kind of bus seat works for you." icon={BusFront} />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Coach type">
-                    <select className={inputClass} value={form.fareClass} onChange={(e) => updateForm('fareClass', e.target.value)}>
-                      {config.classes.map(([value, name, price]) => <option key={value} value={value}>{name} · from ₹{price.toLocaleString('en-IN')}</option>)}
-                    </select>
-                  </Field>
-                  <Field label="Seat preference">
-                    <select className={inputClass} value={form.seatPreference} onChange={(e) => updateForm('seatPreference', e.target.value)}>
-                      <option value="">Select a preference</option>{config.seats.map((seat) => <option key={seat}>{seat}</option>)}
-                    </select>
-                  </Field>
-                  <Field label="Preferred bus operator (optional)"><input className={inputClass} value={form.travelDetails.operator} onChange={(e) => updateTravelDetail('operator', e.target.value)} placeholder="Any operator" /></Field>
-                  <Field label="Bus amenities or notes (optional)"><input className={inputClass} value={form.travelDetails.busType} onChange={(e) => updateTravelDetail('busType', e.target.value)} placeholder="e.g. AC, charging point" /></Field>
-                </div>
-              </section>
-            </div>
-            <aside className="space-y-5">
-              <RouteSummary type={type} form={form} selectedClass={selectedClass} estimatedTotal={estimatedTotal} />
-              <PassengerFields form={form} setForm={setForm} updatePassenger={updatePassenger} updateForm={updateForm} />
-            </aside>
+            {/* 2. Group Bookings */}
+            <button
+              type="button"
+              onClick={() => updateForm('bookingType', 'group')}
+              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                form.bookingType === 'group'
+                  ? 'border-emerald-600 bg-emerald-50/70 ring-2 ring-emerald-500/20'
+                  : 'border-slate-200 hover:border-slate-300 bg-white'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-extrabold text-sm text-slate-900">Group Bookings</span>
+                <Users className="w-4 h-4 text-emerald-600" />
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Bulk / corporate delegations, pilgrim groups, and family functions (10+ seats).
+              </p>
+            </button>
+
+            {/* 3. Tourism Bookings */}
+            <button
+              type="button"
+              onClick={() => updateForm('bookingType', 'tourism')}
+              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                form.bookingType === 'tourism'
+                  ? 'border-amber-600 bg-amber-50/70 ring-2 ring-amber-500/20'
+                  : 'border-slate-200 hover:border-slate-300 bg-white'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-extrabold text-sm text-slate-900">Tourism Bookings</span>
+                <Compass className="w-4 h-4 text-amber-600" />
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Complete holiday packages, sightseeing itineraries, and hotel reservations.
+              </p>
+            </button>
           </div>
-        )}
 
+          {/* General Booking Specific Headcount Controls */}
+          {form.bookingType === 'general' && (
+            <div className="mt-5 p-4 rounded-2xl bg-blue-50/60 border border-blue-200/80 space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-blue-900">
+                  General Booking Passenger Configuration
+                </span>
+                <span className="text-[11px] font-bold text-blue-700 bg-blue-100/80 px-2.5 py-0.5 rounded-full">
+                  Max: 6 Adults + 2 Children (Ages 1 to 4)
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Adults Count (1 to 6) */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">
+                    Adults (Ages 12+): <strong>{form.adultCount}</strong> (Max 6)
+                  </label>
+                  <select
+                    className={inputClass}
+                    value={form.adultCount}
+                    onChange={(e) => {
+                      const newAdults = Number(e.target.value);
+                      handleGeneralCountsChange(newAdults, form.childCount, form.childrenAges);
+                    }}
+                  >
+                    {[1, 2, 3, 4, 5, 6].map((num) => (
+                      <option key={num} value={num}>
+                        {num} {num === 1 ? 'Adult' : 'Adults'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Children Count (0 to 2) */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 mb-1">
+                    Children (Max 2): <strong>{form.childCount}</strong>
+                  </label>
+                  <select
+                    className={inputClass}
+                    value={form.childCount}
+                    onChange={(e) => {
+                      const newChildren = Number(e.target.value);
+                      const newAges = form.childrenAges.slice(0, newChildren);
+                      while (newAges.length < newChildren) newAges.push(2);
+                      handleGeneralCountsChange(form.adultCount, newChildren, newAges);
+                    }}
+                  >
+                    <option value={0}>0 Children</option>
+                    <option value={1}>1 Child</option>
+                    <option value={2}>2 Children</option>
+                  </select>
+                </div>
+
+                {/* Child Age Range Selectors (1 to 4 Years) */}
+                {form.childCount > 0 && (
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-slate-800">
+                      Child Age Selection (Range: 1 to 4 Years)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      {Array.from({ length: form.childCount }).map((_, idx) => (
+                        <div key={idx} className="flex-1">
+                          <label className="text-[10px] text-slate-500 font-semibold block">
+                            Child {idx + 1} Age
+                          </label>
+                          <select
+                            className={inputClass}
+                            value={form.childrenAges[idx] || 2}
+                            onChange={(e) => {
+                              const newAge = Number(e.target.value);
+                              const updatedAges = [...form.childrenAges];
+                              updatedAges[idx] = newAge;
+                              handleGeneralCountsChange(form.adultCount, form.childCount, updatedAges);
+                            }}
+                          >
+                            <option value={1}>1 Year Old</option>
+                            <option value={2}>2 Years Old</option>
+                            <option value={3}>3 Years Old</option>
+                            <option value={4}>4 Years Old</option>
+                          </select>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Group Booking Details */}
+          {form.bookingType === 'group' && (
+            <div className="mt-5 p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 space-y-4">
+              <span className="text-xs font-black uppercase tracking-wider text-emerald-900 block">
+                Group Travel Coordination Details
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Field label="Group / Organization Name">
+                  <input
+                    required
+                    className={inputClass}
+                    value={form.groupDetails.groupName}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        groupDetails: { ...form.groupDetails, groupName: e.target.value },
+                      })
+                    }
+                    placeholder="e.g. Balumuni Delegation / Family Group"
+                  />
+                </Field>
+                <Field label="Expected Group Size (Headcount)">
+                  <input
+                    type="number"
+                    min="5"
+                    max="500"
+                    required
+                    className={inputClass}
+                    value={form.groupDetails.groupSize}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        groupDetails: {
+                          ...form.groupDetails,
+                          groupSize: Number(e.target.value) || 10,
+                        },
+                      })
+                    }
+                  />
+                </Field>
+                <Field label="Group Coordinator Contact Name">
+                  <input
+                    required
+                    className={inputClass}
+                    value={form.groupDetails.coordinatorName}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        groupDetails: { ...form.groupDetails, coordinatorName: e.target.value },
+                      })
+                    }
+                    placeholder="Contact Lead"
+                  />
+                </Field>
+              </div>
+            </div>
+          )}
+
+          {/* Tourism Booking Details */}
+          {form.bookingType === 'tourism' && (
+            <div className="mt-5 p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 space-y-4">
+              <span className="text-xs font-black uppercase tracking-wider text-amber-900 block">
+                Tourism Package &amp; Accommodation Options
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Field label="Tourism Theme">
+                  <select
+                    className={inputClass}
+                    value={form.tourismDetails.theme}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        tourismDetails: { ...form.tourismDetails, theme: e.target.value },
+                      })
+                    }
+                  >
+                    <option value="Heritage & Sightseeing">Heritage &amp; Temple Sightseeing</option>
+                    <option value="Hill Station & Nature">Hill Station &amp; Nature Retreat</option>
+                    <option value="Pilgrimage Circuit">Pilgrimage Circuit</option>
+                    <option value="Corporate Offsite & Leisure">Corporate Offsite &amp; Leisure</option>
+                  </select>
+                </Field>
+                <Field label="Preferred Duration">
+                  <select
+                    className={inputClass}
+                    value={form.tourismDetails.duration}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        tourismDetails: { ...form.tourismDetails, duration: e.target.value },
+                      })
+                    }
+                  >
+                    <option value="3 Days / 2 Nights">3 Days / 2 Nights</option>
+                    <option value="4 Days / 3 Nights">4 Days / 3 Nights</option>
+                    <option value="6 Days / 5 Nights">6 Days / 5 Nights</option>
+                    <option value="Custom Extended">Custom Extended Tour</option>
+                  </select>
+                </Field>
+                <Field label="Hotel Accommodation Option">
+                  <select
+                    className={inputClass}
+                    value={form.tourismDetails.hotelPreference}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        tourismDetails: { ...form.tourismDetails, hotelPreference: e.target.value },
+                      })
+                    }
+                  >
+                    <option value="3-Star Hotel">3-Star Hotel Included</option>
+                    <option value="4/5-Star Premium">4/5-Star Premium Resort</option>
+                    <option value="Budget Stay">Budget Comfortable Stay</option>
+                    <option value="Travel Only">Travel Only (No Hotel)</option>
+                  </select>
+                </Field>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Step 2: Route & Journey Details */}
         {type === 'train' && (
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-5">
               <section className="rounded-3xl border border-emerald-100 bg-white p-5 shadow-sm sm:p-7">
-                <SectionHeading number="01" title="Stations and train" detail="Use station names as they appear on your itinerary." icon={TrainFront} />
-                <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
-                  <Field label="From station"><input required className={inputClass} value={form.source} onChange={(e) => updateForm('source', e.target.value)} placeholder="Station name or code" /></Field>
-                  <Field label="To station"><input required className={inputClass} value={form.destination} onChange={(e) => updateForm('destination', e.target.value)} placeholder="Station name or code" /></Field>
-                  <Field label="Train number (optional)"><input inputMode="numeric" maxLength={10} className={inputClass} value={form.travelDetails.trainNumber} onChange={(e) => updateTravelDetail('trainNumber', e.target.value)} placeholder="e.g. 12625" /></Field>
-                  <Field label="Train name (optional)"><input className={inputClass} value={form.travelDetails.trainName} onChange={(e) => updateTravelDetail('trainName', e.target.value)} placeholder="Preferred train" /></Field>
-                  <Field label="Journey date"><input required type="date" min={minDate} className={inputClass} value={form.travelDate} onChange={(e) => updateForm('travelDate', e.target.value)} /></Field>
-                  <Field label="Preferred departure time"><input required type="time" className={inputClass} value={form.travelTime} onChange={(e) => updateForm('travelTime', e.target.value)} /></Field>
-                  <Field label="Boarding station"><input required className={inputClass} value={form.travelDetails.boardingStation} onChange={(e) => updateTravelDetail('boardingStation', e.target.value)} placeholder="Boarding station" /></Field>
-                  <Field label="Booking quota">
-                    <select className={inputClass} value={form.travelDetails.quota} onChange={(e) => updateTravelDetail('quota', e.target.value)}>
-                      <option value="general">General</option><option value="ladies">Ladies</option><option value="tatkal">Tatkal</option><option value="senior_citizen">Senior citizen</option>
+                <SectionHeading
+                  number="02"
+                  title="Stations and Train Route"
+                  detail="Use station names as they appear on your itinerary."
+                  icon={TrainFront}
+                />
+                <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2">
+                  <Field label="From Station">
+                    <input
+                      required
+                      className={inputClass}
+                      value={form.source}
+                      onChange={(e) => updateForm('source', e.target.value)}
+                      placeholder="e.g. Chennai Central (MAS)"
+                    />
+                  </Field>
+                  <Field label="To Station">
+                    <input
+                      required
+                      className={inputClass}
+                      value={form.destination}
+                      onChange={(e) => updateForm('destination', e.target.value)}
+                      placeholder="e.g. Madurai Jn (MDU)"
+                    />
+                  </Field>
+                  <Field label="Train Number (Optional)">
+                    <input
+                      inputMode="numeric"
+                      maxLength={10}
+                      className={inputClass}
+                      value={form.travelDetails.trainNumber}
+                      onChange={(e) => updateTravelDetail('trainNumber', e.target.value)}
+                      placeholder="e.g. 12635"
+                    />
+                  </Field>
+                  <Field label="Train Name (Optional)">
+                    <input
+                      className={inputClass}
+                      value={form.travelDetails.trainName}
+                      onChange={(e) => updateTravelDetail('trainName', e.target.value)}
+                      placeholder="e.g. Vaigai Superfast Express"
+                    />
+                  </Field>
+                  <Field label="Journey Date">
+                    <input
+                      required
+                      type="date"
+                      min={minDate}
+                      className={inputClass}
+                      value={form.travelDate}
+                      onChange={(e) => updateForm('travelDate', e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Preferred Departure Time">
+                    <input
+                      required
+                      type="time"
+                      className={inputClass}
+                      value={form.travelTime}
+                      onChange={(e) => updateForm('travelTime', e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Boarding Station">
+                    <input
+                      required
+                      className={inputClass}
+                      value={form.travelDetails.boardingStation}
+                      onChange={(e) => updateTravelDetail('boardingStation', e.target.value)}
+                      placeholder="Boarding station"
+                    />
+                  </Field>
+                  <Field label="Booking Quota">
+                    <select
+                      className={inputClass}
+                      value={form.travelDetails.quota}
+                      onChange={(e) => updateTravelDetail('quota', e.target.value)}
+                    >
+                      <option value="general">General</option>
+                      <option value="ladies">Ladies</option>
+                      <option value="tatkal">Tatkal</option>
+                      <option value="senior_citizen">Senior Citizen</option>
                     </select>
                   </Field>
                 </div>
               </section>
+
               <section className="rounded-3xl border border-emerald-100 bg-white p-5 shadow-sm sm:p-7">
-                <SectionHeading number="02" title="Class and berth" detail="We will use these preferences when confirming availability." icon={TrainFront} />
+                <SectionHeading
+                  number="03"
+                  title="Travel Class and Berth Choice"
+                  detail="Preferences used when confirming availability."
+                  icon={TrainFront}
+                />
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Travel class"><select className={inputClass} value={form.fareClass} onChange={(e) => updateForm('fareClass', e.target.value)}>{config.classes.map(([value, name, price]) => <option key={value} value={value}>{name} · est. ₹{price.toLocaleString('en-IN')}</option>)}</select></Field>
-                  <Field label="Berth preference"><select className={inputClass} value={form.seatPreference} onChange={(e) => updateForm('seatPreference', e.target.value)}><option value="">No preference</option>{config.seats.map((seat) => <option key={seat}>{seat}</option>)}</select></Field>
-                  <Field label="Preferred berth for booking (optional)"><select className={inputClass} value={form.travelDetails.berthPreference} onChange={(e) => updateTravelDetail('berthPreference', e.target.value)}><option value="">No preference</option>{config.seats.map((seat) => <option key={seat}>{seat}</option>)}</select></Field>
+                  <Field label="Travel Class">
+                    <select
+                      className={inputClass}
+                      value={form.fareClass}
+                      onChange={(e) => updateForm('fareClass', e.target.value)}
+                    >
+                      {config.classes.map(([value, name, price]) => (
+                        <option key={value} value={value}>
+                          {name} · est. ₹{price.toLocaleString('en-IN')}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="Berth Preference">
+                    <select
+                      className={inputClass}
+                      value={form.seatPreference}
+                      onChange={(e) => updateForm('seatPreference', e.target.value)}
+                    >
+                      <option value="">No preference</option>
+                      {config.seats.map((seat) => (
+                        <option key={seat} value={seat}>
+                          {seat}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
                 </div>
               </section>
             </div>
+
             <aside className="space-y-5">
-              <TrainRouteSummary form={form} />
-              <RouteSummary type={type} form={form} selectedClass={selectedClass} estimatedTotal={estimatedTotal} />
-              <PassengerFields form={form} setForm={setForm} updatePassenger={updatePassenger} updateForm={updateForm} />
+              <RouteSummary
+                type={type}
+                form={form}
+                selectedClass={selectedClass}
+                estimatedTotal={estimatedTotal}
+                effectivePassengerCount={effectivePassengerCount}
+              />
+              <PassengerFields
+                form={form}
+                setForm={setForm}
+                updatePassenger={updatePassenger}
+                updateForm={updateForm}
+              />
             </aside>
           </div>
         )}
 
+        {/* Flight Booking View */}
         {type === 'flight' && (
           <div className="space-y-6">
             <section className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-sm">
               <div className="bg-gradient-to-r from-blue-50 to-sky-50 px-5 py-4 sm:px-7">
-                <SectionHeading number="01" title="Flight itinerary" detail="Enter airport or city names and your preferred times." icon={Plane} />
+                <SectionHeading
+                  number="02"
+                  title="Flight Route &amp; Schedule"
+                  detail="Enter airport or city names and your preferred times."
+                  icon={Plane}
+                />
               </div>
               <div className="grid gap-5 p-5 sm:grid-cols-2 sm:p-7">
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <Field label="Flying from"><input required className={inputClass} value={form.source} onChange={(e) => updateForm('source', e.target.value)} placeholder="City or airport" /></Field>
-                  <Field label="Origin airport code (optional)"><input maxLength={3} className={inputClass} value={form.travelDetails.originCode} onChange={(e) => updateTravelDetail('originCode', e.target.value.toUpperCase())} placeholder="e.g. MAA" /></Field>
+                  <Field label="Flying From">
+                    <input
+                      required
+                      className={inputClass}
+                      value={form.source}
+                      onChange={(e) => updateForm('source', e.target.value)}
+                      placeholder="City or Airport (e.g. Chennai / MAA)"
+                    />
+                  </Field>
+                  <Field label="Origin Airport Code (Optional)">
+                    <input
+                      maxLength={3}
+                      className={inputClass}
+                      value={form.travelDetails.originCode}
+                      onChange={(e) =>
+                        updateTravelDetail('originCode', e.target.value.toUpperCase())
+                      }
+                      placeholder="e.g. MAA"
+                    />
+                  </Field>
                 </div>
+
                 <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <Field label="Flying to"><input required className={inputClass} value={form.destination} onChange={(e) => updateForm('destination', e.target.value)} placeholder="City or airport" /></Field>
-                  <Field label="Destination airport code (optional)"><input maxLength={3} className={inputClass} value={form.travelDetails.destinationCode} onChange={(e) => updateTravelDetail('destinationCode', e.target.value.toUpperCase())} placeholder="e.g. DEL" /></Field>
+                  <Field label="Flying To">
+                    <input
+                      required
+                      className={inputClass}
+                      value={form.destination}
+                      onChange={(e) => updateForm('destination', e.target.value)}
+                      placeholder="City or Airport (e.g. Delhi / DEL)"
+                    />
+                  </Field>
+                  <Field label="Destination Airport Code (Optional)">
+                    <input
+                      maxLength={3}
+                      className={inputClass}
+                      value={form.travelDetails.destinationCode}
+                      onChange={(e) =>
+                        updateTravelDetail('destinationCode', e.target.value.toUpperCase())
+                      }
+                      placeholder="e.g. DEL"
+                    />
+                  </Field>
                 </div>
-                <Field label="Departure date"><input required type="date" min={minDate} className={inputClass} value={form.travelDate} onChange={(e) => updateForm('travelDate', e.target.value)} /></Field>
-                <Field label="Preferred departure time"><input required type="time" className={inputClass} value={form.travelTime} onChange={(e) => updateForm('travelTime', e.target.value)} /></Field>
-                <Field label="Trip type">
-                  <select className={inputClass} value={form.travelDetails.tripType} onChange={(e) => updateTravelDetail('tripType', e.target.value)}>
-                    <option value="one_way">One way</option><option value="round_trip">Round trip</option>
+
+                <Field label="Departure Date">
+                  <input
+                    required
+                    type="date"
+                    min={minDate}
+                    className={inputClass}
+                    value={form.travelDate}
+                    onChange={(e) => updateForm('travelDate', e.target.value)}
+                  />
+                </Field>
+                <Field label="Preferred Departure Time">
+                  <input
+                    required
+                    type="time"
+                    className={inputClass}
+                    value={form.travelTime}
+                    onChange={(e) => updateForm('travelTime', e.target.value)}
+                  />
+                </Field>
+                <Field label="Trip Type">
+                  <select
+                    className={inputClass}
+                    value={form.travelDetails.tripType}
+                    onChange={(e) => updateTravelDetail('tripType', e.target.value)}
+                  >
+                    <option value="one_way">One Way</option>
+                    <option value="round_trip">Round Trip</option>
                   </select>
                 </Field>
-                <Field label="Preferred airline (optional)"><input className={inputClass} value={form.travelDetails.airline} onChange={(e) => updateTravelDetail('airline', e.target.value)} placeholder="Any airline" /></Field>
-                {form.travelDetails.tripType === 'round_trip' && <>
-                  <Field label="Return date"><input required type="date" min={form.travelDate || minDate} className={inputClass} value={form.returnDate} onChange={(e) => updateForm('returnDate', e.target.value)} /></Field>
-                  <Field label="Preferred return time"><input required type="time" className={inputClass} value={form.returnTime} onChange={(e) => updateForm('returnTime', e.target.value)} /></Field>
-                </>}
+                <Field label="Preferred Airline (Optional)">
+                  <input
+                    className={inputClass}
+                    value={form.travelDetails.airline}
+                    onChange={(e) => updateTravelDetail('airline', e.target.value)}
+                    placeholder="e.g. IndiGo, Air India, Any"
+                  />
+                </Field>
+                {form.travelDetails.tripType === 'round_trip' && (
+                  <>
+                    <Field label="Return Date">
+                      <input
+                        required
+                        type="date"
+                        min={form.travelDate || minDate}
+                        className={inputClass}
+                        value={form.returnDate}
+                        onChange={(e) => updateForm('returnDate', e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Preferred Return Time">
+                      <input
+                        required
+                        type="time"
+                        className={inputClass}
+                        value={form.returnTime}
+                        onChange={(e) => updateForm('returnTime', e.target.value)}
+                      />
+                    </Field>
+                  </>
+                )}
               </div>
             </section>
+
             <div className="grid gap-6 lg:grid-cols-2">
               <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-                <SectionHeading number="02" title="Cabin and seat" detail="Select your cabin and seating preference." icon={Plane} />
+                <SectionHeading
+                  number="03"
+                  title="Cabin and Seating"
+                  detail="Select your cabin and seating preference."
+                  icon={Plane}
+                />
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Cabin class"><select className={inputClass} value={form.fareClass} onChange={(e) => { updateForm('fareClass', e.target.value); updateTravelDetail('cabinClass', e.target.value); }}>{config.classes.map(([value, name, price]) => <option key={value} value={value}>{name} · est. ₹{price.toLocaleString('en-IN')}</option>)}</select></Field>
-                  <Field label="Seat preference"><select className={inputClass} value={form.seatPreference} onChange={(e) => updateForm('seatPreference', e.target.value)}><option value="">No preference</option>{config.seats.map((seat) => <option key={seat}>{seat}</option>)}</select></Field>
+                  <Field label="Cabin Class">
+                    <select
+                      className={inputClass}
+                      value={form.fareClass}
+                      onChange={(e) => {
+                        updateForm('fareClass', e.target.value);
+                        updateTravelDetail('cabinClass', e.target.value);
+                      }}
+                    >
+                      {config.classes.map(([value, name, price]) => (
+                        <option key={value} value={value}>
+                          {name} · est. ₹{price.toLocaleString('en-IN')}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="Seat Preference">
+                    <select
+                      className={inputClass}
+                      value={form.seatPreference}
+                      onChange={(e) => updateForm('seatPreference', e.target.value)}
+                    >
+                      <option value="">No preference</option>
+                      {config.seats.map((seat) => (
+                        <option key={seat} value={seat}>
+                          {seat}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
                 </div>
               </section>
-              <RouteSummary type={type} form={form} selectedClass={selectedClass} estimatedTotal={estimatedTotal} />
+              <RouteSummary
+                type={type}
+                form={form}
+                selectedClass={selectedClass}
+                estimatedTotal={estimatedTotal}
+                effectivePassengerCount={effectivePassengerCount}
+              />
             </div>
-            <PassengerFields form={form} setForm={setForm} updatePassenger={updatePassenger} updateForm={updateForm} />
+
+            <PassengerFields
+              form={form}
+              setForm={setForm}
+              updatePassenger={updatePassenger}
+              updateForm={updateForm}
+            />
           </div>
         )}
 
-        <div className="mt-6 flex flex-col justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:px-7">
-          <p className="flex items-start gap-2 text-xs leading-5 text-slate-500"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> Booking and passenger information is only shared with authorized administrators to confirm your request.</p>
-          <button type="submit" disabled={submitting} className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-950 px-6 py-3 text-sm font-black text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60">
-            {submitting ? 'Sending request…' : 'Request booking'} <Check className="h-4 w-4" />
+        {/* Bus Booking View */}
+        {type === 'bus' && (
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="space-y-5">
+              <section className="rounded-3xl border border-amber-100 bg-white p-5 shadow-sm sm:p-7">
+                <SectionHeading
+                  number="02"
+                  title="Bus Route & Boarding Points"
+                  detail="Specify your departure town, pickup, and destination points."
+                  icon={Bus}
+                />
+                <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2">
+                  <Field label="From City / Town">
+                    <input
+                      required
+                      className={inputClass}
+                      value={form.source}
+                      onChange={(e) => updateForm('source', e.target.value)}
+                      placeholder="e.g. Coimbatore"
+                    />
+                  </Field>
+                  <Field label="To City / Town">
+                    <input
+                      required
+                      className={inputClass}
+                      value={form.destination}
+                      onChange={(e) => updateForm('destination', e.target.value)}
+                      placeholder="e.g. Bangalore"
+                    />
+                  </Field>
+                  <Field label="Boarding / Pickup Point">
+                    <input
+                      required
+                      className={inputClass}
+                      value={form.travelDetails.boardingPoint}
+                      onChange={(e) => updateTravelDetail('boardingPoint', e.target.value)}
+                      placeholder="e.g. Gandhipuram Omni Bus Stand"
+                    />
+                  </Field>
+                  <Field label="Dropping / Drop-off Point">
+                    <input
+                      required
+                      className={inputClass}
+                      value={form.travelDetails.droppingPoint}
+                      onChange={(e) => updateTravelDetail('droppingPoint', e.target.value)}
+                      placeholder="e.g. Madiwala / Electronic City"
+                    />
+                  </Field>
+                  <Field label="Date of Travel">
+                    <input
+                      required
+                      type="date"
+                      min={minDate}
+                      className={inputClass}
+                      value={form.travelDate}
+                      onChange={(e) => updateForm('travelDate', e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Preferred Departure Time">
+                    <input
+                      required
+                      type="time"
+                      className={inputClass}
+                      value={form.travelTime}
+                      onChange={(e) => updateForm('travelTime', e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Preferred Bus Operator (Optional)">
+                    <input
+                      className={inputClass}
+                      value={form.travelDetails.operator}
+                      onChange={(e) => updateTravelDetail('operator', e.target.value)}
+                      placeholder="e.g. SRS, KPN, Orange, Parveen"
+                    />
+                  </Field>
+                </div>
+              </section>
+
+              <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+                <SectionHeading
+                  number="03"
+                  title="Coach Class & Seat Choice"
+                  detail="Choose seating type and berth orientation."
+                  icon={Bus}
+                />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Bus Coach Class">
+                    <select
+                      className={inputClass}
+                      value={form.fareClass}
+                      onChange={(e) => {
+                        updateForm('fareClass', e.target.value);
+                        updateTravelDetail('busType', e.target.value);
+                      }}
+                    >
+                      {config.classes.map(([value, name, price]) => (
+                        <option key={value} value={value}>
+                          {name} · est. ₹{price.toLocaleString('en-IN')}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="Berth / Seat Preference">
+                    <select
+                      className={inputClass}
+                      value={form.seatPreference}
+                      onChange={(e) => updateForm('seatPreference', e.target.value)}
+                    >
+                      <option value="">No preference</option>
+                      {config.seats.map((seat) => (
+                        <option key={seat} value={seat}>
+                          {seat}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                </div>
+              </section>
+
+              <RouteSummary
+                type={type}
+                form={form}
+                selectedClass={selectedClass}
+                estimatedTotal={estimatedTotal}
+                effectivePassengerCount={effectivePassengerCount}
+              />
+            </div>
+
+            <PassengerFields
+              form={form}
+              setForm={setForm}
+              updatePassenger={updatePassenger}
+              updateForm={updateForm}
+            />
+          </div>
+        )}
+
+        {/* Bottom Submission Bar */}
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:px-7">
+          <p className="flex items-start gap-2 text-xs leading-5 text-slate-500">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+            <span>
+              All booking requests are processed against verified carrier availability. Fare estimates are finalized before any payment is initiated.
+            </span>
+          </p>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="inline-flex min-h-12 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-950 px-7 py-3 text-sm font-black text-white transition hover:bg-blue-800 disabled:opacity-60 cursor-pointer shadow-lg"
+          >
+            {submitting ? 'Submitting Request...' : `Request ${form.bookingType.toUpperCase()} Booking`}
+            <Check className="h-4 w-4" />
           </button>
         </div>
       </form>
@@ -348,72 +1128,191 @@ export const TransportBookingPage = () => {
   );
 };
 
-function RouteSummary({ type, form, selectedClass, estimatedTotal }) {
+function RouteSummary({ type, form, selectedClass, estimatedTotal, effectivePassengerCount }) {
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="flex items-center gap-2 text-sm font-black text-slate-900"><MapPin className="h-4 w-4 text-blue-700" /> Trip snapshot</h2>
-      <div className="mt-5 flex items-start gap-3">
-        <div className="flex flex-col items-center pt-1"><span className="h-2.5 w-2.5 rounded-full bg-blue-600" /><span className="my-1 h-9 border-l-2 border-dashed border-slate-300" /><span className="h-2.5 w-2.5 rounded-full bg-slate-900" /></div>
-        <div className="min-w-0 flex-1 space-y-5">
-          <div><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">From</p><p className="truncate text-sm font-bold text-slate-800">{form.source || 'Your starting point'}</p></div>
-          <div><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">To</p><p className="truncate text-sm font-bold text-slate-800">{form.destination || 'Your destination'}</p></div>
+      <h2 className="flex items-center gap-2 text-sm font-black text-slate-900">
+        <MapPin className="h-4 w-4 text-blue-700" /> Trip Snapshot
+      </h2>
+      <div className="mt-4 flex items-start gap-3">
+        <div className="flex flex-col items-center pt-1">
+          <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+          <span className="my-1 h-8 border-l-2 border-dashed border-slate-300" />
+          <span className="h-2.5 w-2.5 rounded-full bg-slate-900" />
+        </div>
+        <div className="min-w-0 flex-1 space-y-4">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">From</p>
+            <p className="truncate text-xs sm:text-sm font-bold text-slate-800">
+              {form.source || 'Starting point'}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">To</p>
+            <p className="truncate text-xs sm:text-sm font-bold text-slate-800">
+              {form.destination || 'Destination'}
+            </p>
+          </div>
         </div>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-3">
-        <div><p className="text-[10px] font-bold uppercase text-slate-400">Date</p><p className="mt-1 text-xs font-bold text-slate-700">{form.travelDate || 'Not selected'}</p></div>
-        <div><p className="text-[10px] font-bold uppercase text-slate-400">Departure</p><p className="mt-1 text-xs font-bold text-slate-700">{form.travelTime || 'Not selected'}</p></div>
-      </div>
-      <div className="mt-4 border-t border-slate-100 pt-4">
-        <div className="flex justify-between gap-3 text-xs"><span className="text-slate-500">{selectedClass?.[1] || 'Travel class'} × {form.passengers.length}</span><span className="font-bold text-slate-700">₹{estimatedTotal.toLocaleString('en-IN')}</span></div>
-        <p className="mt-1.5 text-[10px] text-slate-400">{type[0].toUpperCase() + type.slice(1)} fare estimate. Final fare is confirmed by the admin.</p>
-      </div>
-    </div>
-  );
-}
 
-function TrainRouteSummary({ form }) {
-  return (
-    <div className="rounded-3xl bg-gradient-to-br from-emerald-950 to-teal-900 p-5 text-white shadow-lg">
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200">Your rail route</p>
-      <div className="mt-5 flex items-center gap-3">
-        <div className="min-w-0 flex-1"><p className="truncate text-lg font-black">{form.source || 'From'}</p><p className="mt-1 text-xs text-emerald-100/70">{form.travelDate || 'Travel date'}</p></div>
-        <span className="rounded-full border border-white/20 p-2"><ArrowRightLeft className="h-4 w-4" /></span>
-        <div className="min-w-0 flex-1 text-right"><p className="truncate text-lg font-black">{form.destination || 'To'}</p><p className="mt-1 text-xs text-emerald-100/70">{form.travelTime || 'Departure time'}</p></div>
+      <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-slate-50 p-3 text-xs">
+        <div>
+          <p className="text-[10px] font-bold uppercase text-slate-400">Booking Type</p>
+          <p className="mt-0.5 font-bold text-blue-700 capitalize">{form.bookingType}</p>
+        </div>
+        <div>
+          <p className="text-[10px] font-bold uppercase text-slate-400">Travel Date</p>
+          <p className="mt-0.5 font-bold text-slate-700">{form.travelDate || 'Not selected'}</p>
+        </div>
       </div>
-      {form.travelDetails.trainName && <p className="mt-4 border-t border-white/15 pt-3 text-xs text-emerald-100">{form.travelDetails.trainNumber} · {form.travelDetails.trainName}</p>}
+
+      <div className="mt-4 border-t border-slate-100 pt-3">
+        <div className="flex justify-between gap-3 text-xs">
+          <span className="text-slate-500 font-semibold">
+            {selectedClass?.[1] || 'Class'} × {effectivePassengerCount} passenger(s)
+          </span>
+          <span className="font-mono font-black text-slate-900 text-sm">
+            ₹{estimatedTotal.toLocaleString('en-IN')}
+          </span>
+        </div>
+        <p className="mt-1 text-[10px] text-slate-400">
+          Estimated fare. Final confirmed fare will be reviewed before checkout.
+        </p>
+      </div>
     </div>
   );
 }
 
 function PassengerFields({ form, setForm, updatePassenger, updateForm }) {
   const addPassenger = () => {
-    if (form.passengers.length < 9) setForm((current) => ({ ...current, passengers: [...current.passengers, defaultPassenger()] }));
+    if (form.passengers.length < 9) {
+      setForm((current) => ({
+        ...current,
+        passengers: [...current.passengers, defaultPassenger()],
+      }));
+    }
   };
+
   const removePassenger = (index) => {
-    if (form.passengers.length > 1) setForm((current) => ({ ...current, passengers: current.passengers.filter((_, i) => i !== index) }));
+    if (form.passengers.length > 1) {
+      setForm((current) => ({
+        ...current,
+        passengers: current.passengers.filter((_, i) => i !== index),
+      }));
+    }
   };
+
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <SectionHeading number="03" title="Passengers and contact" detail="Add each traveler exactly as shown on their ID." icon={Users} />
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 space-y-4">
+      <SectionHeading
+        number="04"
+        title="Passenger &amp; Contact Details"
+        detail="Add each traveler exactly as on government ID."
+        icon={Users}
+      />
+
       <div className="space-y-3">
         {form.passengers.map((passenger, index) => (
           <div key={index} className="rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1.5 text-xs font-black text-slate-700"><UserRound className="h-4 w-4" /> Passenger {index + 1}</span>
-              {form.passengers.length > 1 && <button type="button" onClick={() => removePassenger(index)} className="text-xs font-bold text-rose-600 hover:underline">Remove</button>}
+            <div className="mb-2.5 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 text-xs font-black text-slate-700">
+                <UserRound className="h-3.5 w-3.5 text-slate-500" />
+                {passenger.isChild ? `Child Passenger ${index + 1}` : `Adult Passenger ${index + 1}`}
+              </span>
+              {form.passengers.length > 1 && form.bookingType !== 'general' && (
+                <button
+                  type="button"
+                  onClick={() => removePassenger(index)}
+                  className="text-xs font-bold text-rose-600 hover:underline"
+                >
+                  Remove
+                </button>
+              )}
             </div>
-            <div className="grid gap-3 sm:grid-cols-[1fr_80px_130px]">
-              <Field label="Full name"><input required maxLength={100} autoComplete="name" className={inputClass} value={passenger.name} onChange={(e) => updatePassenger(index, 'name', e.target.value)} placeholder="As on government ID" /></Field>
-              <Field label="Age"><input required type="number" min="0" max="120" className={inputClass} value={passenger.age} onChange={(e) => updatePassenger(index, 'age', e.target.value)} /></Field>
-              <Field label="Gender"><select required className={inputClass} value={passenger.gender} onChange={(e) => updatePassenger(index, 'gender', e.target.value)}><option value="">Select</option><option value="female">Female</option><option value="male">Male</option><option value="other">Other</option></select></Field>
+
+            <div className="grid gap-3 sm:grid-cols-[1fr_90px_130px]">
+              <Field label="Full Name">
+                <input
+                  required
+                  maxLength={100}
+                  className={inputClass}
+                  value={passenger.name}
+                  onChange={(e) => updatePassenger(index, 'name', e.target.value)}
+                  placeholder="As on Government ID"
+                />
+              </Field>
+              <Field label="Age">
+                <input
+                  required
+                  type="number"
+                  min="0"
+                  max="120"
+                  className={inputClass}
+                  value={passenger.age}
+                  onChange={(e) => updatePassenger(index, 'age', e.target.value)}
+                />
+              </Field>
+              <Field label="Gender">
+                <select
+                  required
+                  className={inputClass}
+                  value={passenger.gender}
+                  onChange={(e) => updatePassenger(index, 'gender', e.target.value)}
+                >
+                  <option value="">Select</option>
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                  <option value="other">Other</option>
+                </select>
+              </Field>
             </div>
           </div>
         ))}
       </div>
-      {form.passengers.length < 9 && <button type="button" onClick={addPassenger} className="mt-3 text-xs font-black text-blue-700 hover:underline">+ Add another passenger</button>}
-      <div className="mt-5 grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2">
-        <Field label="Booking contact email"><input required type="email" autoComplete="email" className={inputClass} value={form.passengerContact.email} onChange={(e) => updateForm('passengerContact', { ...form.passengerContact, email: e.target.value })} /></Field>
-        <Field label="Booking contact phone"><input required type="tel" minLength="7" maxLength="20" autoComplete="tel" className={inputClass} value={form.passengerContact.phone} onChange={(e) => updateForm('passengerContact', { ...form.passengerContact, phone: e.target.value })} placeholder="Include country code if needed" /></Field>
+
+      {form.bookingType !== 'general' && form.passengers.length < 9 && (
+        <button
+          type="button"
+          onClick={addPassenger}
+          className="text-xs font-black text-blue-700 hover:underline cursor-pointer"
+        >
+          + Add Another Passenger
+        </button>
+      )}
+
+      <div className="mt-4 grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2">
+        <Field label="Booking Contact Email">
+          <input
+            required
+            type="email"
+            className={inputClass}
+            value={form.passengerContact.email}
+            onChange={(e) =>
+              updateForm('passengerContact', {
+                ...form.passengerContact,
+                email: e.target.value,
+              })
+            }
+          />
+        </Field>
+        <Field label="Booking Contact Phone">
+          <input
+            required
+            type="tel"
+            minLength="7"
+            maxLength="20"
+            className={inputClass}
+            value={form.passengerContact.phone}
+            onChange={(e) =>
+              updateForm('passengerContact', {
+                ...form.passengerContact,
+                phone: e.target.value,
+              })
+            }
+            placeholder="Official mobile number"
+          />
+        </Field>
       </div>
     </section>
   );

@@ -165,7 +165,7 @@ export const PdfCatalogViewer = () => {
             </span>
             <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
               <Truck className="w-3 h-3 text-blue-600" />
-              <span>Delhivery Insured Delivery</span>
+              <span>Tracked Dispatch</span>
             </span>
           </div>
 
@@ -626,8 +626,8 @@ export const PdfCatalogViewer = () => {
                                           {formatCurrency(p.wholesalePrice)}
                                         </td>
                                         <td className="py-2.5 px-3 text-center">
-                                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 whitespace-nowrap">
-                                            Delhivery Free
+                                          <span className="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 whitespace-nowrap">
+                                            Standard Shipping
                                           </span>
                                         </td>
                                         <td className="py-2.5 px-3 text-center whitespace-nowrap">
@@ -733,7 +733,7 @@ export const PdfCatalogViewer = () => {
                 <span>{formatCurrency(selectedProduct.wholesalePrice)}</span>
               </div>
               <p className="text-[10px] text-slate-400 text-right pt-0.5">
-                + 18% GST Applicable • Free Delhivery Freight
+                + 18% GST Applicable
               </p>
             </div>
 
