@@ -24,8 +24,12 @@ import {
   Eye,
   CheckCircle2,
   ExternalLink,
+  Download,
+  Maximize2,
+  Columns,
+  Package,
 } from 'lucide-react';
-import api from '../../services/api';
+import api, { getAssetUrl } from '../../services/api';
 import { contentService } from '../../services/contentService';
 import { bookingService } from '../../services/bookingService';
 import { useAuth } from '../../context/AuthContext';
@@ -117,12 +121,13 @@ export const ServiceDetailPage = () => {
   const [calcBrand, setCalcBrand] = useState('PIX');
   const [calcMrp, setCalcMrp] = useState(2000);
 
-  // Dedicated PDF Viewer & Category Data Extraction State
+  // Dedicated In-Page PDF Viewer & Product Selection State
   const [pdfCatalog, setPdfCatalog] = useState(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [selectedPdfCatIndex, setSelectedPdfCatIndex] = useState(0);
   const [selectedPdfItem, setSelectedPdfItem] = useState(null);
-  const [pdfActiveTab, setPdfActiveTab] = useState('extracted'); // 'extracted' or 'pdf_viewer'
+  const [pdfSearchQuery, setPdfSearchQuery] = useState('');
+  const [pdfViewMode, setPdfViewMode] = useState('split'); // 'split' | 'pdf_only' | 'products_only'
 
   useEffect(() => {
     const fetchCatalog = async () => {
@@ -132,6 +137,16 @@ export const ServiceDetailPage = () => {
         const catData = res?.data?.categories ? res.data : (res?.data?.data || res?.data);
         if (catData) {
           setPdfCatalog(catData);
+          // Auto-select matching product or first product from catalog
+          const allProds = catData.categories?.flatMap((c) => c.subcategories?.flatMap((s) => s.products || []) || []) || [];
+          if (allProds.length > 0) {
+            const match = allProds.find(
+              (p) =>
+                p.partNumber?.toLowerCase() === service?.partNumber?.toLowerCase() ||
+                (service?.name && service.name.toLowerCase().includes(p.partNumber?.toLowerCase()))
+            );
+            setSelectedPdfItem(match || allProds[0]);
+          }
         }
       } catch (err) {
         console.error('[Service Detail PDF Catalog]', err);
@@ -140,7 +155,24 @@ export const ServiceDetailPage = () => {
       }
     };
     fetchCatalog();
-  }, []);
+  }, [service]);
+
+  // Handler when user orders a product directly from the PDF selection
+  const handleOrderPdfProduct = (product) => {
+    if (!product) return;
+    setDynamicFormData((prev) => ({
+      ...prev,
+      orderedPartNumber: product.partNumber,
+      orderedProductName: product.name,
+      orderedBrand: product.brand || service?.brand || '',
+      additionalNotes: `Selected from PDF Catalog: ${product.name} (${product.partNumber}) - Net: ₹${product.wholesalePrice}`,
+    }));
+    const orderSection = document.getElementById('order-specifications-section');
+    if (orderSection) {
+      orderSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    showToast(`Selected ${product.name} (${product.partNumber}) for ordering. Enter delivery details below.`);
+  };
 
   const handleProductSearch = async (e) => {
     e.preventDefault();
@@ -786,7 +818,7 @@ export const ServiceDetailPage = () => {
       {/* 3. Dynamic Service Form & Order Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left: Dynamic Form Fields */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-xs space-y-6">
+        <div id="order-specifications-section" className="lg:col-span-7 bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-xs space-y-6">
           <div className="border-b border-slate-100 pb-4">
             <span className="text-xs font-bold text-primary uppercase tracking-widest">
               Step 2: Delivery & B2B Billing Details
@@ -944,220 +976,382 @@ export const ServiceDetailPage = () => {
         )}
       </div>
 
-      {/* 5. Dedicated PDF Catalog Viewer & Category Data Extraction */}
-      <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-md space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-primary text-xs font-black uppercase tracking-wider mb-1.5">
-              <FileText className="w-3.5 h-3.5" />
-              <span>Official Technical PDF Catalog &amp; Dimensions</span>
-            </div>
-            <h3 className="text-xl sm:text-2xl font-black text-navy">
-              {pdfCatalog?.title || 'Component PDF Catalog & Specifications'}
-            </h3>
-            <p className="text-xs text-slate-500 mt-1">
-              Scroll through the document directly or browse structured categories extracted from the admin-uploaded PDF.
-            </p>
-          </div>
+      {/* 5. In-Page PDF Viewer & Interactive Product Details Display */}
+      {(() => {
+        const activePdfUrl = service?.pdfUrl
+          ? getAssetUrl(service.pdfUrl)
+          : pdfCatalog?.fileUrl
+          ? getAssetUrl(pdfCatalog.fileUrl)
+          : '/sample-catalog.pdf';
 
-          {/* Toggle between Category-Wise Data and In-Page Scrollable PDF Viewer */}
-          <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl shrink-0">
-            <button
-              type="button"
-              onClick={() => setPdfActiveTab('extracted')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                pdfActiveTab === 'extracted'
-                  ? 'bg-white text-primary shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>Category Extracted Data</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setPdfActiveTab('pdf_viewer')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                pdfActiveTab === 'pdf_viewer'
-                  ? 'bg-white text-primary shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>Scroll PDF In-Page</span>
-            </button>
-          </div>
-        </div>
+        const currentCat =
+          pdfCatalog?.categories && pdfCatalog.categories[selectedPdfCatIndex]
+            ? pdfCatalog.categories[selectedPdfCatIndex]
+            : pdfCatalog?.categories?.[0];
 
-        {/* Tab 1: Category-Wise Extracted Information Display */}
-        {pdfActiveTab === 'extracted' && (
-          <div className="space-y-6">
-            {pdfCatalog?.categories && pdfCatalog.categories.length > 0 ? (
-              <div className="space-y-5">
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
-                  {pdfCatalog.categories.map((cat, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        setSelectedPdfCatIndex(idx);
-                        setSelectedPdfItem(null);
-                      }}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
-                        selectedPdfCatIndex === idx
-                          ? 'bg-primary text-white shadow-md'
-                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                      }`}
-                    >
-                      {cat.name}
-                    </button>
-                  ))}
+        const allCurrentProducts = currentCat?.subcategories
+          ? currentCat.subcategories.flatMap((sub) => sub.products || [])
+          : [];
+
+        // Global search across all catalog products or current category
+        const catalogAllProducts =
+          pdfCatalog?.categories?.flatMap((c) =>
+            c.subcategories?.flatMap((s) => s.products || []) || []
+          ) || [];
+
+        const filteredProducts = pdfSearchQuery.trim()
+          ? catalogAllProducts.filter((p) => {
+              const q = pdfSearchQuery.toLowerCase().trim();
+              return (
+                p.partNumber.toLowerCase().includes(q) ||
+                p.name.toLowerCase().includes(q) ||
+                (p.brand && p.brand.toLowerCase().includes(q)) ||
+                (p.specifications && p.specifications.toLowerCase().includes(q))
+              );
+            })
+          : allCurrentProducts;
+
+        return (
+          <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/90 shadow-xl space-y-6">
+            {/* Header & Controls Bar */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-primary text-xs font-black uppercase tracking-wider">
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Official Manufacturer PDF Catalog</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    <span>Uploaded from Admin Panel</span>
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-navy mt-1">
+                  {pdfCatalog?.title || 'Technical PDF Document & Product Specifications'}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  View the official PDF catalog directly on this page. Click on any product from the catalog to display its full details, dimensions, and wholesale pricing.
+                </p>
+              </div>
+
+              {/* View Switcher & Action Tools */}
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                {/* View Mode Pills */}
+                <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setPdfViewMode('split')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      pdfViewMode === 'split'
+                        ? 'bg-white text-primary shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                    title="Side-by-side: PDF Viewer & Product Selector"
+                  >
+                    <Columns className="w-3.5 h-3.5" />
+                    <span>Split View</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPdfViewMode('pdf_only')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      pdfViewMode === 'pdf_only'
+                        ? 'bg-white text-primary shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                    title="Full Page PDF Document Viewer"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>PDF Viewer</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPdfViewMode('products_only')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      pdfViewMode === 'products_only'
+                        ? 'bg-white text-primary shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                    title="Extracted Products Grid"
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Products Grid</span>
+                  </button>
                 </div>
 
-                {/* Subcategories and Extracted Items Grid */}
-                {(() => {
-                  const currentCat = pdfCatalog.categories[selectedPdfCatIndex] || pdfCatalog.categories[0];
-                  const allProducts = currentCat?.subcategories
-                    ? currentCat.subcategories.flatMap((sub) => sub.products || [])
-                    : [];
-
-                  return (
-                    <div className="space-y-5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                          Extracted Items in {currentCat?.name} ({allProducts.length} items)
-                        </span>
-                        <span className="text-[11px] text-primary font-bold">
-                          Click any item to view dimensions &amp; pricing
-                        </span>
-                      </div>
-
-                      {/* Extracted Product Items Quick Grid */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5 max-h-64 overflow-y-auto p-2 border border-slate-100 rounded-2xl bg-slate-50/50">
-                        {allProducts.slice(0, 48).map((prod, pIdx) => {
-                          const isItemSelected = selectedPdfItem?.name === prod.name;
-                          return (
-                            <button
-                              key={pIdx}
-                              type="button"
-                              onClick={() => setSelectedPdfItem(prod)}
-                              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                                isItemSelected
-                                  ? 'bg-blue-50 border-primary ring-2 ring-primary/40 shadow-sm'
-                                  : 'bg-white border-slate-200/80 hover:border-slate-300'
-                              }`}
-                            >
-                              <p className="text-xs font-black text-slate-900 truncate">{prod.name}</p>
-                              {prod.mrp ? (
-                                <p className="text-[11px] font-bold text-primary mt-0.5">₹{prod.mrp}</p>
-                              ) : (
-                                <p className="text-[10px] text-slate-500">Standard Spec</p>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {/* Selected Item Detail Panel */}
-                      {selectedPdfItem && (
-                        <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/50 border border-blue-200/80 animate-fadeIn space-y-3">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-blue-200/60 pb-3">
-                            <div>
-                              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Selected Extracted Item</span>
-                              <h4 className="text-lg font-black text-navy">{selectedPdfItem.name}</h4>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {selectedPdfItem.mrp && (
-                                <span className="text-xs font-bold text-slate-700 bg-white px-3 py-1 rounded-lg border border-blue-200 shadow-2xs">
-                                  List MRP: <strong className="text-navy">₹{selectedPdfItem.mrp}</strong>
-                                </span>
-                              )}
-                              <Button
-                                size="sm"
-                                variant="primary"
-                                onClick={() => {
-                                  setRfqData((prev) => ({
-                                    ...prev,
-                                    message: `Inquiry for catalog extracted item: ${selectedPdfItem.name} (${currentCat?.name})`,
-                                  }));
-                                  setIsRfqModalOpen(true);
-                                }}
-                              >
-                                Quote This Item
-                              </Button>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                            <div className="bg-white p-2.5 rounded-xl border border-blue-100">
-                              <span className="text-slate-400 block text-[10px] uppercase font-bold">Category</span>
-                              <span className="font-bold text-slate-900">{currentCat?.name}</span>
-                            </div>
-                            {selectedPdfItem.pitchLength && (
-                              <div className="bg-white p-2.5 rounded-xl border border-blue-100">
-                                <span className="text-slate-400 block text-[10px] uppercase font-bold">Pitch Length</span>
-                                <span className="font-bold text-slate-900 font-mono">{selectedPdfItem.pitchLength} mm</span>
-                              </div>
-                            )}
-                            {selectedPdfItem.insideLength && (
-                              <div className="bg-white p-2.5 rounded-xl border border-blue-100">
-                                <span className="text-slate-400 block text-[10px] uppercase font-bold">Inside Length</span>
-                                <span className="font-bold text-slate-900 font-mono">{selectedPdfItem.insideLength} mm / inches</span>
-                              </div>
-                            )}
-                            {selectedPdfItem.brand && (
-                              <div className="bg-white p-2.5 rounded-xl border border-blue-100">
-                                <span className="text-slate-400 block text-[10px] uppercase font-bold">Brand / Make</span>
-                                <span className="font-bold text-primary">{selectedPdfItem.brand}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
-              </div>
-            ) : (
-              <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200">
-                <Spinner size="md" className="mx-auto mb-2 text-primary" />
-                <p className="text-xs text-slate-600 font-medium">Extracting categories from official catalog PDF...</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Tab 2: In-Page Scrollable PDF Viewer (No Download Required) */}
-        {pdfActiveTab === 'pdf_viewer' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              <span className="flex items-center gap-1.5 font-medium">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                Viewing document inside page without downloading. Scroll up/down to navigate pages.
-              </span>
-              {pdfCatalog?.fileUrl && (
+                {/* External Actions */}
                 <a
-                  href={pdfCatalog.fileUrl}
+                  href={activePdfUrl}
+                  download={pdfCatalog?.fileName || 'Industrial-Catalog.pdf'}
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold inline-flex items-center gap-1.5 transition-all border border-slate-200"
+                  title="Download PDF"
+                >
+                  <Download className="w-3.5 h-3.5 text-primary" />
+                  <span className="hidden sm:inline">Download</span>
+                </a>
+
+                <a
+                  href={activePdfUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold text-primary hover:underline inline-flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-xl bg-navy text-accent hover:bg-navy-dark text-xs font-bold inline-flex items-center gap-1.5 transition-all shadow-xs"
+                  title="Open Fullscreen PDF"
                 >
-                  <span>Fullscreen View</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Fullscreen</span>
                 </a>
-              )}
+              </div>
             </div>
 
-            <div className="w-full h-[620px] rounded-2xl border border-slate-300 bg-slate-100 overflow-hidden shadow-inner relative">
-              <iframe
-                src={`${pdfCatalog?.fileUrl || '/sample-catalog.pdf'}#toolbar=0&navpanes=0&scrollbar=1`}
-                title="Catalog PDF In-Page Scroll Viewer"
-                className="w-full h-full rounded-2xl border-0"
-              />
+            {/* Main Interactive Container */}
+            <div className={`grid gap-6 ${pdfViewMode === 'split' ? 'grid-cols-1 lg:grid-cols-12' : 'grid-cols-1'}`}>
+              
+              {/* Direct In-Page PDF Viewer */}
+              {(pdfViewMode === 'split' || pdfViewMode === 'pdf_only') && (
+                <div className={`${pdfViewMode === 'split' ? 'lg:col-span-6' : 'w-full'} space-y-3`}>
+                  <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <span className="font-bold flex items-center gap-1 text-slate-800">
+                      <FileText className="w-4 h-4 text-primary" />
+                      <span>{pdfCatalog?.fileName || 'Official Catalog PDF'}</span>
+                    </span>
+                    <span className="text-[11px] text-slate-400">Scroll inside to browse pages</span>
+                  </div>
+
+                  <div className="w-full h-[580px] rounded-2xl border border-slate-300 bg-slate-100 overflow-hidden shadow-inner relative">
+                    <iframe
+                      src={`${activePdfUrl}#toolbar=1&navpanes=0&scrollbar=1`}
+                      title="Direct In-Page PDF Catalog Viewer"
+                      className="w-full h-full rounded-2xl border-0"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Products in this PDF & Selected Product Details Panel */}
+              {(pdfViewMode === 'split' || pdfViewMode === 'products_only') && (
+                <div className={`${pdfViewMode === 'split' ? 'lg:col-span-6' : 'w-full'} space-y-5 flex flex-col justify-between`}>
+                  
+                  {/* Category Pills & Search Bar */}
+                  <div className="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-slate-200">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                      <span className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
+                        <Package className="w-4 h-4 text-primary" />
+                        <span>Products In This PDF Catalog</span>
+                      </span>
+                      <span className="text-[11px] font-bold text-primary">
+                        {filteredProducts.length} items found
+                      </span>
+                    </div>
+
+                    {/* Part Number Search within PDF */}
+                    <div className="relative">
+                      <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        placeholder="Search part # in this PDF (e.g. A 18, 6204, SPC 2360)..."
+                        value={pdfSearchQuery}
+                        onChange={(e) => setPdfSearchQuery(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary text-navy"
+                      />
+                      {pdfSearchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setPdfSearchQuery('')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Category Selector Buttons */}
+                    {!pdfSearchQuery && pdfCatalog?.categories && pdfCatalog.categories.length > 0 && (
+                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+                        {pdfCatalog.categories.map((cat, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setSelectedPdfCatIndex(idx)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                              selectedPdfCatIndex === idx
+                                ? 'bg-primary text-white shadow-xs'
+                                : 'bg-white text-slate-700 hover:bg-slate-200 border border-slate-200'
+                            }`}
+                          >
+                            {cat.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Extracted Product Items Quick-Select Grid */}
+                  <div className="space-y-2">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                      Click any product below to display full details:
+                    </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-56 overflow-y-auto p-2 border border-slate-200 rounded-2xl bg-white shadow-inner">
+                      {filteredProducts.slice(0, 36).map((prod, pIdx) => {
+                        const isItemSelected = selectedPdfItem?.partNumber === prod.partNumber;
+                        return (
+                          <button
+                            key={pIdx}
+                            type="button"
+                            onClick={() => setSelectedPdfItem(prod)}
+                            className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                              isItemSelected
+                                ? 'bg-blue-50 border-primary ring-2 ring-primary/50 shadow-sm'
+                                : 'bg-slate-50 hover:bg-slate-100 border-slate-200/80 hover:border-slate-300'
+                            }`}
+                          >
+                            <span className="font-mono text-[11px] font-black text-primary truncate block">
+                              {prod.partNumber}
+                            </span>
+                            <p className="text-[11px] font-bold text-slate-900 truncate mt-0.5" title={prod.name}>
+                              {prod.name}
+                            </p>
+                            <div className="mt-1 flex items-baseline justify-between pt-1 border-t border-slate-200/60">
+                              <span className="text-[10px] text-slate-400 line-through">₹{prod.mrp}</span>
+                              <span className="text-[11px] font-black text-emerald-700">₹{prod.wholesalePrice}</span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* PROMINENT SELECTED PRODUCT DETAILS DISPLAY ON THE SAME PAGE */}
+                  {selectedPdfItem && (
+                    <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-blue-50/90 via-sky-50/60 to-white border-2 border-blue-300/80 shadow-md animate-fadeIn space-y-4">
+                      
+                      {/* Top Header of Selected Product */}
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-blue-200/80 pb-3">
+                        <div className="flex items-start gap-3">
+                          {selectedPdfItem.image && (
+                            <div className="w-16 h-16 rounded-xl bg-white p-1 border border-blue-200 shrink-0 shadow-xs flex items-center justify-center">
+                              <img
+                                src={selectedPdfItem.image}
+                                alt={selectedPdfItem.name}
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png';
+                                }}
+                              />
+                            </div>
+                          )}
+                          <div>
+                            <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-navy text-accent">
+                                {selectedPdfItem.brand || service?.brand || 'Industrial'}
+                              </span>
+                              <span className="font-mono text-xs font-black text-primary px-2 py-0.5 rounded bg-blue-100 border border-blue-200">
+                                Part: {selectedPdfItem.partNumber}
+                              </span>
+                              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200">
+                                In Stock
+                              </span>
+                            </div>
+                            <h4 className="text-base sm:text-lg font-black text-navy leading-tight">
+                              {selectedPdfItem.name}
+                            </h4>
+                          </div>
+                        </div>
+
+                        {/* Price Tag Highlight */}
+                        <div className="text-right shrink-0 bg-white px-3.5 py-2 rounded-xl border border-blue-200 shadow-2xs">
+                          <span className="text-[10px] text-slate-400 line-through block">
+                            MRP: {formatCurrency(selectedPdfItem.mrp)}
+                          </span>
+                          <span className="text-lg font-black text-navy block">
+                            {formatCurrency(selectedPdfItem.wholesalePrice)}
+                          </span>
+                          <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded inline-block">
+                            Save {formatCurrency(selectedPdfItem.mrp - selectedPdfItem.wholesalePrice)} ({selectedPdfItem.discountPercentage || 46}% OFF)
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Technical Specs & Details Matrix */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                        <div className="bg-white p-2 rounded-xl border border-blue-100">
+                          <span className="text-slate-400 block text-[10px] uppercase font-bold">Category</span>
+                          <span className="font-bold text-slate-900 truncate block">
+                            {selectedPdfItem.categoryName || currentCat?.name || 'Power Transmission'}
+                          </span>
+                        </div>
+                        <div className="bg-white p-2 rounded-xl border border-blue-100">
+                          <span className="text-slate-400 block text-[10px] uppercase font-bold">Subcategory</span>
+                          <span className="font-bold text-slate-900 truncate block">
+                            {selectedPdfItem.subcategoryName || 'Standard Profile'}
+                          </span>
+                        </div>
+                        <div className="bg-white p-2 rounded-xl border border-blue-100">
+                          <span className="text-slate-400 block text-[10px] uppercase font-bold">GST Standard</span>
+                          <span className="font-bold text-slate-900">+ 18% Statutory GST</span>
+                        </div>
+                        <div className="bg-white p-2 rounded-xl border border-blue-100">
+                          <span className="text-slate-400 block text-[10px] uppercase font-bold">Logistics</span>
+                          <span className="font-bold text-emerald-700 flex items-center gap-1">
+                            <Truck className="w-3 h-3" /> Express Dispatch
+                          </span>
+                        </div>
+                      </div>
+
+                      {selectedPdfItem.specifications && (
+                        <div className="p-2.5 bg-white rounded-xl border border-blue-100 text-xs text-slate-700">
+                          <strong className="text-navy font-bold">Technical Specifications: </strong>
+                          <span>{selectedPdfItem.specifications}</span>
+                        </div>
+                      )}
+
+                      {/* Action Buttons for Selected Product */}
+                      <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                        <Button
+                          variant="accent"
+                          size="sm"
+                          className="font-black inline-flex items-center gap-1.5 shadow-sm bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-400 cursor-pointer"
+                          onClick={() => handleOrderPdfProduct(selectedPdfItem)}
+                        >
+                          <CreditCard className="w-4 h-4 text-slate-950" />
+                          <span>Order This Product Now ({formatCurrency(selectedPdfItem.wholesalePrice)})</span>
+                        </Button>
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="font-bold text-xs inline-flex items-center gap-1 cursor-pointer bg-white"
+                          onClick={() => {
+                            setRfqData((prev) => ({
+                              ...prev,
+                              message: `Inquiry for catalog product: ${selectedPdfItem.name} (${selectedPdfItem.partNumber})`,
+                              targetPrice: selectedPdfItem.wholesalePrice,
+                            }));
+                            setIsRfqModalOpen(true);
+                          }}
+                        >
+                          <FileSpreadsheet className="w-3.5 h-3.5 text-primary" />
+                          <span>Request Bulk RFQ</span>
+                        </Button>
+
+                        <Link
+                          to={`/services/${encodeURIComponent(selectedPdfItem.partNumber)}`}
+                          className="text-xs font-bold text-primary hover:text-navy hover:underline inline-flex items-center gap-1 ml-auto cursor-pointer"
+                        >
+                          <span>Open Product Details</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              )}
+
             </div>
           </div>
-        )}
-      </div>
+        );
+      })()}
 
       {/* Checkout & Payment Confirmation Modal */}
       <Modal

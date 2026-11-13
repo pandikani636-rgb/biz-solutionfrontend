@@ -477,8 +477,12 @@ export const PdfCatalogViewer = () => {
                                     key={p._id || `${key}-${pIdx}`}
                                     className="rounded-2xl border border-slate-200 bg-white hover:border-primary/50 hover:shadow-md transition-smooth flex flex-col justify-between overflow-hidden group"
                                   >
-                                    {/* Product Image with Zoom & Badges */}
-                                    <div className="relative h-44 bg-slate-50 p-4 flex items-center justify-center border-b border-slate-100 overflow-hidden">
+                                    {/* Product Image with Zoom & Badges - Clickable to Product Details */}
+                                    <Link
+                                      to={`/services/${encodeURIComponent(p.partNumber)}`}
+                                      className="block relative h-44 bg-slate-50 p-4 flex items-center justify-center border-b border-slate-100 overflow-hidden cursor-pointer"
+                                      title={`View ${p.name} Details`}
+                                    >
                                       <img
                                         src={p.image || subcategory.image || FALLBACK_IMAGE}
                                         alt={p.name}
@@ -489,29 +493,35 @@ export const PdfCatalogViewer = () => {
                                         }}
                                       />
                                       {/* Brand Badge */}
-                                      <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg text-[10px] font-black bg-navy text-accent shadow-2xs">
+                                      <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg text-[10px] font-black bg-navy text-accent shadow-2xs pointer-events-none">
                                         {p.brand}
                                       </span>
-                                      {/* Verified OEM Badge (Offer % removed) */}
-                                      <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-lg text-[10px] font-black bg-blue-50 text-blue-800 border border-blue-200 shadow-2xs">
+                                      {/* Verified OEM Badge */}
+                                      <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-lg text-[10px] font-black bg-blue-50 text-blue-800 border border-blue-200 shadow-2xs pointer-events-none">
                                         Verified OEM
                                       </span>
-                                    </div>
+                                    </Link>
 
                                     {/* Product Details */}
                                     <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
                                       <div>
                                         <div className="flex items-center justify-between gap-1">
-                                          <span className="font-mono text-xs font-black text-primary">
+                                          <Link
+                                            to={`/services/${encodeURIComponent(p.partNumber)}`}
+                                            className="font-mono text-xs font-black text-primary hover:underline"
+                                            title="View Product Page"
+                                          >
                                             {p.partNumber}
-                                          </span>
+                                          </Link>
                                           <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
                                             In Stock
                                           </span>
                                         </div>
-                                        <h4 className="font-bold text-xs text-darkText line-clamp-2 mt-1" title={p.name}>
-                                          {p.name}
-                                        </h4>
+                                        <Link to={`/services/${encodeURIComponent(p.partNumber)}`} className="block group/title">
+                                          <h4 className="font-bold text-xs text-darkText group-hover/title:text-primary line-clamp-2 mt-1 transition-smooth cursor-pointer" title={p.name}>
+                                            {p.name}
+                                          </h4>
+                                        </Link>
                                         {p.specifications && (
                                           <p className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">
                                             {p.specifications}
@@ -537,10 +547,10 @@ export const PdfCatalogViewer = () => {
 
                                         <div className="flex items-center gap-1.5">
                                           <Link
-                                            to={`/rfq?partNumber=${encodeURIComponent(p.partNumber)}&brand=${encodeURIComponent(p.brand)}&serviceName=${encodeURIComponent(p.name)}`}
+                                            to={`/services/${encodeURIComponent(p.partNumber)}`}
                                             className="flex-1 py-1.5 px-2.5 rounded-xl bg-navy text-accent text-center text-[11px] font-black hover:bg-navy-dark transition-smooth flex items-center justify-center gap-1 shadow-2xs"
                                           >
-                                            <span>{isTamil ? 'விலைப்புள்ளி' : 'Request RFQ'}</span>
+                                            <span>{isTamil ? 'விவரங்கள்' : 'Details / Order'}</span>
                                             <ArrowRight className="w-3 h-3" />
                                           </Link>
                                           <button
@@ -597,7 +607,7 @@ export const PdfCatalogViewer = () => {
                                     {visibleProducts.map((p, pIdx) => (
                                       <tr key={p._id || `${key}-${pIdx}`} className="hover:bg-slate-50/80 transition-smooth">
                                         <td className="py-2 px-3">
-                                          <div className="w-10 h-10 rounded-lg bg-slate-50 p-1 border border-slate-200 flex items-center justify-center shrink-0">
+                                          <Link to={`/services/${encodeURIComponent(p.partNumber)}`} className="w-10 h-10 rounded-lg bg-slate-50 p-1 border border-slate-200 flex items-center justify-center shrink-0 hover:border-primary">
                                             <img
                                               src={p.image || subcategory.image || FALLBACK_IMAGE}
                                               alt={p.name}
@@ -607,14 +617,20 @@ export const PdfCatalogViewer = () => {
                                                 e.target.src = FALLBACK_IMAGE;
                                               }}
                                             />
-                                          </div>
+                                          </Link>
                                         </td>
                                         <td className="py-2.5 px-3 font-black text-navy">{p.brand}</td>
-                                        <td className="py-2.5 px-3 font-mono font-bold text-primary">{p.partNumber}</td>
+                                        <td className="py-2.5 px-3 font-mono font-bold text-primary">
+                                          <Link to={`/services/${encodeURIComponent(p.partNumber)}`} className="hover:underline">
+                                            {p.partNumber}
+                                          </Link>
+                                        </td>
                                         <td className="py-2.5 px-4 max-w-xs">
-                                          <p className="font-bold text-darkText truncate" title={p.name}>
-                                            {p.name}
-                                          </p>
+                                          <Link to={`/services/${encodeURIComponent(p.partNumber)}`} className="hover:text-primary transition-colors block">
+                                            <p className="font-bold text-darkText truncate" title={p.name}>
+                                              {p.name}
+                                            </p>
+                                          </Link>
                                           {p.specifications && (
                                             <p className="text-[10px] text-slate-400 truncate">{p.specifications}</p>
                                           )}
@@ -632,10 +648,10 @@ export const PdfCatalogViewer = () => {
                                         </td>
                                         <td className="py-2.5 px-3 text-center whitespace-nowrap">
                                           <Link
-                                            to={`/rfq?partNumber=${encodeURIComponent(p.partNumber)}&brand=${encodeURIComponent(p.brand)}&serviceName=${encodeURIComponent(p.name)}`}
+                                            to={`/services/${encodeURIComponent(p.partNumber)}`}
                                             className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-navy text-accent text-[11px] font-bold hover:bg-primary hover:text-white transition-smooth shadow-2xs"
                                           >
-                                            <span>{isTamil ? 'விலைப்புள்ளி' : 'RFQ'}</span>
+                                            <span>{isTamil ? 'விவரங்கள்' : 'Details'}</span>
                                             <ArrowRight className="w-3 h-3" />
                                           </Link>
                                         </td>

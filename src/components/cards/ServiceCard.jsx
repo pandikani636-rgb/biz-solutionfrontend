@@ -34,14 +34,15 @@ export const ServiceCard = ({ service }) => {
     isFeatured,
   } = service;
 
+  const productUrl = `/services/${slug || service._id}`;
   const displayPrice = discountPrice > 0 && discountPrice < basePrice ? discountPrice : basePrice;
   const cleanName = (name || '').replace(/authori[sz]ed\s*/gi, '');
   const cleanDescription = (shortDescription || '').replace(/authori[sz]ed\s*/gi, '');
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-xl transition-smooth flex flex-col group relative">
-      {/* Top Image Container */}
-      <div className="relative h-48 w-full overflow-hidden bg-slate-900">
+      {/* Top Image Container - Clickable to Product Details */}
+      <Link to={productUrl} className="block relative h-48 w-full overflow-hidden bg-slate-900 cursor-pointer">
         <img
           src={getProductImageUrl(service)}
           alt={cleanName}
@@ -55,7 +56,7 @@ export const ServiceCard = ({ service }) => {
 
         {/* Brand Badge (Top-Left) */}
         {brand && (
-          <div className="absolute top-3 left-3">
+          <div className="absolute top-3 left-3 pointer-events-none">
             <span
               className={`px-2.5 py-1 rounded-md text-xs font-black uppercase tracking-wider border shadow-sm backdrop-blur-sm ${
                 brandColors[brand] || brandColors.General
@@ -66,9 +67,9 @@ export const ServiceCard = ({ service }) => {
           </div>
         )}
 
-        {/* Feature Tag (Top-Right) - Offer info removed */}
+        {/* Feature Tag (Top-Right) */}
         {isFeatured && (
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-3 right-3 pointer-events-none">
             <span className="bg-navy/90 text-white font-bold text-[10px] px-2 py-0.5 rounded shadow flex items-center gap-1">
               <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /> Top Demand
             </span>
@@ -76,7 +77,7 @@ export const ServiceCard = ({ service }) => {
         )}
 
         {/* Section / Category Pill (Bottom-Left) */}
-        <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
+        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 pointer-events-none">
           {section && (
             <span className="bg-navy/90 backdrop-blur-sm text-white text-[11px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider">
               {section}
@@ -88,14 +89,16 @@ export const ServiceCard = ({ service }) => {
             </span>
           )}
         </div>
-      </div>
+      </Link>
 
       {/* Card Body */}
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div>
-          <h3 className="font-bold text-base md:text-lg text-darkText group-hover:text-primary transition-smooth line-clamp-1">
-            {cleanName}
-          </h3>
+          <Link to={productUrl} className="block group/title">
+            <h3 className="font-bold text-base md:text-lg text-darkText group-hover/title:text-primary transition-smooth line-clamp-1 cursor-pointer">
+              {cleanName}
+            </h3>
+          </Link>
 
           <p className="text-secondaryText text-xs mt-1.5 line-clamp-2 leading-relaxed">
             {cleanDescription}
@@ -113,7 +116,7 @@ export const ServiceCard = ({ service }) => {
           </div>
         </div>
 
-        {/* Pricing Footer - Offer info removed */}
+        {/* Pricing Footer */}
         <div className="pt-3 border-t border-slate-100 space-y-3">
           <div className="flex items-end justify-between">
             <div>
@@ -127,7 +130,7 @@ export const ServiceCard = ({ service }) => {
             </div>
 
             <Link
-              to={`/services/${slug || service._id}`}
+              to={productUrl}
               className="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-navy text-white hover:bg-primary font-bold text-xs shadow-xs transition-smooth"
             >
               <span>Order / Details</span>
