@@ -57,7 +57,7 @@ export const Navbar = () => {
   };
 
   const navLinkClass = ({ isActive }) =>
-    `px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-xs xl:text-[13px] 2xl:text-sm font-semibold transition-all inline-flex items-center gap-1 flex-nowrap whitespace-nowrap shrink-0 ${
+    `px-1.5 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-xs xl:text-[13px] 2xl:text-sm font-semibold transition-all inline-flex items-center gap-1 flex-nowrap whitespace-nowrap shrink-0 ${
       isActive
         ? 'text-primary bg-blue-50 font-bold shadow-2xs'
         : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80'
@@ -130,315 +130,337 @@ export const Navbar = () => {
 
     
 
-      {/* 2. Main Navigation Bar - STICKY top-0: Remains fixed and visible when scrolling */}
+      {/* 2. Main Navigation Bar - STICKY top-0: Fixed & fully visible without cut-off */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-sm select-none animate-fadeIn">
-        {/* Main Navigation Bar - NO overflow-hidden so rightmost items & dropdowns are 100% visible */}
-        <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-4 lg:px-5 xl:px-8 h-20 sm:h-22 flex items-center justify-between flex-nowrap whitespace-nowrap gap-2 lg:gap-3 xl:gap-4 relative">
-        {/* Brand Lockup: BM Logo (Enlarged & Prominent) + Balumuni (Yellow) and (Black) Associates (Yellow) */}
-        <Link
-          to="/"
-          className="flex items-center gap-2.5 sm:gap-3 group shrink-0 flex-nowrap whitespace-nowrap"
-        >
-          <div className="h-13 w-13 sm:h-16 sm:w-16 rounded-2xl bg-white border border-slate-200/90 p-1 flex items-center justify-center shadow-xs group-hover:border-primary/40 group-hover:shadow-md transition-all shrink-0">
-            <img
-              src={settings?.logo || '/bm-logo.png'}
-              alt={settings?.siteName || 'Balumuni and Associates Logo'}
-              className="w-full h-full object-contain drop-shadow-2xs"
-              onError={(e) => {
-                e.target.src = '/bm-logo.png';
-              }}
-            />
-          </div>
-          <span className="text-base sm:text-lg lg:text-xl xl:text-2xl font-black tracking-tight whitespace-nowrap shrink-0 transition-colors drop-shadow-xs flex items-center gap-1 sm:gap-1.5">
-            <span className="text-amber-500 font-black">Balumuni</span>
-            <span className="text-slate-950 font-black">and</span>
-            <span className="text-amber-500 font-black">Associates</span>
-          </span>
-        </Link>
-
-        {/* Center Navigation Links: Clean Single Line, Non-Wrapping */}
-        <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 2xl:gap-2 flex-nowrap whitespace-nowrap shrink-0">
-          {/* 1. Home */}
-          <NavLink to="/" className={navLinkClass}>
-            <span>{t('nav_home') || 'Home'}</span>
-          </NavLink>
-
-          {/* 2. About Us - immediately after Home */}
-          <NavLink to="/about" className={navLinkClass}>
-            <span>{t('nav_about') || 'About Us'}</span>
-          </NavLink>
-
-          {/* 3. Products Catalog with Clickable & Hoverable Dropdown */}
-          <div
-            ref={categoryDropdownRef}
-            className="relative shrink-0 whitespace-nowrap"
-            onMouseEnter={() => setIsCategoryDropdownOpen(true)}
-            onMouseLeave={() => setIsCategoryDropdownOpen(false)}
+        {/* Main Navigation Bar - Balanced layout fitting all viewports including laptop screens */}
+        <div className="w-full max-w-[1536px] mx-auto px-2.5 sm:px-4 lg:px-4 xl:px-6 2xl:px-8 h-16 lg:h-[72px] xl:h-20 flex items-center justify-between flex-nowrap whitespace-nowrap gap-2 lg:gap-2.5 xl:gap-4 relative">
+          {/* Brand Lockup: BM Logo (Proportionate on Mobile & Desktop) + Balumuni and Associates */}
+          <Link
+            to="/"
+            className="flex items-center gap-1.5 sm:gap-2.5 group shrink-0 flex-nowrap whitespace-nowrap"
           >
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsCategoryDropdownOpen((prev) => !prev);
-              }}
-              className={`px-2 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-xs xl:text-[13px] 2xl:text-sm font-semibold transition-all inline-flex items-center gap-1 flex-nowrap whitespace-nowrap shrink-0 cursor-pointer ${
-                isCategoryDropdownOpen
-                  ? 'bg-blue-50 text-primary font-bold shadow-2xs'
-                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80'
-              }`}
-              aria-expanded={isCategoryDropdownOpen}
-              aria-haspopup="true"
-            >
-              <span>{t('nav_products') || 'Products'}</span>
-              <ChevronDown
-                className={`w-3.5 h-3.5 transition-transform duration-200 shrink-0 ${
-                  isCategoryDropdownOpen ? 'rotate-180 text-primary' : 'text-slate-400'
-                }`}
+            <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-10 lg:h-10 xl:w-11 xl:h-11 rounded-xl bg-white border border-slate-200/90 p-0.5 sm:p-1 flex items-center justify-center shadow-xs group-hover:border-primary/40 group-hover:shadow-md transition-all shrink-0">
+              <img
+                src={settings?.logo || '/bm-logo.png'}
+                alt={settings?.siteName || 'Balumuni and Associates Logo'}
+                className="w-full h-full object-contain drop-shadow-2xs"
+                onError={(e) => {
+                  e.target.src = '/bm-logo.png';
+                }}
               />
-            </button>
+            </div>
+            <span className="text-xs sm:text-sm md:text-base lg:text-[14px] xl:text-[17px] 2xl:text-xl font-black tracking-tight whitespace-nowrap shrink-0 transition-colors drop-shadow-xs flex items-center gap-1 sm:gap-1.5">
+              <span className="text-amber-500 font-black">Balumuni</span>
+              <span className="text-slate-950 font-black">and</span>
+              <span className="text-amber-500 font-black">Associates</span>
+            </span>
+          </Link>
 
-            {/* Dropdown Menu - Floating with high z-index & smooth shadow */}
-            {isCategoryDropdownOpen && (
-              <div
-                className="absolute top-full left-0 mt-1.5 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-fadeIn whitespace-normal"
-                onClick={(e) => e.stopPropagation()}
+          {/* Center Navigation Links: Clean Single Line, Non-Wrapping, Optimized for Laptops */}
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 2xl:gap-2 flex-nowrap whitespace-nowrap shrink-0">
+            {/* 1. Home */}
+            <NavLink to="/" className={navLinkClass}>
+              <span>{t('nav_home') || 'Home'}</span>
+            </NavLink>
+
+            {/* 2. About Us */}
+            <NavLink to="/about" className={navLinkClass}>
+              <span>{t('nav_about') || 'About Us'}</span>
+            </NavLink>
+
+            {/* 3. Products Catalog with Clickable & Hoverable Dropdown */}
+            <div
+              ref={categoryDropdownRef}
+              className="relative shrink-0 whitespace-nowrap"
+              onMouseEnter={() => setIsCategoryDropdownOpen(true)}
+              onMouseLeave={() => setIsCategoryDropdownOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsCategoryDropdownOpen((prev) => !prev);
+                }}
+                className={`px-1.5 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-xs xl:text-[13px] 2xl:text-sm font-semibold transition-all inline-flex items-center gap-1 flex-nowrap whitespace-nowrap shrink-0 cursor-pointer ${
+                  isCategoryDropdownOpen
+                    ? 'bg-blue-50 text-primary font-bold shadow-2xs'
+                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80'
+                }`}
+                aria-expanded={isCategoryDropdownOpen}
+                aria-haspopup="true"
               >
-                <Link
-                  to="/services"
-                  onClick={() => setIsCategoryDropdownOpen(false)}
-                  className="flex items-center justify-between px-3.5 py-2.5 text-xs font-bold text-primary hover:bg-blue-50/80 rounded-xl transition-colors"
+                <span>{t('nav_products') || 'Products'}</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 shrink-0 ${
+                    isCategoryDropdownOpen ? 'rotate-180 text-primary' : 'text-slate-400'
+                  }`}
+                />
+              </button>
+
+              {/* Dropdown Menu - Floating with high z-index & smooth shadow */}
+              {isCategoryDropdownOpen && (
+                <div
+                  className="absolute top-full left-0 mt-1.5 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-fadeIn whitespace-normal"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <span>Explore Complete Catalog</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-                <div className="h-px bg-slate-100 my-1" />
-                <div className="max-h-64 overflow-y-auto space-y-0.5">
-                  {(categories || []).length > 0 ? (
-                    categories.map((cat) => (
-                      <Link
-                        key={cat._id}
-                        to={`/services?category=${cat._id}`}
-                        onClick={() => setIsCategoryDropdownOpen(false)}
-                        className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-slate-700 hover:text-primary hover:bg-slate-50 rounded-xl transition-colors"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                        <span className="truncate">{cat.name}</span>
-                      </Link>
-                    ))
-                  ) : (
-                    <>
-                      <Link
-                        to="/services?search=Bearing"
-                        onClick={() => setIsCategoryDropdownOpen(false)}
-                        className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-slate-700 hover:text-primary hover:bg-slate-50 rounded-xl"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                        <span>Bearings</span>
-                      </Link>
-                      <Link
-                        to="/services?search=Belt"
-                        onClick={() => setIsCategoryDropdownOpen(false)}
-                        className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-slate-700 hover:text-primary hover:bg-slate-50 rounded-xl"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                        <span>Belts &amp; Transmission</span>
-                      </Link>
-                      <Link
-                        to="/services?search=Motor"
-                        onClick={() => setIsCategoryDropdownOpen(false)}
-                        className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-slate-700 hover:text-primary hover:bg-slate-50 rounded-xl"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                        <span>Electric Motors</span>
-                      </Link>
-                      <Link
-                        to="/services?search=Gear"
-                        onClick={() => setIsCategoryDropdownOpen(false)}
-                        className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-slate-700 hover:text-primary hover:bg-slate-50 rounded-xl"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                        <span>Gears &amp; Drives</span>
-                      </Link>
-                    </>
-                  )}
+                  <Link
+                    to="/services"
+                    onClick={() => setIsCategoryDropdownOpen(false)}
+                    className="flex items-center justify-between px-3.5 py-2.5 text-xs font-bold text-primary hover:bg-blue-50/80 rounded-xl transition-colors"
+                  >
+                    <span>Explore Complete Catalog</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                  <div className="h-px bg-slate-100 my-1" />
+                  <div className="max-h-64 overflow-y-auto space-y-0.5">
+                    {(categories || []).length > 0 ? (
+                      categories.map((cat) => (
+                        <Link
+                          key={cat._id}
+                          to={`/services?category=${cat._id}`}
+                          onClick={() => setIsCategoryDropdownOpen(false)}
+                          className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-slate-700 hover:text-primary hover:bg-slate-50 rounded-xl transition-colors"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          <span className="truncate">{cat.name}</span>
+                        </Link>
+                      ))
+                    ) : (
+                      <>
+                        <Link
+                          to="/services?search=Bearing"
+                          onClick={() => setIsCategoryDropdownOpen(false)}
+                          className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-slate-700 hover:text-primary hover:bg-slate-50 rounded-xl"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          <span>Bearings</span>
+                        </Link>
+                        <Link
+                          to="/services?search=Belt"
+                          onClick={() => setIsCategoryDropdownOpen(false)}
+                          className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-slate-700 hover:text-primary hover:bg-slate-50 rounded-xl"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          <span>Belts &amp; Transmission</span>
+                        </Link>
+                        <Link
+                          to="/services?search=Motor"
+                          onClick={() => setIsCategoryDropdownOpen(false)}
+                          className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-slate-700 hover:text-primary hover:bg-slate-50 rounded-xl"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          <span>Electric Motors</span>
+                        </Link>
+                        <Link
+                          to="/services?search=Gear"
+                          onClick={() => setIsCategoryDropdownOpen(false)}
+                          className="flex items-center gap-2.5 w-full px-3.5 py-2 text-xs font-medium text-slate-700 hover:text-primary hover:bg-slate-50 rounded-xl"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          <span>Gears &amp; Drives</span>
+                        </Link>
+                      </>
+                    )}
+                  </div>
                 </div>
+              )}
+            </div>
+
+            {/* 4. Travel Booking Desk (Train & Flight) */}
+            <NavLink to="/ticket-booking" className={navLinkClass}>
+              <TrainFront className="h-3.5 w-3.5 text-emerald-600 hidden 2xl:inline-block shrink-0" />
+              <span className="hidden xl:inline">Travel Desk</span>
+              <span className="xl:hidden">Travel</span>
+            </NavLink>
+
+            {/* 5. Labour Insurance Section */}
+            <NavLink to="/labour-insurance" className={navLinkClass}>
+              <HardHat className="h-3.5 w-3.5 text-amber-500 hidden 2xl:inline-block shrink-0" />
+              <span className="hidden xl:inline">Labour Insurance</span>
+              <span className="xl:hidden">Insurance</span>
+            </NavLink>
+
+            {/* 6. MRP Discounts */}
+            <NavLink to="/mrp-pricing" className={navLinkClass}>
+              <span className="hidden xl:inline">{t('nav_mrp_discounts') || 'MRP Discounts'}</span>
+              <span className="xl:hidden">Discounts</span>
+            </NavLink>
+
+            {/* 7. Contact */}
+            <NavLink to="/contact" className={navLinkClass}>
+              <span>{t('nav_contact') || 'Contact'}</span>
+            </NavLink>
+          </nav>
+
+          {/* Desktop Right Action Cluster - Always 100% visible, non-clipping across all laptop & desktop screens */}
+          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2.5 shrink-0 flex-nowrap whitespace-nowrap">
+            <Link to="/rfq" className="hidden 2xl:inline-flex shrink-0 whitespace-nowrap">
+              <Button
+                variant="primary"
+                size="sm"
+                className="font-bold text-xs shadow-xs inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark whitespace-nowrap shrink-0 px-3 py-1.5"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 shrink-0" />
+                <span>{t('nav_quick_quote') || 'Quick RFQ'}</span>
+              </Button>
+            </Link>
+
+            {isAuthenticated ? (
+              <div ref={userDropdownRef} className="relative shrink-0 whitespace-nowrap">
+                <button
+                  type="button"
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                  className="inline-flex items-center gap-2 p-1 pl-2.5 rounded-full border border-slate-200 hover:border-slate-300 transition-colors bg-slate-50 hover:bg-white whitespace-nowrap cursor-pointer"
+                >
+                  <span className="text-xs font-bold text-slate-800 max-w-[90px] xl:max-w-[120px] truncate whitespace-nowrap">
+                    {user.name}
+                  </span>
+                  <img
+                    src={
+                      user.avatar ||
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'
+                    }
+                    alt={user.name}
+                    className="w-7 h-7 rounded-full object-cover border border-primary/20 shrink-0"
+                  />
+                </button>
+
+                {isUserDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-fadeIn whitespace-normal">
+                    <div className="px-3 py-2 border-b border-slate-100">
+                      <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
+                      <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
+                      <span className="inline-block mt-1 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        {user.pricingTier === 'new_user' ? 'Wholesale Tier' : 'B2B Client'}
+                      </span>
+                    </div>
+
+                    <div className="py-1 space-y-0.5">
+                      <Link
+                        to="/customer"
+                        onClick={() => setIsUserDropdownOpen(false)}
+                        className="inline-flex items-center gap-2 w-full px-3 py-2 text-xs font-semibold text-slate-800 hover:text-primary hover:bg-slate-50 rounded-xl transition-colors"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-primary" />
+                        <span>{t('nav_dashboard') || 'Dashboard'}</span>
+                      </Link>
+
+                      <Link
+                        to="/customer/bookings"
+                        onClick={() => setIsUserDropdownOpen(false)}
+                        className="inline-flex items-center gap-2 w-full px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-xl transition-colors"
+                      >
+                        <Calendar className="w-4 h-4 text-slate-400" />
+                        <span>{t('nav_my_orders') || 'Orders & Invoices'}</span>
+                      </Link>
+
+                      <Link
+                        to="/customer/ticket-bookings"
+                        onClick={() => setIsUserDropdownOpen(false)}
+                        className="inline-flex items-center gap-2 w-full px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-xl transition-colors"
+                      >
+                        <Ticket className="w-4 h-4 text-slate-400" />
+                        <span>My Ticket Bookings</span>
+                      </Link>
+
+                      <Link
+                        to="/customer/profile"
+                        onClick={() => setIsUserDropdownOpen(false)}
+                        className="inline-flex items-center gap-2 w-full px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-xl transition-colors"
+                      >
+                        <User className="w-4 h-4 text-slate-400" />
+                        <span>{t('nav_profile') || 'Company Profile'}</span>
+                      </Link>
+
+                      {isAdmin && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setIsUserDropdownOpen(false)}
+                          className="inline-flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 rounded-xl transition-colors"
+                        >
+                          <ShieldAlert className="w-4 h-4 text-primary" />
+                          <span>{t('nav_admin') || 'Admin Console'}</span>
+                        </Link>
+                      )}
+                    </div>
+
+                    <div className="h-px bg-slate-100 my-1" />
+
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="w-full inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>{t('nav_logout') || 'Sign Out'}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 xl:gap-2 shrink-0 whitespace-nowrap">
+                <Link to="/login" className="shrink-0 whitespace-nowrap">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl text-xs xl:text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-400 shadow-xs transition-all cursor-pointer"
+                    title="Sign In to Account"
+                  >
+                    <User className="w-3.5 h-3.5 text-slate-950 shrink-0" />
+                    <span>{t('nav_login') || 'Login'}</span>
+                  </button>
+                </Link>
+                <Link to="/register" className="shrink-0 whitespace-nowrap inline-flex">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs font-bold border-slate-300 text-slate-800 hover:bg-slate-50 whitespace-nowrap px-2.5 xl:px-3 py-1.5 rounded-xl shadow-2xs"
+                  >
+                    <span>{t('nav_signup') || t('nav_register') || 'Sign Up'}</span>
+                  </Button>
+                </Link>
               </div>
             )}
           </div>
 
-          {/* 4. Travel Booking Desk (Train & Flight) */}
-          <NavLink to="/ticket-booking" className={navLinkClass}>
-            <TrainFront className="h-3.5 w-3.5 text-emerald-600 hidden xl:inline-block shrink-0" />
-            <span>Travel Desk</span>
-          </NavLink>
-
-          {/* 5. Labour Insurance Section */}
-          <NavLink to="/labour-insurance" className={navLinkClass}>
-            <HardHat className="h-3.5 w-3.5 text-amber-500 hidden xl:inline-block shrink-0" />
-            <span>Labour Insurance</span>
-          </NavLink>
-
-          {/* 6. MRP Discounts */}
-          <NavLink to="/mrp-pricing" className={navLinkClass}>
-            <span>{t('nav_mrp_discounts') || 'MRP Discounts'}</span>
-          </NavLink>
-
-          {/* 7. Contact */}
-          <NavLink to="/contact" className={navLinkClass}>
-            <span>{t('nav_contact') || 'Contact'}</span>
-          </NavLink>
-        </nav>
-
-        {/* Right Action Cluster - Always fully visible, non-clipping */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-nowrap whitespace-nowrap">
-          <Link to="/rfq" className="hidden 2xl:inline-flex shrink-0 whitespace-nowrap">
-            <Button
-              variant="primary"
-              size="sm"
-              className="font-bold text-xs shadow-xs inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark whitespace-nowrap shrink-0 px-3 py-1.5"
-            >
-              <FileSpreadsheet className="w-3.5 h-3.5 shrink-0" />
-              <span>{t('nav_quick_quote') || 'Quick RFQ'}</span>
-            </Button>
-          </Link>
-
-          {isAuthenticated ? (
-            <div ref={userDropdownRef} className="relative shrink-0 whitespace-nowrap">
-              <button
-                type="button"
-                onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                className="inline-flex items-center gap-2 p-1 pl-2.5 rounded-full border border-slate-200 hover:border-slate-300 transition-colors bg-slate-50 hover:bg-white whitespace-nowrap cursor-pointer"
+          {/* Mobile Actions: Compact Login / Avatar + Hamburger Toggle */}
+          <div className="flex lg:hidden items-center gap-1.5 shrink-0">
+            {isAuthenticated ? (
+              <Link
+                to="/customer"
+                className="p-0.5 rounded-full border border-slate-200 bg-slate-50 shrink-0 flex items-center justify-center"
+                title="My Dashboard"
               >
-                <span className="text-xs font-bold text-slate-800 max-w-[100px] truncate whitespace-nowrap">
-                  {user.name}
-                </span>
                 <img
                   src={
                     user.avatar ||
                     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'
                   }
                   alt={user.name}
-                  className="w-7 h-7 rounded-full object-cover border border-primary/20 shrink-0"
+                  className="w-7 h-7 rounded-full object-cover"
                 />
-              </button>
-
-              {isUserDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-fadeIn whitespace-normal">
-                  <div className="px-3 py-2 border-b border-slate-100">
-                    <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
-                    <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
-                    <span className="inline-block mt-1 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
-                      {user.pricingTier === 'new_user' ? 'Wholesale Tier' : 'B2B Client'}
-                    </span>
-                  </div>
-
-                  <div className="py-1 space-y-0.5">
-                    <Link
-                      to="/customer"
-                      onClick={() => setIsUserDropdownOpen(false)}
-                      className="inline-flex items-center gap-2 w-full px-3 py-2 text-xs font-semibold text-slate-800 hover:text-primary hover:bg-slate-50 rounded-xl transition-colors"
-                    >
-                      <LayoutDashboard className="w-4 h-4 text-primary" />
-                      <span>{t('nav_dashboard') || 'Dashboard'}</span>
-                    </Link>
-
-                    <Link
-                      to="/customer/bookings"
-                      onClick={() => setIsUserDropdownOpen(false)}
-                      className="inline-flex items-center gap-2 w-full px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-xl transition-colors"
-                    >
-                      <Calendar className="w-4 h-4 text-slate-400" />
-                      <span>{t('nav_my_orders') || 'Orders & Invoices'}</span>
-                    </Link>
-
-                    <Link
-                      to="/customer/ticket-bookings"
-                      onClick={() => setIsUserDropdownOpen(false)}
-                      className="inline-flex items-center gap-2 w-full px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-xl transition-colors"
-                    >
-                      <Ticket className="w-4 h-4 text-slate-400" />
-                      <span>My Ticket Bookings</span>
-                    </Link>
-
-                    <Link
-                      to="/customer/profile"
-                      onClick={() => setIsUserDropdownOpen(false)}
-                      className="inline-flex items-center gap-2 w-full px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-xl transition-colors"
-                    >
-                      <User className="w-4 h-4 text-slate-400" />
-                      <span>{t('nav_profile') || 'Company Profile'}</span>
-                    </Link>
-
-                    {isAdmin && (
-                      <Link
-                        to="/admin"
-                        onClick={() => setIsUserDropdownOpen(false)}
-                        className="inline-flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 rounded-xl transition-colors"
-                      >
-                        <ShieldAlert className="w-4 h-4 text-primary" />
-                        <span>{t('nav_admin') || 'Admin Console'}</span>
-                      </Link>
-                    )}
-                  </div>
-
-                  <div className="h-px bg-slate-100 my-1" />
-
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="w-full inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>{t('nav_logout') || 'Sign Out'}</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 whitespace-nowrap">
+              </Link>
+            ) : (
               <Link to="/login" className="shrink-0 whitespace-nowrap">
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-400 shadow-xs transition-all cursor-pointer"
-                  title="Sign In to Account"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-400 shadow-xs cursor-pointer"
                 >
-                  <User className="w-3.5 h-3.5 text-slate-950 shrink-0" />
-                  <span>{t('nav_login') || 'Login'}</span>
+                  <User className="w-3 h-3 text-slate-950 shrink-0" />
+                  <span>Login</span>
                 </button>
               </Link>
-              <Link to="/register" className="shrink-0 whitespace-nowrap hidden sm:inline-flex">
-                <Button variant="outline" size="sm" className="text-xs font-bold border-slate-300 text-slate-800 hover:bg-slate-50 whitespace-nowrap px-2.5 sm:px-3 py-1.5">
-                  {t('nav_register') || 'Register'}
-                </Button>
-              </Link>
-            </div>
-          )}
+            )}
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-1.5 sm:p-2 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+              aria-label="Toggle navigation menu"
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+            </button>
+          </div>
         </div>
-
-        {/* Mobile Hamburger Toggle & Quick Login */}
-        <div className="flex lg:hidden items-center gap-1.5 shrink-0">
-          {!isAuthenticated && (
-            <Link to="/login" className="shrink-0 whitespace-nowrap">
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-400 shadow-xs cursor-pointer"
-              >
-                <User className="w-3 h-3 text-slate-950 shrink-0" />
-                <span>Login</span>
-              </button>
-            </Link>
-          )}
-          <button
-            type="button"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-            aria-label="Toggle navigation menu"
-          >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-      </div>
 
       {/* 3. Mobile Drawer */}
       {isMobileMenuOpen && (
@@ -634,7 +656,7 @@ export const Navbar = () => {
                 </Link>
                 <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
                   <Button variant="primary" className="w-full text-xs font-bold bg-primary hover:bg-primary-dark">
-                    {t('nav_register') || 'Register'}
+                    {t('nav_signup') || t('nav_register') || 'Sign Up'}
                   </Button>
                 </Link>
               </div>
