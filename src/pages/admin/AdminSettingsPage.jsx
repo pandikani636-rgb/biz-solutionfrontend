@@ -34,7 +34,7 @@ export const AdminSettingsPage = () => {
     tagLine: 'Industrial Power Transmission & Bearings Solutions Partner',
     logo: '/bm-logo.png',
     contactEmail: 'balumuniandassociates@gmail.com',
-    contactPhone: '+91-74184 23238 / +91 98426 70320',
+    contactPhone: '+91 74184 23238',
     address: '45B/16 Noorullah Mall, Oothumalai Paradesimadam Street, Srivilliputtur, Virudhunagar Dist, Tamilnadu - 626125',
     googleMapsLocation: '45B/16 Noorullah Mall, Oothumalai Paradesimadam Street, Srivilliputtur, Virudhunagar Dist, Tamilnadu - 626125',
     googleMapsEmbedUrl: '',

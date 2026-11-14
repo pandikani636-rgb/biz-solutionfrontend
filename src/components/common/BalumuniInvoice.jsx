@@ -118,7 +118,7 @@ export const BalumuniInvoice = ({ invoice, onPrint, onClose }) => {
           <div className="col-span-8 flex flex-col justify-between">
             {/* Top Maroon Mobile Bar */}
             <div className="bg-[#7D0038] text-white py-1.5 px-4 text-center font-bold text-xs sm:text-sm tracking-wide">
-              Mobile : 7418423238 / 9842670320
+              Mobile : +91 74184 23238
             </div>
 
             {/* Balumuni and Associates Title & Address */}

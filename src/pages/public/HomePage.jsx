@@ -279,72 +279,166 @@ export const HomePage = () => {
     fetchHomeData();
   }, []);
 
-  // All 6 Industrial Banners featuring images from Banner folder
-  const defaultBanners = [
+  // All 14 Authentic Industrial Banners directly mapped to images from bannerImages folder
+  const industrialBannerSlides = [
     {
-      title: "Grander's Belts & Power Transmission",
-      badgeText: "GRANDER'S BELTS & V-BELTS",
-      subtitle: 'High-tensile industrial Grander belts, angle grinder drive belts, and classical wedge belts. Oil, heat, and vibration resistant for heavy workshop and factory operations.',
-      image: '/banners/img2.png',
-      ctaText: "Browse Grander's Belts",
-      ctaLink: '/services?brand=PIX',
-      secondaryCtaText: 'Request Quotation',
-      secondaryCtaLink: '/rfq',
+      id: 'pix',
+      image: '/bannerImages/pix.jpg',
+      badgeText: 'PIX TRANSMISSIONS • INDUSTRIAL BELT SPECIALIST',
+      title: 'PIX Heavy Duty Wrapped & Narrow Wedge V-Belts',
+      subtitle: 'Comprehensive range of PIX Classical (A, B, C, D, E), Space-Saver Wedge (SPZ, SPA, SPB, SPC), and Molded Cogged belts. Oil, heat, and flame-retardant with maximum tensile cord endurance.',
+      ctaText: 'Explore PIX Belts',
+      ctaLink: '/services?search=PIX',
+      secondaryCtaText: 'Request Bulk RFQ',
+      secondaryCtaLink: '/rfq?brand=PIX',
     },
     {
-      title: 'Fenner B 36 Wet Grinder Belts',
-      badgeText: 'GENUINE FENNER GRINDER SERIES',
-      subtitle: 'Original Fenner B 36 precision wet grinder drive belts. Engineered for whisper-quiet vibration damping and maximum drive efficiency.',
-      image: '/banners/img5.jpg',
-      ctaText: 'Explore Fenner Belts',
-      ctaLink: '/services?brand=Fenner',
-      secondaryCtaText: 'View Discount Matrix',
+      id: 'jkFenner',
+      image: '/bannerImages/jkFenner.webp',
+      badgeText: 'JK FENNER • POWER TRANSMISSION & DRIVES',
+      title: 'JK Fenner Industrial Belts & Precision Pulleys',
+      subtitle: 'Official JK Fenner high-torque wrapped belts, raw-edge molded cogged belts, and taper-lock bush pulleys. Engineered for zero slip, whisper-quiet dampening, and heavy manufacturing uptime.',
+      ctaText: 'Explore JK Fenner',
+      ctaLink: '/services?search=Fenner',
+      secondaryCtaText: 'Wholesale Price List',
       secondaryCtaLink: '/mrp-pricing',
     },
     {
-      title: 'Fenner A 48 Wet Grinder Belts',
-      badgeText: 'INDUSTRIAL & COMMERCIAL DRIVES',
-      subtitle: 'Heavy-duty Fenner A 48 wet grinder and machine transmission belts. Oil-resistant and heat-stable for rigorous wet grinding environments.',
-      image: '/banners/img4.jpg',
-      ctaText: 'Explore Wet Grinder Belts',
-      ctaLink: '/services?brand=Fenner',
-      secondaryCtaText: 'Download Price List',
+      id: 'diamond',
+      image: '/bannerImages/diamondRollerChain.jpg',
+      badgeText: 'DIAMOND CHAINS • INDUSTRIAL TRANSMISSION',
+      title: 'Diamond Precision Roller Chains & Conveyor Sprockets',
+      subtitle: 'Original TII Diamond industrial roller chains manufactured to BS & ANSI standards. Shot-peened pins and bushings deliver exceptional wear resistance under continuous plant operating loads.',
+      ctaText: 'Browse Diamond Chains',
+      ctaLink: '/services?search=Diamond',
+      secondaryCtaText: 'Request Quotation',
+      secondaryCtaLink: '/rfq?brand=Diamond',
+    },
+    {
+      id: 'nbc',
+      image: '/bannerImages/nbcandTapper role.webp',
+      badgeText: 'NBC BEARINGS • TAPERED ROLLER & BALL BEARINGS',
+      title: 'NBC Deep Groove & Heavy Tapered Roller Bearings',
+      subtitle: 'National Engineering Industries (NBC) premium ball bearings, cylindrical rollers, and heavy tapered roller sets. Designed for heavy radial shock loads in cement, steel, and textile machinery.',
+      ctaText: 'Explore NBC Bearings',
+      ctaLink: '/services?search=NBC',
+      secondaryCtaText: 'View B2B Discounts',
       secondaryCtaLink: '/mrp-pricing',
     },
     {
-      title: 'Veegrip Grind Power Industrial V-Belts',
-      badgeText: 'IS 2494 HEAVY DUTY CERTIFIED',
-      subtitle: 'Veegrip Grind Power transmission belts engineered to IS 2494 standards. Exceptional tensile cord reinforcement and minimal elongation under load.',
-      image: '/banners/img3.jpg',
-      ctaText: 'Browse Grind Power Belts',
-      ctaLink: '/services?section=Belt',
-      secondaryCtaText: 'Custom RFQ',
-      secondaryCtaLink: '/rfq',
+      id: 'fag',
+      image: '/bannerImages/fagSperhical.jpg',
+      badgeText: 'FAG SCHAEFFLER • PRECISION SPHERICAL BEARINGS',
+      title: 'FAG Spherical Roller Bearings & Plummer Blocks',
+      subtitle: 'German-engineered FAG spherical roller bearings with symmetrical barrel rollers and brass cages. Built to accommodate heavy shaft deflection and continuous high-temperature manufacturing.',
+      ctaText: 'Explore FAG Lineup',
+      ctaLink: '/services?search=FAG',
+      secondaryCtaText: 'Download Catalog',
+      secondaryCtaLink: '/services',
     },
     {
-      title: 'Classical Industrial V-Belts — Section A & C',
-      badgeText: 'HIGH-TORQUE DRIVE SOLUTIONS',
-      subtitle: 'Complete range of industrial wrapped classical V-belts including A 951 Lp / A36A and C Section belts for industrial machinery and machine tools.',
-      image: '/banners/img1.jpg',
-      ctaText: 'Explore Classical Belts',
-      ctaLink: '/services?section=Belt',
-      secondaryCtaText: 'Technical Inquiry',
-      secondaryCtaLink: '/contact',
+      id: 'skf',
+      image: '/bannerImages/skf.jpg',
+      badgeText: 'SKF AUTHENTIC PROVENANCE • FLAT 10% OFF',
+      title: 'SKF Premium Industrial Bearings & Units',
+      subtitle: 'World-benchmark SKF deep groove ball bearings, angular contact bearings, and plummer block units. Direct supply with original laser markings, security holograms, and verified Mill Test Certificates.',
+      ctaText: 'Explore SKF Bearings',
+      ctaLink: '/services?search=SKF',
+      secondaryCtaText: 'Get Official Quote',
+      secondaryCtaLink: '/rfq?brand=SKF',
     },
     {
-      title: 'Veehold Domestic & Heavy Industrial Belts',
-      badgeText: 'DOMESTIC & HEAVY PLANT LINEUP',
-      subtitle: 'Veehold Domestic WG 341 and heavy-duty transmission belts for domestic machinery, mill drives, and workshop machinery.',
-      image: '/banners/img6.jpg',
-      ctaText: 'Browse Veehold Lineup',
-      ctaLink: '/services?section=Belt',
+      id: 'timken',
+      image: '/bannerImages/timken.jpg',
+      badgeText: 'TIMKEN USA • HEAVY DUTY TAPERED ROLLERS',
+      title: 'Timken High-Load Tapered Roller Bearings',
+      subtitle: 'Genuine Timken tapered roller bearings for stone crushers, rolling mills, mining equipment, and gearboxes. Maximum dynamic load ratings and extended operating life under extreme thrust.',
+      ctaText: 'Explore Timken',
+      ctaLink: '/services?search=Timken',
+      secondaryCtaText: 'Request B2B RFQ',
+      secondaryCtaLink: '/rfq?brand=Timken',
+    },
+    {
+      id: 'ntn',
+      image: '/bannerImages/NTN.jpg',
+      badgeText: 'NTN JAPAN • HIGH-SPEED PRECISION BEARINGS',
+      title: 'NTN Premium Ball, Roller & Flange Bearing Units',
+      subtitle: 'Ultra-precision NTN deep groove ball bearings, needle roller bearings, and pillow block units. Engineered with micro-finished raceways for whisper-quiet high-RPM performance.',
+      ctaText: 'Explore NTN Bearings',
+      ctaLink: '/services?search=NTN',
+      secondaryCtaText: 'Check Price List',
+      secondaryCtaLink: '/mrp-pricing',
+    },
+    {
+      id: 'siemens',
+      image: '/bannerImages/siemens.jpg',
+      badgeText: 'SIEMENS • IE2 / IE3 ENERGY EFFICIENT MOTORS',
+      title: 'Siemens 3-Phase Industrial Induction Motors',
+      subtitle: 'Siemens premium energy-efficient electric motors conforming to IS/IEC standards. Rugged cast-iron construction, high starting torque, and continuous duty reliability for factory automation.',
+      ctaText: 'Explore Siemens Motors',
+      ctaLink: '/services?search=Siemens',
+      secondaryCtaText: 'Request Motor RFQ',
+      secondaryCtaLink: '/rfq?brand=Siemens',
+    },
+    {
+      id: 'crompton',
+      image: '/bannerImages/crompton.jpg',
+      badgeText: 'CROMPTON GREAVES • INDUSTRIAL ELECTRIC MOTORS',
+      title: 'Crompton Greaves Foot & Flange Mounted Motors',
+      subtitle: 'Crompton Greaves high-efficiency 3-phase induction motors, crane-duty drives, and flameproof motors. Superior copper windings and thermal protection for challenging plant conditions.',
+      ctaText: 'Explore Crompton',
+      ctaLink: '/services?search=Crompton',
+      secondaryCtaText: 'Bulk Enquiry',
+      secondaryCtaLink: '/rfq?brand=Crompton',
+    },
+    {
+      id: 'abb',
+      image: '/bannerImages/ABB.jpg',
+      badgeText: 'ABB DRIVES • HIGH EFFICIENCY ELECTRIC MOTORS',
+      title: 'ABB Process Performance & General Machinery Motors',
+      subtitle: 'High reliability ABB low-voltage induction motors with IP55 ingress protection. Designed for exceptional energy savings, low vibration, and extended maintenance-free operation.',
+      ctaText: 'Explore ABB Motors',
+      ctaLink: '/services?search=ABB',
       secondaryCtaText: 'Request Quotation',
+      secondaryCtaLink: '/rfq?brand=ABB',
+    },
+    {
+      id: 'bharatBijlee',
+      image: '/bannerImages/bharath Bijili.jpg',
+      badgeText: 'BHARAT BIJLEE • TRUSTED POWER TRANSMISSION',
+      title: 'Bharat Bijlee Robust Industrial Electric Motors',
+      subtitle: 'Bharat Bijlee heavy industrial 3-phase motors and synchro-drives. Heavy cast-iron frames, dual insulation, and precision-balanced rotors for heavy textile, steel, and paper plant machinery.',
+      ctaText: 'View Bharat Bijlee',
+      ctaLink: '/services?search=Bharat+Bijlee',
+      secondaryCtaText: 'Get B2B Quote',
       secondaryCtaLink: '/rfq',
+    },
+    {
+      id: 'shanthiGears',
+      image: '/bannerImages/santhiGears.jpg',
+      badgeText: 'SHANTHI GEARS (TII GROUP) • HEAVY SPEED REDUCERS',
+      title: 'Shanthi Gears Helical, Bevel & Worm Reduction Gearboxes',
+      subtitle: 'Precision case-carburized and ground helical and worm speed reducers from Shanthi Gears. Engineered for continuous high-torque speed reduction in heavy industrial drives.',
+      ctaText: 'Explore Shanthi Gears',
+      ctaLink: '/services?search=Shanthi',
+      secondaryCtaText: 'Custom Gearbox RFQ',
+      secondaryCtaLink: '/rfq?brand=Shanthi',
+    },
+    {
+      id: 'vigneshGears',
+      image: '/bannerImages/vignesh Gears.jpg',
+      badgeText: 'VIGNESH GEARS • PRECISION INDUSTRIAL TRANSMISSION',
+      title: 'Vignesh Gears Custom Spur, Helical & Bevel Gears',
+      subtitle: 'Custom precision-cut spur gears, helical drive gears, internal ring gears, and planetary pinions manufactured to exact mill tolerances for heavy machinery drives.',
+      ctaText: 'Explore Vignesh Gears',
+      ctaLink: '/services?search=Vignesh',
+      secondaryCtaText: 'Submit Gear Specs',
+      secondaryCtaLink: '/rfq?brand=Vignesh',
     },
   ];
 
-  const activeBannersList = banners.length >= 5 ? banners : defaultBanners;
-  const currentBanner = activeBannersList[activeBannerIdx % activeBannersList.length] || defaultBanners[0];
+  const activeBannersList = industrialBannerSlides;
+  const currentBanner = activeBannersList[activeBannerIdx % activeBannersList.length] || industrialBannerSlides[0];
 
   // Banner autoplay
   useEffect(() => {
@@ -388,7 +482,7 @@ export const HomePage = () => {
           alt="Landing Background"
           className="w-full h-full object-cover object-center opacity-30 scale-100 transition-all duration-1000 ease-out"
           onError={(e) => {
-            e.target.src = '/banners/img5.jpg';
+            e.target.src = '/bannerImages/pix.jpg';
           }}
         />
         {/* Very light blue transparent overlay across entire page */}
@@ -410,10 +504,10 @@ export const HomePage = () => {
           <img
             key={currentBanner.image}
             src={currentBanner.image}
-            alt={currentBanner.badgeText || 'Hero Banner'}
+            alt={currentBanner.title || currentBanner.badgeText || 'Hero Banner'}
             className="w-full h-full object-cover object-center opacity-95 scale-100 transition-all duration-1000 ease-out"
             onError={(e) => {
-              e.target.src = '/banners/img5.jpg';
+              e.target.src = '/bannerImages/pix.jpg';
             }}
           />
           {/* Very light blue transparent overlay (significantly reduced opacity for maximum image visibility) */}
@@ -442,19 +536,24 @@ export const HomePage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left: Dynamic Category-Based Card synced with Image Slider */}
-            <div key={activeBannerIdx} className="lg:col-span-6 space-y-5 animate-fadeIn transition-all duration-500">
+            <div key={activeBannerIdx} className="lg:col-span-6 space-y-4 sm:space-y-5 animate-fadeIn transition-all duration-500">
               {/* Badge */}
               {currentBanner.badgeText && (
                 <div className="animate-fadeIn">
-                  <span className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-blue-950/70 border border-blue-400/40 text-amber-300 font-black text-xs uppercase tracking-wider backdrop-blur-md shadow-xl">
+                  <span className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-blue-950/80 border border-blue-400/40 text-amber-300 font-black text-xs uppercase tracking-wider backdrop-blur-md shadow-xl">
                     <Sparkles className="w-3.5 h-3.5 text-accent animate-pulse" />
                     {currentBanner.badgeText}
                   </span>
                 </div>
               )}
 
+              {/* Title Directly Linked to Displayed Image */}
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight drop-shadow-md">
+                {currentBanner.title}
+              </h1>
+
               {/* Subtitle / Description Card */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-blue-900/60 backdrop-blur-md border border-white/20 shadow-2xl max-w-xl animate-fadeIn">
+              <div className="p-4 sm:p-5 rounded-2xl bg-blue-900/70 backdrop-blur-md border border-white/20 shadow-2xl max-w-xl animate-fadeIn">
                 <p className="text-white text-xs sm:text-base leading-relaxed font-semibold drop-shadow-sm">
                   {currentBanner.subtitle}
                 </p>
@@ -469,27 +568,32 @@ export const HomePage = () => {
                   </Button>
                 </Link>
                 <Link to={currentBanner.secondaryCtaLink || '/rfq'} className="w-full sm:w-auto">
-                  <Button variant="secondary" size="lg" className="w-full bg-blue-950/60 text-white hover:bg-blue-950/90 border border-white/25 backdrop-blur-md font-bold inline-flex items-center justify-center gap-2 hover:scale-[1.02] transition-smooth group shadow-lg">
+                  <Button variant="secondary" size="lg" className="w-full bg-blue-950/70 text-white hover:bg-blue-950/90 border border-white/25 backdrop-blur-md font-bold inline-flex items-center justify-center gap-2 hover:scale-[1.02] transition-smooth group shadow-lg">
                     <FileSpreadsheet className="w-4 h-4 text-accent group-hover:rotate-6 transition-smooth" />
                     <span>{currentBanner.secondaryCtaText || 'Request Quotation'}</span>
                   </Button>
                 </Link>
               </div>
 
-              {/* Banner navigation indicator dots */}
-              <div className="flex items-center gap-2 pt-2">
-                {activeBannersList.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveBannerIdx(idx)}
-                    className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${
-                      idx === (activeBannerIdx % activeBannersList.length)
-                        ? 'w-7 sm:w-9 bg-accent shadow-md'
-                        : 'w-2 sm:w-2.5 bg-white/40 hover:bg-white/70'
-                    }`}
-                    aria-label={`Go to slide ${idx + 1}`}
-                  />
-                ))}
+              {/* Banner navigation indicator dots & slide counter */}
+              <div className="flex flex-wrap items-center gap-2.5 pt-2">
+                <span className="text-xs font-black text-amber-300 bg-blue-950/80 px-2.5 py-0.5 rounded-full border border-blue-400/30 shrink-0">
+                  Slide {((activeBannerIdx % activeBannersList.length) + 1).toString().padStart(2, '0')} / {activeBannersList.length}
+                </span>
+                <div className="flex items-center gap-1.5 overflow-x-auto max-w-xs scrollbar-none py-1">
+                  {activeBannersList.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveBannerIdx(idx)}
+                      className={`h-2 rounded-full transition-all duration-300 shrink-0 ${
+                        idx === (activeBannerIdx % activeBannersList.length)
+                          ? 'w-6 bg-accent shadow-md'
+                          : 'w-2 bg-white/40 hover:bg-white/70'
+                      }`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
 

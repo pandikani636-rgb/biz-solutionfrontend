@@ -57,10 +57,10 @@ export const Navbar = () => {
   };
 
   const navLinkClass = ({ isActive }) =>
-    `px-1.5 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-xs xl:text-[13px] 2xl:text-sm font-semibold transition-all inline-flex items-center gap-1 flex-nowrap whitespace-nowrap shrink-0 ${
+    `px-2 xl:px-3 2xl:px-3.5 py-2 rounded-xl text-sm xl:text-[15px] 2xl:text-base font-extrabold tracking-tight transition-all inline-flex items-center gap-1.5 flex-nowrap whitespace-nowrap shrink-0 ${
       isActive
-        ? 'text-primary bg-blue-50 font-bold shadow-2xs'
-        : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80'
+        ? 'text-primary bg-blue-50/90 font-black shadow-xs ring-1 ring-primary/20'
+        : 'text-slate-900 hover:text-primary hover:bg-slate-100/90'
     }`;
 
   // Keep navbar completely hidden until the preloader finishes
@@ -70,31 +70,31 @@ export const Navbar = () => {
 
   return (
     <>
-      {/* 1. Top Utility Info Bar (Desktop) - Clean Professional Lighter Blue Theme */}
-      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 text-blue-100 text-xs hidden md:block border-b border-blue-500/40 select-none animate-fadeIn">
+      {/* 1. Top Utility Info Bar (Desktop) - High Contrast & Crisp Typography */}
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 text-white text-xs sm:text-[13px] hidden md:block border-b border-blue-500/40 select-none animate-fadeIn font-bold">
         <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-5 lg:px-6 xl:px-8 py-2 flex items-center justify-between flex-nowrap whitespace-nowrap gap-4">
           {/* Left: Hotline & Email */}
           <div className="flex items-center gap-4 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="text-blue-100 font-medium whitespace-nowrap">
+            <span className="text-white font-extrabold tracking-tight whitespace-nowrap">
               Industrial Power Transmission &amp; Bearings
             </span>
 
-            <span className="text-blue-400/50">|</span>
+            <span className="text-blue-300">|</span>
 
             <a
               href="tel:+917418423238"
-              className="inline-flex items-center gap-1.5 hover:text-white transition-colors whitespace-nowrap"
-              title="Direct Sales Hotline"
+              className="inline-flex items-center gap-1.5 text-amber-300 hover:text-yellow-200 font-black transition-colors whitespace-nowrap drop-shadow-xs"
+              title="Official Sales Hotline"
             >
-              <Phone className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-              <span>+91-74184 23238</span>
+              <Phone className="w-4 h-4 text-amber-300 shrink-0" />
+              <span>+91 74184 23238</span>
             </a>
 
-            <span className="text-blue-400/50">|</span>
+            <span className="text-blue-300">|</span>
 
             <a
               href="mailto:balumuniandassociates@gmail.com"
-              className="inline-flex items-center gap-1.5 hover:text-white transition-colors whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 text-blue-50 hover:text-white transition-colors whitespace-nowrap font-bold"
               title="Official Business Email"
             >
               <Mail className="w-3.5 h-3.5 text-amber-300 shrink-0" />
@@ -104,20 +104,17 @@ export const Navbar = () => {
 
           {/* Right Info: GSTIN, MTC, Admin */}
           <div className="flex items-center gap-4 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="text-blue-100 whitespace-nowrap">
-              GSTIN: <span className="font-mono font-bold text-white">33HONPK5547G2ZK</span>
+            <span className="text-white font-bold whitespace-nowrap">
+              GSTIN: <span className="font-mono font-black text-amber-300">33HONPK5547G2ZK</span>
             </span>
 
-            <span className="text-blue-400/50">|</span>
-
-           
+            <span className="text-blue-300">|</span>
 
             {isAdmin && (
               <>
-                <span className="text-blue-400/50">|</span>
                 <Link
                   to="/admin"
-                  className="text-amber-300 hover:text-amber-200 font-bold inline-flex items-center gap-1 transition-colors whitespace-nowrap"
+                  className="text-amber-300 hover:text-yellow-200 font-black inline-flex items-center gap-1 transition-colors whitespace-nowrap"
                 >
                   <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
                   <span>Admin Console</span>
@@ -149,7 +146,7 @@ export const Navbar = () => {
                 }}
               />
             </div>
-            <span className="text-xs sm:text-sm md:text-base lg:text-[14px] xl:text-[17px] 2xl:text-xl font-black tracking-tight whitespace-nowrap shrink-0 transition-colors drop-shadow-xs flex items-center text-yellow-400 drop-shadow-[0_1px_1px_rgba(0,0,0,0.4)]">
+            <span className="text-sm sm:text-base md:text-lg lg:text-[16px] xl:text-[19px] 2xl:text-2xl font-black tracking-tight whitespace-nowrap shrink-0 transition-colors flex items-center text-yellow-400 drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.6)]">
               Balumuni and Associates
             </span>
           </Link>
@@ -180,10 +177,10 @@ export const Navbar = () => {
                   e.stopPropagation();
                   setIsCategoryDropdownOpen((prev) => !prev);
                 }}
-                className={`px-1.5 xl:px-2.5 2xl:px-3 py-1.5 rounded-lg text-xs xl:text-[13px] 2xl:text-sm font-semibold transition-all inline-flex items-center gap-1 flex-nowrap whitespace-nowrap shrink-0 cursor-pointer ${
+                className={`px-2 xl:px-3 2xl:px-3.5 py-2 rounded-xl text-sm xl:text-[15px] 2xl:text-base font-extrabold tracking-tight transition-all inline-flex items-center gap-1.5 flex-nowrap whitespace-nowrap shrink-0 cursor-pointer ${
                   isCategoryDropdownOpen
-                    ? 'bg-blue-50 text-primary font-bold shadow-2xs'
-                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80'
+                    ? 'bg-blue-50/90 text-primary font-black shadow-xs ring-1 ring-primary/20'
+                    : 'text-slate-900 hover:text-primary hover:bg-slate-100/90'
                 }`}
                 aria-expanded={isCategoryDropdownOpen}
                 aria-haspopup="true"

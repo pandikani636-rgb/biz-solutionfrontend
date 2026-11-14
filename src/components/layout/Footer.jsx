@@ -92,7 +92,7 @@ export const Footer = () => {
                   href={`tel:${(settings?.contactPhone || '+917418423238').replace(/[^0-9+]/g, '')}`}
                   className="hover:text-amber-300 font-mono font-bold"
                 >
-                  {settings?.contactPhone || '+91-74184 23238 / 98426 70320'}
+                  {settings?.contactPhone || '+91 74184 23238'}
                 </a>
               </div>
               <div className="flex items-center gap-2.5 flex-wrap">

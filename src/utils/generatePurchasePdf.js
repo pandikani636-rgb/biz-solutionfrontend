@@ -47,7 +47,7 @@ export const generatePurchaseInvoicePdf = (invoice, download = true) => {
   doc.setTextColor(...grayColor);
   doc.text('Proprietor: K. Karthick Kumar  |  GSTIN: 33HONPK5547G2Z', 14, 28);
   doc.text('45B/16 Noorullah Mall, Oothumalai Paradesimadam St, Srivilliputtur - 626125', 14, 32);
-  doc.text('Phone: +91-74184 23238 / +91 98426 70320  |  Email: balumuniandassociates@gmail.com', 14, 36);
+  doc.text('Phone: +91 74184 23238  |  Email: balumuniandassociates@gmail.com', 14, 36);
 
   // Right Side - Invoice Type Badge & Numbers
   doc.setFillColor(...lightBg);

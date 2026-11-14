@@ -240,7 +240,7 @@ export const LabourInsurancePage = () => {
                       required
                       value={formData.officialContactNumber}
                       onChange={handleChange}
-                      placeholder="e.g. +91 98426 70320"
+                      placeholder="e.g. +91 74184 23238"
                       className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-primary"
                     />
                   </div>

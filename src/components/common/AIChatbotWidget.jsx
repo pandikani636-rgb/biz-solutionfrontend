@@ -112,8 +112,8 @@ export const AIChatbotWidget = () => {
         fallbackQuickLink = { label: 'Browse Brands', url: '/services' };
       } else if (q.includes('contact') || q.includes('phone') || q.includes('address') || q.includes('email')) {
         fallbackReply = isTamil
-          ? '📍 முகவரி: 45B/16 நூருல்லா மால், ஸ்ரீவில்லிபுத்தூர் - 626125.\n📞 தொலைபேசி: +91 74184 23238 / 98426 70320\n✉️ மின்னஞ்சல்: balumuniandassociates@gmail.com'
-          : '📍 Headquarters: 45B/16 Noorullah Mall, Oothumalai Paradesimadam St, Srivilliputtur, Virudhunagar Dist, Tamil Nadu - 626125.\n📞 Engineering Desk: +91 74184 23238 / 98426 70320\n✉️ Email: balumuniandassociates@gmail.com';
+          ? '📍 முகவரி: 45B/16 நூருல்லா மால், ஸ்ரீவில்லிபுத்தூர் - 626125.\n📞 தொலைபேசி: +91 74184 23238\n✉️ மின்னஞ்சல்: balumuniandassociates@gmail.com'
+          : '📍 Headquarters: 45B/16 Noorullah Mall, Oothumalai Paradesimadam St, Srivilliputtur, Virudhunagar Dist, Tamil Nadu - 626125.\n📞 Engineering Desk: +91 74184 23238\n✉️ Email: balumuniandassociates@gmail.com';
         fallbackQuickLink = { label: 'Contact Us', url: '/contact' };
       } else {
         fallbackReply = isTamil

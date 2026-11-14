@@ -66,7 +66,7 @@ export const ContactPage = () => {
     }
   };
 
-  const phoneNumbers = '7418423238 / 9842670320';
+  const phoneNumbers = '+91 74184 23238';
   const emailAddress = 'balumuniandassociates@gmail.com';
   const officeAddress = '45B/16 Noorullah Mall, Oothumalai Paradesimadam Street, Srivilliputtur, Virudhunagar Dist, Tamilnadu – 626125';
 
@@ -167,12 +167,9 @@ export const ContactPage = () => {
                 <div>
                   <p className="font-bold text-white text-sm">Direct Phone / WhatsApp</p>
                   <a href="tel:+917418423238" className="mt-0.5 block font-bold text-base text-amber-300 font-mono hover:underline">
-                    +91-74184 23238
+                    +91 74184 23238
                   </a>
-                  <a href="tel:+919842670320" className="block font-semibold text-xs text-slate-300 font-mono hover:underline">
-                    Alt: +91 98426 70320
-                  </a>
-                  <p className="text-[10px] text-slate-400 mt-1">Available Mon-Sat 9:00 AM - 7:00 PM IST</p>
+                  <p className="text-[10px] text-slate-300 mt-1 font-semibold">Available Mon-Sat 9:00 AM - 7:00 PM IST</p>
                 </div>
               </div>
 
