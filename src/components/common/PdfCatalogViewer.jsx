@@ -37,6 +37,7 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [activeBrand, setActiveBrand] = useState('ALL');
+  const [selectedCatalogId, setSelectedCatalogId] = useState('ALL');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
   const [openSubcategories, setOpenSubcategories] = useState({});
   const [expandedProductLimits, setExpandedProductLimits] = useState({});
@@ -190,8 +191,23 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
         .filter((cat) => cat.subcategories.length > 0);
     }
 
+    // Filter by specific uploaded PDF catalog if chosen
+    if (selectedCatalogId !== 'ALL') {
+      list = list
+        .map((cat) => ({
+          ...cat,
+          subcategories: cat.subcategories
+            .map((sub) => ({
+              ...sub,
+              products: sub.products.filter((p) => String(p.catalogId) === String(selectedCatalogId)),
+            }))
+            .filter((sub) => sub.products.length > 0),
+        }))
+        .filter((cat) => cat.subcategories.length > 0);
+    }
+
     return list;
-  }, [catalogData, searchQuery, activeCategory, activeBrand]);
+  }, [catalogData, searchQuery, activeCategory, activeBrand, selectedCatalogId]);
 
   // Calculate total visible products
   const totalVisibleProducts = useMemo(() => {
@@ -238,6 +254,17 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
 
         {/* Stats Pill Card */}
         <div className="flex flex-wrap items-center gap-3 self-start lg:self-auto shrink-0">
+          {catalogData?.catalogs && catalogData.catalogs.length > 1 && (
+            <div className="px-4 py-2.5 rounded-2xl bg-blue-50 border border-blue-200 shadow-2xs">
+              <span className="text-[11px] text-blue-700 font-medium block">
+                {isTamil ? 'செயலில் உள்ள PDF-கள்' : 'Active PDF Catalogs'}
+              </span>
+              <span className="text-lg font-black text-blue-950">
+                {catalogData.catalogs.length}
+              </span>
+            </div>
+          )}
+
           <div className="px-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-2xs">
             <span className="text-[11px] text-slate-500 font-medium block">
               {isTamil ? 'வகைப்பாடுகள்' : 'Categories'}
@@ -297,7 +324,25 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
           </form>
 
           {/* View Mode & Brand Filter */}
-          <div className="flex items-center gap-2 self-end md:self-auto">
+          <div className="flex items-center gap-2 self-end md:self-auto flex-wrap sm:flex-nowrap">
+            {catalogData?.catalogs && catalogData.catalogs.length > 1 && (
+              <select
+                value={selectedCatalogId}
+                onChange={(e) => setSelectedCatalogId(e.target.value)}
+                className="px-3.5 py-2.5 rounded-2xl border border-blue-300 text-xs font-black bg-blue-50/70 text-navy focus:outline-none focus:ring-2 focus:ring-primary"
+                title="Filter by uploaded PDF catalog source"
+              >
+                <option value="ALL">
+                  {isTamil ? 'அனைத்து PDF பட்டியல்களும்' : `All Catalogs (${catalogData.catalogs.length} PDFs)`}
+                </option>
+                {catalogData.catalogs.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.title} ({c.totalProducts} Parts)
+                  </option>
+                ))}
+              </select>
+            )}
+
             {availableBrands.length > 1 && (
               <select
                 value={activeBrand}

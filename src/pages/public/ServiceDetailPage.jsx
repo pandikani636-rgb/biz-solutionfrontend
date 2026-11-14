@@ -1181,7 +1181,9 @@ export const ServiceDetailPage = () => {
 
       {/* 5. In-Page PDF Viewer & Interactive Product Details Display */}
       {(() => {
-        const activePdfUrl = service?.pdfUrl
+        const activePdfUrl = selectedPdfItem?.pdfUrl
+          ? getAssetUrl(selectedPdfItem.pdfUrl)
+          : service?.pdfUrl
           ? getAssetUrl(service.pdfUrl)
           : pdfCatalog?.fileUrl
           ? getAssetUrl(pdfCatalog.fileUrl)

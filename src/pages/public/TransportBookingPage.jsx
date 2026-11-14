@@ -8,7 +8,6 @@ import {
   Plane,
   ShieldCheck,
   TrainFront,
-  Bus,
   UserRound,
   Users,
   Compass,
@@ -22,8 +21,8 @@ import { showErrorAlert, showSuccessAlert } from '../../utils/alerts';
 
 const configs = {
   train: {
-    title: 'Train Journey',
-    subtitle: 'Share your station, quota, and berth requirements.',
+    title: 'Train Ticket Booking',
+    subtitle: 'Indian Railways (IRCTC) Rail Desk: Share your station, quota, and berth requirements.',
     icon: TrainFront,
     theme: 'emerald',
     classes: [
@@ -36,8 +35,8 @@ const configs = {
     seats: ['Lower berth', 'Middle berth', 'Upper berth', 'Side lower', 'Side upper', 'No preference'],
   },
   flight: {
-    title: 'Flight Journey',
-    subtitle: 'Set your airports, cabin, and return-trip preferences.',
+    title: 'Flight Ticket Booking',
+    subtitle: 'Domestic & International Air Travel: Set your airports, cabin, and return-trip preferences.',
     icon: Plane,
     theme: 'sky',
     classes: [
@@ -47,18 +46,6 @@ const configs = {
       ['first', 'First class', 32000],
     ],
     seats: ['Window', 'Aisle', 'Extra legroom', 'No preference'],
-  },
-  bus: {
-    title: 'Bus Journey',
-    subtitle: 'Choose luxury multi-axle sleeper or push-back seater with pickup points.',
-    icon: Bus,
-    theme: 'amber',
-    classes: [
-      ['seater', '2+2 Push-Back Seater', 499],
-      ['sleeper', 'Luxury Sleeper (Single/Double)', 799],
-      ['ac_sleeper', 'AC Multi-Axle Sleeper', 1299],
-    ],
-    seats: ['Window', 'Aisle', 'Lower berth', 'Upper berth', 'No preference'],
   },
 };
 
@@ -124,10 +111,6 @@ const initialForm = (type, user) => {
       cabinClass: 'economy',
       originCode: '',
       destinationCode: '',
-      boardingPoint: '',
-      droppingPoint: '',
-      busType: 'ac_sleeper',
-      operator: '',
     },
   };
 };
@@ -155,8 +138,8 @@ const Field = ({ label, children }) => (
 export const TransportBookingPage = () => {
   const { type } = useParams();
 
-  // Validate transport type (train, flight, bus)
-  if (!configs[type]) {
+  // Validate transport type (strictly train or flight; no bus)
+  if (!configs[type] || (type !== 'train' && type !== 'flight')) {
     return <Navigate to="/ticket-booking" replace />;
   }
 
@@ -321,19 +304,35 @@ export const TransportBookingPage = () => {
       badge: 'bg-blue-100 text-blue-900',
       border: 'border-blue-200',
     },
-    bus: {
-      hero: 'from-amber-950 via-orange-950 to-slate-950',
-      accent: 'text-amber-700',
-      light: 'bg-amber-50',
-      badge: 'bg-amber-100 text-amber-900',
-      border: 'border-amber-200',
-    },
-  }[type];
+  }[type] || {
+    hero: 'from-slate-950 via-navy to-slate-950',
+    accent: 'text-primary',
+    light: 'bg-slate-50',
+    badge: 'bg-slate-100 text-slate-900',
+    border: 'border-slate-200',
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-16">
+    <div className="relative min-h-screen bg-slate-50 pb-16 overflow-hidden">
+      {/* Dynamic Semi-Transparent Watermark Background Image matching Train or Flight */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <img
+          src={
+            type === 'train'
+              ? 'https://images.unsplash.com/photo-1541427468627-a89a96e5ca1d?auto=format&fit=crop&w=1920&q=80'
+              : 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1920&q=80'
+          }
+          alt={type === 'train' ? 'Indian Railways Train Background' : 'Commercial Flight Airplane Background'}
+          className="w-full h-full object-cover opacity-20 filter contrast-125 select-none pointer-events-none"
+          onError={(e) => {
+            e.target.src = type === 'train' ? '/banners/img4.jpg' : '/banners/img2.png';
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-50/70 via-white/80 to-slate-100/90 pointer-events-none" />
+      </div>
+
       {/* Header Banner */}
-      <div className={`bg-gradient-to-r ${theme.hero} text-white`}>
+      <div className={`relative z-10 bg-gradient-to-r ${theme.hero} text-white shadow-md`}>
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <Link
             to="/ticket-booking"
@@ -343,24 +342,58 @@ export const TransportBookingPage = () => {
           </Link>
           <div className="mt-6 flex flex-col sm:flex-row sm:items-end justify-between gap-5">
             <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold">
-                <Icon className="h-4 w-4" /> {type.toUpperCase()} BOOKING
-              </span>
-              <h1 className="mt-3 text-3xl font-black text-white sm:text-4xl">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold">
+                  <Icon className="h-4 w-4" /> {type.toUpperCase()} BOOKING
+                </span>
+                <span className="text-[11px] font-bold text-emerald-300 bg-emerald-950/60 border border-emerald-400/30 px-2.5 py-0.5 rounded-full">
+                  Verified Ticketing Desk
+                </span>
+              </div>
+              <h1 className="text-3xl font-black text-white sm:text-4xl">
                 {config.title}
               </h1>
-              <p className="mt-2 max-w-xl text-xs sm:text-sm text-white/75">
+              <p className="mt-1.5 max-w-xl text-xs sm:text-sm text-white/80">
                 {config.subtitle}
               </p>
             </div>
-            <div className="items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-xs font-semibold flex">
-              <ShieldCheck className="h-5 w-5 text-emerald-300" /> Authorized IRCTC &amp; IATA Desk
+
+            {/* Travel Mode Toggle (Flight vs Train) */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-md p-1 rounded-2xl border border-white/25 shadow-md">
+                <Link
+                  to="/ticket-booking/flight"
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                    type === 'flight'
+                      ? 'bg-white text-navy shadow-sm'
+                      : 'text-white/85 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Plane className="w-3.5 h-3.5" />
+                  <span>Flight Booking</span>
+                </Link>
+                <Link
+                  to="/ticket-booking/train"
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                    type === 'train'
+                      ? 'bg-white text-navy shadow-sm'
+                      : 'text-white/85 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <TrainFront className="w-3.5 h-3.5" />
+                  <span>Train Booking</span>
+                </Link>
+              </div>
+
+              <div className="items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-3.5 py-2 text-xs font-semibold flex">
+                <ShieldCheck className="h-4 w-4 text-emerald-300" /> Authorized IRCTC &amp; IATA Desk
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="mx-auto max-w-7xl px-4 pt-7 sm:px-6 lg:px-8 space-y-6">
+      <form onSubmit={handleSubmit} className="relative z-10 mx-auto max-w-7xl px-4 pt-7 sm:px-6 lg:px-8 space-y-6">
         {/* Step 0: Choose Booking Type (General / Group / Tourism) */}
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <SectionHeading
@@ -969,142 +1002,7 @@ export const TransportBookingPage = () => {
           </div>
         )}
 
-        {/* Bus Booking View */}
-        {type === 'bus' && (
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-            <div className="space-y-5">
-              <section className="rounded-3xl border border-amber-100 bg-white p-5 shadow-sm sm:p-7">
-                <SectionHeading
-                  number="02"
-                  title="Bus Route & Boarding Points"
-                  detail="Specify your departure town, pickup, and destination points."
-                  icon={Bus}
-                />
-                <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2">
-                  <Field label="From City / Town">
-                    <input
-                      required
-                      className={inputClass}
-                      value={form.source}
-                      onChange={(e) => updateForm('source', e.target.value)}
-                      placeholder="e.g. Coimbatore"
-                    />
-                  </Field>
-                  <Field label="To City / Town">
-                    <input
-                      required
-                      className={inputClass}
-                      value={form.destination}
-                      onChange={(e) => updateForm('destination', e.target.value)}
-                      placeholder="e.g. Bangalore"
-                    />
-                  </Field>
-                  <Field label="Boarding / Pickup Point">
-                    <input
-                      required
-                      className={inputClass}
-                      value={form.travelDetails.boardingPoint}
-                      onChange={(e) => updateTravelDetail('boardingPoint', e.target.value)}
-                      placeholder="e.g. Gandhipuram Omni Bus Stand"
-                    />
-                  </Field>
-                  <Field label="Dropping / Drop-off Point">
-                    <input
-                      required
-                      className={inputClass}
-                      value={form.travelDetails.droppingPoint}
-                      onChange={(e) => updateTravelDetail('droppingPoint', e.target.value)}
-                      placeholder="e.g. Madiwala / Electronic City"
-                    />
-                  </Field>
-                  <Field label="Date of Travel">
-                    <input
-                      required
-                      type="date"
-                      min={minDate}
-                      className={inputClass}
-                      value={form.travelDate}
-                      onChange={(e) => updateForm('travelDate', e.target.value)}
-                    />
-                  </Field>
-                  <Field label="Preferred Departure Time">
-                    <input
-                      required
-                      type="time"
-                      className={inputClass}
-                      value={form.travelTime}
-                      onChange={(e) => updateForm('travelTime', e.target.value)}
-                    />
-                  </Field>
-                  <Field label="Preferred Bus Operator (Optional)">
-                    <input
-                      className={inputClass}
-                      value={form.travelDetails.operator}
-                      onChange={(e) => updateTravelDetail('operator', e.target.value)}
-                      placeholder="e.g. SRS, KPN, Orange, Parveen"
-                    />
-                  </Field>
-                </div>
-              </section>
 
-              <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-                <SectionHeading
-                  number="03"
-                  title="Coach Class & Seat Choice"
-                  detail="Choose seating type and berth orientation."
-                  icon={Bus}
-                />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Bus Coach Class">
-                    <select
-                      className={inputClass}
-                      value={form.fareClass}
-                      onChange={(e) => {
-                        updateForm('fareClass', e.target.value);
-                        updateTravelDetail('busType', e.target.value);
-                      }}
-                    >
-                      {config.classes.map(([value, name, price]) => (
-                        <option key={value} value={value}>
-                          {name} · est. ₹{price.toLocaleString('en-IN')}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="Berth / Seat Preference">
-                    <select
-                      className={inputClass}
-                      value={form.seatPreference}
-                      onChange={(e) => updateForm('seatPreference', e.target.value)}
-                    >
-                      <option value="">No preference</option>
-                      {config.seats.map((seat) => (
-                        <option key={seat} value={seat}>
-                          {seat}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                </div>
-              </section>
-
-              <RouteSummary
-                type={type}
-                form={form}
-                selectedClass={selectedClass}
-                estimatedTotal={estimatedTotal}
-                effectivePassengerCount={effectivePassengerCount}
-              />
-            </div>
-
-            <PassengerFields
-              form={form}
-              setForm={setForm}
-              updatePassenger={updatePassenger}
-              updateForm={updateForm}
-            />
-          </div>
-        )}
 
         {/* Bottom Submission Bar */}
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:px-7">

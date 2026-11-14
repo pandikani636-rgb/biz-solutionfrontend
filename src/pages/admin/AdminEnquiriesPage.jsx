@@ -12,6 +12,7 @@ export const AdminEnquiriesPage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
 
   // Modal State
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
@@ -27,6 +28,7 @@ export const AdminEnquiriesPage = () => {
       const res = await adminService.getEnquiries({
         search: search.trim() || undefined,
         status: statusFilter || undefined,
+        type: typeFilter || undefined,
         limit: 50,
       });
       if (res.success) {
@@ -41,7 +43,7 @@ export const AdminEnquiriesPage = () => {
 
   useEffect(() => {
     fetchEnquiries();
-  }, [statusFilter]);
+  }, [statusFilter, typeFilter]);
 
   const handleOpenDetail = (enquiry) => {
     setSelectedEnquiry(enquiry);
@@ -96,13 +98,23 @@ export const AdminEnquiriesPage = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-80">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-navy"
+          >
+            <option value="">All Types</option>
+            <option value="ticket_booking">✈️/🚆 Travel Bookings</option>
+            <option value="rfq">RFQ Quotations</option>
+            <option value="general">General Enquiries</option>
+          </select>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold"
           >
-            <option value="">All Enquiries</option>
+            <option value="">All Statuses</option>
             <option value="new">New</option>
             <option value="in_progress">In Progress</option>
             <option value="resolved">Resolved</option>
@@ -114,7 +126,7 @@ export const AdminEnquiriesPage = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && fetchEnquiries()}
-            className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs"
+            className="w-full sm:w-56 px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs"
           />
         </div>
       </div>
@@ -129,7 +141,7 @@ export const AdminEnquiriesPage = () => {
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-navy font-bold">
                 <th className="py-3 px-4">Contact</th>
-                <th className="py-3 px-4">Subject</th>
+                <th className="py-3 px-4">Subject &amp; Details</th>
                 <th className="py-3 px-4 text-center">Status</th>
                 <th className="py-3 px-4">Submitted Date</th>
                 <th className="py-3 px-4 text-right">Actions</th>
@@ -139,11 +151,16 @@ export const AdminEnquiriesPage = () => {
               {enquiries.map((enq) => (
                 <tr key={enq._id} className="hover:bg-slate-50/50">
                   <td className="py-3 px-4">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <p className="font-bold text-darkText">{enq.name}</p>
                       {enq.enquiryType === 'rfq' && (
                         <span className="bg-amber-100 text-amber-900 font-black text-[9px] px-1.5 py-0.2 rounded border border-amber-300">
                           RFQ
+                        </span>
+                      )}
+                      {enq.enquiryType === 'ticket_booking' && (
+                        <span className="bg-emerald-100 text-emerald-900 font-black text-[9px] px-1.5 py-0.2 rounded border border-emerald-300">
+                          ✈️/🚆 Travel Booking
                         </span>
                       )}
                     </div>
@@ -215,7 +232,7 @@ export const AdminEnquiriesPage = () => {
               <p className="text-secondaryText">
                 From: <strong>{selectedEnquiry.name}</strong> ({selectedEnquiry.email}) • Phone: {selectedEnquiry.phone || 'N/A'}
               </p>
-              <div className="pt-2 border-t mt-2 text-darkText leading-relaxed bg-white p-3 rounded-xl border border-slate-200">
+              <div className="pt-2 border-t mt-2 text-darkText leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200 whitespace-pre-wrap font-sans text-xs sm:text-sm shadow-inner">
                 {selectedEnquiry.message}
               </div>
             </div>

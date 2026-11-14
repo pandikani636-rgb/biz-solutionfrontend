@@ -5,7 +5,6 @@ import {
   Plane,
   ShieldCheck,
   TrainFront,
-  Bus,
   Users,
   Compass,
   ArrowRight,
@@ -43,21 +42,6 @@ const travelOptions = [
     tag: 'Berth & Quota Preferences',
     animationLabel: 'Departing: Gliding to Train Booking...',
     features: ['1A, 2A, 3A & Sleeper Classes', 'Tatkal & Ladies Quota Support', 'Train Number Lookup'],
-  },
-  {
-    type: 'bus',
-    title: 'Bus Booking',
-    subtitle: 'Intercity AC Sleeper & Luxury Coaches',
-    description: 'Reserve comfortable 2+2 push-back seaters, single/double luxury sleepers, and multi-axle Volvo coaches.',
-    route: '/ticket-booking/bus',
-    icon: Bus,
-    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
-    fallbackImage: '/banners/img3.jpg',
-    accent: 'from-amber-600 via-orange-600 to-red-700',
-    borderHover: 'group-hover:border-amber-400',
-    tag: 'Luxury Sleeper & Seater',
-    animationLabel: 'Cruising: Driving to Bus Booking...',
-    features: ['AC Multi-Axle Volvo & Scania', 'Boarding & Drop-Off Points', 'Day & Overnight Schedules'],
   },
 ];
 
@@ -112,10 +96,10 @@ export const TicketBookingPage = () => {
             <Sparkles className="h-4 w-4 text-amber-400" /> Authorized Corporate &amp; Industrial Travel Desk
           </p>
           <h1 className="max-w-3xl text-3xl sm:text-5xl font-black leading-tight text-white">
-            Flight, Train &amp; Bus Ticket Booking Services
+            Flight &amp; Train Ticket Booking Services
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base font-medium">
-            Book certified rail, air, and coach travel with personalized corporate assistance. Seamless transitions for <strong>General Booking</strong>, <strong>Group Bookings</strong>, or <strong>Tourism Bookings</strong>.
+            Book certified rail and air travel with personalized corporate assistance. Seamless transitions for <strong>General Booking</strong>, <strong>Group Bookings</strong>, or <strong>Tourism Bookings</strong>.
           </p>
           <p className="mt-5 flex items-center gap-2 text-xs leading-5 text-emerald-300 max-w-2xl font-semibold">
             <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400" />
@@ -150,15 +134,15 @@ export const TicketBookingPage = () => {
         </div>
       </section>
 
-      {/* Section 2: Choose Transport (Flight, Train & Bus with Animated Transitions) */}
+      {/* Section 2: Choose Transport (Flight & Train with Animated Transitions) */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-        <div className="mb-8">
+        <div className="mb-8 text-center max-w-xl mx-auto">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700">Select Travel Mode</p>
           <h2 className="mt-2 text-2xl sm:text-3xl font-black text-slate-900">How would you like to travel?</h2>
-          <p className="text-xs text-slate-500 mt-1">Click on any travel category below to experience smooth animated navigation.</p>
+          <p className="text-xs text-slate-500 mt-1">Choose between certified Indian Railways IRCTC Rail Desk or Air Travel Desk.</p>
         </div>
 
-        <div className="grid gap-7 md:grid-cols-3">
+        <div className="grid gap-7 md:grid-cols-2 max-w-4xl mx-auto">
           {travelOptions.map((opt) => {
             const Icon = opt.icon;
             const isAnimating = animatingType === opt.type;
@@ -169,8 +153,6 @@ export const TicketBookingPage = () => {
               if (opt.type === 'flight') {
                 animationClass = 'translate-x-28 -translate-y-20 scale-125 rotate-[-12deg] opacity-0 transition-all duration-700 ease-in-out';
               } else if (opt.type === 'train') {
-                animationClass = 'translate-x-full scale-105 opacity-0 transition-all duration-700 ease-in-out';
-              } else if (opt.type === 'bus') {
                 animationClass = 'translate-x-full scale-105 opacity-0 transition-all duration-700 ease-in-out';
               }
             }

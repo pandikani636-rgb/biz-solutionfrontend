@@ -905,7 +905,7 @@ export const HomePage = () => {
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all shadow-md group cursor-pointer"
                 >
                   <TrainFront className="w-4 h-4 text-slate-950 group-hover:scale-110 transition-transform" />
-                  <span>Looking for Travel Desk? Book Flights, Trains & Buses</span>
+                  <span>Looking for Travel Desk? Book Flights & Trains</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
