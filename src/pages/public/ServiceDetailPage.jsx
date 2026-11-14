@@ -207,23 +207,151 @@ export const ServiceDetailPage = () => {
     const fetchServiceData = async () => {
       setLoading(true);
       try {
-        const res = await contentService.getServiceBySlugOrId(identifier);
-        if (res.success && res.data) {
-          setService(res.data);
-          if (res.data.brand) {
-            const match = brandsList.find((b) => b.name.toLowerCase() === res.data.brand.toLowerCase());
+        let loadedService = null;
+        let relatedItems = [];
+
+        try {
+          const res = await contentService.getServiceBySlugOrId(identifier);
+          if (res?.success && res?.data) {
+            loadedService = res.data;
+            relatedItems = res.related || [];
+          }
+        } catch (apiErr) {
+          console.warn('[Service Detail Service Lookup Fallback]', apiErr.message);
+        }
+
+        // If not found in DB services, lookup directly from PDF catalog
+        if (!loadedService) {
+          try {
+            const catRes = await contentService.getPdfCatalog();
+            const catData = catRes?.data?.categories ? catRes.data : (catRes?.data?.data || catRes?.data);
+            if (catData?.categories) {
+              const cleanId = decodeURIComponent(identifier).trim().toLowerCase();
+              const cleanNoSpace = cleanId.replace(/[\s\-_]+/g, '');
+              let found = null;
+              let foundCat = null;
+              let foundSub = null;
+
+              for (const c of catData.categories) {
+                for (const s of c.subcategories || []) {
+                  for (const p of s.products || []) {
+                    const pPart = (p.partNumber || '').trim().toLowerCase();
+                    const pPartNoSpace = pPart.replace(/[\s\-_]+/g, '');
+                    const pName = (p.name || '').trim().toLowerCase();
+                    const pId = p._id ? p._id.toString() : '';
+
+                    if (
+                      pPart === cleanId ||
+                      pPartNoSpace === cleanNoSpace ||
+                      pName === cleanId ||
+                      pName.includes(cleanId) ||
+                      pId === cleanId
+                    ) {
+                      found = p;
+                      foundCat = c;
+                      foundSub = s;
+                      break;
+                    }
+                  }
+                  if (found) break;
+                }
+                if (found) break;
+              }
+
+              if (found) {
+                const wholesalePrice = found.wholesalePrice || found.mrp || 0;
+                const mrp = found.mrp || Math.round(wholesalePrice / 0.54);
+                const discountPercentage = found.discountPercentage || 46;
+
+                loadedService = {
+                  _id: found._id || 'pdf-' + found.partNumber,
+                  name: found.name,
+                  partNumber: found.partNumber,
+                  brand: found.brand || 'PIX',
+                  section: found.section || 'Industrial Belt',
+                  category: {
+                    name: found.categoryName || foundCat.name,
+                    slug: (found.categoryName || foundCat.name).toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                  },
+                  categoryName: found.categoryName || foundCat.name,
+                  subcategoryName: found.subcategoryName || foundSub.name,
+                  mainPrice: wholesalePrice,
+                  basePrice: wholesalePrice,
+                  officialMrp: mrp,
+                  mrp,
+                  discountPercentage,
+                  discountPrice: wholesalePrice,
+                  mainImage: found.image || 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png',
+                  images: [found.image || 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png'],
+                  shortDescription: found.description || `${found.brand} ${found.name} (${found.partNumber})`,
+                  fullDescription: found.description || `Original OEM certified ${found.brand} ${found.name}. Technical part number ${found.partNumber}. ${found.specifications || ''}`,
+                  specifications: found.specifications ? [{ name: 'Technical Specs', value: found.specifications }] : [],
+                  inStock: found.inStock !== false,
+                  isActive: true,
+                  isFromPdfCatalog: true,
+                  pdfUrl: catData.fileUrl || '/sample-catalog.pdf',
+                  packages: [
+                    {
+                      _id: 'standard-wholesale-pack',
+                      name: 'Standard Wholesale Pack',
+                      price: wholesalePrice,
+                      discountPrice: wholesalePrice,
+                      description: 'Factory-sealed OEM unit with MTC warranty and tracked dispatch',
+                      features: ['100% Genuine MTC Certified', 'Factory Sealed', 'Pan-India Express Dispatch'],
+                      isActive: true,
+                    },
+                  ],
+                };
+
+                relatedItems = (foundSub.products || [])
+                  .filter((p) => p.partNumber !== found.partNumber)
+                  .slice(0, 4)
+                  .map((p) => ({
+                    _id: p._id || 'rel-' + p.partNumber,
+                    name: p.name,
+                    partNumber: p.partNumber,
+                    slug: p.partNumber,
+                    mainPrice: p.wholesalePrice,
+                    basePrice: p.wholesalePrice,
+                    discountPrice: p.wholesalePrice,
+                    mainImage: p.image || loadedService.mainImage,
+                    shortDescription: p.description,
+                  }));
+
+                setSelectedPdfItem(found);
+              }
+            }
+          } catch (pdfLookupErr) {
+            console.warn('[PDF Catalog Direct Fallback Error]', pdfLookupErr.message);
+          }
+        }
+
+        if (loadedService) {
+          setService(loadedService);
+          if (loadedService.brand) {
+            const match = brandsList.find((b) => b.name.toLowerCase() === loadedService.brand.toLowerCase());
             if (match) setCalcBrand(match.name);
           }
-          if (res.data.officialMrp > 0) {
-            setCalcMrp(res.data.officialMrp);
+          if (loadedService.officialMrp > 0) {
+            setCalcMrp(loadedService.officialMrp);
           }
-          setRelatedServices(res.related || []);
+          setRelatedServices(relatedItems);
 
-          // Fetch packages for this service
-          const pkgRes = await contentService.getPackagesByService(res.data._id);
-          if (pkgRes.success && pkgRes.data && pkgRes.data.length > 0) {
-            setPackages(pkgRes.data);
-            setSelectedPackage(pkgRes.data[0]); // default to first package
+          // Set packages
+          if (loadedService.packages && loadedService.packages.length > 0) {
+            setPackages(loadedService.packages);
+            setSelectedPackage(loadedService.packages[0]);
+          } else {
+            // Fetch packages for this service
+            try {
+              const pkgRes = await contentService.getPackagesByService(loadedService._id);
+              if (pkgRes?.success && pkgRes?.data && pkgRes.data.length > 0) {
+                setPackages(pkgRes.data);
+                setSelectedPackage(pkgRes.data[0]);
+              }
+            } catch (pErr) {
+              // ignore
+            }
           }
         }
       } catch (err) {
@@ -985,7 +1113,9 @@ export const ServiceDetailPage = () => {
           : '/sample-catalog.pdf';
 
         const currentCat =
-          pdfCatalog?.categories && pdfCatalog.categories[selectedPdfCatIndex]
+          selectedPdfCatIndex === -1
+            ? null
+            : pdfCatalog?.categories && pdfCatalog.categories[selectedPdfCatIndex]
             ? pdfCatalog.categories[selectedPdfCatIndex]
             : pdfCatalog?.categories?.[0];
 
@@ -1003,12 +1133,16 @@ export const ServiceDetailPage = () => {
           ? catalogAllProducts.filter((p) => {
               const q = pdfSearchQuery.toLowerCase().trim();
               return (
-                p.partNumber.toLowerCase().includes(q) ||
-                p.name.toLowerCase().includes(q) ||
+                (p.partNumber && p.partNumber.toLowerCase().includes(q)) ||
+                (p.name && p.name.toLowerCase().includes(q)) ||
                 (p.brand && p.brand.toLowerCase().includes(q)) ||
-                (p.specifications && p.specifications.toLowerCase().includes(q))
+                (p.specifications && p.specifications.toLowerCase().includes(q)) ||
+                (p.categoryName && p.categoryName.toLowerCase().includes(q)) ||
+                (p.subcategoryName && p.subcategoryName.toLowerCase().includes(q))
               );
             })
+          : selectedPdfCatIndex === -1
+          ? catalogAllProducts
           : allCurrentProducts;
 
         return (
@@ -1167,35 +1301,56 @@ export const ServiceDetailPage = () => {
                     {/* Category Selector Buttons */}
                     {!pdfSearchQuery && pdfCatalog?.categories && pdfCatalog.categories.length > 0 && (
                       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
-                        {pdfCatalog.categories.map((cat, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => setSelectedPdfCatIndex(idx)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
-                              selectedPdfCatIndex === idx
-                                ? 'bg-primary text-white shadow-xs'
-                                : 'bg-white text-slate-700 hover:bg-slate-200 border border-slate-200'
-                            }`}
-                          >
-                            {cat.name}
-                          </button>
-                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPdfCatIndex(-1)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                            selectedPdfCatIndex === -1
+                              ? 'bg-primary text-white shadow-xs'
+                              : 'bg-white text-slate-700 hover:bg-slate-200 border border-slate-200'
+                          }`}
+                        >
+                          All Categories ({catalogAllProducts.length})
+                        </button>
+                        {pdfCatalog.categories.map((cat, idx) => {
+                          const catCount = cat.subcategories?.reduce((a, s) => a + (s.products?.length || 0), 0) || 0;
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setSelectedPdfCatIndex(idx)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                                selectedPdfCatIndex === idx
+                                  ? 'bg-primary text-white shadow-xs'
+                                  : 'bg-white text-slate-700 hover:bg-slate-200 border border-slate-200'
+                              }`}
+                            >
+                              {cat.name} ({catCount})
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
 
-                  {/* Extracted Product Items Quick-Select Grid */}
+                  {/* Extracted Product Items Quick-Select Grid - ALL Products Displayed */}
                   <div className="space-y-2">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                      Click any product below to display full details:
-                    </span>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-56 overflow-y-auto p-2 border border-slate-200 rounded-2xl bg-white shadow-inner">
-                      {filteredProducts.slice(0, 36).map((prod, pIdx) => {
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Click any product below to display full details ({filteredProducts.length} items):
+                      </span>
+                      {selectedPdfCatIndex !== -1 && currentCat && (
+                        <span className="text-[11px] font-bold text-primary">
+                          Category: {currentCat.name}
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-72 overflow-y-auto p-2 border border-slate-200 rounded-2xl bg-white shadow-inner">
+                      {filteredProducts.map((prod, pIdx) => {
                         const isItemSelected = selectedPdfItem?.partNumber === prod.partNumber;
                         return (
                           <button
-                            key={pIdx}
+                            key={prod._id || `${prod.partNumber}-${pIdx}`}
                             type="button"
                             onClick={() => setSelectedPdfItem(prod)}
                             className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
@@ -1336,7 +1491,8 @@ export const ServiceDetailPage = () => {
 
                         <Link
                           to={`/services/${encodeURIComponent(selectedPdfItem.partNumber)}`}
-                          className="text-xs font-bold text-primary hover:text-navy hover:underline inline-flex items-center gap-1 ml-auto cursor-pointer"
+                          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                          className="text-xs font-black text-primary hover:text-navy hover:underline inline-flex items-center gap-1 ml-auto cursor-pointer bg-white px-3 py-1.5 rounded-xl border border-blue-200 shadow-2xs"
                         >
                           <span>Open Product Details</span>
                           <ArrowRight className="w-3.5 h-3.5" />

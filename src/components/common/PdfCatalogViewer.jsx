@@ -30,17 +30,30 @@ import { Spinner } from './Spinner';
 // Image Fallback Handler for Industrial Components
 const FALLBACK_IMAGE = 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png';
 
-export const PdfCatalogViewer = () => {
+export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }) => {
   const { isTamil, t } = useLanguage();
   const [catalogData, setCatalogData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [activeBrand, setActiveBrand] = useState('ALL');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
   const [openSubcategories, setOpenSubcategories] = useState({});
   const [expandedProductLimits, setExpandedProductLimits] = useState({});
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // Sync props when parent updates
+  useEffect(() => {
+    if (initialSearch !== undefined && initialSearch !== searchQuery) {
+      setSearchQuery(initialSearch);
+    }
+  }, [initialSearch]);
+
+  useEffect(() => {
+    if (initialCategory && initialCategory !== activeCategory) {
+      setActiveCategory(initialCategory);
+    }
+  }, [initialCategory]);
 
   const fetchPdfCatalog = async (query = '') => {
     setLoading(true);
@@ -88,10 +101,10 @@ export const PdfCatalogViewer = () => {
     }));
   };
 
-  const showMoreProducts = (key) => {
+  const showMoreProducts = (key, count) => {
     setExpandedProductLimits((prev) => ({
       ...prev,
-      [key]: (prev[key] || 18) + 24,
+      [key]: count ? count : (prev[key] || 24) + 48,
     }));
   };
 
@@ -108,7 +121,7 @@ export const PdfCatalogViewer = () => {
     return Array.from(brands);
   }, [catalogData]);
 
-  // Filter categories and products
+  // Filter categories and products with instant category matching
   const filteredCategories = useMemo(() => {
     if (!catalogData?.categories) return [];
 
@@ -116,7 +129,50 @@ export const PdfCatalogViewer = () => {
 
     // Filter by active category
     if (activeCategory !== 'ALL') {
-      list = list.filter((c) => c.name === activeCategory);
+      list = list.filter((c) =>
+        c.name.toLowerCase() === activeCategory.toLowerCase() ||
+        c.name.toLowerCase().includes(activeCategory.toLowerCase())
+      );
+    }
+
+    // Instant client-side search across categories, subcategories, and part numbers
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      list = list
+        .map((cat) => {
+          const catMatches = Boolean(cat.name && cat.name.toLowerCase().includes(q));
+
+          const matchingSubs = (cat.subcategories || [])
+            .map((sub) => {
+              const subMatches = Boolean(sub.name && sub.name.toLowerCase().includes(q));
+
+              const matchingProducts = (sub.products || []).filter((p) => {
+                // If user typed this category or subcategory name, include all products under it
+                if (catMatches || subMatches) return true;
+
+                return (
+                  (p.partNumber && p.partNumber.toLowerCase().includes(q)) ||
+                  (p.name && p.name.toLowerCase().includes(q)) ||
+                  (p.brand && p.brand.toLowerCase().includes(q)) ||
+                  (p.specifications && p.specifications.toLowerCase().includes(q)) ||
+                  ((p.categoryName || cat.name) && (p.categoryName || cat.name).toLowerCase().includes(q)) ||
+                  ((p.subcategoryName || sub.name) && (p.subcategoryName || sub.name).toLowerCase().includes(q))
+                );
+              });
+
+              return {
+                ...sub,
+                products: matchingProducts,
+              };
+            })
+            .filter((sub) => sub.products.length > 0);
+
+          return {
+            ...cat,
+            subcategories: matchingSubs,
+          };
+        })
+        .filter((cat) => cat.subcategories.length > 0);
     }
 
     // Filter by brand
@@ -135,7 +191,7 @@ export const PdfCatalogViewer = () => {
     }
 
     return list;
-  }, [catalogData, activeCategory, activeBrand]);
+  }, [catalogData, searchQuery, activeCategory, activeBrand]);
 
   // Calculate total visible products
   const totalVisibleProducts = useMemo(() => {
@@ -414,7 +470,9 @@ export const PdfCatalogViewer = () => {
                   const key = `${catIdx}-${subIdx}`;
                   const isOpen = !!openSubcategories[key];
                   const products = subcategory.products || [];
-                  const displayLimit = expandedProductLimits[key] || 18;
+                  const isFilterActive = Boolean(searchQuery.trim() || activeCategory !== 'ALL');
+                  // When user searches or selects a category, display all products under it
+                  const displayLimit = expandedProductLimits[key] || (isFilterActive ? products.length : 36);
                   const visibleProducts = products.slice(0, displayLimit);
                   const hasMore = products.length > displayLimit;
 
@@ -568,20 +626,29 @@ export const PdfCatalogViewer = () => {
                                 ))}
                               </div>
 
-                              {/* Show More Products Button */}
+                              {/* Show More / Show All Products Button */}
                               {hasMore && (
-                                <div className="mt-5 text-center">
+                                <div className="mt-5 flex items-center justify-center gap-3">
                                   <button
                                     type="button"
                                     onClick={() => showMoreProducts(key)}
-                                    className="px-6 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-navy font-bold text-xs transition-smooth inline-flex items-center gap-2 border border-slate-200"
+                                    className="px-5 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-navy font-bold text-xs transition-smooth inline-flex items-center gap-2 border border-slate-200"
                                   >
                                     <span>
                                       {isTamil
-                                        ? `மேலும் ${products.length - displayLimit} பொருட்களைக் காட்டு`
-                                        : `Show More (+${products.length - displayLimit} items in ${subcategory.name})`}
+                                        ? `மேலும் ${Math.min(48, products.length - displayLimit)} பொருட்களைக் காட்டு`
+                                        : `Show Next +${Math.min(48, products.length - displayLimit)} items`}
                                     </span>
                                     <ChevronDown className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => showMoreProducts(key, products.length)}
+                                    className="px-5 py-2 rounded-2xl bg-primary hover:bg-primary-dark text-white font-black text-xs transition-smooth inline-flex items-center gap-1.5 shadow-xs"
+                                  >
+                                    <span>
+                                      {isTamil ? `அனைத்து ${products.length} பொருட்களையும் காட்டு` : `Show All (${products.length} Products)`}
+                                    </span>
                                   </button>
                                 </div>
                               )}
@@ -662,18 +729,27 @@ export const PdfCatalogViewer = () => {
                               </div>
 
                               {hasMore && (
-                                <div className="text-center">
+                                <div className="flex items-center justify-center gap-3 pt-2">
                                   <button
                                     type="button"
                                     onClick={() => showMoreProducts(key)}
-                                    className="px-6 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-navy font-bold text-xs transition-smooth inline-flex items-center gap-2 border border-slate-200"
+                                    className="px-5 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-navy font-bold text-xs transition-smooth inline-flex items-center gap-2 border border-slate-200"
                                   >
                                     <span>
                                       {isTamil
-                                        ? `மேலும் ${products.length - displayLimit} பொருட்களைக் காட்டு`
-                                        : `Show More (+${products.length - displayLimit} items in ${subcategory.name})`}
+                                        ? `மேலும் ${Math.min(48, products.length - displayLimit)} பொருட்களைக் காட்டு`
+                                        : `Show Next +${Math.min(48, products.length - displayLimit)} items`}
                                     </span>
                                     <ChevronDown className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => showMoreProducts(key, products.length)}
+                                    className="px-5 py-2 rounded-2xl bg-primary hover:bg-primary-dark text-white font-black text-xs transition-smooth inline-flex items-center gap-1.5 shadow-xs"
+                                  >
+                                    <span>
+                                      {isTamil ? `அனைத்து ${products.length} பொருட்களையும் காட்டு` : `Show All (${products.length} Products)`}
+                                    </span>
                                   </button>
                                 </div>
                               )}

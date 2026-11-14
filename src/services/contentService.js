@@ -34,4 +34,8 @@ export const contentService = {
 
   // Contact Enquiry
   submitEnquiry: (data) => api.post('/enquiries', data),
+
+  // PDF Catalog
+  getPdfCatalog: (params) => api.get('/pdf-catalog', { params }),
+  getPdfProduct: (partNumber) => api.get(`/pdf-catalog/product/${encodeURIComponent(partNumber)}`),
 };

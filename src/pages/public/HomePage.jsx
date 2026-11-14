@@ -649,7 +649,7 @@ export const HomePage = () => {
                 Stockist & Dealer Network
               </h2>
               <p className="text-sm text-slate-300 mt-2 max-w-3xl">
-                Balumuni and Associates is proud to supply 100% genuine products directly sourced from India's premier industrial equipment, bearing, belt, gear, and motor manufacturers.
+                <span className="text-yellow-400 font-bold">Balumuni and Associates</span> is proud to supply 100% genuine products directly sourced from India's premier industrial equipment, bearing, belt, gear, and motor manufacturers.
               </p>
             </div>
             <div className="shrink-0 flex items-center gap-3">
@@ -703,7 +703,7 @@ export const HomePage = () => {
                 Comprehensive Industrial Equipments Source
               </h4>
               <p className="text-xs text-slate-300 leading-relaxed">
-                From high-speed bearings to extreme-torque belts, geared motors, and industrial transmission drives — all under one roof at Balumuni and Associates.
+                From high-speed bearings to extreme-torque belts, geared motors, and industrial transmission drives — all under one roof at <span className="text-yellow-400 font-bold">Balumuni and Associates</span>.
               </p>
 
               {/* Navigation Option to Access Travels Section */}

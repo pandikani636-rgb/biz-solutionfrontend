@@ -98,10 +98,8 @@ export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggl
               <img src="/bm-logo.png" alt="BM Logo" className="w-full h-full object-contain" />
             </div>
             <div className="min-w-0 flex-1">
-              <span className="font-black text-sm tracking-tight leading-none block truncate">
-                <span className="text-amber-400">Balumuni</span>{' '}
-                <span className="text-white">and</span>{' '}
-                <span className="text-amber-400">Associates</span>
+              <span className="font-black text-sm tracking-tight leading-none block truncate text-yellow-400">
+                Balumuni and Associates
               </span>
               <span className="text-[10px] uppercase font-bold tracking-wider text-blue-400 block mt-1">
                 Admin Console

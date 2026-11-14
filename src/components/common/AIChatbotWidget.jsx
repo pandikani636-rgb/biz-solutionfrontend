@@ -186,7 +186,7 @@ export const AIChatbotWidget = () => {
               </div>
               <div>
                 <h3 className="font-bold text-xs leading-none flex items-center gap-1.5">
-                  <span>Balumuni and Associates AI</span>
+                  <span className="text-yellow-400 font-bold">Balumuni and Associates AI</span>
                   <span className="text-[10px] bg-emerald-500/30 text-emerald-300 font-semibold px-1.5 py-0.2 rounded">
                     Live
                   </span>

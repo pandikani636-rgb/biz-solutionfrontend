@@ -128,7 +128,7 @@ export const ContactPage = () => {
                 <span className="text-[11px] font-black text-amber-300 uppercase tracking-widest block">
                   Industrial Power Transmission &amp; Bearings
                 </span>
-                <h2 className="text-xl sm:text-2xl font-black text-white mt-0.5">
+                <h2 className="text-xl sm:text-2xl font-black text-yellow-400 mt-0.5">
                   Balumuni and Associates
                 </h2>
               </div>

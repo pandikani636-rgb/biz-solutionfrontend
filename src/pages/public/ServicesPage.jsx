@@ -53,7 +53,7 @@ export const ServicesPage = () => {
   const [selectedOrigin, setSelectedOrigin] = useState(searchParams.get('origin') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'newest');
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
-  const [viewMode, setViewMode] = useState(searchParams.get('tab') === 'pdf' ? 'pdf' : 'grid');
+  const [viewMode, setViewMode] = useState(searchParams.get('tab') === 'grid' ? 'grid' : 'pdf');
 
   // Sync state if URL query params change
   useEffect(() => {
@@ -153,14 +153,14 @@ export const ServicesPage = () => {
           </p>
         </div>
 
-        {/* Global Part Number Search Bar */}
+        {/* Global Category & Part Number Search Bar */}
         <form
           onSubmit={handleSearchSubmit}
-          className="w-full md:w-88 relative flex items-center shadow-lg"
+          className="w-full md:w-96 relative flex items-center shadow-lg"
         >
           <input
             type="text"
-            placeholder="Search part #, make, size (e.g. 6204, SPC 2360)..."
+            placeholder="Search category (e.g. Classical, Bearings), part # (A 18, 6204)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-20 py-3.5 bg-white text-darkText rounded-2xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-accent shadow"
@@ -369,7 +369,7 @@ export const ServicesPage = () => {
 
       {/* Content depending on viewMode */}
       {viewMode === 'pdf' ? (
-        <PdfCatalogViewer />
+        <PdfCatalogViewer initialSearch={search} initialCategory={selectedCategory || 'ALL'} />
       ) : (
         <div className="bg-gradient-to-br from-white/95 via-sky-50/70 to-blue-50/60 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-blue-200/80 shadow-[0_16px_45px_-12px_rgba(37,99,235,0.12)] space-y-6">
           {/* Product Cards Grid (With Freeze Effect Container) */}

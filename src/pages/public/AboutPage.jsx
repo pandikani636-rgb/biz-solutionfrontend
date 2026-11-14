@@ -156,7 +156,7 @@ export const AboutPage = () => {
             </div>
 
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-              Headquartered in Srivilliputtur, Tamil Nadu, <strong>Balumuni and Associates</strong> provides industrial maintenance engineers with genuine, traceable components at transparent wholesale prices. Over nearly two decades, we have evolved into an indispensable partner for heavy manufacturing across Tamil Nadu and all of India.
+              Headquartered in Srivilliputtur, Tamil Nadu, <strong className="text-amber-500 font-black">Balumuni and Associates</strong> provides industrial maintenance engineers with genuine, traceable components at transparent wholesale prices. Over nearly two decades, we have evolved into an indispensable partner for heavy manufacturing across Tamil Nadu and all of India.
             </p>
 
             <div className="space-y-2.5 pt-1">
