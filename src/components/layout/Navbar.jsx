@@ -33,9 +33,20 @@ export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const categoryDropdownRef = useRef(null);
   const userDropdownRef = useRef(null);
+
+  // Monitor scroll to enhance sticky styling when top bar scrolls out of view
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -127,8 +138,14 @@ export const Navbar = () => {
 
     
 
-      {/* 2. Main Navigation Bar - STICKY top-0: Fixed & fully visible without cut-off */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-sm select-none animate-fadeIn">
+      {/* 2. Main Navigation Bar - STICKY top-0: Remains sticky while top info bar scrolls away */}
+      <header
+        className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b transition-all duration-200 select-none animate-fadeIn ${
+          isScrolled
+            ? 'shadow-md border-slate-300/90'
+            : 'shadow-xs border-slate-200/90'
+        }`}
+      >
         {/* Main Navigation Bar - Balanced layout fitting all viewports including laptop screens */}
         <div className="w-full max-w-[1536px] mx-auto px-2.5 sm:px-4 lg:px-4 xl:px-6 2xl:px-8 h-16 lg:h-[72px] xl:h-20 flex items-center justify-between flex-nowrap whitespace-nowrap gap-2 lg:gap-2.5 xl:gap-4 relative">
           {/* Brand Lockup: BM Logo (Proportionate on Mobile & Desktop) + Balumuni and Associates */}

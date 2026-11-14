@@ -25,6 +25,7 @@ import {
 import api from '../../services/api';
 import { formatCurrency } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
+import { useSite } from '../../context/SiteContext';
 import { Spinner } from './Spinner';
 
 // Image Fallback Handler for Industrial Components
@@ -32,6 +33,7 @@ const FALLBACK_IMAGE = 'https://cobrel.co.za/wp-content/uploads/2019/10/Classica
 
 export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }) => {
   const { isTamil, t } = useLanguage();
+  const { categories } = useSite();
   const [catalogData, setCatalogData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
@@ -45,13 +47,13 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
 
   // Sync props when parent updates
   useEffect(() => {
-    if (initialSearch !== undefined && initialSearch !== searchQuery) {
+    if (initialSearch !== undefined) {
       setSearchQuery(initialSearch);
     }
   }, [initialSearch]);
 
   useEffect(() => {
-    if (initialCategory && initialCategory !== activeCategory) {
+    if (initialCategory) {
       setActiveCategory(initialCategory);
     }
   }, [initialCategory]);
@@ -128,36 +130,81 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
 
     let list = catalogData.categories;
 
-    // Filter by active category
-    if (activeCategory !== 'ALL') {
-      list = list.filter((c) =>
-        c.name.toLowerCase() === activeCategory.toLowerCase() ||
-        c.name.toLowerCase().includes(activeCategory.toLowerCase())
+    // Filter by active category (supports both Category Name and Category ObjectId)
+    if (activeCategory && activeCategory !== 'ALL') {
+      const matchCat = (categories || []).find(
+        (c) => c._id === activeCategory || c.slug === activeCategory
       );
+      const catQuery = (matchCat ? matchCat.name : activeCategory).toLowerCase().trim();
+      const catQueryClean = catQuery.replace(/s\b/gi, '');
+
+      list = list.filter((c) => {
+        const cName = (c.name || '').toLowerCase();
+        return (
+          cName === catQuery ||
+          cName.includes(catQuery) ||
+          catQuery.includes(cName) ||
+          cName.includes(catQueryClean) ||
+          c._id?.toString() === activeCategory
+        );
+      });
     }
 
     // Instant client-side search across categories, subcategories, and part numbers
-    const q = searchQuery.trim().toLowerCase();
-    if (q) {
+    const rawQ = searchQuery.trim().toLowerCase();
+    if (rawQ) {
+      const qClean = rawQ.replace(/s\b/gi, '');
+      const tokens = rawQ.split(/\s+/).filter((t) => t.length > 2);
+
       list = list
         .map((cat) => {
-          const catMatches = Boolean(cat.name && cat.name.toLowerCase().includes(q));
+          const catNameLower = (cat.name || '').toLowerCase();
+          const catMatches = Boolean(
+            catNameLower.includes(rawQ) ||
+            catNameLower.includes(qClean) ||
+            rawQ.includes(catNameLower) ||
+            tokens.some((tok) => catNameLower.includes(tok))
+          );
 
           const matchingSubs = (cat.subcategories || [])
             .map((sub) => {
-              const subMatches = Boolean(sub.name && sub.name.toLowerCase().includes(q));
+              const subNameLower = (sub.name || '').toLowerCase();
+              const subMatches = Boolean(
+                subNameLower.includes(rawQ) ||
+                subNameLower.includes(qClean) ||
+                rawQ.includes(subNameLower) ||
+                tokens.some((tok) => subNameLower.includes(tok))
+              );
 
               const matchingProducts = (sub.products || []).filter((p) => {
                 // If user typed this category or subcategory name, include all products under it
                 if (catMatches || subMatches) return true;
 
+                const pPart = (p.partNumber || '').toLowerCase();
+                const pName = (p.name || '').toLowerCase();
+                const pBrand = (p.brand || '').toLowerCase();
+                const pSpec = (p.specifications || '').toLowerCase();
+                const pCatName = (p.categoryName || cat.name || '').toLowerCase();
+                const pSubName = (p.subcategoryName || sub.name || '').toLowerCase();
+
                 return (
-                  (p.partNumber && p.partNumber.toLowerCase().includes(q)) ||
-                  (p.name && p.name.toLowerCase().includes(q)) ||
-                  (p.brand && p.brand.toLowerCase().includes(q)) ||
-                  (p.specifications && p.specifications.toLowerCase().includes(q)) ||
-                  ((p.categoryName || cat.name) && (p.categoryName || cat.name).toLowerCase().includes(q)) ||
-                  ((p.subcategoryName || sub.name) && (p.subcategoryName || sub.name).toLowerCase().includes(q))
+                  pPart.includes(rawQ) ||
+                  pPart.replace(/[\s\-_]+/g, '').includes(rawQ.replace(/[\s\-_]+/g, '')) ||
+                  pName.includes(rawQ) ||
+                  pName.includes(qClean) ||
+                  pBrand.includes(rawQ) ||
+                  pSpec.includes(rawQ) ||
+                  pCatName.includes(rawQ) ||
+                  pCatName.includes(qClean) ||
+                  pSubName.includes(rawQ) ||
+                  pSubName.includes(qClean) ||
+                  tokens.every((t) =>
+                    pName.includes(t) ||
+                    pPart.includes(t) ||
+                    pCatName.includes(t) ||
+                    pSubName.includes(t) ||
+                    pBrand.includes(t)
+                  )
                 );
               });
 

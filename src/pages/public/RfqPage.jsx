@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { contentService } from '../../services/contentService';
 import { Button } from '../../components/common/Button';
+import { BackButton } from '../../components/common/BackButton';
 import { showSuccessAlert, showErrorAlert } from '../../utils/alerts';
 
 export const RfqPage = () => {
@@ -114,7 +115,12 @@ RFQ Submission Details:
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
+      {/* Top Back Navigation */}
+      <div className="flex items-center justify-between">
+        <BackButton inline label="Back to Home" fallbackPath="/" />
+      </div>
+
       {/* Header Banner */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-3xl p-8 md:p-12 text-white shadow-xl border border-blue-400/40 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
         {/* Authentic industrial equipment banner */}

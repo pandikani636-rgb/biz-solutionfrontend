@@ -8,6 +8,7 @@ import { AIChatbotWidget } from './components/common/AIChatbotWidget';
 import { TechPreloader } from './components/common/TechPreloader';
 import { ScrollToTop } from './components/common/ScrollToTop';
 import { AdvertisementModal } from './components/common/AdvertisementModal';
+import { BackButton } from './components/common/BackButton';
 
 function AppContent() {
   const { showPreloader, setShowPreloader } = useSite();
@@ -18,6 +19,7 @@ function AppContent() {
       <AppRoutes />
       {!showPreloader && (
         <>
+          <BackButton />
           <AIChatbotWidget />
           <AdvertisementModal />
         </>

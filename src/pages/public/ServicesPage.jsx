@@ -14,6 +14,7 @@ import {
 import { contentService } from '../../services/contentService';
 import { useSite } from '../../context/SiteContext';
 import { ServiceCard } from '../../components/cards/ServiceCard';
+import { BackButton } from '../../components/common/BackButton';
 import { CardSkeleton } from '../../components/common/Skeleton';
 import { Button } from '../../components/common/Button';
 import { PdfCatalogViewer } from '../../components/common/PdfCatalogViewer';
@@ -53,7 +54,7 @@ export const ServicesPage = () => {
   const [selectedOrigin, setSelectedOrigin] = useState(searchParams.get('origin') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'newest');
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
-  const [viewMode, setViewMode] = useState(searchParams.get('tab') === 'grid' ? 'grid' : 'pdf');
+  const [viewMode, setViewMode] = useState(searchParams.get('tab') === 'pdf' ? 'pdf' : 'grid');
 
   // Sync state if URL query params change
   useEffect(() => {
@@ -95,6 +96,13 @@ export const ServicesPage = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setPage(1);
+    const newParams = new URLSearchParams(searchParams);
+    if (search.trim()) {
+      newParams.set('search', search.trim());
+    } else {
+      newParams.delete('search');
+    }
+    setSearchParams(newParams);
     fetchServices();
   };
 
@@ -116,51 +124,54 @@ export const ServicesPage = () => {
     setSelectedOrigin('');
     setSortBy('newest');
     setPage(1);
+    setSearchParams({});
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
+      {/* Top Back Navigation */}
+      <div className="flex items-center justify-between">
+        <BackButton inline label="Back to Home" fallbackPath="/" />
+      </div>
+
       {/* Title & Industrial Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-3xl p-8 md:p-10 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl border border-blue-400/40">
-        {/* Authentic industrial equipment banner */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-navy via-navy-light to-navy rounded-3xl p-8 md:p-10 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-xl border border-blue-900/40">
+        {/* Transparent background image blending smoothly with blue */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img
-            src="/banners/img5.jpg"
-            alt="Industrial Machinery & Belts"
-            className="w-full h-full object-cover object-center opacity-30 mix-blend-overlay"
-            onError={(e) => {
-              e.target.src = '/banners/img4.jpg';
-            }}
+            src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80"
+            alt=""
+            className="w-full h-full object-cover object-center opacity-25"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-800/60 to-indigo-900/60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/80 to-navy/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent" />
         </div>
 
         <div className="relative z-10 space-y-3 max-w-xl">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-black text-amber-300 uppercase tracking-widest bg-amber-400/20 px-3 py-1 rounded-full border border-amber-400/30">
-              Verified Wholesale Catalog
+              45% - 48% Off MRP List
             </span>
-            <span className="text-xs font-bold text-blue-100 bg-white/15 px-3 py-1 rounded-full">
-              🚚 Insured Tracked Logistics
+            <span className="text-xs font-bold text-slate-300 bg-white/10 px-3 py-1 rounded-full">
+              🚚 Free Delhivery Included
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-white">
             Industrial Bearings, Belts & Pulleys
           </h1>
-          <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
             Direct B2B wholesale prices on genuine PIX, NBC, HCH, Fenner, Timken, and SKF. Fast pan-India delivery, official GST invoices, and mill test certificates.
           </p>
         </div>
 
-        {/* Global Category & Part Number Search Bar */}
+        {/* Global Part Number Search Bar */}
         <form
           onSubmit={handleSearchSubmit}
-          className="w-full md:w-96 relative flex items-center shadow-lg"
+          className="w-full md:w-88 relative flex items-center shadow-lg"
         >
           <input
             type="text"
-            placeholder="Search category (e.g. Classical, Bearings), part # (A 18, 6204)..."
+            placeholder="Search part #, make, size (e.g. 6204, SPC 2360)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-20 py-3.5 bg-white text-darkText rounded-2xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-accent shadow"
@@ -207,15 +218,12 @@ export const ServicesPage = () => {
           </button>
           {brands.map((b) => {
             const isSkf = b === 'SKF';
-            const isSelected =
-              selectedBrand.toLowerCase() === b.toLowerCase() ||
-              (selectedBrand.toLowerCase() === 'timken' && b === 'TMB Ken') ||
-              (selectedBrand.toLowerCase() === 'fenner' && b === 'JK Fenner');
+            const isSelected = selectedBrand.toLowerCase() === b.toLowerCase();
             return (
               <button
                 key={b}
                 onClick={() => handleBrandChange(b)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-smooth flex items-center gap-1.5 whitespace-nowrap ${
+                className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-smooth flex items-center gap-1.5 ${
                   isSelected
                     ? 'bg-primary text-white shadow-md'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -233,6 +241,61 @@ export const ServicesPage = () => {
                 >
                   {isSkf ? '10% OFF' : '46% OFF'}
                 </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Category Filter Selector Pills */}
+      <div className="space-y-3 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+            <Tag className="w-3.5 h-3.5 text-primary" /> Filter by Category:
+          </span>
+          {selectedCategory && (
+            <button
+              onClick={() => {
+                setSelectedCategory('');
+                setPage(1);
+              }}
+              className="text-xs text-rose-600 hover:underline font-bold flex items-center gap-1"
+            >
+              <RotateCcw className="w-3 h-3" /> Clear Category
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => {
+              setSelectedCategory('');
+              setPage(1);
+            }}
+            className={`px-4 py-2 rounded-xl text-xs font-black transition-smooth ${
+              !selectedCategory
+                ? 'bg-navy text-accent shadow-sm'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            All Categories
+          </button>
+          {categories?.map((cat) => {
+            const isSelected = selectedCategory === cat._id || selectedCategory === cat.name;
+            return (
+              <button
+                key={cat._id}
+                onClick={() => {
+                  setSelectedCategory(isSelected ? '' : cat._id);
+                  setPage(1);
+                }}
+                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-smooth flex items-center gap-1.5 whitespace-nowrap ${
+                  isSelected
+                    ? 'bg-primary text-white shadow-md'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                <span>{cat.name}</span>
               </button>
             );
           })}
@@ -369,10 +432,10 @@ export const ServicesPage = () => {
 
       {/* Content depending on viewMode */}
       {viewMode === 'pdf' ? (
-        <PdfCatalogViewer initialSearch={search} initialCategory={selectedCategory || 'ALL'} />
+        <PdfCatalogViewer />
       ) : (
-        <div className="bg-gradient-to-br from-white/95 via-sky-50/70 to-blue-50/60 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-blue-200/80 shadow-[0_16px_45px_-12px_rgba(37,99,235,0.12)] space-y-6">
-          {/* Product Cards Grid (With Freeze Effect Container) */}
+        <>
+          {/* Product Cards Grid */}
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((n) => (
@@ -428,7 +491,7 @@ export const ServicesPage = () => {
               </Button>
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

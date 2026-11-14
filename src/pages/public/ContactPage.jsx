@@ -19,6 +19,7 @@ import { contentService } from '../../services/contentService';
 import { useSite } from '../../context/SiteContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Button } from '../../components/common/Button';
+import { BackButton } from '../../components/common/BackButton';
 import { showSuccessAlert, showErrorAlert } from '../../utils/alerts';
 
 export const ContactPage = () => {
@@ -71,7 +72,12 @@ export const ContactPage = () => {
   const officeAddress = '45B/16 Noorullah Mall, Oothumalai Paradesimadam Street, Srivilliputtur, Virudhunagar Dist, Tamilnadu – 626125';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12 animate-fadeIn">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6 animate-fadeIn">
+      {/* Top Back Navigation */}
+      <div className="flex items-center justify-between">
+        <BackButton inline label="Back to Home" fallbackPath="/" />
+      </div>
+
       {/* 1. Header Banner */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-3xl p-8 md:p-12 text-white shadow-xl border border-blue-400/40 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div className="absolute inset-0 z-0 pointer-events-none">

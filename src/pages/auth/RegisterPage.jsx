@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Layers, Mail, Lock, User, Phone, UserPlus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/common/Button';
+import { BackButton } from '../../components/common/BackButton';
 import { showErrorAlert, showToast } from '../../utils/alerts';
 
 export const RegisterPage = () => {
@@ -62,6 +63,9 @@ export const RegisterPage = () => {
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6 bg-white p-8 sm:p-10 rounded-3xl border border-slate-200 shadow-xl">
+        <div className="flex justify-start">
+          <BackButton inline label="Back" fallbackPath="/" />
+        </div>
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2">
             <div className="w-10 h-10 rounded-xl bg-navy flex items-center justify-center text-white shadow">

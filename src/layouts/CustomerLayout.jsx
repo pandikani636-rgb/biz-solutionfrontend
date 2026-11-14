@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { Spinner } from '../components/common/Spinner';
+import { BackButton } from '../components/common/BackButton';
 
 export const CustomerLayout = () => {
   const { user, loading, isAuthenticated } = useAuth();
@@ -34,7 +35,10 @@ export const CustomerLayout = () => {
     <div className="min-h-screen flex flex-col bg-pageBg">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+        <div className="mb-4">
+          <BackButton inline label="Back" fallbackPath="/" />
+        </div>
         {/* Customer Header Banner */}
         <div className="bg-white rounded-3xl p-4 sm:p-6 md:p-8 border border-slate-200/80 shadow-xs mb-6 sm:mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 sm:gap-6">
           <div className="flex items-center gap-3.5 sm:gap-4">

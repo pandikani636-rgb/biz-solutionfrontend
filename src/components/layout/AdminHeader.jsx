@@ -1,19 +1,21 @@
 import React from 'react';
 import { Menu, Bell, Shield, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { BackButton } from '../common/BackButton';
 
 export const AdminHeader = ({ title = 'Dashboard Overview', subtitle, onToggleSidebar }) => {
   const { user } = useAuth();
 
   return (
     <header className="h-20 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <button
           onClick={onToggleSidebar}
           className="p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-smooth"
         >
           <Menu className="w-5 h-5" />
         </button>
+        <BackButton inline label="Back" fallbackPath="/admin" />
         <div>
           <h1 className="text-xl font-bold text-navy">{title}</h1>
           {subtitle && <p className="text-xs text-secondaryText">{subtitle}</p>}

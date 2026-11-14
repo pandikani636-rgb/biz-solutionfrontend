@@ -18,6 +18,7 @@ import {
   Cog,
 } from 'lucide-react';
 import { Button } from '../../components/common/Button';
+import { BackButton } from '../../components/common/BackButton';
 
 // 4 Authenticated Industrial Equipment Images for the About Us smooth slider
 const industrialSlides = [
@@ -81,7 +82,10 @@ export const AboutPage = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-800/80 to-blue-700/60" />
         </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-6 sm:px-8 lg:px-10 py-12 sm:py-16 space-y-4">
+        <div className="relative z-10 max-w-5xl mx-auto px-6 sm:px-8 lg:px-10 py-10 sm:py-14 space-y-4">
+          <div className="mb-2">
+            <BackButton inline label="Back to Home" fallbackPath="/" />
+          </div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white font-bold text-xs uppercase tracking-wider backdrop-blur-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             <span>18+ Years Authorized Industrial Stockist &amp; Distributor</span>

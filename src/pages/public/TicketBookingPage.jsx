@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { BackButton } from '../../components/common/BackButton';
 import {
   CalendarDays,
   Plane,
@@ -91,7 +92,10 @@ export const TicketBookingPage = () => {
         <div className="absolute -right-20 -top-32 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl pointer-events-none" />
         <div className="absolute -left-20 -bottom-32 h-96 w-96 rounded-full bg-amber-500/15 blur-3xl pointer-events-none" />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+          <div className="mb-6">
+            <BackButton inline label="Back to Home" fallbackPath="/" />
+          </div>
           <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-300 backdrop-blur-md">
             <Sparkles className="h-4 w-4 text-amber-400" /> Authorized Corporate &amp; Industrial Travel Desk
           </p>

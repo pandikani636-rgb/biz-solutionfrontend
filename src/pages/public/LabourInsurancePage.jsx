@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { contentService } from '../../services/contentService';
 import { showSuccessAlert, showErrorAlert } from '../../utils/alerts';
+import { BackButton } from '../../components/common/BackButton';
 import { Button } from '../../components/common/Button';
 
 const COVERAGE_OPTIONS = ['₹1 Lakh', '₹3 Lakhs', '₹5 Lakhs', '₹10 Lakhs'];
@@ -124,6 +125,9 @@ export const LabourInsurancePage = () => {
         <div className="absolute -left-20 -bottom-20 w-96 h-96 rounded-full bg-blue-500/20 blur-3xl" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-4">
+            <BackButton inline label="Back to Home" fallbackPath="/" />
+          </div>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-amber-300 text-xs font-bold uppercase tracking-wider mb-4">
             <HardHat className="w-4 h-4 text-amber-400" />
             <span>Industrial Compliance &amp; Social Security</span>

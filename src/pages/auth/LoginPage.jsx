@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Layers, Mail, Lock, LogIn, ShieldAlert, UserCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/common/Button';
+import { BackButton } from '../../components/common/BackButton';
 import { showErrorAlert, showToast } from '../../utils/alerts';
 
 export const LoginPage = () => {
@@ -49,7 +50,10 @@ export const LoginPage = () => {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-3xl border border-slate-200 shadow-xl">
+      <div className="max-w-md w-full space-y-6 bg-white p-8 sm:p-10 rounded-3xl border border-slate-200 shadow-xl">
+        <div className="flex justify-start">
+          <BackButton inline label="Back" fallbackPath="/" />
+        </div>
         {/* Brand Header */}
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2 group">

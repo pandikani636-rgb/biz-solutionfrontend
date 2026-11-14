@@ -43,6 +43,7 @@ import { PaymentModal } from '../../components/common/PaymentModal';
 import { formatCurrency } from '../../utils/formatters';
 import { showSuccessAlert, showErrorAlert, showToast } from '../../utils/alerts';
 import { getProductImageUrl } from '../../utils/productImages';
+import { BackButton } from '../../components/common/BackButton';
 
 const brandColors = {
   PIX: 'bg-amber-100 text-amber-900 border-amber-300',
@@ -634,7 +635,12 @@ export const ServiceDetailPage = () => {
   const discountLabel = service.discountPercentage ? `${service.discountPercentage}% OFF` : '46% OFF';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
+      {/* Top Back Navigation */}
+      <div className="flex items-center justify-between">
+        <BackButton inline label="Back to Products" fallbackPath="/services" />
+      </div>
+
       {/* Top Search Bar for Specific Product Number */}
       <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm">
         <form onSubmit={handleProductSearch} className="flex flex-col sm:flex-row items-center gap-3">
