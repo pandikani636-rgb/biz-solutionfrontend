@@ -346,11 +346,20 @@ export const PriceListPage = () => {
             >
               <option value="ALL">All Makes</option>
               <option value="PIX">PIX</option>
+              <option value="Fenner">JK Fenner</option>
+              <option value="Diamond">Diamond</option>
               <option value="NBC">NBC</option>
-              <option value="HCH">HCH</option>
-              <option value="Fenner">Fenner</option>
-              <option value="Timken">Timken</option>
+              <option value="FAG">FAG</option>
               <option value="SKF">SKF</option>
+              <option value="Timken">Timken</option>
+              <option value="NTN">NTN</option>
+              <option value="Siemens">Siemens</option>
+              <option value="Crompton">Crompton</option>
+              <option value="ABB">ABB</option>
+              <option value="Bharat Bijlee">Bharat Bijlee</option>
+              <option value="Shanthi Gears">Shanthi Gears</option>
+              <option value="Vignesh Gears">Vignesh Gears</option>
+              <option value="HCH">HCH</option>
             </select>
           </div>
         </div>

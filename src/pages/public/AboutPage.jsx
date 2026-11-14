@@ -303,14 +303,22 @@ export const AboutPage = () => {
           <p className="text-xs text-slate-500">Direct distribution agreements guaranteeing factory authenticity</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
           {[
             { name: 'PIX', desc: 'Industrial Belts', tag: '46% OFF MRP' },
+            { name: 'JK Fenner', desc: 'Belts & Pulleys', tag: '46% OFF MRP' },
+            { name: 'Diamond', desc: 'Roller Chains', tag: 'Wholesale Rates' },
             { name: 'NBC', desc: 'Heavy Bearings', tag: '46% OFF MRP' },
-            { name: 'HCH', desc: 'EMQ Ball Bearings', tag: '46% OFF MRP' },
-            { name: 'Fenner', desc: 'Pulleys & Belts', tag: '46% OFF MRP' },
-            { name: 'Timken', desc: 'All Bearing Types', tag: '46% OFF MRP' },
+            { name: 'FAG', desc: 'Spherical Rollers', tag: 'Volume Rates' },
             { name: 'SKF', desc: 'Precision Sets', tag: '10% OFF MRP' },
+            { name: 'Timken', desc: 'All Bearing Types', tag: '46% OFF MRP' },
+            { name: 'NTN', desc: 'Machine Bearings', tag: 'Best Market Rates' },
+            { name: 'Siemens', desc: 'IE2/IE3 Motors', tag: 'Project Rates' },
+            { name: 'Crompton', desc: 'Industrial Motors', tag: 'Wholesale B2B' },
+            { name: 'ABB', desc: 'Electric Motors', tag: 'Industrial Rates' },
+            { name: 'Bharat Bijlee', desc: 'AC Drives & Motors', tag: 'Standard Pricing' },
+            { name: 'Shanthi Gears', desc: 'Industrial Gearboxes', tag: 'OEM Pricing' },
+            { name: 'Vignesh Gears', desc: 'Pinions & Spur Gears', tag: 'Direct Factory' },
           ].map((item, idx) => (
             <div
               key={idx}

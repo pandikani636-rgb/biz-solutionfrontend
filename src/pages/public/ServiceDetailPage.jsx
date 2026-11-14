@@ -28,6 +28,7 @@ import {
   Maximize2,
   Columns,
   Package,
+  Table as TableIcon,
 } from 'lucide-react';
 import api, { getAssetUrl } from '../../services/api';
 import { contentService } from '../../services/contentService';
@@ -127,7 +128,81 @@ export const ServiceDetailPage = () => {
   const [selectedPdfCatIndex, setSelectedPdfCatIndex] = useState(0);
   const [selectedPdfItem, setSelectedPdfItem] = useState(null);
   const [pdfSearchQuery, setPdfSearchQuery] = useState('');
-  const [pdfViewMode, setPdfViewMode] = useState('split'); // 'split' | 'pdf_only' | 'products_only'
+  const [pdfViewMode, setPdfViewMode] = useState('sheet'); // 'sheet' | 'split' | 'pdf_only' | 'products_only'
+  const [isPdfProductModalOpen, setIsPdfProductModalOpen] = useState(false);
+
+  // Directly sets any clicked product from the PDF catalog as the main service displayed on page
+  const handleSelectPdfProductAsMain = (prod, shouldScroll = true) => {
+    if (!prod) return;
+    setSelectedPdfItem(prod);
+
+    const wholesalePrice = prod.wholesalePrice || prod.mrp || 0;
+    const mrp = prod.mrp || Math.round(wholesalePrice / 0.54);
+    const discountPercentage = prod.discountPercentage || 46;
+
+    const newService = {
+      _id: prod._id || 'pdf-' + prod.partNumber,
+      name: prod.name,
+      partNumber: prod.partNumber,
+      brand: prod.brand || service?.brand || 'Industrial',
+      section: prod.section || 'Industrial Component',
+      category: {
+        name: prod.categoryName || 'Industrial Catalog',
+        slug: (prod.categoryName || 'industrial-catalog').toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      },
+      categoryName: prod.categoryName,
+      subcategoryName: prod.subcategoryName,
+      mainPrice: wholesalePrice,
+      basePrice: wholesalePrice,
+      officialMrp: mrp,
+      mrp,
+      discountPercentage,
+      discountPrice: wholesalePrice,
+      mainImage: prod.image || service?.mainImage || 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png',
+      images: [prod.image || service?.mainImage || 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png'],
+      shortDescription: prod.description || `${prod.brand || 'Genuine'} ${prod.name} (${prod.partNumber})`,
+      fullDescription: prod.description || `Original OEM certified ${prod.brand || 'Industrial'} ${prod.name}. Technical part number ${prod.partNumber}. ${prod.specifications || ''}`,
+      specifications: prod.specifications ? [{ name: 'Technical Specs', value: prod.specifications }] : [],
+      inStock: prod.inStock !== false,
+      isActive: true,
+      isFromPdfCatalog: true,
+      pdfUrl: pdfCatalog?.fileUrl || service?.pdfUrl || '/sample-catalog.pdf',
+      packages: [
+        {
+          _id: 'standard-wholesale-pack',
+          name: 'Standard Wholesale Pack',
+          price: wholesalePrice,
+          discountPrice: wholesalePrice,
+          description: 'Factory-sealed OEM unit with MTC warranty and tracked dispatch',
+          features: ['100% Genuine MTC Certified', 'Factory Sealed', 'Pan-India Express Dispatch'],
+          isActive: true,
+        },
+      ],
+    };
+
+    setService(newService);
+    setSelectedPackage(newService.packages[0]);
+    setCalcMrp(mrp);
+    if (prod.brand) setCalcBrand(prod.brand);
+
+    // Smoothly update browser URL without re-rendering or losing scroll state
+    window.history.replaceState(null, '', `/services/${encodeURIComponent(prod.partNumber)}`);
+
+    // Pre-populate dynamic form with this exact product
+    setDynamicFormData((prev) => ({
+      ...prev,
+      orderedPartNumber: prod.partNumber,
+      orderedProductName: prod.name,
+      orderedBrand: prod.brand || '',
+      additionalNotes: `Selected from PDF Catalog: ${prod.name} (${prod.partNumber}) - Net: ₹${wholesalePrice}`,
+    }));
+
+    showToast(`Displaying Product: ${prod.name} (${prod.partNumber})`);
+
+    if (shouldScroll) {
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     const fetchCatalog = async () => {
@@ -1174,10 +1249,23 @@ export const ServiceDetailPage = () => {
                 <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200">
                   <button
                     type="button"
+                    onClick={() => setPdfViewMode('sheet')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      pdfViewMode === 'sheet'
+                        ? 'bg-primary text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                    title="Interactive Clickable PDF Sheet - All Data Clickable"
+                  >
+                    <TableIcon className="w-3.5 h-3.5" />
+                    <span>⚡ Clickable PDF Sheet</span>
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setPdfViewMode('split')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                       pdfViewMode === 'split'
-                        ? 'bg-white text-primary shadow-xs'
+                        ? 'bg-primary text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                     title="Side-by-side: PDF Viewer & Product Selector"
@@ -1190,26 +1278,26 @@ export const ServiceDetailPage = () => {
                     onClick={() => setPdfViewMode('pdf_only')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                       pdfViewMode === 'pdf_only'
-                        ? 'bg-white text-primary shadow-xs'
+                        ? 'bg-primary text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                     title="Full Page PDF Document Viewer"
                   >
                     <Eye className="w-3.5 h-3.5" />
-                    <span>PDF Viewer</span>
+                    <span>Raw PDF</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setPdfViewMode('products_only')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                       pdfViewMode === 'products_only'
-                        ? 'bg-white text-primary shadow-xs'
+                        ? 'bg-primary text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                     title="Extracted Products Grid"
                   >
                     <Layers className="w-3.5 h-3.5" />
-                    <span>Products Grid</span>
+                    <span>Cards Grid</span>
                   </button>
                 </div>
 
@@ -1238,54 +1326,31 @@ export const ServiceDetailPage = () => {
             </div>
 
             {/* Main Interactive Container */}
-            <div className={`grid gap-6 ${pdfViewMode === 'split' ? 'grid-cols-1 lg:grid-cols-12' : 'grid-cols-1'}`}>
-              
-              {/* Direct In-Page PDF Viewer */}
-              {(pdfViewMode === 'split' || pdfViewMode === 'pdf_only') && (
-                <div className={`${pdfViewMode === 'split' ? 'lg:col-span-6' : 'w-full'} space-y-3`}>
-                  <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                    <span className="font-bold flex items-center gap-1 text-slate-800">
-                      <FileText className="w-4 h-4 text-primary" />
-                      <span>{pdfCatalog?.fileName || 'Official Catalog PDF'}</span>
-                    </span>
-                    <span className="text-[11px] text-slate-400">Scroll inside to browse pages</span>
-                  </div>
-
-                  <div className="w-full h-[580px] rounded-2xl border border-slate-300 bg-slate-100 overflow-hidden shadow-inner relative">
-                    <iframe
-                      src={`${activePdfUrl}#toolbar=1&navpanes=0&scrollbar=1`}
-                      title="Direct In-Page PDF Catalog Viewer"
-                      className="w-full h-full rounded-2xl border-0"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Products in this PDF & Selected Product Details Panel */}
-              {(pdfViewMode === 'split' || pdfViewMode === 'products_only') && (
-                <div className={`${pdfViewMode === 'split' ? 'lg:col-span-6' : 'w-full'} space-y-5 flex flex-col justify-between`}>
-                  
+            <div>
+              {/* 1. Full-Width Interactive Clickable PDF Specification Sheet (Default) */}
+              {pdfViewMode === 'sheet' && (
+                <div className="space-y-4">
                   {/* Category Pills & Search Bar */}
-                  <div className="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-slate-200">
+                  <div className="space-y-3 bg-gradient-to-r from-blue-50/80 via-sky-50/50 to-slate-50/60 p-4 rounded-2xl border border-blue-200">
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
-                      <span className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                        <Package className="w-4 h-4 text-primary" />
-                        <span>Products In This PDF Catalog</span>
+                      <span className="text-xs font-black uppercase tracking-wider text-navy flex items-center gap-2">
+                        <TableIcon className="w-4 h-4 text-primary" />
+                        <span>Interactive PDF Specification Sheet • Click Any Product Row Below</span>
                       </span>
-                      <span className="text-[11px] font-bold text-primary">
-                        {filteredProducts.length} items found
+                      <span className="text-xs font-bold text-primary bg-white px-3 py-1 rounded-xl border border-blue-200 shadow-2xs">
+                        {filteredProducts.length} Clickable Products Found
                       </span>
                     </div>
 
-                    {/* Part Number Search within PDF */}
+                    {/* Part Number Search */}
                     <div className="relative">
                       <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                       <input
                         type="text"
-                        placeholder="Search part # in this PDF (e.g. A 18, 6204, SPC 2360)..."
+                        placeholder="Search part # in this PDF catalog (e.g. A 18, 6204, SPC 2360, Fenner, 8V)..."
                         value={pdfSearchQuery}
                         onChange={(e) => setPdfSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary text-navy"
+                        className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary text-navy shadow-inner"
                       />
                       {pdfSearchQuery && (
                         <button
@@ -1304,7 +1369,7 @@ export const ServiceDetailPage = () => {
                         <button
                           type="button"
                           onClick={() => setSelectedPdfCatIndex(-1)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                             selectedPdfCatIndex === -1
                               ? 'bg-primary text-white shadow-xs'
                               : 'bg-white text-slate-700 hover:bg-slate-200 border border-slate-200'
@@ -1319,7 +1384,7 @@ export const ServiceDetailPage = () => {
                               key={idx}
                               type="button"
                               onClick={() => setSelectedPdfCatIndex(idx)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                                 selectedPdfCatIndex === idx
                                   ? 'bg-primary text-white shadow-xs'
                                   : 'bg-white text-slate-700 hover:bg-slate-200 border border-slate-200'
@@ -1333,26 +1398,168 @@ export const ServiceDetailPage = () => {
                     )}
                   </div>
 
-                  {/* Extracted Product Items Quick-Select Grid - ALL Products Displayed */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                        Click any product below to display full details ({filteredProducts.length} items):
+                  {/* High-Contrast Interactive Clickable Table */}
+                  <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm max-h-[580px] scrollbar-thin">
+                    <table className="w-full text-left text-xs bg-white">
+                      <thead className="sticky top-0 z-10 bg-slate-900 text-white font-black uppercase text-[10px] tracking-wider border-b border-slate-800 shadow-xs">
+                        <tr>
+                          <th className="py-3 px-3">Part Number</th>
+                          <th className="py-3 px-3">Product Name &amp; Category</th>
+                          <th className="py-3 px-3">Make</th>
+                          <th className="py-3 px-4">Specifications &amp; Dimensions</th>
+                          <th className="py-3 px-3 text-right">List MRP</th>
+                          <th className="py-3 px-3 text-right">Wholesale Rate</th>
+                          <th className="py-3 px-3 text-center">Clickable Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 font-medium">
+                        {filteredProducts.map((prod, pIdx) => {
+                          const isItemSelected = selectedPdfItem?.partNumber === prod.partNumber;
+                          return (
+                            <tr
+                              key={prod._id || `${prod.partNumber}-${pIdx}`}
+                              onClick={() => {
+                                setSelectedPdfItem(prod);
+                                setIsPdfProductModalOpen(true);
+                              }}
+                              className={`transition-all cursor-pointer group ${
+                                isItemSelected
+                                  ? 'bg-blue-50/90 font-bold border-l-4 border-l-primary'
+                                  : 'hover:bg-blue-50/70'
+                              }`}
+                              title={`Click to Display ${prod.name} (${prod.partNumber})`}
+                            >
+                              <td className="py-3 px-3 whitespace-nowrap">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-mono text-xs font-black text-primary group-hover:underline">
+                                    {prod.partNumber}
+                                  </span>
+                                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                                    OEM
+                                  </span>
+                                </div>
+                              </td>
+
+                              <td className="py-3 px-3 max-w-xs">
+                                <p className="font-bold text-slate-900 group-hover:text-primary transition-colors truncate" title={prod.name}>
+                                  {prod.name}
+                                </p>
+                                <p className="text-[10px] text-slate-400 truncate">
+                                  {prod.categoryName || 'General'} {prod.subcategoryName ? `• ${prod.subcategoryName}` : ''}
+                                </p>
+                              </td>
+
+                              <td className="py-3 px-3 whitespace-nowrap">
+                                <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-navy text-accent">
+                                  {prod.brand || service?.brand || 'Industrial'}
+                                </span>
+                              </td>
+
+                              <td className="py-3 px-4 text-slate-600 font-mono text-[11px] max-w-sm truncate" title={prod.specifications || 'Standard OEM Specs'}>
+                                {prod.specifications || 'Standard OEM Dimension & Tolerance'}
+                              </td>
+
+                              <td className="py-3 px-3 text-right line-through text-slate-400 whitespace-nowrap">
+                                {formatCurrency(prod.mrp)}
+                              </td>
+
+                              <td className="py-3 px-3 text-right whitespace-nowrap">
+                                <span className="font-black text-emerald-700 text-xs sm:text-sm block">
+                                  {formatCurrency(prod.wholesalePrice)}
+                                </span>
+                                <span className="text-[9px] font-bold text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded">
+                                  {prod.discountPercentage || 46}% OFF
+                                </span>
+                              </td>
+
+                              <td className="py-3 px-3 text-center whitespace-nowrap">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSelectPdfProductAsMain(prod, true);
+                                  }}
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-[11px] font-black transition-all shadow-xs group-hover:scale-105 cursor-pointer"
+                                  title="Display as Main Product on Page"
+                                >
+                                  <span>Display Product</span>
+                                  <ArrowRight className="w-3 h-3" />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span className="font-semibold flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-amber-500" />
+                      <span>All rows and data inside this PDF are clickable. Click any product to view its complete specifications and wholesale pricing.</span>
+                    </span>
+                    <span className="font-bold text-primary">
+                      {filteredProducts.length} items in catalog
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* 2. Split View (Raw PDF and Interactive Clickable List) */}
+              {pdfViewMode === 'split' && (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  {/* Left: Raw PDF Viewer */}
+                  <div className="lg:col-span-6 space-y-3">
+                    <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                      <span className="font-bold flex items-center gap-1 text-slate-800">
+                        <FileText className="w-4 h-4 text-primary" />
+                        <span>{pdfCatalog?.fileName || 'Official Catalog PDF'}</span>
                       </span>
-                      {selectedPdfCatIndex !== -1 && currentCat && (
-                        <span className="text-[11px] font-bold text-primary">
-                          Category: {currentCat.name}
-                        </span>
-                      )}
+                      <span className="text-[11px] text-slate-400">Scroll inside to browse pages</span>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-72 overflow-y-auto p-2 border border-slate-200 rounded-2xl bg-white shadow-inner">
+
+                    <div className="w-full h-[580px] rounded-2xl border border-slate-300 bg-slate-100 overflow-hidden shadow-inner relative">
+                      <iframe
+                        src={`${activePdfUrl}#toolbar=1&navpanes=0&scrollbar=1`}
+                        title="Direct In-Page PDF Catalog Viewer"
+                        className="w-full h-full rounded-2xl border-0"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right: Products In This PDF */}
+                  <div className="lg:col-span-6 space-y-4 flex flex-col justify-between">
+                    <div className="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-slate-200">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                        <span className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
+                          <Package className="w-4 h-4 text-primary" />
+                          <span>Click Any Product to Display ({filteredProducts.length})</span>
+                        </span>
+                      </div>
+
+                      <div className="relative">
+                        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          placeholder="Search part # in this PDF..."
+                          value={pdfSearchQuery}
+                          onChange={(e) => setPdfSearchQuery(e.target.value)}
+                          className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary text-navy"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[480px] overflow-y-auto p-2 border border-slate-200 rounded-2xl bg-white shadow-inner">
                       {filteredProducts.map((prod, pIdx) => {
                         const isItemSelected = selectedPdfItem?.partNumber === prod.partNumber;
                         return (
                           <button
                             key={prod._id || `${prod.partNumber}-${pIdx}`}
                             type="button"
-                            onClick={() => setSelectedPdfItem(prod)}
+                            onClick={() => {
+                              setSelectedPdfItem(prod);
+                              setIsPdfProductModalOpen(true);
+                            }}
                             className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                               isItemSelected
                                 ? 'bg-blue-50 border-primary ring-2 ring-primary/50 shadow-sm'
@@ -1374,140 +1581,201 @@ export const ServiceDetailPage = () => {
                       })}
                     </div>
                   </div>
-
-                  {/* PROMINENT SELECTED PRODUCT DETAILS DISPLAY ON THE SAME PAGE */}
-                  {selectedPdfItem && (
-                    <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-blue-50/90 via-sky-50/60 to-white border-2 border-blue-300/80 shadow-md animate-fadeIn space-y-4">
-                      
-                      {/* Top Header of Selected Product */}
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-blue-200/80 pb-3">
-                        <div className="flex items-start gap-3">
-                          {selectedPdfItem.image && (
-                            <div className="w-16 h-16 rounded-xl bg-white p-1 border border-blue-200 shrink-0 shadow-xs flex items-center justify-center">
-                              <img
-                                src={selectedPdfItem.image}
-                                alt={selectedPdfItem.name}
-                                className="w-full h-full object-contain"
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src = 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png';
-                                }}
-                              />
-                            </div>
-                          )}
-                          <div>
-                            <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                              <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-navy text-accent">
-                                {selectedPdfItem.brand || service?.brand || 'Industrial'}
-                              </span>
-                              <span className="font-mono text-xs font-black text-primary px-2 py-0.5 rounded bg-blue-100 border border-blue-200">
-                                Part: {selectedPdfItem.partNumber}
-                              </span>
-                              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200">
-                                In Stock
-                              </span>
-                            </div>
-                            <h4 className="text-base sm:text-lg font-black text-navy leading-tight">
-                              {selectedPdfItem.name}
-                            </h4>
-                          </div>
-                        </div>
-
-                        {/* Price Tag Highlight */}
-                        <div className="text-right shrink-0 bg-white px-3.5 py-2 rounded-xl border border-blue-200 shadow-2xs">
-                          <span className="text-[10px] text-slate-400 line-through block">
-                            MRP: {formatCurrency(selectedPdfItem.mrp)}
-                          </span>
-                          <span className="text-lg font-black text-navy block">
-                            {formatCurrency(selectedPdfItem.wholesalePrice)}
-                          </span>
-                          <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded inline-block">
-                            Save {formatCurrency(selectedPdfItem.mrp - selectedPdfItem.wholesalePrice)} ({selectedPdfItem.discountPercentage || 46}% OFF)
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Technical Specs & Details Matrix */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                        <div className="bg-white p-2 rounded-xl border border-blue-100">
-                          <span className="text-slate-400 block text-[10px] uppercase font-bold">Category</span>
-                          <span className="font-bold text-slate-900 truncate block">
-                            {selectedPdfItem.categoryName || currentCat?.name || 'Power Transmission'}
-                          </span>
-                        </div>
-                        <div className="bg-white p-2 rounded-xl border border-blue-100">
-                          <span className="text-slate-400 block text-[10px] uppercase font-bold">Subcategory</span>
-                          <span className="font-bold text-slate-900 truncate block">
-                            {selectedPdfItem.subcategoryName || 'Standard Profile'}
-                          </span>
-                        </div>
-                        <div className="bg-white p-2 rounded-xl border border-blue-100">
-                          <span className="text-slate-400 block text-[10px] uppercase font-bold">GST Standard</span>
-                          <span className="font-bold text-slate-900">+ 18% Statutory GST</span>
-                        </div>
-                        <div className="bg-white p-2 rounded-xl border border-blue-100">
-                          <span className="text-slate-400 block text-[10px] uppercase font-bold">Logistics</span>
-                          <span className="font-bold text-emerald-700 flex items-center gap-1">
-                            <Truck className="w-3 h-3" /> Express Dispatch
-                          </span>
-                        </div>
-                      </div>
-
-                      {selectedPdfItem.specifications && (
-                        <div className="p-2.5 bg-white rounded-xl border border-blue-100 text-xs text-slate-700">
-                          <strong className="text-navy font-bold">Technical Specifications: </strong>
-                          <span>{selectedPdfItem.specifications}</span>
-                        </div>
-                      )}
-
-                      {/* Action Buttons for Selected Product */}
-                      <div className="flex flex-wrap items-center gap-2.5 pt-1">
-                        <Button
-                          variant="accent"
-                          size="sm"
-                          className="font-black inline-flex items-center gap-1.5 shadow-sm bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-400 cursor-pointer"
-                          onClick={() => handleOrderPdfProduct(selectedPdfItem)}
-                        >
-                          <CreditCard className="w-4 h-4 text-slate-950" />
-                          <span>Order This Product Now ({formatCurrency(selectedPdfItem.wholesalePrice)})</span>
-                        </Button>
-
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="font-bold text-xs inline-flex items-center gap-1 cursor-pointer bg-white"
-                          onClick={() => {
-                            setRfqData((prev) => ({
-                              ...prev,
-                              message: `Inquiry for catalog product: ${selectedPdfItem.name} (${selectedPdfItem.partNumber})`,
-                              targetPrice: selectedPdfItem.wholesalePrice,
-                            }));
-                            setIsRfqModalOpen(true);
-                          }}
-                        >
-                          <FileSpreadsheet className="w-3.5 h-3.5 text-primary" />
-                          <span>Request Bulk RFQ</span>
-                        </Button>
-
-                        <Link
-                          to={`/services/${encodeURIComponent(selectedPdfItem.partNumber)}`}
-                          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                          className="text-xs font-black text-primary hover:text-navy hover:underline inline-flex items-center gap-1 ml-auto cursor-pointer bg-white px-3 py-1.5 rounded-xl border border-blue-200 shadow-2xs"
-                        >
-                          <span>Open Product Details</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                      </div>
-                    </div>
-                  )}
-
                 </div>
               )}
 
+              {/* 3. Raw PDF Document Viewer */}
+              {pdfViewMode === 'pdf_only' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span className="font-bold flex items-center gap-1.5 text-slate-800">
+                      <FileText className="w-4 h-4 text-primary" />
+                      <span>{pdfCatalog?.fileName || 'Official Catalog PDF'}</span>
+                    </span>
+                    <span className="text-xs text-primary font-bold">
+                      💡 Tip: Use "Clickable PDF Sheet" tab to click directly on table rows!
+                    </span>
+                  </div>
+
+                  <div className="w-full h-[650px] rounded-2xl border border-slate-300 bg-slate-100 overflow-hidden shadow-inner relative">
+                    <iframe
+                      src={`${activePdfUrl}#toolbar=1&navpanes=0&scrollbar=1`}
+                      title="Direct In-Page PDF Catalog Viewer"
+                      className="w-full h-full rounded-2xl border-0"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* 4. Products Cards Grid */}
+              {pdfViewMode === 'products_only' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-[580px] overflow-y-auto p-2 border border-slate-200 rounded-2xl bg-white shadow-inner">
+                    {filteredProducts.map((prod, pIdx) => (
+                      <button
+                        key={prod._id || `${prod.partNumber}-${pIdx}`}
+                        type="button"
+                        onClick={() => {
+                          setSelectedPdfItem(prod);
+                          setIsPdfProductModalOpen(true);
+                        }}
+                        className="p-3 rounded-xl border border-slate-200 bg-white hover:border-primary hover:shadow-md transition-all text-left flex flex-col justify-between group cursor-pointer"
+                      >
+                        <div>
+                          <span className="font-mono text-xs font-black text-primary block group-hover:underline">
+                            {prod.partNumber}
+                          </span>
+                          <h4 className="font-bold text-xs text-navy line-clamp-2 mt-1">
+                            {prod.name}
+                          </h4>
+                          {prod.specifications && (
+                            <p className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">
+                              {prod.specifications}
+                            </p>
+                          )}
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-slate-100 flex items-baseline justify-between">
+                          <span className="text-[10px] text-slate-400 line-through">₹{prod.mrp}</span>
+                          <span className="text-xs font-black text-emerald-700">₹{prod.wholesalePrice}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         );
       })()}
+
+      {/* Interactive Product Display Modal for ANY Clicked PDF Product */}
+      {selectedPdfItem && (
+        <Modal
+          isOpen={isPdfProductModalOpen}
+          onClose={() => setIsPdfProductModalOpen(false)}
+          title="Product Display"
+        >
+          <div className="space-y-5">
+            {/* Top Product Header with Image and Badges */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-blue-50/40 border border-slate-200">
+              <div className="w-28 h-28 rounded-2xl bg-white p-2 border border-slate-200 shadow-xs flex items-center justify-center shrink-0">
+                <img
+                  src={selectedPdfItem.image || service?.mainImage || 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png'}
+                  alt={selectedPdfItem.name}
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png';
+                  }}
+                />
+              </div>
+
+              <div className="space-y-1.5 flex-1 text-center sm:text-left">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
+                  <span className="px-2.5 py-0.5 rounded-lg bg-navy text-accent text-xs font-black">
+                    {selectedPdfItem.brand || service?.brand || 'Industrial'}
+                  </span>
+                  <span className="font-mono text-xs font-black text-primary px-2.5 py-0.5 rounded-lg bg-blue-100 border border-blue-200">
+                    {selectedPdfItem.partNumber}
+                  </span>
+                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">
+                    Verified OEM Genuine
+                  </span>
+                </div>
+                <h3 className="text-lg font-black text-navy leading-snug">
+                  {selectedPdfItem.name}
+                </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  {selectedPdfItem.categoryName || 'Industrial Power Transmission & Bearings'} • {selectedPdfItem.subcategoryName || 'Standard OEM Part'}
+                </p>
+              </div>
+            </div>
+
+            {/* Price & Commercial Terms Card */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+              <div className="flex justify-between items-center text-slate-500">
+                <span>Official List MRP:</span>
+                <span className="line-through font-semibold text-slate-400">
+                  {formatCurrency(selectedPdfItem.mrp)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-emerald-700 font-bold">
+                <span>Contract Discount:</span>
+                <span className="bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded border border-emerald-200 text-[11px] font-black">
+                  {selectedPdfItem.discountPercentage || 46}% OFF LIST MRP
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-navy font-black text-base pt-2 border-t border-slate-200">
+                <span>Direct B2B Wholesale Rate:</span>
+                <span className="text-emerald-700 text-lg">
+                  {formatCurrency(selectedPdfItem.wholesalePrice)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-[10px] text-slate-400 pt-1">
+                <span>Statutory 18% GST Applicable</span>
+                <span className="text-emerald-700 font-bold">You Save: {formatCurrency(selectedPdfItem.mrp - selectedPdfItem.wholesalePrice)}</span>
+              </div>
+            </div>
+
+            {/* Specifications Matrix */}
+            {selectedPdfItem.specifications && (
+              <div className="p-3 bg-blue-50/60 rounded-xl border border-blue-200 text-xs text-slate-700">
+                <strong className="text-navy font-bold block mb-1">Technical Specifications:</strong>
+                <p className="font-mono text-slate-800">{selectedPdfItem.specifications}</p>
+              </div>
+            )}
+
+            {/* Direct Action Buttons */}
+            <div className="space-y-2 pt-2">
+              <Button
+                variant="primary"
+                size="md"
+                className="w-full py-3 font-black text-xs flex items-center justify-center gap-2 shadow-md bg-primary hover:bg-primary-dark cursor-pointer"
+                onClick={() => {
+                  setIsPdfProductModalOpen(false);
+                  handleSelectPdfProductAsMain(selectedPdfItem, true);
+                }}
+              >
+                <span>Display as Main Product on Page &amp; Purchase</span>
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="accent"
+                  size="sm"
+                  className="w-full font-black text-xs flex items-center justify-center gap-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-400 cursor-pointer"
+                  onClick={() => {
+                    setIsPdfProductModalOpen(false);
+                    handleOrderPdfProduct(selectedPdfItem);
+                  }}
+                >
+                  <CreditCard className="w-3.5 h-3.5 text-slate-950" />
+                  <span>Order Directly</span>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer bg-white"
+                  onClick={() => {
+                    setIsPdfProductModalOpen(false);
+                    setRfqData((prev) => ({
+                      ...prev,
+                      message: `Inquiry for catalog product: ${selectedPdfItem.name} (${selectedPdfItem.partNumber})`,
+                      targetPrice: selectedPdfItem.wholesalePrice,
+                    }));
+                    setIsRfqModalOpen(true);
+                  }}
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-primary" />
+                  <span>Request Bulk RFQ</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Checkout & Payment Confirmation Modal */}
       <Modal

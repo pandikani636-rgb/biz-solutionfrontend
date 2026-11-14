@@ -107,8 +107,8 @@ export const AIChatbotWidget = () => {
         fallbackQuickLink = { label: 'View MRP Calculator', url: '/mrp-pricing' };
       } else if (q.includes('brand') || q.includes('make') || q.includes('skf') || q.includes('timken')) {
         fallbackReply = isTamil
-          ? 'எங்கள் அங்கீகரிக்கப்பட்ட பிராண்டுகள்:\n1. PIX (பெல்ட்கள்)\n2. NBC (பேரிங்ஸ்)\n3. HCH (பால் பேரிங்ஸ்)\n4. Fenner (புஷ் புல்லிகள் & பெல்ட்கள்)\n5. Timken (ரோலர் பேரிங்ஸ்)\n6. SKF (நேஷனல் & இம்போர்ட்டட் பேரிங்ஸ்).'
-          : 'We are authorized stockists for 6 major makes:\n1. PIX Transmissions (Belts)\n2. NBC Bearings (Deep Groove)\n3. HCH Bearings (EMQ Ball Bearings)\n4. Fenner India (Bush Pulleys & Belts)\n5. Timken (All Bearing Types)\n6. SKF Group (National & International Genuine Stock).';
+          ? 'எங்கள் 14 அங்கீகரிக்கப்பட்ட பிராண்டுகள்:\n1. PIX\n2. JK Fenner\n3. Diamond\n4. NBC\n5. FAG\n6. SKF\n7. Timken\n8. NTN\n9. Siemens\n10. Crompton\n11. ABB\n12. Bharat Bijlee\n13. Shanthi Gears\n14. Vignesh Gears.'
+          : 'We are authorized stockists for 14 premier industrial makes in order:\n1. PIX\n2. JK Fenner\n3. Diamond\n4. NBC\n5. FAG\n6. SKF\n7. Timken\n8. NTN\n9. Siemens\n10. Crompton\n11. ABB\n12. Bharat Bijlee\n13. Shanthi Gears\n14. Vignesh Gears.';
         fallbackQuickLink = { label: 'Browse Brands', url: '/services' };
       } else if (q.includes('contact') || q.includes('phone') || q.includes('address') || q.includes('email')) {
         fallbackReply = isTamil

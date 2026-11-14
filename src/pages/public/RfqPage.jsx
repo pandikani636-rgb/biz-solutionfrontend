@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   FileSpreadsheet,
   CheckCircle2,
@@ -17,13 +18,36 @@ import { Button } from '../../components/common/Button';
 import { showSuccessAlert, showErrorAlert } from '../../utils/alerts';
 
 export const RfqPage = () => {
+  const [searchParams] = useSearchParams();
+  const brandParam = searchParams.get('brand');
+
+  const resolveInitialBrand = (param) => {
+    if (!param) return 'All / Multiple Brands';
+    const p = param.toLowerCase();
+    if (p.includes('pix')) return 'PIX';
+    if (p.includes('fenner') || p.includes('jk')) return 'JK Fenner';
+    if (p.includes('diamond')) return 'Diamond';
+    if (p.includes('nbc')) return 'NBC';
+    if (p.includes('fag')) return 'FAG';
+    if (p.includes('skf')) return 'SKF';
+    if (p.includes('timken')) return 'Timken';
+    if (p.includes('ntn')) return 'NTN';
+    if (p.includes('siemens')) return 'Siemens';
+    if (p.includes('crompton')) return 'Crompton';
+    if (p.includes('abb')) return 'ABB';
+    if (p.includes('bharat') || p.includes('bijlee')) return 'Bharat Bijlee';
+    if (p.includes('shanthi')) return 'Shanthi Gears';
+    if (p.includes('vignesh')) return 'Vignesh Gears';
+    return param;
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     companyName: '',
     gstin: '',
-    brand: 'All / Multiple Brands',
+    brand: resolveInitialBrand(brandParam),
     partNumber: '',
     quantity: 25,
     targetPrice: '',
@@ -115,7 +139,7 @@ RFQ Submission Details:
             Request for Quotation (RFQ)
           </h1>
           <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">
-            Direct factory procurement for industrial plants, textile mills, cement plants, and OEMs. Submit part numbers across PIX, NBC, HCH, Fenner, Timken (all types), and SKF.
+            Direct factory procurement for industrial plants, textile mills, cement plants, and OEMs. Submit part numbers across our 14 authorized makes including PIX, JK Fenner, Diamond, NBC, FAG, SKF, Timken, NTN, Siemens, Crompton, ABB, Bharat Bijlee, Shanthi Gears, and Vignesh Gears.
           </p>
         </div>
 
@@ -191,11 +215,19 @@ RFQ Submission Details:
                   >
                     <option value="All / Multiple Brands">Multiple Brands (Mixed BOM)</option>
                     <option value="PIX">PIX Transmissions (Belts - 46% Off MRP)</option>
-                    <option value="NBC">NBC Bearings (46% Off MRP)</option>
-                    <option value="HCH">HCH Bearings (46% Off MRP)</option>
-                    <option value="Fenner">Fenner (Pulleys & Belts - 46% Off MRP)</option>
-                    <option value="Timken">Timken (All Bearing Types - 46% Off MRP)</option>
-                    <option value="SKF">SKF Bearings (10% Off MRP - National & Intl.)</option>
+                    <option value="JK Fenner">JK Fenner (Belts, Pulleys & Couplings - 46% Off MRP)</option>
+                    <option value="Diamond">Diamond (Roller Chains & Sprockets - Wholesale Rates)</option>
+                    <option value="NBC">NBC Bearings (Ball & Taper Roller - 46% Off MRP)</option>
+                    <option value="FAG">FAG Bearings (Spherical & Cylindrical - Volume Discounts)</option>
+                    <option value="SKF">SKF Bearings (Deep Groove & Angular - Flat 10% Off MRP)</option>
+                    <option value="Timken">Timken (Tapered Roller & Heavy Bearings - 46% Off MRP)</option>
+                    <option value="NTN">NTN Bearings (High-Precision Machine Bearings)</option>
+                    <option value="Siemens">Siemens (IE2/IE3 Electric Motors & Drives)</option>
+                    <option value="Crompton">Crompton (Heavy Duty Induction Motors)</option>
+                    <option value="ABB">ABB (High Efficiency IE3 / IE4 Motors)</option>
+                    <option value="Bharat Bijlee">Bharat Bijlee (Heavy Duty AC Motors & Drives)</option>
+                    <option value="Shanthi Gears">Shanthi Gears (Industrial Gearboxes & Spares)</option>
+                    <option value="Vignesh Gears">Vignesh Gears (Industrial Pinions & Spur Gears)</option>
                   </select>
                 </div>
 
@@ -383,7 +415,7 @@ RFQ Submission Details:
             <div className="space-y-3 text-xs text-slate-600">
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200">
                 <p className="font-extrabold text-amber-900">45% - 48% Discount Schedule</p>
-                <p className="text-amber-800 mt-0.5">Applied on PIX, NBC, HCH, Fenner, and Timken official price lists.</p>
+                <p className="text-amber-800 mt-0.5">Applied on PIX, JK Fenner, NBC, and Timken official price lists with volume tiers.</p>
               </div>
 
               <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
@@ -405,7 +437,7 @@ RFQ Submission Details:
             </p>
             <div className="space-y-2 text-xs pt-1">
               <p className="flex items-center gap-2 font-bold text-white">
-                <Phone className="w-4 h-4 text-accent" /> +91 98765 43210
+                <Phone className="w-4 h-4 text-accent" /> +91 74184 23238
               </p>
               <p className="flex items-center gap-2 text-slate-300">
                 <Mail className="w-4 h-4 text-accent" /> balumuniandassociates@gmail.com

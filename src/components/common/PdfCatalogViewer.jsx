@@ -672,9 +672,16 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
                                   </thead>
                                   <tbody className="divide-y divide-slate-100 font-medium">
                                     {visibleProducts.map((p, pIdx) => (
-                                      <tr key={p._id || `${key}-${pIdx}`} className="hover:bg-slate-50/80 transition-smooth">
+                                      <tr
+                                        key={p._id || `${key}-${pIdx}`}
+                                        onClick={() => setSelectedProduct(p)}
+                                        className="hover:bg-blue-50/70 transition-smooth cursor-pointer group"
+                                        title={`Click to view ${p.name} (${p.partNumber}) details`}
+                                      >
                                         <td className="py-2 px-3">
-                                          <Link to={`/services/${encodeURIComponent(p.partNumber)}`} className="w-10 h-10 rounded-lg bg-slate-50 p-1 border border-slate-200 flex items-center justify-center shrink-0 hover:border-primary">
+                                          <div
+                                            className="w-10 h-10 rounded-lg bg-slate-50 p-1 border border-slate-200 flex items-center justify-center shrink-0 group-hover:border-primary transition-colors"
+                                          >
                                             <img
                                               src={p.image || subcategory.image || FALLBACK_IMAGE}
                                               alt={p.name}
@@ -684,20 +691,18 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
                                                 e.target.src = FALLBACK_IMAGE;
                                               }}
                                             />
-                                          </Link>
+                                          </div>
                                         </td>
                                         <td className="py-2.5 px-3 font-black text-navy">{p.brand}</td>
                                         <td className="py-2.5 px-3 font-mono font-bold text-primary">
-                                          <Link to={`/services/${encodeURIComponent(p.partNumber)}`} className="hover:underline">
+                                          <span className="group-hover:underline">
                                             {p.partNumber}
-                                          </Link>
+                                          </span>
                                         </td>
                                         <td className="py-2.5 px-4 max-w-xs">
-                                          <Link to={`/services/${encodeURIComponent(p.partNumber)}`} className="hover:text-primary transition-colors block">
-                                            <p className="font-bold text-darkText truncate" title={p.name}>
-                                              {p.name}
-                                            </p>
-                                          </Link>
+                                          <p className="font-bold text-darkText truncate group-hover:text-primary transition-colors" title={p.name}>
+                                            {p.name}
+                                          </p>
                                           {p.specifications && (
                                             <p className="text-[10px] text-slate-400 truncate">{p.specifications}</p>
                                           )}
@@ -716,6 +721,7 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
                                         <td className="py-2.5 px-3 text-center whitespace-nowrap">
                                           <Link
                                             to={`/services/${encodeURIComponent(p.partNumber)}`}
+                                            onClick={(e) => e.stopPropagation()}
                                             className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-navy text-accent text-[11px] font-bold hover:bg-primary hover:text-white transition-smooth shadow-2xs"
                                           >
                                             <span>{isTamil ? 'விவரங்கள்' : 'Details'}</span>
@@ -830,18 +836,24 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-center gap-2.5">
+              <Link
+                to={`/services/${encodeURIComponent(selectedProduct.partNumber)}`}
+                className="w-full sm:flex-1 py-3 px-4 rounded-2xl bg-primary hover:bg-primary-dark text-white font-black text-xs transition-smooth flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+              >
+                <span>View Full Product &amp; Order</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
               <Link
                 to={`/rfq?partNumber=${encodeURIComponent(selectedProduct.partNumber)}&brand=${encodeURIComponent(selectedProduct.brand)}&serviceName=${encodeURIComponent(selectedProduct.name)}`}
-                className="flex-1 py-3 px-4 rounded-2xl bg-navy text-accent font-black text-xs hover:bg-navy-dark transition-smooth flex items-center justify-center gap-2 shadow-xs"
+                className="w-full sm:flex-1 py-3 px-4 rounded-2xl bg-navy text-accent font-black text-xs hover:bg-navy-dark transition-smooth flex items-center justify-center gap-2 shadow-xs"
               >
-                <span>Request B2B RFQ / Quotation</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Request Quotation</span>
               </Link>
               <button
                 type="button"
                 onClick={() => setSelectedProduct(null)}
-                className="py-3 px-5 rounded-2xl border border-slate-300 font-bold text-xs text-slate-600 hover:bg-slate-100 transition-smooth"
+                className="w-full sm:w-auto py-3 px-5 rounded-2xl border border-slate-300 font-bold text-xs text-slate-600 hover:bg-slate-100 transition-smooth cursor-pointer"
               >
                 Close
               </button>
