@@ -98,7 +98,7 @@ export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggl
               <img src="/bm-logo.png" alt="BM Logo" className="w-full h-full object-contain" />
             </div>
             <div className="min-w-0 flex-1">
-              <span className="font-black text-sm tracking-tight leading-none block truncate text-yellow-400">
+              <span className="font-cinzel font-extrabold text-sm tracking-wide leading-none block truncate text-amber-400">
                 Balumuni and Associates
               </span>
               <span className="text-[10px] uppercase font-bold tracking-wider text-blue-400 block mt-1">

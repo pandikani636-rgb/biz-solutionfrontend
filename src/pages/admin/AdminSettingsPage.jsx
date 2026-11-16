@@ -270,13 +270,8 @@ export const AdminSettingsPage = () => {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-xl font-black tracking-tight">
-                <span className="text-yellow-500 font-black">
-                  {settings.siteNameFirstPart || 'Balumuni'}
-                </span>{' '}
-                <span className="text-slate-950 font-black">
-                  {settings.siteNameRemainingPart || 'and Associates'}
-                </span>
+              <span className="brand-name-gold text-xl font-extrabold tracking-wide">
+                {settings.siteName || `${settings.siteNameFirstPart || 'Balumuni'} ${settings.siteNameRemainingPart || 'and Associates'}`}
               </span>
             </div>
           </div>

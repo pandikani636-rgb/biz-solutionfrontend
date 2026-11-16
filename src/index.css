@@ -191,3 +191,23 @@
     transform: none !important;
   }
 }
+
+/* Brand Logo Typography Styling - Ultra Sharp & High Contrast on Light Headers */
+.brand-name-gold {
+  font-family: 'Cinzel', serif;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  color: #F59E0B;
+  -webkit-text-stroke: 0.7px #0F172A;
+  text-shadow: 0 1px 2px rgba(15, 23, 42, 0.4);
+}
+
+.brand-name-gold-outfit {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #F59E0B;
+  -webkit-text-stroke: 0.7px #0F172A;
+  text-shadow: 0 1px 2px rgba(15, 23, 42, 0.4);
+}
+

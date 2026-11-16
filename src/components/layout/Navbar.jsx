@@ -163,8 +163,8 @@ export const Navbar = () => {
                 }}
               />
             </div>
-            <span className="text-sm sm:text-base md:text-lg lg:text-[16px] xl:text-[19px] 2xl:text-2xl font-black tracking-tight whitespace-nowrap shrink-0 transition-colors flex items-center text-yellow-400 drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.6)]">
-              Balumuni and Associates
+            <span className="brand-name-gold text-sm sm:text-base md:text-lg lg:text-[16px] xl:text-[19px] 2xl:text-2xl font-extrabold whitespace-nowrap shrink-0 transition-colors flex items-center select-none">
+              {settings?.siteName || 'Balumuni and Associates'}
             </span>
           </Link>
 

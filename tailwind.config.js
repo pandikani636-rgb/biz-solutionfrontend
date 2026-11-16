@@ -28,6 +28,10 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        cinzel: ['Cinzel', 'serif'],
+        outfit: ['Outfit', 'sans-serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
+        playfair: ['"Playfair Display"', 'serif'],
       },
     },
   },

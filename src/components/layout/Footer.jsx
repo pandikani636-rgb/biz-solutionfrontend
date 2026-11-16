@@ -58,8 +58,8 @@ export const Footer = () => {
                 />
               </div>
               <div>
-                <span className="text-xl sm:text-2xl font-black tracking-tight leading-tight flex items-center text-yellow-400">
-                  Balumuni and Associates
+                <span className="font-cinzel text-xl sm:text-2xl font-black tracking-wide leading-tight flex items-center text-amber-400 drop-shadow-sm">
+                  {settings?.siteName || 'Balumuni and Associates'}
                 </span>
                 <span className="text-[10px] text-blue-200 uppercase tracking-wider font-semibold">
                   Industrial Power Transmission &amp; Bearings
