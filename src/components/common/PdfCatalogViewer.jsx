@@ -280,7 +280,7 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
             </span>
             <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
               <ShieldCheck className="w-3 h-3 text-emerald-600" />
-              <span>100% Genuine MTC</span>
+              <span>100% Genuine Products</span>
             </span>
             <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
               <Truck className="w-3 h-3 text-blue-600" />

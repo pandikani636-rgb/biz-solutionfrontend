@@ -174,8 +174,8 @@ export const ServiceDetailPage = () => {
           name: 'Standard Wholesale Pack',
           price: wholesalePrice,
           discountPrice: wholesalePrice,
-          description: 'Factory-sealed OEM unit with MTC warranty and tracked dispatch',
-          features: ['100% Genuine MTC Certified', 'Factory Sealed', 'Pan-India Express Dispatch'],
+          description: 'Factory-sealed OEM unit with 100% genuine warranty and tracked dispatch',
+          features: ['100% Genuine Products', 'Factory Sealed', 'Pan-India Express Dispatch'],
           isActive: true,
         },
       ],
@@ -372,8 +372,8 @@ export const ServiceDetailPage = () => {
                       name: 'Standard Wholesale Pack',
                       price: wholesalePrice,
                       discountPrice: wholesalePrice,
-                      description: 'Factory-sealed OEM unit with MTC warranty and tracked dispatch',
-                      features: ['100% Genuine MTC Certified', 'Factory Sealed', 'Pan-India Express Dispatch'],
+                      description: 'Factory-sealed OEM unit with 100% genuine warranty and tracked dispatch',
+                      features: ['100% Genuine Products', 'Factory Sealed', 'Pan-India Express Dispatch'],
                       isActive: true,
                     },
                   ],
@@ -742,7 +742,7 @@ export const ServiceDetailPage = () => {
 
           <div className="flex flex-wrap items-center gap-6 pt-1 text-xs font-semibold text-slate-600">
             <span className="flex items-center gap-1.5 text-emerald-700 font-bold">
-              <ShieldCheck className="w-4 h-4" /> 100% Genuine MTC Certified
+              <ShieldCheck className="w-4 h-4" /> 100% Genuine Products
             </span>
             <span className="flex items-center gap-1.5 text-primary">
               <Truck className="w-4 h-4" /> Nationwide Dispatch
@@ -898,7 +898,7 @@ export const ServiceDetailPage = () => {
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Factory Authentic <strong className="text-emerald-700 font-black">MTC &amp; Serial Traceability</strong></span>
+                <span>Factory Authentic <strong className="text-emerald-700 font-black">100% Genuine Products &amp; Serial Traceability</strong></span>
               </div>
             </div>
           </div>
@@ -1823,7 +1823,7 @@ export const ServiceDetailPage = () => {
               <p className="text-2xl font-black text-navy">{formatCurrency(pricing.total)}</p>
             </div>
             <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs">
-              MTC & Invoice Included
+              100% Genuine Products &amp; Invoice
             </span>
           </div>
 

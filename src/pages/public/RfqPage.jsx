@@ -157,7 +157,7 @@ RFQ Submission Details:
             <Truck className="w-4 h-4 text-emerald-400" /> Insured Tracked Shipping
           </p>
           <p className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-blue-400" /> MTC & Mill Test Certified
+            <ShieldCheck className="w-4 h-4 text-blue-400" /> 100% Genuine Products
           </p>
         </div>
       </div>

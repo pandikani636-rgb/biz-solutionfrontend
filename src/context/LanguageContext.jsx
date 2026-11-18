@@ -21,7 +21,7 @@ const translations = {
     nav_logout: 'Log Out',
     nav_quick_quote: 'Quick Quote',
     nav_free_shipping: 'Insured Tracked Logistics on 45-48% Off Catalog',
-    nav_genuine_mtc: '100% Genuine MTC Certified',
+    nav_genuine_mtc: '100% Genuine Products',
 
     // Hero & Home
     hero_badge: 'Official B2B Stockist & Wholesale Distributor',
@@ -83,7 +83,7 @@ const translations = {
     nav_logout: 'வெளியேறு',
     nav_quick_quote: 'விரைவு விலைப்புள்ளி',
     nav_free_shipping: 'பாதுகாப்பான விரைவு சரக்கு போக்குவரத்து உண்டு',
-    nav_genuine_mtc: '100% அசல் சான்றளிக்கப்பட்ட பாகங்கள்',
+    nav_genuine_mtc: '100% அசல் தயாரிப்புகள்',
 
     // Hero & Home
     hero_badge: 'அங்கீகரிக்கப்பட்ட மொத்த விநியோகஸ்தர்',

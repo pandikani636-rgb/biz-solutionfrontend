@@ -203,7 +203,7 @@ export const BalumuniInvoice = ({ invoice, onPrint, onClose }) => {
             </div>
 
             <div className="p-1.5">
-              <span className="font-bold">Note:</span> <span>100% Genuine MTC Certified Components</span>
+              <span className="font-bold">Note:</span> <span>100% Genuine Products</span>
             </div>
           </div>
         </div>

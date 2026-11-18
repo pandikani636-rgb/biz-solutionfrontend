@@ -74,7 +74,7 @@ const discountMatrix = [
     discount: '45% - 48% OFF MRP',
     discountPct: 46,
     freight: 'Standard Shipping',
-    warranty: 'Timken Authenticity MTC',
+    warranty: 'Timken 100% Genuine Authenticity',
     notes: 'Featured 6313 open type + full Timken range (tapered, spherical, ball) on demand.',
     color: 'border-orange-300 bg-orange-50/50',
     tagColor: 'bg-orange-100 text-orange-900 border-orange-300',

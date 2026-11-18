@@ -113,7 +113,7 @@ export const Navbar = () => {
             </a>
           </div>
 
-          {/* Right Info: GSTIN, MTC, Admin */}
+          {/* Right Info: GSTIN, Admin */}
           <div className="flex items-center gap-4 flex-nowrap whitespace-nowrap shrink-0">
             <span className="text-white font-bold whitespace-nowrap">
               GSTIN: <span className="font-mono font-black text-amber-300">33HONPK5547G2ZK</span>

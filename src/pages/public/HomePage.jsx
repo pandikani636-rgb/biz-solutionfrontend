@@ -429,7 +429,7 @@ export const HomePage = () => {
       image: '/bannerImages/skf.jpg',
       badgeText: 'SKF AUTHENTIC PROVENANCE • FLAT 10% OFF',
       title: 'SKF Premium Industrial Bearings & Units',
-      subtitle: 'World-benchmark SKF deep groove ball bearings, angular contact bearings, and plummer block units. Direct supply with original laser markings, security holograms, and verified Mill Test Certificates.',
+      subtitle: 'World-benchmark SKF deep groove ball bearings, angular contact bearings, and plummer block units. Direct supply with original laser markings, security holograms, and 100% genuine guaranteed.',
       ctaText: 'Explore SKF Bearings',
       ctaLink: '/services?search=SKF',
       secondaryCtaText: 'Get Official Quote',
@@ -722,8 +722,8 @@ export const HomePage = () => {
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-bold text-sm text-darkText group-hover:text-primary transition-smooth">100% Genuine Guaranteed</h4>
-              <p className="text-xs text-secondaryText">MTC & factory serial verification</p>
+              <h4 className="font-bold text-sm text-darkText group-hover:text-primary transition-smooth">100% Genuine Products</h4>
+              <p className="text-xs text-secondaryText">Factory serial verification</p>
             </div>
           </div>
 

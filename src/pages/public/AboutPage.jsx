@@ -167,7 +167,7 @@ export const AboutPage = () => {
               {[
                 {
                   title: '100% Guaranteed Genuine Provenance',
-                  desc: 'Zero tolerance for counterfeit components. Every bearing and belt is sourced directly from manufacturers with batch holograms and Mill Test Certificates (MTC).',
+                  desc: 'Zero tolerance for counterfeit components. Every bearing and belt is sourced directly from manufacturers with batch holograms and serial traceability.',
                 },
                 {
                   title: 'Matched Sets and Precision Balance',
@@ -278,8 +278,8 @@ export const AboutPage = () => {
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>
-                  <h5 className="font-black text-xs text-blue-950 uppercase tracking-wider">100% Genuine MTC</h5>
-                  <p className="text-[10px] text-slate-500 leading-tight">Batch mill test certified</p>
+                  <h5 className="font-black text-xs text-blue-950 uppercase tracking-wider">100% Genuine Products</h5>
+                  <p className="text-[10px] text-slate-500 leading-tight">Factory serial verified</p>
                 </div>
               </div>
 
