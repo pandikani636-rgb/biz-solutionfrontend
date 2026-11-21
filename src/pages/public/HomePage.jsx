@@ -332,12 +332,28 @@ const allFourteenBrands = [
 
 const travelSlides = [
   {
+    id: 'gst',
+    type: 'GST Invoicing Desk',
+    badge: 'Official GSTIN: 33HONPK5547G2ZK',
+    title: 'B2B GST Tax Invoicing & Compliance',
+    subtitle: 'Official 18% Input Tax Credit (ITC) tax invoices for all industrial equipment purchases, vendor filings, and company tax compliance.',
+    image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1000&q=80',
+    fallbackImage: '/balumuni-visiting-card.png',
+    icon: FileSpreadsheet,
+    route: '/rfq?service=gst',
+    highlights: ['18% Full ITC Benefit', 'Instant GST E-Way Bills', 'Corporate Compliance'],
+    btnText: 'Inquire GST Invoicing',
+    gradient: 'from-amber-900 via-amber-950 to-slate-950',
+    tagColor: 'bg-amber-400/20 text-amber-300 border-amber-400/30',
+  },
+  {
     id: 'train',
     type: 'Train Ticket Booking',
     badge: 'IRCTC Indian Railways Desk',
     title: 'Indian Railways Train Bookings',
     subtitle: 'Confirmed reservations for 1A, 2A, 3A, and Sleeper berths across all trains with Tatkal and Ladies quota support.',
-    image: 'https://images.unsplash.com/photo-1541427468627-a89a96e5ca1d?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1541427468627-a89a96e5ca1d?auto=format&fit=crop&w=1000&q=80',
+    fallbackImage: '/banners/img4.jpg',
     icon: TrainFront,
     route: '/ticket-booking/train',
     highlights: ['Tatkal & General Quota', 'All Class AC & Sleeper', 'Instant PNR Updates'],
@@ -346,32 +362,34 @@ const travelSlides = [
     tagColor: 'bg-emerald-400/20 text-emerald-300 border-emerald-400/30',
   },
   {
-    id: 'flight',
-    type: 'Flight Ticket Booking',
-    badge: 'Domestic & International Flights',
-    title: 'Air Ticket Booking Desk',
-    subtitle: 'Corporate & personal flight reservations on Indigo, Air India, Vistara, and international carriers at competitive rates.',
-    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80',
-    icon: Plane,
-    route: '/ticket-booking/flight',
-    highlights: ['Economy & Business Class', 'GST Invoice for ITC Claim', 'Direct & Connecting Flights'],
-    btnText: 'Book Flights Now',
-    gradient: 'from-blue-900 via-sky-950 to-slate-950',
-    tagColor: 'bg-blue-400/20 text-blue-300 border-blue-400/30',
-  },
-  {
     id: 'bus',
     type: 'Bus Ticket Booking',
     badge: 'Intercity AC Sleeper & Volvo',
     title: 'Intercity Bus Ticket Booking',
     subtitle: 'Comfortable overnight Volvo Multi-Axle, Scania and luxury AC Sleeper coaches connecting major cities nationwide.',
-    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1000&q=80',
+    fallbackImage: '/banners/img3.jpg',
     icon: Bus,
     route: '/ticket-booking',
     highlights: ['Multi-Axle Volvo & AC Sleeper', 'Convenient Pick-up Points', '24/7 Helpline Support'],
     btnText: 'Book Bus Tickets',
     gradient: 'from-indigo-900 via-purple-950 to-slate-950',
     tagColor: 'bg-amber-400/20 text-amber-300 border-amber-400/30',
+  },
+  {
+    id: 'flight',
+    type: 'Flight Ticket Booking',
+    badge: 'Domestic & International Flights',
+    title: 'Air Ticket Booking Desk',
+    subtitle: 'Corporate & personal flight reservations on Indigo, Air India, Vistara, and international carriers at competitive rates.',
+    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1000&q=80',
+    fallbackImage: '/banners/img2.png',
+    icon: Plane,
+    route: '/ticket-booking/flight',
+    highlights: ['Economy & Business Class', 'GST Invoice for ITC Claim', 'Direct & Connecting Flights'],
+    btnText: 'Book Flights Now',
+    gradient: 'from-blue-900 via-sky-950 to-slate-950',
+    tagColor: 'bg-blue-400/20 text-blue-300 border-blue-400/30',
   },
 ];
 
@@ -981,41 +999,42 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* 4.5 Dual Card Section: Travel Booking Carousel (Train, Flight, Bus) + Certified Labour Insurance */}
+      {/* 4.5 Dual Card Section: Travel Booking Carousel + Quick Service Portal (GST, Train, Bus, Flight) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           
-          {/* Card 1 (Left Division): Train Ticket, Flight Ticket & Bus Ticket Scrolling Carousel */}
-          <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-3xl p-6 sm:p-8 border border-blue-800/60 shadow-2xl text-white relative overflow-hidden flex flex-col justify-between group">
-            {/* Dynamic Background Image of current travel mode */}
-            <div className="absolute inset-0 z-0 pointer-events-none">
-              <img
-                key={travelSlides[travelSlideIdx].image}
-                src={travelSlides[travelSlideIdx].image}
-                alt={travelSlides[travelSlideIdx].title}
-                className="w-full h-full object-cover object-center opacity-30 scale-100 transition-all duration-700 ease-out"
-                onError={(e) => {
-                  e.target.src = '/banners/img4.jpg';
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-transparent" />
-              <div className="absolute inset-0 bg-blue-950/40" />
-            </div>
+          {/* Card 1 (Left Division): Interactive Booking Slide Carousel with Prominent Related Images */}
+          <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-3xl p-5 sm:p-7 border border-blue-800/60 shadow-2xl text-white relative overflow-hidden flex flex-col justify-between group">
+            <div className="space-y-4">
+              {/* Prominent High-Resolution Image Preview of Current Booking Service */}
+              <div className="relative h-48 sm:h-56 w-full rounded-2xl overflow-hidden border border-white/20 shadow-md bg-slate-950 group/img">
+                <img
+                  key={travelSlides[travelSlideIdx].image}
+                  src={travelSlides[travelSlideIdx].image}
+                  alt={travelSlides[travelSlideIdx].title}
+                  className="w-full h-full object-cover object-center transition-all duration-700 ease-out group-hover/img:scale-105"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = travelSlides[travelSlideIdx].fallbackImage || '/banners/img4.jpg';
+                  }}
+                />
+                {/* Light gradient vignette to keep image clear and text legible */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent" />
 
-            <div className="relative z-10 space-y-4">
-              {/* Badge & Carousel Controls */}
-              <div className="flex items-center justify-between gap-2">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border shadow-sm ${travelSlides[travelSlideIdx].tagColor}`}>
-                  <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-                  <span>{travelSlides[travelSlideIdx].badge}</span>
-                </span>
+                {/* Overlaid Badge */}
+                <div className="absolute top-3 left-3 z-10">
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider border shadow-md backdrop-blur-md ${travelSlides[travelSlideIdx].tagColor}`}>
+                    <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                    <span>{travelSlides[travelSlideIdx].badge}</span>
+                  </span>
+                </div>
 
-                {/* Next / Prev Controls */}
-                <div className="flex items-center gap-1.5">
+                {/* Overlaid Previous / Next Slide Controls */}
+                <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => setTravelSlideIdx((prev) => (prev - 1 + travelSlides.length) % travelSlides.length)}
-                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+                    className="w-8 h-8 rounded-full bg-slate-900/70 hover:bg-slate-900 border border-white/30 flex items-center justify-center text-white transition-colors cursor-pointer backdrop-blur-md"
                     aria-label="Previous Travel Mode"
                   >
                     <ChevronLeft className="w-4 h-4" />
@@ -1023,33 +1042,41 @@ export const HomePage = () => {
                   <button
                     type="button"
                     onClick={() => setTravelSlideIdx((prev) => (prev + 1) % travelSlides.length)}
-                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+                    className="w-8 h-8 rounded-full bg-slate-900/70 hover:bg-slate-900 border border-white/30 flex items-center justify-center text-white transition-colors cursor-pointer backdrop-blur-md"
                     aria-label="Next Travel Mode"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
+
+                {/* Overlaid Category Pill at bottom of image */}
+                <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2">
+                  <div className="p-1.5 rounded-xl bg-amber-400 text-slate-950 font-black shadow-md">
+                    {React.createElement(travelSlides[travelSlideIdx].icon, { className: 'w-4 h-4' })}
+                  </div>
+                  <span className="text-xs font-black text-white drop-shadow-md">
+                    {travelSlides[travelSlideIdx].type}
+                  </span>
+                </div>
               </div>
 
-              {/* Title & Type */}
-              <div>
-                <span className="text-[11px] font-bold text-amber-300 uppercase tracking-widest block mb-1">
-                  Corporate &amp; Industrial Travel Desk
+              {/* Title & Subtitle */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-black text-amber-300 uppercase tracking-widest block">
+                  Official Service Desk Preview
                 </span>
-                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                   {travelSlides[travelSlideIdx].title}
                 </h3>
+                <p className="text-slate-300 text-xs sm:text-[13px] leading-relaxed font-medium min-h-[40px]">
+                  {travelSlides[travelSlideIdx].subtitle}
+                </p>
               </div>
 
-              {/* Subtitle / Description */}
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed font-medium min-h-[44px]">
-                {travelSlides[travelSlideIdx].subtitle}
-              </p>
-
-              {/* Highlights */}
+              {/* Key Highlights */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
                 {travelSlides[travelSlideIdx].highlights.map((h, i) => (
-                  <div key={i} className="p-2.5 rounded-xl bg-white/10 border border-white/10 text-center">
+                  <div key={i} className="p-2 rounded-xl bg-white/10 border border-white/10 text-center">
                     <span className="text-[11px] font-bold text-white block leading-tight">{h}</span>
                   </div>
                 ))}
@@ -1057,20 +1084,20 @@ export const HomePage = () => {
             </div>
 
             {/* Bottom Action & Tabs */}
-            <div className="relative z-10 pt-5 mt-4 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              {/* Slide Dots / Tabs */}
-              <div className="flex items-center gap-2">
+            <div className="pt-4 mt-4 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              {/* Slide Tabs: GST, Train, Bus, Flight */}
+              <div className="flex items-center gap-1.5 flex-wrap">
                 {travelSlides.map((s, idx) => (
                   <button
                     key={s.id}
                     onClick={() => setTravelSlideIdx(idx)}
-                    className={`px-3 py-1.5 rounded-xl text-[10px] font-extrabold uppercase transition-all ${
+                    className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer ${
                       idx === travelSlideIdx
-                        ? 'bg-amber-400 text-slate-950 shadow-sm font-black'
+                        ? 'bg-amber-400 text-slate-950 shadow-md scale-105'
                         : 'bg-white/10 text-slate-300 hover:bg-white/20'
                     }`}
                   >
-                    {s.type.replace(' Booking', '')}
+                    {s.id.toUpperCase()}
                   </button>
                 ))}
               </div>
@@ -1079,7 +1106,7 @@ export const HomePage = () => {
                 <Button
                   variant="accent"
                   size="md"
-                  className="w-full sm:w-auto font-black text-xs px-5 py-2.5 shadow-md flex items-center justify-center gap-1.5 text-slate-950 bg-amber-400 hover:bg-amber-300 border border-amber-500"
+                  className="w-full sm:w-auto font-black text-xs px-4 py-2 shadow-md flex items-center justify-center gap-1.5 text-slate-950 bg-amber-400 hover:bg-amber-300 border border-amber-500"
                 >
                   <span>{travelSlides[travelSlideIdx].btnText}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1088,79 +1115,180 @@ export const HomePage = () => {
             </div>
           </div>
 
-          {/* Card 2 (Right Division): Certified Labour Insurance with Yellow Button ("Get Instant Quetation") */}
-          <div className="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 rounded-3xl p-6 sm:p-8 border border-blue-700/60 shadow-2xl text-white relative overflow-hidden flex flex-col justify-between">
-            {/* Ambient decorative glow */}
-            <div className="absolute top-0 right-0 w-72 h-72 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="relative z-10 space-y-3.5">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider">
-                <HardHat className="w-4 h-4 text-amber-400" />
-                <span>Statutory Labour Insurance &amp; Compliance</span>
-              </span>
-
-              <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
-                Protect Your Workforce with Certified Labour Insurance
-              </h3>
-
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                Mandatory under the Employees' Compensation Act and Contract Labour Regulations. Instant policy coverage tailored for manufacturing factories, construction sites, and mechanical workshops.
-              </p>
-
-              {/* Coverage Tiers Available */}
-              <div className="p-3 rounded-2xl bg-white/10 border border-white/10">
-                <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wide block mb-1">
-                  Coverage Tiers Available
-                </span>
-                <div className="flex flex-wrap gap-1.5 text-xs font-extrabold text-white">
-                  <span className="bg-white/10 px-2.5 py-0.5 rounded">₹1 Lakh</span>
-                  <span className="bg-white/10 px-2.5 py-0.5 rounded">₹3 Lakhs</span>
-                  <span className="bg-amber-400/20 text-amber-300 px-2.5 py-0.5 rounded border border-amber-400/30 font-black">₹5 Lakhs (Popular)</span>
-                  <span className="bg-white/10 px-2.5 py-0.5 rounded">₹10 Lakhs</span>
+          {/* Card 2 (Right Division): Exact Order -> 1. GST, 2. Train, 3. Bus, 4. Flight */}
+          <div className="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 rounded-3xl p-5 sm:p-7 border border-blue-700/60 shadow-2xl text-white flex flex-col justify-between">
+            <div>
+              {/* Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-white/15 gap-2">
+                <div>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-black uppercase tracking-wider border border-amber-400/30">
+                    <Sparkles className="w-3 h-3 text-amber-400" />
+                    Priority Booking &amp; Business Services
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-1">
+                    Booking &amp; Services Portal
+                  </h3>
                 </div>
+                <span className="text-[10px] font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-1 rounded-full whitespace-nowrap">
+                  Live Desk
+                </span>
               </div>
 
-              {/* Flexible Working Periods */}
-              <div className="p-3 rounded-2xl bg-white/10 border border-white/10">
-                <span className="text-[10px] font-bold text-blue-300 uppercase tracking-wide block mb-1">
-                  Flexible Working Periods
-                </span>
-                <div className="flex flex-wrap gap-1.5 text-xs font-extrabold text-white">
-                  <span className="bg-white/10 px-2.5 py-0.5 rounded">3 Months</span>
-                  <span className="bg-white/10 px-2.5 py-0.5 rounded">6 Months</span>
-                  <span className="bg-blue-400/20 text-blue-200 px-2.5 py-0.5 rounded border border-blue-400/30 font-black">12 Months (Annual)</span>
+              {/* 4 Items in EXACT Requested Order: 1. gst, 2. train, 3. bud (bus), 4. flight */}
+              <div className="space-y-2.5 mt-3.5">
+                
+                {/* 1. GST Service */}
+                <div
+                  onClick={() => setTravelSlideIdx(0)}
+                  className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                    travelSlideIdx === 0
+                      ? 'bg-white/15 border-amber-400 shadow-md ring-1 ring-amber-400/40'
+                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shrink-0 shadow-xs">
+                      <FileSpreadsheet className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-black text-sm text-white truncate">GST Invoicing &amp; Tax Desk</h4>
+                        <span className="text-[9px] font-black uppercase px-2 py-0.2 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                          18% ITC
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-300 truncate mt-0.5">
+                        GSTIN: 33HONPK5547G2ZK • Official B2B invoices &amp; vendor tax returns
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/rfq?service=gst"
+                    onClick={(e) => e.stopPropagation()}
+                    className="shrink-0 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-all shadow-xs inline-flex items-center gap-1"
+                  >
+                    <span>Inquire</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
                 </div>
-              </div>
 
-              {/* Benefits Checklist */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px] text-emerald-300 font-bold">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                  <span>GST Tax Invoices</span>
+                {/* 2. Train Ticket Booking */}
+                <div
+                  onClick={() => setTravelSlideIdx(1)}
+                  className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                    travelSlideIdx === 1
+                      ? 'bg-white/15 border-emerald-400 shadow-md ring-1 ring-emerald-400/40'
+                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black shrink-0 shadow-xs">
+                      <TrainFront className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-black text-sm text-white truncate">Train Ticket Booking</h4>
+                        <span className="text-[9px] font-black uppercase px-2 py-0.2 rounded bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
+                          IRCTC Desk
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-300 truncate mt-0.5">
+                        1A, 2A, 3A &amp; Sleeper classes • Tatkal &amp; Ladies quota confirmed reservations
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/ticket-booking/train"
+                    onClick={(e) => e.stopPropagation()}
+                    className="shrink-0 px-3 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-black transition-all shadow-xs inline-flex items-center gap-1"
+                  >
+                    <span>Book Train</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                  <span>Accidental Cover</span>
+
+                {/* 3. Bus Ticket Booking */}
+                <div
+                  onClick={() => setTravelSlideIdx(2)}
+                  className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                    travelSlideIdx === 2
+                      ? 'bg-white/15 border-amber-400 shadow-md ring-1 ring-amber-400/40'
+                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shrink-0 shadow-xs">
+                      <Bus className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-black text-sm text-white truncate">Bus Ticket Booking</h4>
+                        <span className="text-[9px] font-black uppercase px-2 py-0.2 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                          Volvo &amp; AC
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-300 truncate mt-0.5">
+                        Intercity AC Volvo Multi-Axle, Scania and luxury Sleeper coaches nationwide
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/ticket-booking"
+                    onClick={(e) => e.stopPropagation()}
+                    className="shrink-0 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-all shadow-xs inline-flex items-center gap-1"
+                  >
+                    <span>Book Bus</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                  <span>Official Certificate</span>
+
+                {/* 4. Flight Ticket Booking */}
+                <div
+                  onClick={() => setTravelSlideIdx(3)}
+                  className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                    travelSlideIdx === 3
+                      ? 'bg-white/15 border-sky-400 shadow-md ring-1 ring-sky-400/40'
+                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-sky-400 text-slate-950 flex items-center justify-center font-black shrink-0 shadow-xs">
+                      <Plane className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-black text-sm text-white truncate">Flight Ticket Booking</h4>
+                        <span className="text-[9px] font-black uppercase px-2 py-0.2 rounded bg-sky-400/20 text-sky-200 border border-sky-400/30">
+                          Air Desk
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-300 truncate mt-0.5">
+                        Indigo, Air India, Vistara &amp; international carriers with corporate ITC invoice
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/ticket-booking/flight"
+                    onClick={(e) => e.stopPropagation()}
+                    className="shrink-0 px-3 py-1.5 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 text-xs font-black transition-all shadow-xs inline-flex items-center gap-1"
+                  >
+                    <span>Book Flight</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
                 </div>
+
               </div>
             </div>
 
-            {/* Yellow Colour Button with exact text "Get Instant Quetation" */}
-            <div className="relative z-10 pt-4 mt-3 border-t border-white/10">
-              <Link to="/labour-insurance" className="w-full block">
-                <Button
-                  variant="accent"
-                  size="lg"
-                  className="w-full font-black text-sm py-3.5 shadow-xl hover:scale-[1.01] transition-smooth flex items-center justify-center gap-2 text-slate-950 bg-amber-400 hover:bg-amber-300 border border-amber-500"
-                >
-                  <HardHat className="w-4 h-4 text-slate-950" />
-                  <span>Get Instant Quetation</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
+            {/* Bottom Support Link for Labour Insurance */}
+            <div className="pt-3 mt-3 border-t border-white/10 flex items-center justify-between text-xs">
+              <span className="text-slate-300 font-medium">Looking for Labour Insurance?</span>
+              <Link
+                to="/labour-insurance"
+                className="text-amber-300 hover:text-yellow-200 font-bold inline-flex items-center gap-1"
+              >
+                <HardHat className="w-3.5 h-3.5" />
+                <span>Statutory Policy Desk →</span>
               </Link>
             </div>
           </div>

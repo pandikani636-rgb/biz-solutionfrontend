@@ -295,7 +295,8 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
       const part = (p.partNumber || '').toLowerCase();
       const name = (p.name || '').toLowerCase();
       const brand = (p.brand || '').toLowerCase();
-      return part.includes(q) || name.includes(q) || brand.includes(q);
+      const spec = (p.specifications || '').toLowerCase();
+      return part.includes(q) || name.includes(q) || brand.includes(q) || spec.includes(q);
     });
 
     if (inCurrent.length > 0) return inCurrent;
@@ -306,7 +307,8 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
         const part = (p.partNumber || '').toLowerCase();
         const name = (p.name || '').toLowerCase();
         const brand = (p.brand || '').toLowerCase();
-        return part.includes(q) || name.includes(q) || brand.includes(q);
+        const spec = (p.specifications || '').toLowerCase();
+        return part.includes(q) || name.includes(q) || brand.includes(q) || spec.includes(q);
       });
       if (found.length > 0) {
         // Auto-switch to matching section!
@@ -762,81 +764,106 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
               </div>
             </div>
           ) : (
-            /* Scrollable Extracted PDF Products Table */
+            /* Detailed PDF Extracted Products Table (No Redundant Individual Images) */
             <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden space-y-1">
               <div className="p-3.5 bg-slate-100/90 border-b border-slate-200 flex items-center justify-between">
-                <span className="text-xs font-black text-slate-700 uppercase tracking-wider">
-                  PDF Extracted Products Table (Scrollable)
+                <div>
+                  <span className="text-xs font-black text-slate-700 uppercase tracking-wider block">
+                    Detailed Products List — {currentSection?.name}
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-medium">
+                    Showing {filteredProducts.length} verified parts. Click any part to view specs &amp; order.
+                  </span>
+                </div>
+                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full">
+                  100% Genuine OEM
                 </span>
-                <span className="text-[11px] text-slate-500 font-medium">Click row to select product &amp; order</span>
               </div>
 
-              <div className="max-h-96 overflow-y-auto scrollbar-thin">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead className="sticky top-0 bg-slate-50 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200 shadow-2xs">
-                    <tr>
-                      <th className="py-2.5 px-3">Part #</th>
-                      <th className="py-2.5 px-3">Make</th>
-                      <th className="py-2.5 px-3">Description</th>
-                      <th className="py-2.5 px-3 text-right">MRP</th>
-                      <th className="py-2.5 px-3 text-right">Wholesale Price</th>
-                      <th className="py-2.5 px-3 text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {filteredProducts.map((p, idx) => {
-                      const isSelected =
-                        (selectedProduct?.partNumber || '').toLowerCase() === (p.partNumber || '').toLowerCase();
-                      const mrp = Number(p.mrp) || 0;
-                      const isSkf = (p.brand || '').toUpperCase().includes('SKF');
-                      const disc = user?.customDiscountPercentage > 0
-                        ? user.customDiscountPercentage
-                        : isSkf ? 10 : (p.discountPercentage || 46);
-                      const unitPrice = mrp > 0 ? Math.round(mrp * (1 - disc / 100)) : (p.wholesalePrice || 0);
+              <div className="max-h-[460px] overflow-y-auto scrollbar-thin">
+                {filteredProducts.length === 0 ? (
+                  <div className="p-8 text-center space-y-2">
+                    <p className="text-xs font-bold text-slate-700">No products match "{rightSearchQuery}" in this section.</p>
+                    <p className="text-[11px] text-slate-500">
+                      Try searching with numbers only (e.g. 2360, 6204, 70, 18) or click any section pill above.
+                    </p>
+                  </div>
+                ) : (
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="sticky top-0 bg-slate-50 text-slate-700 font-black uppercase tracking-wider border-b border-slate-200 shadow-2xs z-10">
+                      <tr>
+                        <th className="py-2.5 px-3">Part #</th>
+                        <th className="py-2.5 px-3">Make</th>
+                        <th className="py-2.5 px-3">Description / Spec</th>
+                        <th className="py-2.5 px-3 text-right">MRP</th>
+                        <th className="py-2.5 px-3 text-right">Wholesale Price</th>
+                        <th className="py-2.5 px-3 text-center">Status</th>
+                        <th className="py-2.5 px-3 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {filteredProducts.map((p, idx) => {
+                        const isSelected =
+                          (selectedProduct?.partNumber || '').toLowerCase() === (p.partNumber || '').toLowerCase();
+                        const mrp = Number(p.mrp) || 0;
+                        const isSkf = (p.brand || '').toUpperCase().includes('SKF');
+                        const disc = user?.customDiscountPercentage > 0
+                          ? user.customDiscountPercentage
+                          : isSkf ? 10 : (p.discountPercentage || 46);
+                        const unitPrice = mrp > 0 ? Math.round(mrp * (1 - disc / 100)) : (p.wholesalePrice || 0);
 
-                      return (
-                        <tr
-                          key={`${p.partNumber}-${idx}`}
-                          onClick={() => setSelectedProduct(p)}
-                          className={`cursor-pointer transition-colors ${
-                            isSelected
-                              ? 'bg-blue-50 font-bold text-primary border-l-4 border-primary'
-                              : 'hover:bg-slate-50 text-slate-700'
-                          }`}
-                        >
-                          <td className="py-2.5 px-3 font-mono font-black text-primary">
-                            {p.partNumber}
-                          </td>
-                          <td className="py-2.5 px-3 font-bold text-navy">
-                            {p.brand || 'PIX'}
-                          </td>
-                          <td className="py-2.5 px-3 text-[11px] text-slate-600 truncate max-w-[140px]">
-                            {p.name}
-                          </td>
-                          <td className="py-2.5 px-3 text-right line-through text-slate-400 font-mono">
-                            {formatCurrency(mrp)}
-                          </td>
-                          <td className="py-2.5 px-3 text-right font-black text-navy font-mono">
-                            {formatCurrency(unitPrice)}
-                          </td>
-                          <td className="py-2.5 px-3 text-center">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedProduct(p);
-                                setIsOrderModalOpen(true);
-                              }}
-                              className="px-2.5 py-1 rounded-lg bg-navy text-accent hover:bg-primary hover:text-white font-extrabold text-[10px] transition-smooth cursor-pointer"
-                            >
-                              Order
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                        return (
+                          <tr
+                            key={`${p.partNumber}-${idx}`}
+                            onClick={() => setSelectedProduct(p)}
+                            className={`cursor-pointer transition-colors ${
+                              isSelected
+                                ? 'bg-blue-50/90 font-bold text-primary border-l-4 border-primary'
+                                : 'hover:bg-slate-50 text-slate-700'
+                            }`}
+                          >
+                            <td className="py-2.5 px-3 font-mono font-black text-primary text-xs whitespace-nowrap">
+                              {p.partNumber}
+                            </td>
+                            <td className="py-2.5 px-3 font-black text-navy text-xs whitespace-nowrap">
+                              <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200">
+                                {p.brand || 'PIX'}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-3 text-[11px] text-slate-600 truncate max-w-[150px]">
+                              {p.name}
+                            </td>
+                            <td className="py-2.5 px-3 text-right line-through text-slate-400 font-mono text-[11px] whitespace-nowrap">
+                              {formatCurrency(mrp)}
+                            </td>
+                            <td className="py-2.5 px-3 text-right font-black text-navy font-mono text-xs whitespace-nowrap">
+                              <span className="text-primary">{formatCurrency(unitPrice)}</span>
+                              <span className="block text-[9px] text-amber-700 font-bold">{disc}% OFF</span>
+                            </td>
+                            <td className="py-2.5 px-3 text-center whitespace-nowrap">
+                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                In Stock
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-3 text-center whitespace-nowrap">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedProduct(p);
+                                  setIsOrderModalOpen(true);
+                                }}
+                                className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-smooth shadow-xs cursor-pointer hover:shadow hover:scale-105 active:scale-95"
+                              >
+                                Order Now
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           )}

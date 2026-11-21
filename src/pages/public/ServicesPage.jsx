@@ -334,197 +334,29 @@ export const ServicesPage = () => {
         }}
       />
 
-      {/* Filter and Sorting Toolbar */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-4">
-        {/* Section / Category Filter */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold text-slate-500 uppercase mr-1">Section:</span>
-          <button
-            onClick={() => handleSectionChange('')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-smooth ${
-              !selectedSection ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            All Sections
-          </button>
-          {sections.map((sec) => (
-            <button
-              key={sec}
-              onClick={() => handleSectionChange(sec)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-smooth ${
-                selectedSection === sec
-                  ? 'bg-emerald-700 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {sec}s
-            </button>
-          ))}
-
-          {/* SKF Origin Filter */}
-          {selectedBrand === 'SKF' && (
-            <div className="flex items-center gap-1 ml-2 border-l border-slate-200 pl-3">
-              <span className="text-xs font-bold text-blue-900 uppercase">Origin:</span>
-              {['National', 'International'].map((orig) => (
-                <button
-                  key={orig}
-                  onClick={() => setSelectedOrigin(selectedOrigin === orig ? '' : orig)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold ${
-                    selectedOrigin === orig
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-blue-50 text-blue-900 hover:bg-blue-100'
-                  }`}
-                >
-                  {orig}
-                </button>
-              ))}
-            </div>
-          )}
+      {/* Direct Bulk Inquiries & Custom RFQ Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 rounded-3xl p-6 sm:p-8 border border-blue-900/40 text-white flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+        <div className="space-y-1">
+          <h3 className="text-lg sm:text-xl font-black text-white">
+            Need a Specific Part Number Not Listed Above?
+          </h3>
+          <p className="text-xs text-slate-300 max-w-2xl">
+            We supply complete industrial ranges from PIX, SKF, Timken, NBC, Fenner, Siemens, ABB, and Shanthi Gears with custom manufacturing and direct factory pricing.
+          </p>
         </div>
-
-        {/* Sorting Dropdown */}
-        <div className="flex items-center gap-2">
-          <ArrowUpDown className="w-4 h-4 text-secondaryText" />
-          <select
-            value={sortBy}
-            onChange={(e) => {
-              setSortBy(e.target.value);
-              setPage(1);
-            }}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-darkText focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="newest">Sort: Default Part Order</option>
-            <option value="popularity">Sort: Most Demanded</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-            <option value="name_asc">Part Name A-Z</option>
-          </select>
+        <div className="flex items-center gap-3 shrink-0">
+          <Link to="/rfq">
+            <Button variant="accent" size="md" className="font-bold text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-md">
+              Submit Custom RFQ
+            </Button>
+          </Link>
+          <Link to="/contact">
+            <Button variant="secondary" size="md" className="font-bold text-xs bg-white/10 text-white hover:bg-white/20 border border-white/20">
+              Contact Sales Desk
+            </Button>
+          </Link>
         </div>
       </div>
-
-      {/* Active Filter Indicators */}
-      {(selectedBrand || selectedSection || selectedOrigin || search) && (
-        <div className="flex items-center gap-2 text-xs text-slate-600 bg-lightBlue/50 p-3 rounded-xl border border-blue-100">
-          <span className="font-bold text-primary">Active Filters:</span>
-          {selectedBrand && (
-            <span className="bg-white border px-2 py-0.5 rounded font-bold text-navy">
-              Make: {selectedBrand}
-            </span>
-          )}
-          {selectedSection && (
-            <span className="bg-white border px-2 py-0.5 rounded font-bold text-navy">
-              Section: {selectedSection}
-            </span>
-          )}
-          {selectedOrigin && (
-            <span className="bg-white border px-2 py-0.5 rounded font-bold text-navy">
-              Origin: {selectedOrigin}
-            </span>
-          )}
-          {search && (
-            <span className="bg-white border px-2 py-0.5 rounded font-bold text-navy">
-              Query: "{search}"
-            </span>
-          )}
-          <span className="ml-auto font-bold text-slate-500">
-            Showing {pagination.total} product(s)
-          </span>
-        </div>
-      )}
-
-      {/* Catalog View Mode Switcher */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setViewMode('grid')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-smooth ${
-              viewMode === 'grid'
-                ? 'bg-navy text-accent shadow-sm'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            <LayoutGrid className="w-4 h-4 text-accent" />
-            <span>Standard Catalog Grid</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode('pdf')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-smooth ${
-              viewMode === 'pdf'
-                ? 'bg-navy text-accent shadow-sm'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            <FileText className="w-4 h-4 text-accent" />
-            <span>PDF Extracted Hierarchy (Categories & Subcategories)</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Content depending on viewMode */}
-      {viewMode === 'pdf' ? (
-        <PdfCatalogViewer />
-      ) : (
-        <>
-          {/* Product Cards Grid */}
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((n) => (
-                <CardSkeleton key={n} />
-              ))}
-            </div>
-          ) : services.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((service) => (
-                <ServiceCard key={service._id} service={service} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 p-8 space-y-4">
-              <p className="text-base font-bold text-darkText">No industrial parts matched your criteria</p>
-              <p className="text-xs text-secondaryText max-w-md mx-auto">
-                Can't find the exact part number or specification? Timken and SKF offer all bearing types on custom request.
-              </p>
-              <div className="flex items-center justify-center gap-3 pt-2">
-                <Button variant="outline" size="sm" onClick={handleResetFilters}>
-                  Reset Filters
-                </Button>
-                <Link to="/rfq">
-                  <Button variant="accent" size="sm">
-                    Request Custom RFQ
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* Pagination Controls */}
-          {pagination.pages > 1 && (
-            <div className="flex justify-center items-center gap-2 pt-6">
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                Previous
-              </Button>
-              <span className="text-xs font-semibold text-secondaryText px-4">
-                Page {pagination.page} of {pagination.pages}
-              </span>
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={page >= pagination.pages}
-                onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
-              >
-                Next
-              </Button>
-            </div>
-          )}
-        </>
-      )}
     </div>
   );
 };

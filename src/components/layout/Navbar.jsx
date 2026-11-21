@@ -68,7 +68,7 @@ export const Navbar = () => {
   };
 
   const navLinkClass = ({ isActive }) =>
-    `px-2 xl:px-3 2xl:px-3.5 py-2 rounded-xl text-sm xl:text-[15px] 2xl:text-base font-extrabold tracking-tight transition-all inline-flex items-center gap-1.5 flex-nowrap whitespace-nowrap shrink-0 ${
+    `px-1.5 lg:px-2 xl:px-2.5 2xl:px-3.5 py-1.5 lg:py-2 rounded-xl text-xs xl:text-sm 2xl:text-[15px] font-black tracking-tight transition-all inline-flex items-center gap-1 xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0 ${
       isActive
         ? 'text-primary bg-blue-50/90 font-black shadow-xs ring-1 ring-primary/20'
         : 'text-slate-900 hover:text-primary hover:bg-slate-100/90'
@@ -82,11 +82,11 @@ export const Navbar = () => {
   return (
     <>
       {/* 1. Top Utility Info Bar (Desktop) - Enhanced Height & Crisp Typography */}
-      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 text-white min-h-[58px] hidden md:block border-b border-blue-500/40 select-none animate-fadeIn font-extrabold shadow-sm">
-        <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 flex items-center justify-between flex-nowrap whitespace-nowrap gap-4">
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 text-white min-h-[52px] sm:min-h-[58px] hidden md:block border-b border-blue-500/40 select-none animate-fadeIn font-extrabold shadow-sm">
+        <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-5 lg:px-6 2xl:px-8 py-2.5 sm:py-3.5 flex items-center justify-between flex-nowrap whitespace-nowrap gap-3">
           {/* Left: Hotline & Email */}
-          <div className="flex items-center gap-4 lg:gap-5 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="text-white font-black tracking-wide text-sm sm:text-[15px] whitespace-nowrap drop-shadow-sm">
+          <div className="flex items-center gap-3 lg:gap-4 flex-nowrap whitespace-nowrap shrink-0">
+            <span className="text-white font-black tracking-wide text-xs lg:text-sm whitespace-nowrap drop-shadow-sm">
               Industrial Power Transmission &amp; Bearings
             </span>
 
@@ -94,10 +94,10 @@ export const Navbar = () => {
 
             <a
               href="tel:+917418423238"
-              className="inline-flex items-center gap-2 text-amber-300 hover:text-yellow-200 font-black text-sm sm:text-base md:text-lg transition-colors whitespace-nowrap drop-shadow-sm tracking-wide"
+              className="inline-flex items-center gap-1.5 text-amber-300 hover:text-yellow-200 font-black text-xs sm:text-sm lg:text-base transition-colors whitespace-nowrap drop-shadow-sm tracking-wide"
               title="Official Sales Hotline"
             >
-              <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300 shrink-0" />
+              <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300 shrink-0" />
               <span>+91 74184 23238</span>
             </a>
 
@@ -105,17 +105,17 @@ export const Navbar = () => {
 
             <a
               href="mailto:balumuniandassociates@gmail.com"
-              className="inline-flex items-center gap-2 text-white hover:text-amber-200 transition-colors whitespace-nowrap font-black text-xs sm:text-sm drop-shadow-sm"
+              className="inline-flex items-center gap-1.5 text-white hover:text-amber-200 transition-colors whitespace-nowrap font-black text-xs sm:text-xs lg:text-sm drop-shadow-sm"
               title="Official Business Email"
             >
-              <Mail className="w-4 h-4 text-amber-300 shrink-0" />
+              <Mail className="w-3.5 h-3.5 text-amber-300 shrink-0" />
               <span>balumuniandassociates@gmail.com</span>
             </a>
           </div>
 
           {/* Right Info: GSTIN, Admin */}
-          <div className="flex items-center gap-4 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="text-white font-black text-sm sm:text-[15px] whitespace-nowrap drop-shadow-sm">
+          <div className="flex items-center gap-3 lg:gap-4 flex-nowrap whitespace-nowrap shrink-0">
+            <span className="text-white font-black text-xs lg:text-sm whitespace-nowrap drop-shadow-sm">
               GSTIN: <span className="font-mono font-black text-amber-300 tracking-wider">33HONPK5547G2ZK</span>
             </span>
 
@@ -147,13 +147,13 @@ export const Navbar = () => {
         }`}
       >
         {/* Main Navigation Bar - Balanced layout fitting all viewports including laptop screens */}
-        <div className="w-full max-w-[1536px] mx-auto px-2.5 sm:px-4 lg:px-4 xl:px-6 2xl:px-8 h-16 lg:h-[72px] xl:h-20 flex items-center justify-between flex-nowrap whitespace-nowrap gap-2 lg:gap-2.5 xl:gap-4 relative">
+        <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-4 lg:px-5 xl:px-6 2xl:px-8 h-16 lg:h-[70px] xl:h-20 flex items-center justify-between flex-nowrap whitespace-nowrap gap-2 lg:gap-2 xl:gap-3 relative">
           {/* Brand Lockup: BM Logo (Proportionate on Mobile & Desktop) + Balumuni and Associates */}
           <Link
             to="/"
-            className="flex items-center gap-1.5 sm:gap-2.5 group shrink-0 flex-nowrap whitespace-nowrap"
+            className="flex items-center gap-1.5 sm:gap-2 group shrink-0 flex-nowrap whitespace-nowrap"
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-10 lg:h-10 xl:w-11 xl:h-11 rounded-xl bg-white border border-slate-200/90 p-0.5 sm:p-1 flex items-center justify-center shadow-xs group-hover:border-primary/40 group-hover:shadow-md transition-all shrink-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-xl bg-white border border-slate-200/90 p-0.5 sm:p-1 flex items-center justify-center shadow-xs group-hover:border-primary/40 group-hover:shadow-md transition-all shrink-0">
               <img
                 src={settings?.logo || '/bm-logo.png'}
                 alt={settings?.siteName || 'Balumuni and Associates Logo'}
@@ -163,13 +163,13 @@ export const Navbar = () => {
                 }}
               />
             </div>
-            <span className="font-cinzel text-blue-700 hover:text-blue-800 text-base sm:text-lg md:text-xl lg:text-[21px] xl:text-2xl 2xl:text-[26px] font-black tracking-wide leading-tight whitespace-nowrap shrink-0 transition-colors flex items-center select-none drop-shadow-xs">
+            <span className="font-cinzel text-blue-700 hover:text-blue-800 text-sm sm:text-base md:text-lg lg:text-[17px] xl:text-xl 2xl:text-2xl font-black tracking-wide leading-tight whitespace-nowrap shrink-0 transition-colors flex items-center select-none drop-shadow-xs">
               {settings?.siteName || 'Balumuni and Associates'}
             </span>
           </Link>
 
           {/* Center Navigation Links: Clean Single Line, Non-Wrapping, Optimized for Laptops */}
-          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 2xl:gap-2 flex-nowrap whitespace-nowrap shrink-0">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 2xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0">
             {/* 1. Home */}
             <NavLink to="/" className={navLinkClass}>
               <span>{t('nav_home') || 'Home'}</span>
@@ -194,7 +194,7 @@ export const Navbar = () => {
                   e.stopPropagation();
                   setIsCategoryDropdownOpen((prev) => !prev);
                 }}
-                className={`px-2 xl:px-3 2xl:px-3.5 py-2 rounded-xl text-sm xl:text-[15px] 2xl:text-base font-extrabold tracking-tight transition-all inline-flex items-center gap-1.5 flex-nowrap whitespace-nowrap shrink-0 cursor-pointer ${
+                className={`px-1.5 lg:px-2 xl:px-2.5 2xl:px-3.5 py-1.5 lg:py-2 rounded-xl text-xs xl:text-sm 2xl:text-[15px] font-black tracking-tight transition-all inline-flex items-center gap-1 xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0 cursor-pointer ${
                   isCategoryDropdownOpen
                     ? 'bg-blue-50/90 text-primary font-black shadow-xs ring-1 ring-primary/20'
                     : 'text-slate-900 hover:text-primary hover:bg-slate-100/90'
@@ -306,12 +306,12 @@ export const Navbar = () => {
           </nav>
 
           {/* Desktop Right Action Cluster - Always 100% visible, non-clipping across all laptop & desktop screens */}
-          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2.5 shrink-0 flex-nowrap whitespace-nowrap">
+          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2 shrink-0 flex-nowrap whitespace-nowrap pl-1 pr-1 sm:pr-2">
             <Link to="/rfq" className="hidden 2xl:inline-flex shrink-0 whitespace-nowrap">
               <Button
                 variant="primary"
                 size="sm"
-                className="font-bold text-xs shadow-xs inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark whitespace-nowrap shrink-0 px-3 py-1.5"
+                className="font-bold text-xs shadow-xs inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark whitespace-nowrap shrink-0 px-2.5 py-1.5"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5 shrink-0" />
                 <span>{t('nav_quick_quote') || 'Quick RFQ'}</span>
@@ -323,9 +323,9 @@ export const Navbar = () => {
                 <button
                   type="button"
                   onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                  className="inline-flex items-center gap-2 p-1 pl-2.5 rounded-full border border-slate-200 hover:border-slate-300 transition-colors bg-slate-50 hover:bg-white whitespace-nowrap cursor-pointer"
+                  className="inline-flex items-center gap-1.5 p-1 pl-2 xl:pl-2.5 rounded-full border border-slate-200 hover:border-slate-300 transition-colors bg-slate-50 hover:bg-white whitespace-nowrap cursor-pointer shadow-xs"
                 >
-                  <span className="text-xs font-bold text-slate-800 max-w-[90px] xl:max-w-[120px] truncate whitespace-nowrap">
+                  <span className="text-xs font-bold text-slate-800 max-w-[80px] xl:max-w-[120px] truncate whitespace-nowrap">
                     {user.name}
                   </span>
                   <img
@@ -411,11 +411,11 @@ export const Navbar = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-2 shrink-0 whitespace-nowrap">
+              <div className="flex items-center gap-1.5 xl:gap-2 shrink-0 whitespace-nowrap">
                 <Link to="/login" className="shrink-0 whitespace-nowrap">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs xl:text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-sm transition-all cursor-pointer hover:shadow-md active:scale-95"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-xs transition-all cursor-pointer hover:shadow-md active:scale-95"
                     title="Sign In to Account"
                   >
                     <User className="w-3.5 h-3.5 text-slate-950 shrink-0" />
@@ -425,7 +425,7 @@ export const Navbar = () => {
                 <Link to="/register" className="shrink-0 whitespace-nowrap inline-flex">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs xl:text-sm font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-sm transition-all cursor-pointer hover:shadow-md active:scale-95"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-xs transition-all cursor-pointer hover:shadow-md active:scale-95"
                   >
                     <span>{t('nav_signup') || t('nav_register') || 'Sign Up'}</span>
                   </button>

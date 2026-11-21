@@ -76,47 +76,53 @@ export const ScrapPriceTable = () => {
         </span>
       </div>
 
-      {/* 3 Columns & 10 Rows Transparent Table - Compact */}
-      <div className="mt-2 overflow-x-auto">
-        <table className="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr className="border-b border-white/15 text-[10px] font-extrabold uppercase tracking-wider text-amber-300/90">
-              <th className="py-1 px-2">Material</th>
-              <th className="py-1 px-2 text-center">Unit</th>
-              <th className="py-1 px-2 text-right">Price</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/10">
-            {topTenRows.map((row, index) => (
-              <tr
-                key={row._id || index}
-                className="hover:bg-white/10 transition-colors group"
-              >
-                {/* Column 1: Material Name */}
-                <td className="py-1 px-2 font-bold text-white group-hover:text-amber-200 truncate max-w-[130px] sm:max-w-[150px] text-[11px]">
-                  <span className="text-[9px] font-mono text-slate-400 mr-1">{index + 1}.</span>
-                  <span>{row.name}</span>
-                </td>
+      {/* Compact Clean Aligned Daily Scrap Rate Rows */}
+      <div className="mt-2.5 space-y-1">
+        {/* Table Header Row */}
+        <div className="flex items-center justify-between px-2 pb-1.5 border-b border-white/15 text-[10px] font-black uppercase tracking-wider text-amber-300/90">
+          <span>Material</span>
+          <div className="flex items-center gap-4">
+            <span className="w-14 text-center">Unit</span>
+            <span className="w-16 text-right">Price</span>
+          </div>
+        </div>
 
-                {/* Column 2: Quantity (KG + Litres) */}
-                <td className="py-1 px-2 text-center text-blue-100 font-medium whitespace-nowrap text-[10px]">
-                  <span className="inline-block bg-white/10 px-1.5 py-0.2 rounded border border-white/10 font-mono">
-                    {row.quantityUnit || '1 KG'}
-                  </span>
-                </td>
+        {/* 10 Rows with Dotted Leader Alignment (No Awkward Vacant Space After Words) */}
+        <div className="divide-y divide-white/10">
+          {topTenRows.map((row, index) => (
+            <div
+              key={row._id || index}
+              className="py-1 px-2 flex items-center justify-between gap-1.5 hover:bg-white/10 rounded-md transition-colors group"
+            >
+              {/* Material Name with Index */}
+              <div className="flex items-center gap-1.5 min-w-0 max-w-[55%]">
+                <span className="text-[10px] font-mono text-amber-300/70 font-black w-4 shrink-0">
+                  {index + 1}.
+                </span>
+                <span className="font-bold text-white group-hover:text-amber-200 text-xs truncate">
+                  {row.name}
+                </span>
+              </div>
 
-                {/* Column 3: Scrap Price */}
-                <td className="py-1 px-2 text-right font-black text-amber-400 whitespace-nowrap text-[11px] sm:text-[12px] font-mono">
-                  {row.price > 0 ? (
-                    `₹${Number(row.price).toLocaleString('en-IN')}`
-                  ) : (
-                    <span className="text-slate-400 text-[9px]">On Request</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              {/* Dotted Leader Line to cleanly connect words to pricing without blank voids */}
+              <div className="flex-1 border-b border-dotted border-white/20 mx-1 mb-0.5" />
+
+              {/* Unit Badge */}
+              <span className="shrink-0 w-14 text-center inline-block bg-white/10 px-1.5 py-0.5 rounded border border-white/10 text-[10px] font-mono text-blue-100">
+                {row.quantityUnit || '1 KG'}
+              </span>
+
+              {/* Price */}
+              <span className="shrink-0 w-16 text-right font-black text-amber-400 font-mono text-xs">
+                {row.price > 0 ? (
+                  `₹${Number(row.price).toLocaleString('en-IN')}`
+                ) : (
+                  <span className="text-slate-400 text-[10px]">On Request</span>
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="mt-2 pt-1.5 border-t border-white/10 flex items-center justify-between text-[9px] text-slate-300">

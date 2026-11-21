@@ -40,7 +40,7 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [activeBrand, setActiveBrand] = useState('ALL');
   const [selectedCatalogId, setSelectedCatalogId] = useState('ALL');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
+  const [viewMode, setViewMode] = useState('table'); // 'table' or 'grid' (Table view avoids showing redundant individual product images)
   const [openSubcategories, setOpenSubcategories] = useState({});
   const [expandedProductLimits, setExpandedProductLimits] = useState({});
   const [selectedProduct, setSelectedProduct] = useState(null);
