@@ -23,6 +23,8 @@ import {
   Layers,
   HardHat,
   TrainFront,
+  Plane,
+  Bus,
 } from 'lucide-react';
 import { contentService } from '../../services/contentService';
 import { ScrapPriceTable } from '../../components/common/ScrapPriceTable';
@@ -328,11 +330,57 @@ const allFourteenBrands = [
   },
 ];
 
+const travelSlides = [
+  {
+    id: 'train',
+    type: 'Train Ticket Booking',
+    badge: 'IRCTC Indian Railways Desk',
+    title: 'Indian Railways Train Bookings',
+    subtitle: 'Confirmed reservations for 1A, 2A, 3A, and Sleeper berths across all trains with Tatkal and Ladies quota support.',
+    image: 'https://images.unsplash.com/photo-1541427468627-a89a96e5ca1d?auto=format&fit=crop&w=800&q=80',
+    icon: TrainFront,
+    route: '/ticket-booking/train',
+    highlights: ['Tatkal & General Quota', 'All Class AC & Sleeper', 'Instant PNR Updates'],
+    btnText: 'Book Train Tickets',
+    gradient: 'from-emerald-900 via-teal-950 to-slate-950',
+    tagColor: 'bg-emerald-400/20 text-emerald-300 border-emerald-400/30',
+  },
+  {
+    id: 'flight',
+    type: 'Flight Ticket Booking',
+    badge: 'Domestic & International Flights',
+    title: 'Air Ticket Booking Desk',
+    subtitle: 'Corporate & personal flight reservations on Indigo, Air India, Vistara, and international carriers at competitive rates.',
+    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80',
+    icon: Plane,
+    route: '/ticket-booking/flight',
+    highlights: ['Economy & Business Class', 'GST Invoice for ITC Claim', 'Direct & Connecting Flights'],
+    btnText: 'Book Flights Now',
+    gradient: 'from-blue-900 via-sky-950 to-slate-950',
+    tagColor: 'bg-blue-400/20 text-blue-300 border-blue-400/30',
+  },
+  {
+    id: 'bus',
+    type: 'Bus Ticket Booking',
+    badge: 'Intercity AC Sleeper & Volvo',
+    title: 'Intercity Bus Ticket Booking',
+    subtitle: 'Comfortable overnight Volvo Multi-Axle, Scania and luxury AC Sleeper coaches connecting major cities nationwide.',
+    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+    icon: Bus,
+    route: '/ticket-booking',
+    highlights: ['Multi-Axle Volvo & AC Sleeper', 'Convenient Pick-up Points', '24/7 Helpline Support'],
+    btnText: 'Book Bus Tickets',
+    gradient: 'from-indigo-900 via-purple-950 to-slate-950',
+    tagColor: 'bg-amber-400/20 text-amber-300 border-amber-400/30',
+  },
+];
+
 export const HomePage = () => {
   const navigate = useNavigate();
 
   const [banners, setBanners] = useState([]);
   const [activeBannerIdx, setActiveBannerIdx] = useState(0);
+  const [travelSlideIdx, setTravelSlideIdx] = useState(0);
   const [categories, setCategories] = useState([]);
   const [featuredServices, setFeaturedServices] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
@@ -537,6 +585,14 @@ export const HomePage = () => {
     return () => clearInterval(timer);
   }, [activeBannersList.length]);
 
+  // Auto-scroll travel slides (Train, Flight, Bus) every 4.5 seconds
+  useEffect(() => {
+    const travelTimer = setInterval(() => {
+      setTravelSlideIdx((prev) => (prev + 1) % travelSlides.length);
+    }, 4500);
+    return () => clearInterval(travelTimer);
+  }, []);
+
   // Synchronize category card and image while scrolling
   const lastScrollPos = useRef(0);
   useEffect(() => {
@@ -620,15 +676,15 @@ export const HomePage = () => {
           <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6 text-accent" />
         </button>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-10 sm:py-14 md:py-16 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 lg:px-10 py-6 sm:py-8 md:py-10 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
             
-            {/* Left: Dynamic Category-Based Card synced with Image Slider */}
-            <div key={activeBannerIdx} className="lg:col-span-6 space-y-4 sm:space-y-5 animate-fadeIn transition-all duration-500">
+            {/* Left: Dynamic Category-Based Card synced with Image Slider - Compact with Reduced Unwanted Space */}
+            <div key={activeBannerIdx} className="lg:col-span-6 space-y-3 sm:space-y-3.5 max-w-lg animate-fadeIn transition-all duration-500">
               {/* Badge */}
               {currentBanner.badgeText && (
                 <div className="animate-fadeIn">
-                  <span className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-blue-950/80 border border-blue-400/40 text-amber-300 font-black text-xs uppercase tracking-wider backdrop-blur-md shadow-xl">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-950/85 border border-blue-400/40 text-amber-300 font-black text-xs uppercase tracking-wider backdrop-blur-md shadow-lg">
                     <Sparkles className="w-3.5 h-3.5 text-accent animate-pulse" />
                     {currentBanner.badgeText}
                   </span>
@@ -636,47 +692,47 @@ export const HomePage = () => {
               )}
 
               {/* Title Directly Linked to Displayed Image */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight drop-shadow-md">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-snug drop-shadow-md">
                 {currentBanner.title}
               </h1>
 
-              {/* Subtitle / Description Card */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-blue-900/70 backdrop-blur-md border border-white/20 shadow-2xl max-w-xl animate-fadeIn">
-                <p className="text-white text-xs sm:text-base leading-relaxed font-semibold drop-shadow-sm">
+              {/* Subtitle / Description Card - Compact & Reduced Unwanted Space */}
+              <div className="p-2.5 sm:p-3 rounded-xl bg-blue-950/75 backdrop-blur-md border border-white/20 shadow-lg max-w-md animate-fadeIn">
+                <p className="text-white text-xs sm:text-[13px] leading-relaxed font-semibold drop-shadow-xs line-clamp-3">
                   {currentBanner.subtitle}
                 </p>
               </div>
 
               {/* Action Buttons - Request Quotation */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1 animate-fadeIn">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-0.5 animate-fadeIn">
                 <Link to={currentBanner.ctaLink || '/services'} className="w-full sm:w-auto">
-                  <Button variant="accent" size="lg" className="w-full font-bold inline-flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] transition-smooth group">
+                  <Button variant="accent" size="md" className="w-full font-bold inline-flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.01] transition-smooth text-xs">
                     <span>{currentBanner.ctaText || 'Browse All Products'}</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-smooth" />
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </Button>
                 </Link>
                 <Link to={currentBanner.secondaryCtaLink || '/rfq'} className="w-full sm:w-auto">
-                  <Button variant="secondary" size="lg" className="w-full bg-blue-950/70 text-white hover:bg-blue-950/90 border border-white/25 backdrop-blur-md font-bold inline-flex items-center justify-center gap-2 hover:scale-[1.02] transition-smooth group shadow-lg">
-                    <FileSpreadsheet className="w-4 h-4 text-accent group-hover:rotate-6 transition-smooth" />
+                  <Button variant="secondary" size="md" className="w-full bg-blue-950/75 text-white hover:bg-blue-950/95 border border-white/25 backdrop-blur-md font-bold inline-flex items-center justify-center gap-1.5 text-xs shadow-md">
+                    <FileSpreadsheet className="w-3.5 h-3.5 text-accent" />
                     <span>{currentBanner.secondaryCtaText || 'Request Quotation'}</span>
                   </Button>
                 </Link>
               </div>
 
               {/* Banner navigation indicator dots & slide counter */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-2">
-                <span className="text-xs font-black text-amber-300 bg-blue-950/80 px-2.5 py-0.5 rounded-full border border-blue-400/30 shrink-0">
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="text-[11px] font-black text-amber-300 bg-blue-950/85 px-2.5 py-0.5 rounded-full border border-blue-400/30 shrink-0">
                   Slide {((activeBannerIdx % activeBannersList.length) + 1).toString().padStart(2, '0')} / {activeBannersList.length}
                 </span>
-                <div className="flex items-center gap-1.5 overflow-x-auto max-w-xs scrollbar-none py-1">
+                <div className="flex items-center gap-1 overflow-x-auto max-w-xs scrollbar-none py-0.5">
                   {activeBannersList.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActiveBannerIdx(idx)}
-                      className={`h-2 rounded-full transition-all duration-300 shrink-0 ${
+                      className={`h-1.5 rounded-full transition-all duration-300 shrink-0 ${
                         idx === (activeBannerIdx % activeBannersList.length)
-                          ? 'w-6 bg-accent shadow-md'
-                          : 'w-2 bg-white/40 hover:bg-white/70'
+                          ? 'w-5 bg-accent shadow-sm'
+                          : 'w-1.5 bg-white/40 hover:bg-white/70'
                       }`}
                       aria-label={`Go to slide ${idx + 1}`}
                     />
@@ -742,85 +798,6 @@ export const HomePage = () => {
       {/* 2.5 Home Page Component Photo Upload (Max 20 Megapixels) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <ImageUploadSection />
-      </section>
-
-      {/* 2.8 Labour Insurance & Workforce Security Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-            <div className="lg:col-span-8 space-y-4">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider">
-                <HardHat className="w-4 h-4 text-amber-400" />
-                <span>Statutory Labour Insurance &amp; Compliance</span>
-              </span>
-
-              <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                Protect Your Workforce with Certified Labour Insurance
-              </h2>
-
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl">
-                Mandatory under the Employees' Compensation Act and Contract Labour Regulations. Instant policy coverage tailored for manufacturing factories, construction sites, and mechanical workshops.
-              </p>
-
-              {/* Coverage & Period Pills */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div className="p-3.5 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md">
-                  <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wide block mb-1">
-                    Coverage Tiers Available
-                  </span>
-                  <div className="flex flex-wrap gap-1.5 text-xs font-extrabold text-white">
-                    <span className="bg-white/10 px-2 py-0.5 rounded">₹1 Lakh</span>
-                    <span className="bg-white/10 px-2 py-0.5 rounded">₹3 Lakhs</span>
-                    <span className="bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded border border-amber-400/30">₹5 Lakhs (Popular)</span>
-                    <span className="bg-white/10 px-2 py-0.5 rounded">₹10 Lakhs</span>
-                  </div>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-white/10 border border-white/10 backdrop-blur-md">
-                  <span className="text-[11px] font-bold text-blue-300 uppercase tracking-wide block mb-1">
-                    Flexible Working Periods
-                  </span>
-                  <div className="flex flex-wrap gap-1.5 text-xs font-extrabold text-white">
-                    <span className="bg-white/10 px-2 py-0.5 rounded">3 Months</span>
-                    <span className="bg-white/10 px-2 py-0.5 rounded">6 Months</span>
-                    <span className="bg-blue-400/20 text-blue-200 px-2 py-0.5 rounded border border-blue-400/30">12 Months (Annual)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-4 flex flex-col items-stretch gap-3">
-              <div className="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/15 space-y-3">
-                <div className="flex items-center gap-2 text-xs text-emerald-300 font-bold">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>GST Registered Corporate Invoices</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-emerald-300 font-bold">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Accidental Death &amp; PTD Cover</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-emerald-300 font-bold">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Official Certificate of Insurance</span>
-                </div>
-              </div>
-
-              <Link to="/labour-insurance" className="w-full">
-                <Button
-                  variant="accent"
-                  size="lg"
-                  className="w-full font-black text-sm py-3.5 shadow-xl hover:scale-[1.02] transition-smooth flex items-center justify-center gap-2 text-slate-950"
-                >
-                  <HardHat className="w-4 h-4" />
-                  <span>Get Instant Labour Insurance Quote</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* 3. Official Industrial Equipments Partner Brands (All 14 Logos from First Image) */}
@@ -1001,6 +978,193 @@ export const HomePage = () => {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* 4.5 Dual Card Section: Travel Booking Carousel (Train, Flight, Bus) + Certified Labour Insurance */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          
+          {/* Card 1 (Left Division): Train Ticket, Flight Ticket & Bus Ticket Scrolling Carousel */}
+          <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 rounded-3xl p-6 sm:p-8 border border-blue-800/60 shadow-2xl text-white relative overflow-hidden flex flex-col justify-between group">
+            {/* Dynamic Background Image of current travel mode */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              <img
+                key={travelSlides[travelSlideIdx].image}
+                src={travelSlides[travelSlideIdx].image}
+                alt={travelSlides[travelSlideIdx].title}
+                className="w-full h-full object-cover object-center opacity-30 scale-100 transition-all duration-700 ease-out"
+                onError={(e) => {
+                  e.target.src = '/banners/img4.jpg';
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-transparent" />
+              <div className="absolute inset-0 bg-blue-950/40" />
+            </div>
+
+            <div className="relative z-10 space-y-4">
+              {/* Badge & Carousel Controls */}
+              <div className="flex items-center justify-between gap-2">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border shadow-sm ${travelSlides[travelSlideIdx].tagColor}`}>
+                  <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                  <span>{travelSlides[travelSlideIdx].badge}</span>
+                </span>
+
+                {/* Next / Prev Controls */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setTravelSlideIdx((prev) => (prev - 1 + travelSlides.length) % travelSlides.length)}
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+                    aria-label="Previous Travel Mode"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTravelSlideIdx((prev) => (prev + 1) % travelSlides.length)}
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+                    aria-label="Next Travel Mode"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Title & Type */}
+              <div>
+                <span className="text-[11px] font-bold text-amber-300 uppercase tracking-widest block mb-1">
+                  Corporate &amp; Industrial Travel Desk
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  {travelSlides[travelSlideIdx].title}
+                </h3>
+              </div>
+
+              {/* Subtitle / Description */}
+              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed font-medium min-h-[44px]">
+                {travelSlides[travelSlideIdx].subtitle}
+              </p>
+
+              {/* Highlights */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                {travelSlides[travelSlideIdx].highlights.map((h, i) => (
+                  <div key={i} className="p-2.5 rounded-xl bg-white/10 border border-white/10 text-center">
+                    <span className="text-[11px] font-bold text-white block leading-tight">{h}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom Action & Tabs */}
+            <div className="relative z-10 pt-5 mt-4 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              {/* Slide Dots / Tabs */}
+              <div className="flex items-center gap-2">
+                {travelSlides.map((s, idx) => (
+                  <button
+                    key={s.id}
+                    onClick={() => setTravelSlideIdx(idx)}
+                    className={`px-3 py-1.5 rounded-xl text-[10px] font-extrabold uppercase transition-all ${
+                      idx === travelSlideIdx
+                        ? 'bg-amber-400 text-slate-950 shadow-sm font-black'
+                        : 'bg-white/10 text-slate-300 hover:bg-white/20'
+                    }`}
+                  >
+                    {s.type.replace(' Booking', '')}
+                  </button>
+                ))}
+              </div>
+
+              <Link to={travelSlides[travelSlideIdx].route} className="shrink-0">
+                <Button
+                  variant="accent"
+                  size="md"
+                  className="w-full sm:w-auto font-black text-xs px-5 py-2.5 shadow-md flex items-center justify-center gap-1.5 text-slate-950 bg-amber-400 hover:bg-amber-300 border border-amber-500"
+                >
+                  <span>{travelSlides[travelSlideIdx].btnText}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 2 (Right Division): Certified Labour Insurance with Yellow Button ("Get Instant Quetation") */}
+          <div className="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 rounded-3xl p-6 sm:p-8 border border-blue-700/60 shadow-2xl text-white relative overflow-hidden flex flex-col justify-between">
+            {/* Ambient decorative glow */}
+            <div className="absolute top-0 right-0 w-72 h-72 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 space-y-3.5">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider">
+                <HardHat className="w-4 h-4 text-amber-400" />
+                <span>Statutory Labour Insurance &amp; Compliance</span>
+              </span>
+
+              <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+                Protect Your Workforce with Certified Labour Insurance
+              </h3>
+
+              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                Mandatory under the Employees' Compensation Act and Contract Labour Regulations. Instant policy coverage tailored for manufacturing factories, construction sites, and mechanical workshops.
+              </p>
+
+              {/* Coverage Tiers Available */}
+              <div className="p-3 rounded-2xl bg-white/10 border border-white/10">
+                <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wide block mb-1">
+                  Coverage Tiers Available
+                </span>
+                <div className="flex flex-wrap gap-1.5 text-xs font-extrabold text-white">
+                  <span className="bg-white/10 px-2.5 py-0.5 rounded">₹1 Lakh</span>
+                  <span className="bg-white/10 px-2.5 py-0.5 rounded">₹3 Lakhs</span>
+                  <span className="bg-amber-400/20 text-amber-300 px-2.5 py-0.5 rounded border border-amber-400/30 font-black">₹5 Lakhs (Popular)</span>
+                  <span className="bg-white/10 px-2.5 py-0.5 rounded">₹10 Lakhs</span>
+                </div>
+              </div>
+
+              {/* Flexible Working Periods */}
+              <div className="p-3 rounded-2xl bg-white/10 border border-white/10">
+                <span className="text-[10px] font-bold text-blue-300 uppercase tracking-wide block mb-1">
+                  Flexible Working Periods
+                </span>
+                <div className="flex flex-wrap gap-1.5 text-xs font-extrabold text-white">
+                  <span className="bg-white/10 px-2.5 py-0.5 rounded">3 Months</span>
+                  <span className="bg-white/10 px-2.5 py-0.5 rounded">6 Months</span>
+                  <span className="bg-blue-400/20 text-blue-200 px-2.5 py-0.5 rounded border border-blue-400/30 font-black">12 Months (Annual)</span>
+                </div>
+              </div>
+
+              {/* Benefits Checklist */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px] text-emerald-300 font-bold">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>GST Tax Invoices</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>Accidental Cover</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>Official Certificate</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Yellow Colour Button with exact text "Get Instant Quetation" */}
+            <div className="relative z-10 pt-4 mt-3 border-t border-white/10">
+              <Link to="/labour-insurance" className="w-full block">
+                <Button
+                  variant="accent"
+                  size="lg"
+                  className="w-full font-black text-sm py-3.5 shadow-xl hover:scale-[1.01] transition-smooth flex items-center justify-center gap-2 text-slate-950 bg-amber-400 hover:bg-amber-300 border border-amber-500"
+                >
+                  <HardHat className="w-4 h-4 text-slate-950" />
+                  <span>Get Instant Quetation</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+
         </div>
       </section>
 

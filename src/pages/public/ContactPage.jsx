@@ -147,7 +147,7 @@ export const ContactPage = () => {
                   Proprietor
                 </span>
                 <span className="text-base font-black text-amber-300">
-                  K. Karthick Kumar
+                  Karthick Kumar K
                 </span>
               </div>
               <span className="text-[10px] font-mono font-bold bg-amber-400 text-slate-950 px-2.5 py-1 rounded-md shadow-xs self-start sm:self-auto whitespace-nowrap">

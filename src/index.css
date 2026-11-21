@@ -193,6 +193,14 @@
 }
 
 /* Brand Logo Typography Styling - Ultra Sharp & High Contrast on Light Headers */
+.brand-name-blue {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  letter-spacing: 0.035em;
+  color: #1d4ed8; /* Vibrant Royal Blue */
+  text-shadow: 0 1px 2px rgba(29, 78, 216, 0.15);
+}
+
 .brand-name-gold {
   font-family: 'Cinzel', serif;
   font-weight: 800;

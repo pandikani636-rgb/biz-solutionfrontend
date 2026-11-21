@@ -34,6 +34,8 @@ export const ServiceCard = ({ service }) => {
     isFeatured,
   } = service;
 
+
+
   const productUrl = `/services/${slug || service._id}`;
   const displayPrice = discountPrice > 0 && discountPrice < basePrice ? discountPrice : basePrice;
   const cleanName = (name || '').replace(/authori[sz]ed\s*/gi, '');
@@ -54,6 +56,8 @@ export const ServiceCard = ({ service }) => {
           }}
         />
 
+       
+  
         {/* Brand Badge (Top-Left) */}
         {brand && (
           <div className="absolute top-3 left-3 pointer-events-none">
@@ -91,9 +95,26 @@ export const ServiceCard = ({ service }) => {
         </div>
       </Link>
 
+
+      
       {/* Card Body */}
+
+
+
+
+
+
+
+
+
+
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div>
+          {category?.name && (
+            <span className="inline-block px-2 py-0.5 mb-1.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-black uppercase tracking-wider">
+              Category: {category.name}
+            </span>
+          )}
           <Link to={productUrl} className="block group/title">
             <h3 className="font-bold text-base md:text-lg text-darkText group-hover/title:text-primary transition-smooth line-clamp-1 cursor-pointer">
               {cleanName}

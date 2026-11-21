@@ -81,53 +81,53 @@ export const Navbar = () => {
 
   return (
     <>
-      {/* 1. Top Utility Info Bar (Desktop) - High Contrast & Crisp Typography */}
-      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 text-white text-xs sm:text-[13px] hidden md:block border-b border-blue-500/40 select-none animate-fadeIn font-bold">
-        <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-5 lg:px-6 xl:px-8 py-2 flex items-center justify-between flex-nowrap whitespace-nowrap gap-4">
+      {/* 1. Top Utility Info Bar (Desktop) - Enhanced Height & Crisp Typography */}
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 text-white min-h-[58px] hidden md:block border-b border-blue-500/40 select-none animate-fadeIn font-extrabold shadow-sm">
+        <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 flex items-center justify-between flex-nowrap whitespace-nowrap gap-4">
           {/* Left: Hotline & Email */}
-          <div className="flex items-center gap-4 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="text-white font-extrabold tracking-tight whitespace-nowrap">
+          <div className="flex items-center gap-4 lg:gap-5 flex-nowrap whitespace-nowrap shrink-0">
+            <span className="text-white font-black tracking-wide text-sm sm:text-[15px] whitespace-nowrap drop-shadow-sm">
               Industrial Power Transmission &amp; Bearings
             </span>
 
-            <span className="text-blue-300">|</span>
+            <span className="text-blue-300 font-normal">|</span>
 
             <a
               href="tel:+917418423238"
-              className="inline-flex items-center gap-1.5 text-amber-300 hover:text-yellow-200 font-black transition-colors whitespace-nowrap drop-shadow-xs"
+              className="inline-flex items-center gap-2 text-amber-300 hover:text-yellow-200 font-black text-sm sm:text-base md:text-lg transition-colors whitespace-nowrap drop-shadow-sm tracking-wide"
               title="Official Sales Hotline"
             >
-              <Phone className="w-4 h-4 text-amber-300 shrink-0" />
+              <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300 shrink-0" />
               <span>+91 74184 23238</span>
             </a>
 
-            <span className="text-blue-300">|</span>
+            <span className="text-blue-300 font-normal">|</span>
 
             <a
               href="mailto:balumuniandassociates@gmail.com"
-              className="inline-flex items-center gap-1.5 text-blue-50 hover:text-white transition-colors whitespace-nowrap font-bold"
+              className="inline-flex items-center gap-2 text-white hover:text-amber-200 transition-colors whitespace-nowrap font-black text-xs sm:text-sm drop-shadow-sm"
               title="Official Business Email"
             >
-              <Mail className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+              <Mail className="w-4 h-4 text-amber-300 shrink-0" />
               <span>balumuniandassociates@gmail.com</span>
             </a>
           </div>
 
           {/* Right Info: GSTIN, Admin */}
           <div className="flex items-center gap-4 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="text-white font-bold whitespace-nowrap">
-              GSTIN: <span className="font-mono font-black text-amber-300">33HONPK5547G2ZK</span>
+            <span className="text-white font-black text-sm sm:text-[15px] whitespace-nowrap drop-shadow-sm">
+              GSTIN: <span className="font-mono font-black text-amber-300 tracking-wider">33HONPK5547G2ZK</span>
             </span>
 
-            <span className="text-blue-300">|</span>
+            <span className="text-blue-300 font-normal">|</span>
 
             {isAdmin && (
               <>
                 <Link
                   to="/admin"
-                  className="text-amber-300 hover:text-yellow-200 font-black inline-flex items-center gap-1 transition-colors whitespace-nowrap"
+                  className="text-amber-300 hover:text-yellow-200 font-black text-xs sm:text-sm inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
                 >
-                  <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                  <ShieldAlert className="w-4 h-4 shrink-0" />
                   <span>Admin Console</span>
                 </Link>
               </>
@@ -163,7 +163,7 @@ export const Navbar = () => {
                 }}
               />
             </div>
-            <span className="brand-name-gold text-sm sm:text-base md:text-lg lg:text-[16px] xl:text-[19px] 2xl:text-2xl font-extrabold whitespace-nowrap shrink-0 transition-colors flex items-center select-none">
+            <span className="font-cinzel text-blue-700 hover:text-blue-800 text-base sm:text-lg md:text-xl lg:text-[21px] xl:text-2xl 2xl:text-[26px] font-black tracking-wide leading-tight whitespace-nowrap shrink-0 transition-colors flex items-center select-none drop-shadow-xs">
               {settings?.siteName || 'Balumuni and Associates'}
             </span>
           </Link>
@@ -411,11 +411,11 @@ export const Navbar = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 xl:gap-2 shrink-0 whitespace-nowrap">
+              <div className="flex items-center gap-2 shrink-0 whitespace-nowrap">
                 <Link to="/login" className="shrink-0 whitespace-nowrap">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl text-xs xl:text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-400 shadow-xs transition-all cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs xl:text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-sm transition-all cursor-pointer hover:shadow-md active:scale-95"
                     title="Sign In to Account"
                   >
                     <User className="w-3.5 h-3.5 text-slate-950 shrink-0" />
@@ -423,24 +423,23 @@ export const Navbar = () => {
                   </button>
                 </Link>
                 <Link to="/register" className="shrink-0 whitespace-nowrap inline-flex">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs font-bold border-slate-300 text-slate-800 hover:bg-slate-50 whitespace-nowrap px-2.5 xl:px-3 py-1.5 rounded-xl shadow-2xs"
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs xl:text-sm font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-sm transition-all cursor-pointer hover:shadow-md active:scale-95"
                   >
                     <span>{t('nav_signup') || t('nav_register') || 'Sign Up'}</span>
-                  </Button>
+                  </button>
                 </Link>
               </div>
             )}
           </div>
 
-          {/* Mobile Actions: Compact Login / Avatar + Hamburger Toggle */}
-          <div className="flex lg:hidden items-center gap-1.5 shrink-0">
+          {/* Mobile & Tablet Actions: Prominent Login & Sign Up / Avatar + Hamburger Toggle */}
+          <div className="flex lg:hidden items-center gap-2 shrink-0">
             {isAuthenticated ? (
               <Link
                 to="/customer"
-                className="p-0.5 rounded-full border border-slate-200 bg-slate-50 shrink-0 flex items-center justify-center"
+                className="flex items-center gap-1.5 p-1 px-2.5 rounded-full border border-blue-200 bg-blue-50 shrink-0 text-xs font-bold text-blue-900"
                 title="My Dashboard"
               >
                 <img
@@ -449,19 +448,30 @@ export const Navbar = () => {
                     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'
                   }
                   alt={user.name}
-                  className="w-7 h-7 rounded-full object-cover"
+                  className="w-6 h-6 rounded-full object-cover"
                 />
+                <span className="hidden sm:inline font-bold">Dashboard</span>
               </Link>
             ) : (
-              <Link to="/login" className="shrink-0 whitespace-nowrap">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-400 shadow-xs cursor-pointer"
-                >
-                  <User className="w-3 h-3 text-slate-950 shrink-0" />
-                  <span>Login</span>
-                </button>
-              </Link>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Link to="/login" className="shrink-0 whitespace-nowrap">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-xs cursor-pointer"
+                  >
+                    <User className="w-3 h-3 text-slate-950 shrink-0" />
+                    <span>Login</span>
+                  </button>
+                </Link>
+                <Link to="/register" className="shrink-0 whitespace-nowrap">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-xs cursor-pointer"
+                  >
+                    <span>Sign Up</span>
+                  </button>
+                </Link>
+              </div>
             )}
             <button
               type="button"

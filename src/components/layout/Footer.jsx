@@ -68,9 +68,12 @@ export const Footer = () => {
             </Link>
 
             <div className="text-[11px] font-semibold text-slate-300 space-y-1">
-              <p>
+              <p className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-slate-400">Proprietor:</span>{' '}
-                <strong className="text-white">{settings?.proprietorName || 'K. Karthick Kumar'}</strong>
+                <strong className="text-amber-300 font-extrabold text-xs">
+                  {settings?.proprietorName ? settings.proprietorName.replace(/^K\.\s*/i, '').replace(/K$/i, '').trim() + ' K' : 'Karthick Kumar K'}
+                </strong>
+                <span className="text-[10px] text-blue-300 font-normal">(சப்பாணிமுத்து துணை)</span>
               </p>
               <p className="text-slate-300 text-xs leading-relaxed">
                 {settings?.footerDescription ||
@@ -78,34 +81,71 @@ export const Footer = () => {
               </p>
             </div>
 
-            <div className="pt-2 space-y-2 text-xs text-slate-200">
+            {/* Contact Details strictly in requested order: 1. Address, 2. Mail ID, 3. GST Number, 4. Phone Number */}
+            <div className="pt-2 space-y-2.5 text-xs text-slate-200">
+              {/* 1. Address */}
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <span className="leading-relaxed break-words text-slate-200 font-medium">
-                  {settings?.address ||
-                    '45B/16 Noorullah Mall, Oothumalai Paradesimadam Street, Srivilliputtur, Virudhunagar Dist, Tamilnadu – 626125'}
-                </span>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Address:</span>
+                  <span className="leading-relaxed break-words text-slate-200 font-medium text-xs">
+                    {settings?.address ||
+                      '45B/16 Noorullah Mall, Oothumalai Paradesimadam Street, Srivilliputtur, Virudhunagar Dist, Tamilnadu – 626125'}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-                <a
-                  href={`tel:${(settings?.contactPhone || '+917418423238').replace(/[^0-9+]/g, '')}`}
-                  className="hover:text-amber-300 font-mono font-bold"
-                >
-                  {settings?.contactPhone || '+91 74184 23238'}
-                </a>
+
+              {/* 2. Mail ID */}
+              <div className="flex items-start gap-2.5">
+                <Mail className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Mail ID:</span>
+                  <a
+                    href={`mailto:${settings?.contactEmail || 'balumuniandassociates@gmail.com'}`}
+                    className="hover:text-amber-300 underline break-all font-semibold text-xs text-white"
+                  >
+                    {settings?.contactEmail || 'balumuniandassociates@gmail.com'}
+                  </a>
+                </div>
               </div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-                <a
-                  href={`mailto:${settings?.contactEmail || 'balumuniandassociates@gmail.com'}`}
-                  className="hover:text-amber-300 underline break-all font-medium"
-                >
-                  {settings?.contactEmail || 'balumuniandassociates@gmail.com'}
-                </a>
+
+              {/* 3. GST Number */}
+              <div className="flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">GST Number:</span>
+                  <span className="font-mono text-xs text-amber-300 font-black bg-white/10 px-2 py-0.5 rounded border border-white/20 inline-block shadow-xs">
+                    {settings?.gstin || '33HONPK5547G2ZK'}
+                  </span>
+                </div>
               </div>
-              <div className="inline-block mt-1 font-mono text-[10px] text-amber-300 font-bold bg-white/10 px-2.5 py-1 rounded-md border border-white/20 shadow-xs whitespace-nowrap">
-                GSTIN: {settings?.gstin || '33HONPK5547G2ZK'}
+
+              {/* 4. Phone Number */}
+              <div className="flex items-start gap-2.5">
+                <Phone className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Phone Number:</span>
+                  <a
+                    href={`tel:${(settings?.contactPhone || '+917418423238').replace(/[^0-9+]/g, '')}`}
+                    className="hover:text-amber-300 font-mono font-black text-sm text-amber-300 tracking-wide"
+                  >
+                    {settings?.contactPhone || '+91 74184 23238'}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Official Visiting Card from Contact Page */}
+            <div className="pt-2">
+              <span className="text-[10px] uppercase font-extrabold text-amber-300 tracking-wider block mb-1.5">
+                Official Visiting Card:
+              </span>
+              <div className="rounded-2xl overflow-hidden border border-blue-700/80 shadow-md bg-white p-1 max-w-[260px] group">
+                <img
+                  src="/balumuni-visiting-card.png"
+                  alt="Balumuni and Associates Corporate Visiting Card"
+                  className="w-full h-auto object-contain rounded-xl group-hover:scale-105 transition-smooth duration-300"
+                />
               </div>
             </div>
           </div>
