@@ -32,18 +32,38 @@ import { Button } from './Button';
 import { Spinner } from './Spinner';
 import { showSuccessAlert, showErrorAlert, showToast } from '../../utils/alerts';
 import { contentService } from '../../services/contentService';
+import pixBeltsData from '../../data/pixBeltsCatalogData.json';
 
-// Default authentic section images from local repository assets
+// Authentic technical profile image map for every section in the PDF
 const SECTION_IMAGE_MAP = {
   'section a': '/belts/pix-c-70.jpg',
+  'section a (13 x 8 mm)': '/belts/pix-c-70.jpg',
   'section b': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'section b (17 x 11 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
   'section c': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'section c (22 x 14 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
   'section d': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
-  'section spz': '/belts/PIX SPC 2360 Wedge Belt.jpg',
-  'section spa': '/belts/PIX SPC 2360 Wedge Belt.jpg',
-  'section spb': '/belts/PIX SPC 2360 Wedge Belt.jpg',
-  'section spc': '/belts/PIX SPC PT 3150 Power Transmission.jpg',
-  'section 8v': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  'section d (32 x 19 mm)': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  'section e': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  'section e (38 x 23 mm)': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  'fractional horsepower (fhp series)': '/belts/pix-c-70.jpg',
+  'section aa': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'section aa (13 x 10 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'section bb': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'section bb (17 x 14 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'section cc': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'section cc (22 x 17 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'spz wedge profile (10 x 8 mm)': '/belts/PIX SPC 2360 Wedge Belt.jpg',
+  'spa wedge profile (13 x 10 mm)': '/belts/PIX SPC 2360 Wedge Belt.jpg',
+  'spb wedge profile (17 x 14 mm)': '/belts/PIX SPC 2360 Wedge Belt.jpg',
+  'spc wedge profile (22 x 18 mm)': '/belts/PIX SPC PT 3150 Power Transmission.jpg',
+  '3v section (9.7 x 8 mm)': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  '5v section (15.8 x 13.5 mm)': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  '8v section (25.4 x 23 mm)': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  'ax cogged section (13 x 8 mm)': '/belts/pix-c-70.jpg',
+  'bx cogged section (17 x 11 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'cx cogged section (22 x 14 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'xpz / xpa / xpb / xpc cogged wedge': '/belts/PIX SPC PT 3150 Power Transmission.jpg',
   'deep groove ball bearings': '/bearings/img10.jpg',
   'taper roller bearings': '/bannerImages/nbcandTapper role.webp',
   'spherical roller bearings': '/bearings/img3.jpg',
@@ -54,6 +74,7 @@ const SECTION_IMAGE_MAP = {
   'industrial gears': '/bannerImages/santhiGears.jpg',
 };
 
+// Section specifications & pitch calculation rules
 const SECTION_SPEC_MAP = {
   'section a': {
     profile: '13mm Top Width × 8mm Thickness',
@@ -79,54 +100,76 @@ const SECTION_SPEC_MAP = {
     pitchFactor: 'Pitch Length = Inside Length + 75mm',
     application: 'Severe Shock Loads, Marine Drives, Sugar Plant Crushers',
   },
-  'section spz': {
+  'section e': {
+    profile: '38mm Top Width × 23mm Thickness',
+    angle: '40° V-Angle',
+    pitchFactor: 'Pitch Length = Inside Length + 80mm',
+    application: 'Massive Industrial Mill Drives, Stone Crushers, Marine Engines',
+  },
+  'section bb': {
+    profile: '17mm Top Width × 14mm Thickness',
+    angle: 'Hexagonal Double V Profile',
+    pitchFactor: 'Effective Pitch at Mid-Plane Pitch Line',
+    application: 'Serpentine Drives, Rice Mills, Textile Carding Machines',
+  },
+  'spz': {
     profile: '10mm Top Width × 8mm Thickness',
     angle: '38° Wedge Angle',
     pitchFactor: 'High-speed compact wedge drives',
     application: 'Automotive Auxiliaries, Compact High-Speed Drives',
   },
-  'section spa': {
+  'spa': {
     profile: '13mm Top Width × 10mm Thickness',
     angle: '38° Wedge Angle',
     pitchFactor: 'Medium high-torque narrow drives',
     application: 'Pumps, Generators, Industrial Fans',
   },
-  'section spb': {
+  'spb': {
     profile: '16mm Top Width × 13mm Thickness',
     angle: '38° Wedge Angle',
     pitchFactor: 'Heavy narrow wedge drives',
     application: 'Rock Crushers, Heavy Conveyors, Hammer Mills',
   },
-  'section spc': {
+  'spc': {
     profile: '22mm Top Width × 18mm Thickness',
     angle: '38° Wedge Angle',
     pitchFactor: 'Maximum power transmission wedge',
     application: 'Steel Mills, Heavy Mining, Ball Mills, Turbines',
   },
-  'section 8v': {
+  '8v': {
     profile: '25mm Top Width × 23mm Thickness',
     angle: '38° Deep Wedge Angle',
     pitchFactor: 'Ultra heavy space-saver drive',
     application: 'Extrusion Presses, Oil Field Rigs, Heavy Crushers',
   },
-  'deep groove ball bearings': {
-    profile: 'Standard ISO Deep Groove Radial Series',
-    angle: 'Zero Contact Angle (Radial)',
-    pitchFactor: 'High Speed EMQ Grade (ZZ / 2RS)',
-    application: 'Electric Motors, Machine Spindles, Pumps & Conveyors',
-  },
-  'heavy series & precision bearings': {
-    profile: '6400 / 6313 / 7322 Series',
-    angle: 'Matched High Radial & Axial Thrust',
-    pitchFactor: 'C3 Internal Radial Clearance',
-    application: 'Heavy Gearboxes, High Thrust Turbines, Crushers',
-  },
-  'taper lock bush pulleys': {
-    profile: 'SPB / SPC Dynamic Balanced Cast Iron GG25',
-    angle: '34° / 38° Precision CNC Grooves',
-    pitchFactor: 'ISO 4183 / DIN 2211 Standard',
-    application: 'V-Belt Power Drives, Industrial Compressors & Mixers',
-  },
+};
+
+// Flexible Part Number & Size Matcher: handles b25 -> B 25, bb60 -> BB 60, spc2360 -> SPC 2360, 6204, etc.
+export const matchPartNumber = (partNumber, query) => {
+  if (!partNumber || !query) return false;
+
+  const pRaw = partNumber.trim().toLowerCase();
+  const qRaw = query.trim().toLowerCase();
+
+  // 1. Direct substring match
+  if (pRaw.includes(qRaw)) return true;
+
+  // 2. Whitespace & hyphen stripped exact / inclusion match
+  const pClean = pRaw.replace(/[\s\-_./]+/g, '');
+  const qClean = qRaw.replace(/[\s\-_./]+/g, '');
+
+  if (pClean === qClean || pClean.includes(qClean) || qClean.includes(pClean)) {
+    return true;
+  }
+
+  // 3. Number only matching (e.g. typing "25" matches "B 25", "2360" matches "SPC 2360")
+  const qNums = qRaw.match(/\d+/g);
+  const pNums = pRaw.match(/\d+/g);
+  if (qNums && pNums && qNums.join('') === pNums.join('')) {
+    return true;
+  }
+
+  return false;
 };
 
 export const InteractivePdfSectionViewer = ({
@@ -139,11 +182,11 @@ export const InteractivePdfSectionViewer = ({
   const { user, isAuthenticated } = useAuth();
   const { isTamil, t } = useLanguage();
 
-  const [catalogs, setCatalogs] = useState([]);
-  const [selectedCatalog, setSelectedCatalog] = useState(null);
+  const [serverCatalogs, setServerCatalogs] = useState([]);
+  const [activeCatalog, setActiveCatalog] = useState(null);
   const [sectionsList, setSectionsList] = useState([]);
   const [activeSectionName, setActiveSectionName] = useState('');
-  
+
   // Search input state: User types in searchInput; search executes on Enter or clicking Search button
   const [searchInputValue, setSearchInputValue] = useState(initialSearch);
   const [submittedSearchQuery, setSubmittedSearchQuery] = useState(initialSearch);
@@ -187,146 +230,15 @@ export const InteractivePdfSectionViewer = ({
     }
   }, [initialSearch]);
 
-  // Load PDF Catalog from backend
+  // Load PDF Catalogs from backend API
   useEffect(() => {
-    const loadCatalog = async () => {
+    const loadCatalogs = async () => {
       setLoading(true);
       try {
         const res = await api.get('/pdf-catalog');
         const raw = res?.data?.data || res?.data || res;
         const catalogList = raw?.catalogs || (raw?.categories ? [raw] : []);
-        setCatalogs(catalogList);
-
-        const current = catalogList[0] || raw;
-        setSelectedCatalog(current);
-
-        // Gather all sections (subcategories or sections) across categories
-        const extractedSections = [];
-        const seen = new Set();
-
-        (current?.categories || []).forEach((cat) => {
-          (cat?.subcategories || []).forEach((sub) => {
-            const cleanName = sub.name.trim();
-            if (!seen.has(cleanName.toLowerCase())) {
-              seen.add(cleanName.toLowerCase());
-              extractedSections.push({
-                name: cleanName,
-                categoryName: cat.name,
-                image: sub.image || SECTION_IMAGE_MAP[cleanName.toLowerCase()] || '/belts/PIX C 70 Classical V-Belt.jpg',
-                description: sub.description || '',
-                products: sub.products || [],
-              });
-            }
-          });
-        });
-
-        // Realistic industrial fallback sections if database has not yet been seeded
-        if (extractedSections.length === 0) {
-          const defaults = [
-            {
-              name: 'Section A',
-              categoryName: 'Classical V-Belts',
-              image: '/belts/pix-c-70.jpg',
-              description: 'Standard Classical 13x8mm V-Belt profile for general plant machinery.',
-              products: [
-                { partNumber: 'A 18', name: 'PIX Classical V-Belt A 18', brand: 'PIX', mrp: 230, discountPercentage: 46 },
-                { partNumber: 'A 24', name: 'PIX Classical V-Belt A 24', brand: 'PIX', mrp: 260, discountPercentage: 46 },
-                { partNumber: 'A 32', name: 'PIX Classical V-Belt A 32', brand: 'PIX', mrp: 295, discountPercentage: 46 },
-                { partNumber: 'A 42', name: 'PIX Classical V-Belt A 42', brand: 'PIX', mrp: 341, discountPercentage: 46 },
-                { partNumber: 'A 50', name: 'PIX Classical V-Belt A 50', brand: 'PIX', mrp: 388, discountPercentage: 46 },
-                { partNumber: 'A 68', name: 'PIX Classical V-Belt A 68', brand: 'PIX', mrp: 495, discountPercentage: 46 },
-              ],
-            },
-            {
-              name: 'Section B',
-              categoryName: 'Classical V-Belts',
-              image: '/belts/PIX C 70 Classical V-Belt.jpg',
-              description: 'Standard Classical 17x11mm V-Belt profile for compressors & crushers.',
-              products: [
-                { partNumber: 'B 38', name: 'PIX Classical V-Belt B 38', brand: 'PIX', mrp: 390, discountPercentage: 46 },
-                { partNumber: 'B 42', name: 'PIX Classical V-Belt B 42', brand: 'PIX', mrp: 420, discountPercentage: 46 },
-                { partNumber: 'B 55', name: 'PIX Classical V-Belt B 55', brand: 'PIX', mrp: 510, discountPercentage: 46 },
-                { partNumber: 'B 68', name: 'PIX Classical V-Belt B 68', brand: 'PIX', mrp: 640, discountPercentage: 46 },
-                { partNumber: 'B 75', name: 'PIX Classical V-Belt B 75', brand: 'PIX', mrp: 720, discountPercentage: 46 },
-              ],
-            },
-            {
-              name: 'Section C',
-              categoryName: 'Classical V-Belts',
-              image: '/belts/PIX C 70 Classical V-Belt.jpg',
-              description: 'Heavy duty Classical 22x14mm V-Belt profile for high torque transmissions.',
-              products: [
-                { partNumber: 'C 70', name: 'PIX Classical V-Belt C 70', brand: 'PIX', mrp: 980, discountPercentage: 46 },
-                { partNumber: 'C 84', name: 'PIX Classical V-Belt C 84', brand: 'PIX', mrp: 1150, discountPercentage: 46 },
-                { partNumber: 'C 96', name: 'PIX Classical V-Belt C 96', brand: 'PIX', mrp: 1320, discountPercentage: 46 },
-                { partNumber: 'C 120', name: 'PIX Classical V-Belt C 120', brand: 'PIX', mrp: 1650, discountPercentage: 46 },
-              ],
-            },
-            {
-              name: 'Section D',
-              categoryName: 'Classical V-Belts',
-              image: '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
-              description: 'Heavy industrial 32x19mm V-Belt profile for mining and severe shock drives.',
-              products: [
-                { partNumber: 'D 120', name: 'PIX Heavy Duty V-Belt D 120', brand: 'PIX', mrp: 2850, discountPercentage: 46 },
-                { partNumber: 'D 144', name: 'PIX Heavy Duty V-Belt D 144', brand: 'PIX', mrp: 3400, discountPercentage: 46 },
-                { partNumber: 'D 180', name: 'PIX Heavy Duty V-Belt D 180', brand: 'PIX', mrp: 4200, discountPercentage: 46 },
-              ],
-            },
-            {
-              name: 'Section SPC',
-              categoryName: 'Space Saver Wedge Belts',
-              image: '/belts/PIX SPC PT 3150 Power Transmission.jpg',
-              description: 'Narrow wedge 22x18mm high power transmission belt.',
-              products: [
-                { partNumber: 'SPC 2360', name: 'PIX Narrow Wedge Belt SPC 2360', brand: 'PIX', mrp: 1850, discountPercentage: 46 },
-                { partNumber: 'SPC PT 3150', name: 'PIX Power Transmission SPC PT 3150', brand: 'PIX', mrp: 2450, discountPercentage: 46 },
-                { partNumber: 'SPC 4000', name: 'PIX Narrow Wedge Belt SPC 4000', brand: 'PIX', mrp: 3100, discountPercentage: 46 },
-              ],
-            },
-            {
-              name: 'Section 8V',
-              categoryName: 'Heavy Industrial Wedge Belts',
-              image: '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
-              description: 'Extreme torque narrow deep wedge profile 25x23mm.',
-              products: [
-                { partNumber: '8V-1900', name: 'PIX Heavy Duty 8V-1900 Wedge Belt', brand: 'PIX', mrp: 2600, discountPercentage: 46 },
-                { partNumber: '8V-2500', name: 'PIX Heavy Duty 8V-2500 Wedge Belt', brand: 'PIX', mrp: 3400, discountPercentage: 46 },
-              ],
-            },
-            {
-              name: 'Deep Groove Ball Bearings',
-              categoryName: 'Industrial Bearings',
-              image: '/bearings/img10.jpg',
-              description: 'Standard high-RPM radial ball bearings for electric motors and plant spindles.',
-              products: [
-                { partNumber: '6204', name: 'Deep Groove Ball Bearing 6204', brand: 'NBC', mrp: 240, discountPercentage: 46 },
-                { partNumber: '6205', name: 'Deep Groove Ball Bearing 6205', brand: 'NBC', mrp: 310, discountPercentage: 46 },
-                { partNumber: '6308', name: 'Deep Groove Ball Bearing 6308', brand: 'NBC', mrp: 780, discountPercentage: 46 },
-                { partNumber: '7322 2X', name: 'Angular Contact Bearing 7322 2X', brand: 'SKF', mrp: 6500, discountPercentage: 10 },
-                { partNumber: '6313', name: 'Heavy Duty Open Type 6313', brand: 'Timken', mrp: 2100, discountPercentage: 46 },
-              ],
-            },
-            {
-              name: 'Taper Lock Bush Pulleys',
-              categoryName: 'Bush Pulleys & Taper Bushes',
-              image: '/bannerImages/img4.jpg',
-              description: 'Dynamically balanced cast iron GG25 bush pulleys with SPB / SPC grooves.',
-              products: [
-                { partNumber: 'SPB 160-2', name: '2 Groove SPB Bush Pulley 160mm', brand: 'Fenner', mrp: 1850, discountPercentage: 46 },
-                { partNumber: 'SPC 250-3', name: '3 Groove SPC Bush Pulley 250mm', brand: 'Fenner', mrp: 3450, discountPercentage: 46 },
-                { partNumber: '2517-45', name: 'Taper Lock Bush 2517 (45mm Bore)', brand: 'Fenner', mrp: 850, discountPercentage: 46 },
-              ],
-            },
-          ];
-          setSectionsList(defaults);
-          setActiveSectionName(defaults[0].name);
-          setSelectedProduct(defaults[0].products[0]);
-        } else {
-          setSectionsList(extractedSections);
-          setActiveSectionName(extractedSections[0].name);
-          setSelectedProduct(extractedSections[0].products[0] || null);
-        }
+        setServerCatalogs(catalogList);
       } catch (err) {
         console.error('[InteractivePdfSectionViewer Error]', err);
       } finally {
@@ -334,109 +246,138 @@ export const InteractivePdfSectionViewer = ({
       }
     };
 
-    loadCatalog();
+    loadCatalogs();
   }, []);
 
-  // Category Filtering & PDF Upload Verification
-  // Determine if the selected category has an uploaded PDF catalog
-  const { hasUploadedPdf, categorySections } = useMemo(() => {
-    // If no category is selected ("All Categories"), show all available sections
-    if (!selectedCategory) {
+  // =========================================================================
+  // REQUIREMENT: Category-Specific PDF & Section Resolution
+  // 1. "Power Transmission Belts" (or Belts) -> Uses the PIX Belts PDF & 1290 extracted products
+  // 2. "Industrial Bearings" -> Check if admin uploaded a Bearings PDF. If NOT, show "PDF Not Uploaded"!
+  // 3. "Bush Pulleys" -> Check if admin uploaded a Pulley PDF. If NOT, show "PDF Not Uploaded"!
+  // 4. Any other category -> Check if uploaded. If NOT, show "PDF Not Uploaded"!
+  // =========================================================================
+  const { hasUploadedPdf, categorySections, effectiveCatalog } = useMemo(() => {
+    const catNameLower = activeCategoryName.toLowerCase().trim();
+    const catId = activeCategoryObj?._id || selectedCategory;
+
+    // Check if user selected "All Categories" (empty selectedCategory)
+    const isAllCategories = !selectedCategory;
+
+    // Is this a Belts category?
+    const isBeltsCategory =
+      isAllCategories ||
+      catNameLower.includes('belt') ||
+      catNameLower.includes('v-belt') ||
+      catNameLower.includes('power transmission');
+
+    // Is this a Bearings category?
+    const isBearingsCategory = catNameLower.includes('bearing');
+
+    // Is this a Pulleys category?
+    const isPulleysCategory = catNameLower.includes('pulley') || catNameLower.includes('bush');
+
+    // 1. Check if admin uploaded an explicit catalog for this category in serverCatalogs
+    const uploadedForCategory = serverCatalogs.find((c) => {
+      if (!c.isActive) return false;
+      const titleLower = (c.title || '').toLowerCase();
+      const fileLower = (c.fileName || '').toLowerCase();
+      const cName = (c.categoryName || '').toLowerCase();
+
+      if (catId && c.categoryId && c.categoryId.toString() === catId.toString()) return true;
+      if (cName && cName === catNameLower) return true;
+
+      if (isBearingsCategory && (titleLower.includes('bearing') || fileLower.includes('bearing'))) return true;
+      if (isPulleysCategory && (titleLower.includes('pulley') || fileLower.includes('pulley'))) return true;
+      if (catNameLower && (titleLower.includes(catNameLower) || fileLower.includes(catNameLower))) return true;
+
+      return false;
+    });
+
+    if (uploadedForCategory) {
+      // Build sections from uploaded catalog
+      const extracted = [];
+      (uploadedForCategory.categories || []).forEach((cat) => {
+        (cat.subcategories || []).forEach((sub) => {
+          extracted.push({
+            name: sub.name,
+            categoryName: cat.name,
+            image: sub.image || SECTION_IMAGE_MAP[sub.name.toLowerCase()] || '/belts/PIX C 70 Classical V-Belt.jpg',
+            description: sub.description || '',
+            products: sub.products || [],
+          });
+        });
+      });
+
       return {
-        hasUploadedPdf: sectionsList.length > 0,
-        categorySections: sectionsList,
+        hasUploadedPdf: true,
+        categorySections: extracted,
+        effectiveCatalog: uploadedForCategory,
       };
     }
 
-    const cName = activeCategoryName.toLowerCase().trim();
-    const cId = activeCategoryObj?._id || selectedCategory;
+    // 2. If Belts category (or All Categories default), load the verified PIX Master Catalog (all 1290 parts)
+    if (isBeltsCategory) {
+      const extractedBelts = [];
+      (pixBeltsData.categories || []).forEach((cat) => {
+        (cat.subcategories || []).forEach((sub) => {
+          extractedBelts.push({
+            name: sub.name,
+            categoryName: cat.name,
+            image: sub.image || SECTION_IMAGE_MAP[sub.name.toLowerCase()] || '/belts/PIX C 70 Classical V-Belt.jpg',
+            description: sub.description || '',
+            products: sub.products || [],
+          });
+        });
+      });
 
-    // Check if any catalog or section matches this category
-    // 1. Direct match on category name or ID in sectionsList
-    let matched = sectionsList.filter((s) => {
-      const sCat = (s.categoryName || '').toLowerCase().trim();
-      const sName = (s.name || '').toLowerCase().trim();
-      return (
-        sCat === cName ||
-        sCat.includes(cName) ||
-        cName.includes(sCat) ||
-        sName.includes(cName) ||
-        cName.includes(sName)
-      );
-    });
-
-    // 2. Keyword matching for standard industrial families
-    if (matched.length === 0) {
-      if (cName.includes('belt')) {
-        matched = sectionsList.filter(
-          (s) =>
-            s.name.toLowerCase().startsWith('section') ||
-            (s.categoryName || '').toLowerCase().includes('belt')
-        );
-      } else if (cName.includes('bearing')) {
-        matched = sectionsList.filter(
-          (s) =>
-            s.name.toLowerCase().includes('bearing') ||
-            (s.categoryName || '').toLowerCase().includes('bearing')
-        );
-      } else if (cName.includes('pulley') || cName.includes('bush')) {
-        matched = sectionsList.filter(
-          (s) =>
-            s.name.toLowerCase().includes('pulley') ||
-            s.name.toLowerCase().includes('bush') ||
-            (s.categoryName || '').toLowerCase().includes('pulley') ||
-            (s.categoryName || '').toLowerCase().includes('bush')
-        );
-      }
+      return {
+        hasUploadedPdf: true,
+        categorySections: extractedBelts,
+        effectiveCatalog: {
+          title: pixBeltsData.title || 'PIX Industrial Belts Master Price List',
+          fileName: pixBeltsData.fileName || 'PIX-Industrial-Belts-Price-List.pdf',
+          fileUrl: pixBeltsData.fileUrl || '/sample-catalog.pdf',
+        },
+      };
     }
 
-    // 3. Check if any catalog uploaded in Admin matches this category
-    const catalogUploadedForCategory = catalogs.some((cat) => {
-      const titleLower = (cat.title || '').toLowerCase();
-      const fileLower = (cat.fileName || '').toLowerCase();
-      const catNameLower = (cat.categoryName || '').toLowerCase();
-      const catIdMatch = cat.categoryId && cat.categoryId === cId;
-
-      return (
-        catIdMatch ||
-        catNameLower === cName ||
-        titleLower.includes(cName) ||
-        fileLower.includes(cName) ||
-        (cName.includes('belt') && (titleLower.includes('belt') || titleLower.includes('pix'))) ||
-        (cName.includes('bearing') && (titleLower.includes('bearing') || titleLower.includes('skf') || titleLower.includes('nbc'))) ||
-        (cName.includes('pulley') && (titleLower.includes('pulley') || titleLower.includes('fenner')))
-      );
-    });
-
-    const isAvailable = matched.length > 0 || catalogUploadedForCategory;
-
+    // 3. For any other category (e.g. Industrial Bearings, Bush Pulleys, Motors, Gears) without an uploaded PDF:
+    // Display "PDF Not Uploaded" - NEVER display the Belts PDF or unrelated products!
     return {
-      hasUploadedPdf: isAvailable,
-      categorySections: matched,
+      hasUploadedPdf: false,
+      categorySections: [],
+      effectiveCatalog: null,
     };
-  }, [selectedCategory, activeCategoryName, activeCategoryObj, sectionsList, catalogs]);
+  }, [selectedCategory, activeCategoryName, activeCategoryObj, serverCatalogs]);
 
-  // Sync active section when category changes
+  // Sync sections and catalog state
   useEffect(() => {
+    setSectionsList(categorySections);
+    setSelectedCatalog(effectiveCatalog);
+
     if (categorySections.length > 0) {
       const exists = categorySections.some((s) => s.name === activeSectionName);
       if (!exists) {
         setActiveSectionName(categorySections[0].name);
+        setSelectedProduct(categorySections[0].products?.[0] || null);
       }
+    } else {
+      setActiveSectionName('');
+      setSelectedProduct(null);
     }
-  }, [categorySections, activeSectionName]);
+  }, [categorySections, effectiveCatalog]);
 
   // Current active section
   const currentSection = useMemo(() => {
-    if (categorySections.length === 0) return null;
+    if (sectionsList.length === 0) return null;
     return (
-      categorySections.find((s) => s.name === activeSectionName) ||
-      categorySections[0] ||
+      sectionsList.find((s) => s.name === activeSectionName) ||
+      sectionsList[0] ||
       null
     );
-  }, [categorySections, activeSectionName]);
+  }, [sectionsList, activeSectionName]);
 
-  // Search submission handler (triggers on Enter or clicking the Search button)
+  // Handle Search Submission (triggers on Enter or clicking the Search button)
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
     const query = searchInputValue.trim();
@@ -444,28 +385,25 @@ export const InteractivePdfSectionViewer = ({
 
     if (!query) return;
 
-    const q = query.toLowerCase();
-
     // Check if searched part is in the current section
-    const inCurrent = (currentSection?.products || []).some((p) => {
-      const part = (p.partNumber || '').toLowerCase();
-      const name = (p.name || '').toLowerCase();
-      return part.includes(q) || name.includes(q);
-    });
+    const inCurrent = (currentSection?.products || []).find((p) =>
+      matchPartNumber(p.partNumber, query) || matchPartNumber(p.name, query)
+    );
 
-    // If not in current section, check other sections in this category to auto-switch
-    if (!inCurrent) {
-      for (const sec of categorySections) {
-        const found = (sec.products || []).find((p) => {
-          const part = (p.partNumber || '').toLowerCase();
-          const name = (p.name || '').toLowerCase();
-          return part.includes(q) || name.includes(q);
-        });
-        if (found) {
-          setActiveSectionName(sec.name);
-          setSelectedProduct(found);
-          break;
-        }
+    if (inCurrent) {
+      setSelectedProduct(inCurrent);
+      return;
+    }
+
+    // If not in current section, check other sections in this PDF and auto-switch!
+    for (const sec of sectionsList) {
+      const found = (sec.products || []).find((p) =>
+        matchPartNumber(p.partNumber, query) || matchPartNumber(p.name, query)
+      );
+      if (found) {
+        setActiveSectionName(sec.name);
+        setSelectedProduct(found);
+        break;
       }
     }
   };
@@ -473,38 +411,30 @@ export const InteractivePdfSectionViewer = ({
   // Filtered products list based on SUBMITTED search query
   const filteredProducts = useMemo(() => {
     if (!currentSection) return [];
-    const q = submittedSearchQuery.trim().toLowerCase();
+    const q = submittedSearchQuery.trim();
     if (!q) return currentSection.products || [];
 
     // Search in current section
-    const inCurrent = (currentSection.products || []).filter((p) => {
-      const part = (p.partNumber || '').toLowerCase();
-      const name = (p.name || '').toLowerCase();
-      const brand = (p.brand || '').toLowerCase();
-      const spec = (p.specifications || '').toLowerCase();
-      return part.includes(q) || name.includes(q) || brand.includes(q) || spec.includes(q);
-    });
+    const inCurrent = (currentSection.products || []).filter(
+      (p) => matchPartNumber(p.partNumber, q) || matchPartNumber(p.name, q)
+    );
 
     if (inCurrent.length > 0) return inCurrent;
 
-    // Search across ALL category sections
-    for (const sec of categorySections) {
-      const found = (sec.products || []).filter((p) => {
-        const part = (p.partNumber || '').toLowerCase();
-        const name = (p.name || '').toLowerCase();
-        const brand = (p.brand || '').toLowerCase();
-        const spec = (p.specifications || '').toLowerCase();
-        return part.includes(q) || name.includes(q) || brand.includes(q) || spec.includes(q);
-      });
+    // Search across ALL sections in this category/PDF
+    for (const sec of sectionsList) {
+      const found = (sec.products || []).filter(
+        (p) => matchPartNumber(p.partNumber, q) || matchPartNumber(p.name, q)
+      );
       if (found.length > 0) {
         return found;
       }
     }
 
     return [];
-  }, [currentSection, submittedSearchQuery, categorySections]);
+  }, [currentSection, submittedSearchQuery, sectionsList]);
 
-  // Keep selected product updated if search filters product
+  // Update selectedProduct when filteredProducts changes
   useEffect(() => {
     if (filteredProducts.length > 0) {
       const exists = filteredProducts.some(
@@ -516,7 +446,7 @@ export const InteractivePdfSectionViewer = ({
     }
   }, [filteredProducts]);
 
-  // Calculate pricing & offers based on user type (Normal user vs Admin-assigned user)
+  // Pricing calculations
   const pricingDetails = useMemo(() => {
     if (!selectedProduct) return null;
 
@@ -544,9 +474,8 @@ export const InteractivePdfSectionViewer = ({
       }
     }
 
-    const wholesaleUnitPrice = mrp > 0
-      ? Math.round(mrp * (1 - finalDiscount / 100))
-      : (selectedProduct.wholesalePrice || 0);
+    const wholesaleUnitPrice =
+      mrp > 0 ? Math.round(mrp * (1 - finalDiscount / 100)) : (selectedProduct.wholesalePrice || 0);
 
     const subtotal = wholesaleUnitPrice * orderQuantity;
     const gstAmount = Math.round(subtotal * 0.18);
@@ -564,27 +493,41 @@ export const InteractivePdfSectionViewer = ({
     };
   }, [selectedProduct, user, orderQuantity]);
 
-  // Section details
+  // Section specifications
   const sectionSpec = useMemo(() => {
     if (!currentSection) return null;
     const key = currentSection.name.toLowerCase();
-    return (
-      SECTION_SPEC_MAP[key] || {
-        profile: 'Standard Industrial Profile',
-        angle: 'IS/BS/DIN Standard Compliant',
-        pitchFactor: 'High-torque power transmission design',
-        application: 'Continuous Factory Operations, Motors & Reduction Drives',
+
+    // Match section profile keys
+    for (const [k, spec] of Object.entries(SECTION_SPEC_MAP)) {
+      if (key.includes(k) || k.includes(key)) {
+        return spec;
       }
-    );
+    }
+
+    return {
+      profile: 'Standard Industrial Profile',
+      angle: 'IS/BS/DIN Standard Compliant',
+      pitchFactor: 'High-torque power transmission design',
+      application: 'Continuous Factory Operations, Motors & Reduction Drives',
+    };
   }, [currentSection]);
 
+  // Section profile image
   const allocatedImage = useMemo(() => {
     if (!currentSection) return '/belts/PIX C 70 Classical V-Belt.jpg';
     const key = currentSection.name.toLowerCase();
-    return currentSection.image || SECTION_IMAGE_MAP[key] || '/belts/PIX C 70 Classical V-Belt.jpg';
+
+    for (const [k, img] of Object.entries(SECTION_IMAGE_MAP)) {
+      if (key.includes(k) || k.includes(key)) {
+        return img;
+      }
+    }
+
+    return currentSection.image || '/belts/PIX C 70 Classical V-Belt.jpg';
   }, [currentSection]);
 
-  // Handle Order Placement
+  // Place Order Submit
   const handlePlaceOrderSubmit = async (e) => {
     e.preventDefault();
     if (!selectedProduct) return;
@@ -635,8 +578,8 @@ export const InteractivePdfSectionViewer = ({
   }
 
   // =========================================================================
-  // REQUIREMENT 3: If no PDF has been uploaded for the selected category,
-  // display "PDF Not Uploaded" with helpful actions instead of mock data.
+  // REQUIREMENT: If no PDF has been uploaded for the selected category,
+  // display "PDF Not Uploaded" instead of showing unrelated belts or fake data!
   // =========================================================================
   if (!hasUploadedPdf) {
     return (
@@ -725,10 +668,10 @@ export const InteractivePdfSectionViewer = ({
             </span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-navy mt-1 tracking-tight">
-            {activeCategoryName ? `${activeCategoryName} Catalog` : 'Select Section, View PDF Data & Place Order'}
+            {activeCategoryName ? `${activeCategoryName} Catalog` : selectedCatalog?.title || 'Manufacturer Price List & Catalog Explorer'}
           </h2>
           <p className="text-xs text-slate-500 mt-1 max-w-3xl">
-            Choose any section below to see its allocated engineering image and technical specs. Search any product code with the search button to view its details and order directly!
+            Choose any section below to see its allocated technical profile. Search any size from the PDF (e.g. B 25, BB 60, A 18, SPC 2360) and buy directly with your wholesale rate!
           </p>
         </div>
 
@@ -751,7 +694,7 @@ export const InteractivePdfSectionViewer = ({
         </div>
       </div>
 
-      {/* 2. Interactive Section Pills (Section A, B, C, D, SPZ, SPA, SPB, SPC, 8V, Bearings...) */}
+      {/* 2. Interactive Section Pills (Section A, B, C, D, E, BB, SPZ, SPA, SPB, SPC, 8V...) */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -759,12 +702,12 @@ export const InteractivePdfSectionViewer = ({
             <span>Select PDF Section:</span>
           </span>
           <span className="text-[11px] text-slate-400 font-semibold">
-            {categorySections.length} Sections Available
+            {sectionsList.length} Sections Available ({sectionsList.reduce((acc, s) => acc + (s.products?.length || 0), 0)} Verified Sizes)
           </span>
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
-          {categorySections.map((sec) => {
+          {sectionsList.map((sec) => {
             const isSelected = sec.name === activeSectionName;
             return (
               <button
@@ -772,7 +715,7 @@ export const InteractivePdfSectionViewer = ({
                 type="button"
                 onClick={() => {
                   setActiveSectionName(sec.name);
-                  // Reset search when user clicks a section pill
+                  // Reset search when user clicks a section pill to show full section
                   setSubmittedSearchQuery('');
                   setSearchInputValue('');
                   if (onCategoryDetected && sec.categoryName) {
@@ -799,7 +742,7 @@ export const InteractivePdfSectionViewer = ({
         </div>
       </div>
 
-      {/* 3. Main Split Workspace: Left Column (Image + Specs + Pricing + Place Order), Right Column (Search Bar + PDF Viewer / Matching Product Details) */}
+      {/* 3. Main Split Workspace: Left Column (Allocated Image + Specs + Price + Place Order), Right Column (Search Bar + PDF Viewer / Product Details) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-2">
         {/* ===================== LEFT COLUMN (5 Cols): Allocated Section Image + Product Details + Price + Order Option ===================== */}
         <div className="lg:col-span-5 space-y-5 bg-slate-50 p-6 rounded-3xl border border-slate-200/90 shadow-sm">
@@ -807,7 +750,7 @@ export const InteractivePdfSectionViewer = ({
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div>
               <span className="text-[10px] font-black uppercase tracking-wider text-primary block">
-                {currentSection?.categoryName || 'Industrial Components'}
+                {currentSection?.categoryName || activeCategoryName || 'Power Transmission Belts'}
               </span>
               <h3 className="text-xl font-black text-navy">{currentSection?.name}</h3>
             </div>
@@ -949,9 +892,7 @@ export const InteractivePdfSectionViewer = ({
 
         {/* ===================== RIGHT COLUMN (7 Cols): Search Bar + PDF Viewer / Product Details ===================== */}
         <div className="lg:col-span-7 space-y-4">
-          {/* =========================================================================
-              REQUIREMENT 1: Search Bar with Search Icon + Search Button + Enter Handler
-             ========================================================================= */}
+          {/* Top Search Bar over the PDF Data */}
           <div className="bg-slate-50 p-4 rounded-3xl border border-slate-200/90 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black text-navy uppercase tracking-wider flex items-center gap-1.5">
@@ -964,7 +905,7 @@ export const InteractivePdfSectionViewer = ({
                 </span>
               ) : (
                 <span className="text-xs font-medium text-slate-400">
-                  {currentSection?.products?.length || 0} parts in section
+                  {currentSection?.products?.length || 0} sizes in this section
                 </span>
               )}
             </div>
@@ -975,7 +916,7 @@ export const InteractivePdfSectionViewer = ({
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 <input
                   type="text"
-                  placeholder="Type part # (e.g. A 18, 2360, 6204, C 70) and press Enter or Search..."
+                  placeholder="Enter part / size (e.g. b25, B 25, BB 60, A 18, SPC 2360) and press Enter or Search..."
                   value={searchInputValue}
                   onChange={(e) => setSearchInputValue(e.target.value)}
                   className="w-full pl-10 pr-9 py-2.5 rounded-2xl border border-slate-300 text-xs font-bold text-navy focus:outline-none focus:ring-2 focus:ring-primary bg-white shadow-2xs"
@@ -1048,7 +989,7 @@ export const InteractivePdfSectionViewer = ({
             </div>
           ) : (
             /* =========================================================================
-                REQUIREMENT 2: When a product is searched, show ONLY that product's details below
+                REQUIREMENT: When a product/size is searched, show ONLY that product's details below with Price & Buy button!
                ========================================================================= */
             <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden space-y-1">
               {/* Header Bar */}
@@ -1056,13 +997,13 @@ export const InteractivePdfSectionViewer = ({
                 <div>
                   <span className="text-xs font-black text-slate-700 uppercase tracking-wider block">
                     {submittedSearchQuery
-                      ? `Search Result: ${filteredProducts.length} Matching Product${filteredProducts.length !== 1 ? 's' : ''}`
+                      ? `Search Result: ${filteredProducts.length} Matching Part${filteredProducts.length !== 1 ? 's' : ''}`
                       : `Detailed Products List — ${currentSection?.name}`}
                   </span>
                   <span className="text-[10px] text-slate-500 font-medium">
                     {submittedSearchQuery
-                      ? `Showing verified details for "${submittedSearchQuery}". Click to view & order.`
-                      : `Showing ${filteredProducts.length} verified parts. Click any part to view specs & order.`}
+                      ? `Showing exact verified details for "${submittedSearchQuery}" from the PDF catalog.`
+                      : `Showing ${filteredProducts.length} verified sizes. Click any size to view specs & order.`}
                   </span>
                 </div>
 
@@ -1076,7 +1017,7 @@ export const InteractivePdfSectionViewer = ({
                     className="text-[11px] font-bold text-rose-600 hover:text-rose-700 hover:underline flex items-center gap-1 cursor-pointer shrink-0"
                   >
                     <RotateCcw className="w-3 h-3" />
-                    <span>View All Parts</span>
+                    <span>View All Sizes</span>
                   </button>
                 )}
               </div>
@@ -1089,10 +1030,10 @@ export const InteractivePdfSectionViewer = ({
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-black text-slate-800">
-                      Part # "{submittedSearchQuery}" not found in this PDF catalog.
+                      Size / Part # "{submittedSearchQuery}" not found in this PDF catalog.
                     </p>
                     <p className="text-xs text-slate-500 max-w-md mx-auto">
-                      This number does not exist in the active catalog for {activeCategoryName || currentSection?.name}. Please verify the part number or request a custom quotation below.
+                      This number does not exist in the active catalog for {activeCategoryName || currentSection?.name}. Please verify the size code (e.g. B 25, BB 60, A 18, SPC 2360) or request a custom quotation below.
                     </p>
                   </div>
                   <div className="flex items-center justify-center gap-2 pt-2">
@@ -1117,39 +1058,39 @@ export const InteractivePdfSectionViewer = ({
                   </div>
                 </div>
               ) : submittedSearchQuery && filteredProducts.length === 1 ? (
-                /* EXACT SINGLE MATCH: Show ONLY that product's detailed order card */
+                /* EXACT SINGLE MATCH: Show ONLY that product's detailed order card with Price & Buy button */
                 <div className="p-5 space-y-4">
                   <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-black uppercase tracking-wider text-primary bg-white px-2 py-0.5 rounded border border-blue-200">
-                            {filteredProducts[0].brand || 'Genuine OEM'}
+                            {filteredProducts[0].brand || 'PIX'}
                           </span>
                           <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
-                            Exact Match Found
+                            Exact Match Found in PDF
                           </span>
                         </div>
-                        <h3 className="text-xl font-black text-navy mt-1">
+                        <h3 className="text-2xl font-black text-navy mt-1">
                           {filteredProducts[0].partNumber}
                         </h3>
-                        <p className="text-xs font-medium text-slate-600">
+                        <p className="text-xs font-bold text-slate-700">
                           {filteredProducts[0].name}
                         </p>
                       </div>
                       <span className="text-xs font-mono font-bold bg-white px-2.5 py-1 rounded-xl border border-slate-200 text-slate-700">
-                        {currentSection?.name}
+                        {filteredProducts[0].subcategoryName || currentSection?.name}
                       </span>
                     </div>
 
                     {/* Specifications */}
                     {filteredProducts[0].specifications && (
-                      <p className="text-xs text-slate-500 bg-white p-2.5 rounded-xl border border-slate-200">
-                        <strong>Spec:</strong> {filteredProducts[0].specifications}
+                      <p className="text-xs text-slate-600 bg-white p-2.5 rounded-xl border border-slate-200">
+                        <strong>Spec / Range:</strong> {filteredProducts[0].specifications}
                       </p>
                     )}
 
-                    {/* Price & Order Action */}
+                    {/* Price & Buy Action */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                       <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1">
                         <div className="flex items-center justify-between text-xs">
@@ -1159,13 +1100,13 @@ export const InteractivePdfSectionViewer = ({
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-amber-700 font-bold">Applied Discount:</span>
+                          <span className="text-amber-700 font-bold">Wholesale Discount:</span>
                           <span className="font-black text-amber-600">
                             {pricingDetails?.finalDiscount || filteredProducts[0].discountPercentage || 46}% OFF
                           </span>
                         </div>
                         <div className="flex items-center justify-between text-sm pt-1 border-t border-slate-100 font-black">
-                          <span className="text-navy">Wholesale Price:</span>
+                          <span className="text-navy">Net Wholesale Price:</span>
                           <span className="text-primary font-mono text-base">
                             {formatCurrency(pricingDetails?.wholesaleUnitPrice || Math.round(filteredProducts[0].mrp * 0.54))}
                           </span>
@@ -1174,7 +1115,7 @@ export const InteractivePdfSectionViewer = ({
 
                       <div className="flex flex-col justify-between gap-2 p-3 bg-white rounded-xl border border-slate-200">
                         <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                          <span>Qty:</span>
+                          <span>Order Quantity:</span>
                           <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden">
                             <button
                               type="button"
@@ -1200,17 +1141,17 @@ export const InteractivePdfSectionViewer = ({
                             setSelectedProduct(filteredProducts[0]);
                             setIsOrderModalOpen(true);
                           }}
-                          className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-black text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                          className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-black text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:shadow-md"
                         >
                           <ShoppingBag className="w-4 h-4" />
-                          <span>Place Order for {filteredProducts[0].partNumber}</span>
+                          <span>Buy Now / Place Order for {filteredProducts[0].partNumber}</span>
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
               ) : (
-                /* TABLE VIEW: Displays products (either all products in section, or multiple search matches) */
+                /* TABLE VIEW: Displays sizes (either all sizes in section, or multiple search matches) */
                 <div className="max-h-[460px] overflow-y-auto scrollbar-thin">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead className="sticky top-0 bg-slate-50 text-slate-700 font-black uppercase tracking-wider border-b border-slate-200 shadow-2xs z-10">
@@ -1272,7 +1213,7 @@ export const InteractivePdfSectionViewer = ({
                                 }}
                                 className="px-2.5 py-1 rounded-lg bg-primary hover:bg-primary-dark text-white text-[11px] font-black cursor-pointer shadow-2xs transition-all"
                               >
-                                Order
+                                Buy
                               </button>
                             </td>
                           </tr>
