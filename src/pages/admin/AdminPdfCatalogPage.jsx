@@ -38,6 +38,8 @@ export const AdminPdfCatalogPage = () => {
   // Multi-PDF upload state
   const [pdfFiles, setPdfFiles] = useState([]);
   const [catalogTitle, setCatalogTitle] = useState('');
+  const [selectedUploadCategory, setSelectedUploadCategory] = useState('');
+  const [availableCategories, setAvailableCategories] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [reprocessingId, setReprocessingId] = useState(null);
@@ -52,9 +54,10 @@ export const AdminPdfCatalogPage = () => {
     setLoading(true);
     try {
       const activeParams = catalogIdFilter && catalogIdFilter !== 'ALL' ? { catalogId: catalogIdFilter } : {};
-      const [adminListRes, activeRes] = await Promise.all([
+      const [adminListRes, activeRes, catsRes] = await Promise.all([
         api.get('/pdf-catalog/admin'),
         api.get('/pdf-catalog', { params: activeParams }),
+        api.get('/categories').catch(() => ({ data: { data: [] } })),
       ]);
 
       if (adminListRes.data?.success) {
@@ -62,6 +65,9 @@ export const AdminPdfCatalogPage = () => {
       }
       if (activeRes.data?.success) {
         setActiveCatalog(activeRes.data.data);
+      }
+      if (catsRes?.data?.data) {
+        setAvailableCategories(catsRes.data.data);
       }
     } catch (err) {
       console.error('[PDF Catalog Fetch Error]', err);
@@ -168,6 +174,14 @@ export const AdminPdfCatalogPage = () => {
         formData.append('title', catalogTitle);
       }
 
+      if (selectedUploadCategory) {
+        const catObj = availableCategories.find((c) => c._id === selectedUploadCategory);
+        if (catObj) {
+          formData.append('categoryId', catObj._id);
+          formData.append('categoryName', catObj.name);
+        }
+      }
+
       const res = await api.post('/pdf-catalog/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -179,6 +193,7 @@ export const AdminPdfCatalogPage = () => {
         );
         setPdfFiles([]);
         setCatalogTitle('');
+        setSelectedUploadCategory('');
         setSelectedCatalogFilter('ALL');
         fetchCatalogs('ALL');
       }
@@ -300,19 +315,38 @@ export const AdminPdfCatalogPage = () => {
         </div>
 
         <form onSubmit={handleUploadSubmit} className="space-y-4">
-          {/* Optional Catalog Title (for single file) */}
-          {pdfFiles.length <= 1 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Optional Catalog Title (for single file) */}
+            {pdfFiles.length <= 1 && (
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700">Catalog Title (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. PIX Industrial Belts Price List (Defaults to file name)"
+                  value={catalogTitle}
+                  onChange={(e) => setCatalogTitle(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-medium bg-slate-50 focus:ring-2 focus:ring-primary focus:outline-none"
+                />
+              </div>
+            )}
+
+            {/* Target Category Assignment */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">Catalog Title (Optional)</label>
-              <input
-                type="text"
-                placeholder="e.g. PIX Industrial Belts Price List (Defaults to file name)"
-                value={catalogTitle}
-                onChange={(e) => setCatalogTitle(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-medium bg-slate-50 focus:ring-2 focus:ring-primary focus:outline-none"
-              />
+              <label className="block text-xs font-bold text-slate-700">Assign Target Category (Optional)</label>
+              <select
+                value={selectedUploadCategory}
+                onChange={(e) => setSelectedUploadCategory(e.target.value)}
+                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold bg-slate-50 focus:ring-2 focus:ring-primary focus:outline-none"
+              >
+                <option value="">Auto-Detect / All Categories</option>
+                {availableCategories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
+          </div>
 
           {/* Drag & Drop File Zone */}
           <div

@@ -324,6 +324,9 @@ export const ServicesPage = () => {
       {/* Interactive PDF Catalog Section Explorer & Ordering Engine */}
       <InteractivePdfSectionViewer
         initialSearch={search}
+        selectedCategory={selectedCategory}
+        categories={categories}
+        onSelectCategory={(catId) => setSelectedCategory(catId)}
         onCategoryDetected={(catName) => {
           const matched = categories?.find(
             (c) => c.name.toLowerCase() === catName.toLowerCase() || catName.toLowerCase().includes(c.name.toLowerCase())

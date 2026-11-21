@@ -19,6 +19,10 @@ import {
   X,
   Eye,
   SlidersHorizontal,
+  AlertCircle,
+  RotateCcw,
+  UploadCloud,
+  HelpCircle,
 } from 'lucide-react';
 import api, { getAssetUrl } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -44,6 +48,8 @@ const SECTION_IMAGE_MAP = {
   'taper roller bearings': '/bannerImages/nbcandTapper role.webp',
   'spherical roller bearings': '/bearings/img3.jpg',
   'angular contact bearings': '/bearings/img1.jpg',
+  'heavy series & precision bearings': '/bearings/img3.jpg',
+  'taper lock bush pulleys': '/bannerImages/img4.jpg',
   'electric motors': '/bannerImages/siemens.jpg',
   'industrial gears': '/bannerImages/santhiGears.jpg',
 };
@@ -103,9 +109,33 @@ const SECTION_SPEC_MAP = {
     pitchFactor: 'Ultra heavy space-saver drive',
     application: 'Extrusion Presses, Oil Field Rigs, Heavy Crushers',
   },
+  'deep groove ball bearings': {
+    profile: 'Standard ISO Deep Groove Radial Series',
+    angle: 'Zero Contact Angle (Radial)',
+    pitchFactor: 'High Speed EMQ Grade (ZZ / 2RS)',
+    application: 'Electric Motors, Machine Spindles, Pumps & Conveyors',
+  },
+  'heavy series & precision bearings': {
+    profile: '6400 / 6313 / 7322 Series',
+    angle: 'Matched High Radial & Axial Thrust',
+    pitchFactor: 'C3 Internal Radial Clearance',
+    application: 'Heavy Gearboxes, High Thrust Turbines, Crushers',
+  },
+  'taper lock bush pulleys': {
+    profile: 'SPB / SPC Dynamic Balanced Cast Iron GG25',
+    angle: '34° / 38° Precision CNC Grooves',
+    pitchFactor: 'ISO 4183 / DIN 2211 Standard',
+    application: 'V-Belt Power Drives, Industrial Compressors & Mixers',
+  },
 };
 
-export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDetected }) => {
+export const InteractivePdfSectionViewer = ({
+  initialSearch = '',
+  selectedCategory = '',
+  categories = [],
+  onSelectCategory,
+  onCategoryDetected,
+}) => {
   const { user, isAuthenticated } = useAuth();
   const { isTamil, t } = useLanguage();
 
@@ -113,7 +143,11 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
   const [selectedCatalog, setSelectedCatalog] = useState(null);
   const [sectionsList, setSectionsList] = useState([]);
   const [activeSectionName, setActiveSectionName] = useState('');
-  const [rightSearchQuery, setRightSearchQuery] = useState(initialSearch);
+  
+  // Search input state: User types in searchInput; search executes on Enter or clicking Search button
+  const [searchInputValue, setSearchInputValue] = useState(initialSearch);
+  const [submittedSearchQuery, setSubmittedSearchQuery] = useState(initialSearch);
+
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -133,10 +167,23 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
   });
   const [orderSubmitting, setOrderSubmitting] = useState(false);
 
-  // Sync prop changes
+  // Determine active category details from selectedCategory prop
+  const activeCategoryObj = useMemo(() => {
+    if (!selectedCategory) return null;
+    return (
+      categories?.find(
+        (c) => c._id === selectedCategory || c.name === selectedCategory || c.slug === selectedCategory
+      ) || null
+    );
+  }, [selectedCategory, categories]);
+
+  const activeCategoryName = activeCategoryObj?.name || (typeof selectedCategory === 'string' ? selectedCategory : '');
+
+  // Sync external search prop if parent updates it
   useEffect(() => {
-    if (initialSearch) {
-      setRightSearchQuery(initialSearch);
+    if (initialSearch !== undefined) {
+      setSearchInputValue(initialSearch);
+      setSubmittedSearchQuery(initialSearch);
     }
   }, [initialSearch]);
 
@@ -148,12 +195,12 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
         const res = await api.get('/pdf-catalog');
         const raw = res?.data?.data || res?.data || res;
         const catalogList = raw?.catalogs || (raw?.categories ? [raw] : []);
-
         setCatalogs(catalogList);
+
         const current = catalogList[0] || raw;
         setSelectedCatalog(current);
 
-        // Gather all sections (subcategories or sections)
+        // Gather all sections (subcategories or sections) across categories
         const extractedSections = [];
         const seen = new Set();
 
@@ -173,7 +220,7 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
           });
         });
 
-        // If no sections found from DB yet, supply realistic default sections
+        // Realistic industrial fallback sections if database has not yet been seeded
         if (extractedSections.length === 0) {
           const defaults = [
             {
@@ -182,12 +229,12 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
               image: '/belts/pix-c-70.jpg',
               description: 'Standard Classical 13x8mm V-Belt profile for general plant machinery.',
               products: [
-                { partNumber: 'A 18', name: 'PIX Classical V-Belt A 18', brand: 'PIX', mrp: 185, discountPercentage: 46 },
-                { partNumber: 'A 24', name: 'PIX Classical V-Belt A 24', brand: 'PIX', mrp: 215, discountPercentage: 46 },
-                { partNumber: 'A 32', name: 'PIX Classical V-Belt A 32', brand: 'PIX', mrp: 260, discountPercentage: 46 },
-                { partNumber: 'A 42', name: 'PIX Classical V-Belt A 42', brand: 'PIX', mrp: 310, discountPercentage: 46 },
-                { partNumber: 'A 50', name: 'PIX Classical V-Belt A 50', brand: 'PIX', mrp: 380, discountPercentage: 46 },
-                { partNumber: 'A 68', name: 'PIX Classical V-Belt A 68', brand: 'PIX', mrp: 490, discountPercentage: 46 },
+                { partNumber: 'A 18', name: 'PIX Classical V-Belt A 18', brand: 'PIX', mrp: 230, discountPercentage: 46 },
+                { partNumber: 'A 24', name: 'PIX Classical V-Belt A 24', brand: 'PIX', mrp: 260, discountPercentage: 46 },
+                { partNumber: 'A 32', name: 'PIX Classical V-Belt A 32', brand: 'PIX', mrp: 295, discountPercentage: 46 },
+                { partNumber: 'A 42', name: 'PIX Classical V-Belt A 42', brand: 'PIX', mrp: 341, discountPercentage: 46 },
+                { partNumber: 'A 50', name: 'PIX Classical V-Belt A 50', brand: 'PIX', mrp: 388, discountPercentage: 46 },
+                { partNumber: 'A 68', name: 'PIX Classical V-Belt A 68', brand: 'PIX', mrp: 495, discountPercentage: 46 },
               ],
             },
             {
@@ -260,6 +307,17 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
                 { partNumber: '6313', name: 'Heavy Duty Open Type 6313', brand: 'Timken', mrp: 2100, discountPercentage: 46 },
               ],
             },
+            {
+              name: 'Taper Lock Bush Pulleys',
+              categoryName: 'Bush Pulleys & Taper Bushes',
+              image: '/bannerImages/img4.jpg',
+              description: 'Dynamically balanced cast iron GG25 bush pulleys with SPB / SPC grooves.',
+              products: [
+                { partNumber: 'SPB 160-2', name: '2 Groove SPB Bush Pulley 160mm', brand: 'Fenner', mrp: 1850, discountPercentage: 46 },
+                { partNumber: 'SPC 250-3', name: '3 Groove SPC Bush Pulley 250mm', brand: 'Fenner', mrp: 3450, discountPercentage: 46 },
+                { partNumber: '2517-45', name: 'Taper Lock Bush 2517 (45mm Bore)', brand: 'Fenner', mrp: 850, discountPercentage: 46 },
+              ],
+            },
           ];
           setSectionsList(defaults);
           setActiveSectionName(defaults[0].name);
@@ -279,15 +337,143 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
     loadCatalog();
   }, []);
 
+  // Category Filtering & PDF Upload Verification
+  // Determine if the selected category has an uploaded PDF catalog
+  const { hasUploadedPdf, categorySections } = useMemo(() => {
+    // If no category is selected ("All Categories"), show all available sections
+    if (!selectedCategory) {
+      return {
+        hasUploadedPdf: sectionsList.length > 0,
+        categorySections: sectionsList,
+      };
+    }
+
+    const cName = activeCategoryName.toLowerCase().trim();
+    const cId = activeCategoryObj?._id || selectedCategory;
+
+    // Check if any catalog or section matches this category
+    // 1. Direct match on category name or ID in sectionsList
+    let matched = sectionsList.filter((s) => {
+      const sCat = (s.categoryName || '').toLowerCase().trim();
+      const sName = (s.name || '').toLowerCase().trim();
+      return (
+        sCat === cName ||
+        sCat.includes(cName) ||
+        cName.includes(sCat) ||
+        sName.includes(cName) ||
+        cName.includes(sName)
+      );
+    });
+
+    // 2. Keyword matching for standard industrial families
+    if (matched.length === 0) {
+      if (cName.includes('belt')) {
+        matched = sectionsList.filter(
+          (s) =>
+            s.name.toLowerCase().startsWith('section') ||
+            (s.categoryName || '').toLowerCase().includes('belt')
+        );
+      } else if (cName.includes('bearing')) {
+        matched = sectionsList.filter(
+          (s) =>
+            s.name.toLowerCase().includes('bearing') ||
+            (s.categoryName || '').toLowerCase().includes('bearing')
+        );
+      } else if (cName.includes('pulley') || cName.includes('bush')) {
+        matched = sectionsList.filter(
+          (s) =>
+            s.name.toLowerCase().includes('pulley') ||
+            s.name.toLowerCase().includes('bush') ||
+            (s.categoryName || '').toLowerCase().includes('pulley') ||
+            (s.categoryName || '').toLowerCase().includes('bush')
+        );
+      }
+    }
+
+    // 3. Check if any catalog uploaded in Admin matches this category
+    const catalogUploadedForCategory = catalogs.some((cat) => {
+      const titleLower = (cat.title || '').toLowerCase();
+      const fileLower = (cat.fileName || '').toLowerCase();
+      const catNameLower = (cat.categoryName || '').toLowerCase();
+      const catIdMatch = cat.categoryId && cat.categoryId === cId;
+
+      return (
+        catIdMatch ||
+        catNameLower === cName ||
+        titleLower.includes(cName) ||
+        fileLower.includes(cName) ||
+        (cName.includes('belt') && (titleLower.includes('belt') || titleLower.includes('pix'))) ||
+        (cName.includes('bearing') && (titleLower.includes('bearing') || titleLower.includes('skf') || titleLower.includes('nbc'))) ||
+        (cName.includes('pulley') && (titleLower.includes('pulley') || titleLower.includes('fenner')))
+      );
+    });
+
+    const isAvailable = matched.length > 0 || catalogUploadedForCategory;
+
+    return {
+      hasUploadedPdf: isAvailable,
+      categorySections: matched,
+    };
+  }, [selectedCategory, activeCategoryName, activeCategoryObj, sectionsList, catalogs]);
+
+  // Sync active section when category changes
+  useEffect(() => {
+    if (categorySections.length > 0) {
+      const exists = categorySections.some((s) => s.name === activeSectionName);
+      if (!exists) {
+        setActiveSectionName(categorySections[0].name);
+      }
+    }
+  }, [categorySections, activeSectionName]);
+
   // Current active section
   const currentSection = useMemo(() => {
-    return sectionsList.find((s) => s.name === activeSectionName) || sectionsList[0] || null;
-  }, [sectionsList, activeSectionName]);
+    if (categorySections.length === 0) return null;
+    return (
+      categorySections.find((s) => s.name === activeSectionName) ||
+      categorySections[0] ||
+      null
+    );
+  }, [categorySections, activeSectionName]);
 
-  // When right search changes, filter products in active section or across all sections
+  // Search submission handler (triggers on Enter or clicking the Search button)
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    const query = searchInputValue.trim();
+    setSubmittedSearchQuery(query);
+
+    if (!query) return;
+
+    const q = query.toLowerCase();
+
+    // Check if searched part is in the current section
+    const inCurrent = (currentSection?.products || []).some((p) => {
+      const part = (p.partNumber || '').toLowerCase();
+      const name = (p.name || '').toLowerCase();
+      return part.includes(q) || name.includes(q);
+    });
+
+    // If not in current section, check other sections in this category to auto-switch
+    if (!inCurrent) {
+      for (const sec of categorySections) {
+        const found = (sec.products || []).find((p) => {
+          const part = (p.partNumber || '').toLowerCase();
+          const name = (p.name || '').toLowerCase();
+          return part.includes(q) || name.includes(q);
+        });
+        if (found) {
+          setActiveSectionName(sec.name);
+          setSelectedProduct(found);
+          break;
+        }
+      }
+    }
+  };
+
+  // Filtered products list based on SUBMITTED search query
   const filteredProducts = useMemo(() => {
     if (!currentSection) return [];
-    const q = rightSearchQuery.trim().toLowerCase();
+    const q = submittedSearchQuery.trim().toLowerCase();
     if (!q) return currentSection.products || [];
 
     // Search in current section
@@ -301,8 +487,8 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
 
     if (inCurrent.length > 0) return inCurrent;
 
-    // Search across ALL sections to locate product's section automatically
-    for (const sec of sectionsList) {
+    // Search across ALL category sections
+    for (const sec of categorySections) {
       const found = (sec.products || []).filter((p) => {
         const part = (p.partNumber || '').toLowerCase();
         const name = (p.name || '').toLowerCase();
@@ -311,22 +497,16 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
         return part.includes(q) || name.includes(q) || brand.includes(q) || spec.includes(q);
       });
       if (found.length > 0) {
-        // Auto-switch to matching section!
-        setActiveSectionName(sec.name);
-        if (onCategoryDetected && sec.categoryName) {
-          onCategoryDetected(sec.categoryName);
-        }
         return found;
       }
     }
 
-    return inCurrent;
-  }, [currentSection, rightSearchQuery, sectionsList, onCategoryDetected]);
+    return [];
+  }, [currentSection, submittedSearchQuery, categorySections]);
 
   // Keep selected product updated if search filters product
   useEffect(() => {
     if (filteredProducts.length > 0) {
-      // If selectedProduct is not in filtered list, pick the first
       const exists = filteredProducts.some(
         (p) => (p.partNumber || '').toLowerCase() === (selectedProduct?.partNumber || '').toLowerCase()
       );
@@ -344,7 +524,6 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
     const isSkf = (selectedProduct.brand || '').toUpperCase().includes('SKF');
     const defaultDiscount = isSkf ? 10 : (selectedProduct.discountPercentage || 46);
 
-    // Check if logged-in user has an Admin-assigned custom rate
     let finalDiscount = defaultDiscount;
     let isUserCustomRate = false;
     let rateLabel = isSkf ? 'Flat 10% OFF Official MRP' : '46% OFF Wholesale Standard Rate';
@@ -389,12 +568,14 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
   const sectionSpec = useMemo(() => {
     if (!currentSection) return null;
     const key = currentSection.name.toLowerCase();
-    return SECTION_SPEC_MAP[key] || {
-      profile: 'Standard Industrial Profile',
-      angle: 'IS/BS/DIN Standard Compliant',
-      pitchFactor: 'High-torque power transmission design',
-      application: 'Continuous Factory Operations, Motors & Reduction Drives',
-    };
+    return (
+      SECTION_SPEC_MAP[key] || {
+        profile: 'Standard Industrial Profile',
+        angle: 'IS/BS/DIN Standard Compliant',
+        pitchFactor: 'High-torque power transmission design',
+        application: 'Continuous Factory Operations, Motors & Reduction Drives',
+      }
+    );
   }, [currentSection]);
 
   const allocatedImage = useMemo(() => {
@@ -453,6 +634,83 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
     );
   }
 
+  // =========================================================================
+  // REQUIREMENT 3: If no PDF has been uploaded for the selected category,
+  // display "PDF Not Uploaded" with helpful actions instead of mock data.
+  // =========================================================================
+  if (!hasUploadedPdf) {
+    return (
+      <div className="bg-white rounded-3xl border-2 border-dashed border-amber-300 shadow-xl p-8 sm:p-12 text-center space-y-6">
+        <div className="w-20 h-20 mx-auto rounded-3xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shadow-inner">
+          <FileText className="w-10 h-10" />
+        </div>
+
+        <div className="space-y-2 max-w-xl mx-auto">
+          <span className="inline-block text-[11px] font-black uppercase tracking-wider text-amber-800 bg-amber-100 px-3.5 py-1 rounded-full border border-amber-300">
+            Catalog Status: Not Available
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-black text-navy tracking-tight">
+            PDF Not Uploaded
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Official manufacturer PDF catalog has not been uploaded for{' '}
+            <strong className="text-navy font-bold">{activeCategoryName || 'this category'}</strong>{' '}
+            yet.
+          </p>
+          <p className="text-xs text-slate-400">
+            You can submit a custom RFQ for factory pricing, contact our sales desk directly, or browse other categories with active PDF catalogs.
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <Link to={`/rfq?category=${encodeURIComponent(activeCategoryName)}`}>
+            <button
+              type="button"
+              className="px-5 py-3 rounded-2xl bg-primary hover:bg-primary-dark text-white text-xs font-black shadow-md transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              <span>Submit RFQ for {activeCategoryName || 'Products'}</span>
+            </button>
+          </Link>
+
+          <Link to="/contact">
+            <button
+              type="button"
+              className="px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-300 transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <HelpCircle className="w-4 h-4" />
+              <span>Contact Sales Desk</span>
+            </button>
+          </Link>
+
+          {onSelectCategory && (
+            <button
+              type="button"
+              onClick={() => onSelectCategory('')}
+              className="px-5 py-3 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200 transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Explore Available Catalogs</span>
+            </button>
+          )}
+
+          {user?.role === 'admin' && (
+            <Link to="/admin/pdf-catalog">
+              <button
+                type="button"
+                className="px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-black shadow-sm transition-all flex items-center gap-2 cursor-pointer border border-amber-500"
+              >
+                <UploadCloud className="w-4 h-4" />
+                <span>Upload PDF for {activeCategoryName} in Admin</span>
+              </button>
+            </Link>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white rounded-3xl border border-blue-200 shadow-xl p-6 sm:p-8 space-y-6">
       {/* 1. Header Banner */}
@@ -467,10 +725,10 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
             </span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-navy mt-1 tracking-tight">
-            Select Section, View PDF Data &amp; Place Order
+            {activeCategoryName ? `${activeCategoryName} Catalog` : 'Select Section, View PDF Data & Place Order'}
           </h2>
           <p className="text-xs text-slate-500 mt-1 max-w-3xl">
-            Choose any section below to see its allocated engineering image and technical specs. Browse the live PDF database on the right, search any product code, and order with your assigned discount!
+            Choose any section below to see its allocated engineering image and technical specs. Search any product code with the search button to view its details and order directly!
           </p>
         </div>
 
@@ -501,12 +759,12 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
             <span>Select PDF Section:</span>
           </span>
           <span className="text-[11px] text-slate-400 font-semibold">
-            {sectionsList.length} Sections Available
+            {categorySections.length} Sections Available
           </span>
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
-          {sectionsList.map((sec) => {
+          {categorySections.map((sec) => {
             const isSelected = sec.name === activeSectionName;
             return (
               <button
@@ -514,6 +772,9 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
                 type="button"
                 onClick={() => {
                   setActiveSectionName(sec.name);
+                  // Reset search when user clicks a section pill
+                  setSubmittedSearchQuery('');
+                  setSearchInputValue('');
                   if (onCategoryDetected && sec.categoryName) {
                     onCategoryDetected(sec.categoryName);
                   }
@@ -538,9 +799,8 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
         </div>
       </div>
 
-      {/* 3. Main Split Workspace: Left Column (Image + Specs + Pricing + Place Order), Right Column (Search + PDF Viewer / Data Table) */}
+      {/* 3. Main Split Workspace: Left Column (Image + Specs + Pricing + Place Order), Right Column (Search Bar + PDF Viewer / Matching Product Details) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-2">
-        
         {/* ===================== LEFT COLUMN (5 Cols): Allocated Section Image + Product Details + Price + Order Option ===================== */}
         <div className="lg:col-span-5 space-y-5 bg-slate-50 p-6 rounded-3xl border border-slate-200/90 shadow-sm">
           {/* Header of Section */}
@@ -653,7 +913,7 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
                     <button
                       type="button"
                       onClick={() => setOrderQuantity(Math.max(1, orderQuantity - 1))}
-                      className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-black"
+                      className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-black cursor-pointer"
                     >
                       -
                     </button>
@@ -661,7 +921,7 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
                     <button
                       type="button"
                       onClick={() => setOrderQuantity(orderQuantity + 1)}
-                      className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-black"
+                      className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-black cursor-pointer"
                     >
                       +
                     </button>
@@ -682,57 +942,80 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
             </div>
           ) : (
             <div className="p-6 bg-white rounded-2xl border border-dashed border-slate-300 text-center text-xs text-slate-400">
-              Select any part number from the right table to view assigned price &amp; order.
+              Select or search any part number to view assigned price &amp; order.
             </div>
           )}
         </div>
 
-        {/* ===================== RIGHT COLUMN (7 Cols): Search Bar + Scrollable PDF / Data Table ===================== */}
+        {/* ===================== RIGHT COLUMN (7 Cols): Search Bar + PDF Viewer / Product Details ===================== */}
         <div className="lg:col-span-7 space-y-4">
-          
-          {/* Top Search Bar over the PDF Data */}
+          {/* =========================================================================
+              REQUIREMENT 1: Search Bar with Search Icon + Search Button + Enter Handler
+             ========================================================================= */}
           <div className="bg-slate-50 p-4 rounded-3xl border border-slate-200/90 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black text-navy uppercase tracking-wider flex items-center gap-1.5">
                 <Search className="w-3.5 h-3.5 text-primary" />
-                <span>Search Product Code or Name in this PDF:</span>
+                <span>Search Product Code or Number in this PDF:</span>
               </span>
-              <span className="text-xs font-bold text-primary">
-                {filteredProducts.length} Match{filteredProducts.length !== 1 ? 'es' : ''}
-              </span>
-            </div>
-
-            <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-              <input
-                type="text"
-                placeholder="Search part # (e.g. 2360, A 18, 6204, C 70, SPC)..."
-                value={rightSearchQuery}
-                onChange={(e) => setRightSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-slate-300 text-xs font-bold text-navy focus:outline-none focus:ring-2 focus:ring-primary bg-white shadow-2xs"
-              />
-              {rightSearchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setRightSearchQuery('')}
-                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+              {submittedSearchQuery ? (
+                <span className="text-xs font-bold text-primary bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                  {filteredProducts.length} Match{filteredProducts.length !== 1 ? 'es' : ''} Found
+                </span>
+              ) : (
+                <span className="text-xs font-medium text-slate-400">
+                  {currentSection?.products?.length || 0} parts in section
+                </span>
               )}
             </div>
 
-            {/* Toggle PDF Document Embed vs Data Table */}
+            {/* Search Input with Search Icon and Search Button */}
+            <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                <input
+                  type="text"
+                  placeholder="Type part # (e.g. A 18, 2360, 6204, C 70) and press Enter or Search..."
+                  value={searchInputValue}
+                  onChange={(e) => setSearchInputValue(e.target.value)}
+                  className="w-full pl-10 pr-9 py-2.5 rounded-2xl border border-slate-300 text-xs font-bold text-navy focus:outline-none focus:ring-2 focus:ring-primary bg-white shadow-2xs"
+                />
+                {searchInputValue && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchInputValue('');
+                      setSubmittedSearchQuery('');
+                    }}
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    title="Clear search"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Dedicated Search Button */}
+              <button
+                type="submit"
+                className="px-4 py-2.5 rounded-2xl bg-primary hover:bg-primary-dark text-white text-xs font-black flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95 shrink-0"
+              >
+                <Search className="w-3.5 h-3.5" />
+                <span>Search</span>
+              </button>
+            </form>
+
+            {/* Toggle PDF Document Embed vs Data View */}
             {selectedCatalog?.fileUrl && (
               <div className="flex items-center justify-between pt-1 text-xs">
                 <span className="text-slate-500 font-medium">Original Manufacturer PDF:</span>
                 <button
                   type="button"
                   onClick={() => setShowPdfDocEmbed(!showPdfDocEmbed)}
-                  className="text-primary hover:underline font-bold inline-flex items-center gap-1"
+                  className="text-primary hover:underline font-bold inline-flex items-center gap-1 cursor-pointer"
                 >
                   <FileText className="w-3.5 h-3.5" />
-                  <span>{showPdfDocEmbed ? 'Switch to Data Table' : 'Scroll Official PDF Document'}</span>
+                  <span>{showPdfDocEmbed ? 'Switch to Data View' : 'Scroll Official PDF Document'}</span>
                 </button>
               </div>
             )}
@@ -764,31 +1047,171 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
               </div>
             </div>
           ) : (
-            /* Detailed PDF Extracted Products Table (No Redundant Individual Images) */
+            /* =========================================================================
+                REQUIREMENT 2: When a product is searched, show ONLY that product's details below
+               ========================================================================= */
             <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden space-y-1">
-              <div className="p-3.5 bg-slate-100/90 border-b border-slate-200 flex items-center justify-between">
+              {/* Header Bar */}
+              <div className="p-3.5 bg-slate-100/90 border-b border-slate-200 flex items-center justify-between gap-2">
                 <div>
                   <span className="text-xs font-black text-slate-700 uppercase tracking-wider block">
-                    Detailed Products List — {currentSection?.name}
+                    {submittedSearchQuery
+                      ? `Search Result: ${filteredProducts.length} Matching Product${filteredProducts.length !== 1 ? 's' : ''}`
+                      : `Detailed Products List — ${currentSection?.name}`}
                   </span>
                   <span className="text-[10px] text-slate-500 font-medium">
-                    Showing {filteredProducts.length} verified parts. Click any part to view specs &amp; order.
+                    {submittedSearchQuery
+                      ? `Showing verified details for "${submittedSearchQuery}". Click to view & order.`
+                      : `Showing ${filteredProducts.length} verified parts. Click any part to view specs & order.`}
                   </span>
                 </div>
-                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full">
-                  100% Genuine OEM
-                </span>
+
+                {submittedSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmittedSearchQuery('');
+                      setSearchInputValue('');
+                    }}
+                    className="text-[11px] font-bold text-rose-600 hover:text-rose-700 hover:underline flex items-center gap-1 cursor-pointer shrink-0"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>View All Parts</span>
+                  </button>
+                )}
               </div>
 
-              <div className="max-h-[460px] overflow-y-auto scrollbar-thin">
-                {filteredProducts.length === 0 ? (
-                  <div className="p-8 text-center space-y-2">
-                    <p className="text-xs font-bold text-slate-700">No products match "{rightSearchQuery}" in this section.</p>
-                    <p className="text-[11px] text-slate-500">
-                      Try searching with numbers only (e.g. 2360, 6204, 70, 18) or click any section pill above.
+              {/* SEARCH RESULT: When searched number does not exist in this PDF */}
+              {submittedSearchQuery && filteredProducts.length === 0 ? (
+                <div className="p-8 text-center space-y-4">
+                  <div className="w-12 h-12 mx-auto rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-500">
+                    <AlertCircle className="w-6 h-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-black text-slate-800">
+                      Part # "{submittedSearchQuery}" not found in this PDF catalog.
+                    </p>
+                    <p className="text-xs text-slate-500 max-w-md mx-auto">
+                      This number does not exist in the active catalog for {activeCategoryName || currentSection?.name}. Please verify the part number or request a custom quotation below.
                     </p>
                   </div>
-                ) : (
+                  <div className="flex items-center justify-center gap-2 pt-2">
+                    <Link to={`/rfq?partNumber=${encodeURIComponent(submittedSearchQuery)}`}>
+                      <button
+                        type="button"
+                        className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold shadow-xs cursor-pointer"
+                      >
+                        Submit RFQ for "{submittedSearchQuery}"
+                      </button>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSubmittedSearchQuery('');
+                        setSearchInputValue('');
+                      }}
+                      className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-300 cursor-pointer"
+                    >
+                      Clear Search
+                    </button>
+                  </div>
+                </div>
+              ) : submittedSearchQuery && filteredProducts.length === 1 ? (
+                /* EXACT SINGLE MATCH: Show ONLY that product's detailed order card */
+                <div className="p-5 space-y-4">
+                  <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-black uppercase tracking-wider text-primary bg-white px-2 py-0.5 rounded border border-blue-200">
+                            {filteredProducts[0].brand || 'Genuine OEM'}
+                          </span>
+                          <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
+                            Exact Match Found
+                          </span>
+                        </div>
+                        <h3 className="text-xl font-black text-navy mt-1">
+                          {filteredProducts[0].partNumber}
+                        </h3>
+                        <p className="text-xs font-medium text-slate-600">
+                          {filteredProducts[0].name}
+                        </p>
+                      </div>
+                      <span className="text-xs font-mono font-bold bg-white px-2.5 py-1 rounded-xl border border-slate-200 text-slate-700">
+                        {currentSection?.name}
+                      </span>
+                    </div>
+
+                    {/* Specifications */}
+                    {filteredProducts[0].specifications && (
+                      <p className="text-xs text-slate-500 bg-white p-2.5 rounded-xl border border-slate-200">
+                        <strong>Spec:</strong> {filteredProducts[0].specifications}
+                      </p>
+                    )}
+
+                    {/* Price & Order Action */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-500">Official Catalog MRP:</span>
+                          <span className="line-through text-slate-400 font-mono font-bold">
+                            {formatCurrency(filteredProducts[0].mrp)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-amber-700 font-bold">Applied Discount:</span>
+                          <span className="font-black text-amber-600">
+                            {pricingDetails?.finalDiscount || filteredProducts[0].discountPercentage || 46}% OFF
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm pt-1 border-t border-slate-100 font-black">
+                          <span className="text-navy">Wholesale Price:</span>
+                          <span className="text-primary font-mono text-base">
+                            {formatCurrency(pricingDetails?.wholesaleUnitPrice || Math.round(filteredProducts[0].mrp * 0.54))}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col justify-between gap-2 p-3 bg-white rounded-xl border border-slate-200">
+                        <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                          <span>Qty:</span>
+                          <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden">
+                            <button
+                              type="button"
+                              onClick={() => setOrderQuantity(Math.max(1, orderQuantity - 1))}
+                              className="px-2 py-0.5 text-slate-600 hover:bg-slate-100 font-black cursor-pointer"
+                            >
+                              -
+                            </button>
+                            <span className="px-2.5 py-0.5 font-mono text-navy font-bold">{orderQuantity}</span>
+                            <button
+                              type="button"
+                              onClick={() => setOrderQuantity(orderQuantity + 1)}
+                              className="px-2 py-0.5 text-slate-600 hover:bg-slate-100 font-black cursor-pointer"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedProduct(filteredProducts[0]);
+                            setIsOrderModalOpen(true);
+                          }}
+                          className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-black text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <ShoppingBag className="w-4 h-4" />
+                          <span>Place Order for {filteredProducts[0].partNumber}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* TABLE VIEW: Displays products (either all products in section, or multiple search matches) */
+                <div className="max-h-[460px] overflow-y-auto scrollbar-thin">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead className="sticky top-0 bg-slate-50 text-slate-700 font-black uppercase tracking-wider border-b border-slate-200 shadow-2xs z-10">
                       <tr>
@@ -797,53 +1220,47 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
                         <th className="py-2.5 px-3">Description / Spec</th>
                         <th className="py-2.5 px-3 text-right">MRP</th>
                         <th className="py-2.5 px-3 text-right">Wholesale Price</th>
-                        <th className="py-2.5 px-3 text-center">Status</th>
                         <th className="py-2.5 px-3 text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {filteredProducts.map((p, idx) => {
-                        const isSelected =
-                          (selectedProduct?.partNumber || '').toLowerCase() === (p.partNumber || '').toLowerCase();
-                        const mrp = Number(p.mrp) || 0;
+                      {filteredProducts.map((p) => {
+                        const isSelected = selectedProduct?.partNumber === p.partNumber;
                         const isSkf = (p.brand || '').toUpperCase().includes('SKF');
-                        const disc = user?.customDiscountPercentage > 0
-                          ? user.customDiscountPercentage
-                          : isSkf ? 10 : (p.discountPercentage || 46);
-                        const unitPrice = mrp > 0 ? Math.round(mrp * (1 - disc / 100)) : (p.wholesalePrice || 0);
+                        const disc = isSkf ? 10 : (p.discountPercentage || 46);
+                        const wsPrice = p.mrp > 0 ? Math.round(p.mrp * (1 - disc / 100)) : (p.wholesalePrice || 0);
 
                         return (
                           <tr
-                            key={`${p.partNumber}-${idx}`}
+                            key={p.partNumber}
                             onClick={() => setSelectedProduct(p)}
-                            className={`cursor-pointer transition-colors ${
+                            className={`transition-colors cursor-pointer ${
                               isSelected
-                                ? 'bg-blue-50/90 font-bold text-primary border-l-4 border-primary'
-                                : 'hover:bg-slate-50 text-slate-700'
+                                ? 'bg-blue-50/90 font-bold'
+                                : 'hover:bg-slate-50'
                             }`}
                           >
-                            <td className="py-2.5 px-3 font-mono font-black text-primary text-xs whitespace-nowrap">
-                              {p.partNumber}
+                            <td className="py-2.5 px-3 font-mono font-black text-navy whitespace-nowrap">
+                              <span className="flex items-center gap-1.5">
+                                {isSelected && (
+                                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                )}
+                                <span>{p.partNumber}</span>
+                              </span>
                             </td>
-                            <td className="py-2.5 px-3 font-black text-navy text-xs whitespace-nowrap">
-                              <span className="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200">
+                            <td className="py-2.5 px-3 whitespace-nowrap">
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">
                                 {p.brand || 'PIX'}
                               </span>
                             </td>
-                            <td className="py-2.5 px-3 text-[11px] text-slate-600 truncate max-w-[150px]">
-                              {p.name}
+                            <td className="py-2.5 px-3 text-slate-600 max-w-[220px] truncate">
+                              {p.name || p.specifications || currentSection?.name}
                             </td>
-                            <td className="py-2.5 px-3 text-right line-through text-slate-400 font-mono text-[11px] whitespace-nowrap">
-                              {formatCurrency(mrp)}
+                            <td className="py-2.5 px-3 text-right font-mono text-slate-400 line-through whitespace-nowrap">
+                              {formatCurrency(p.mrp)}
                             </td>
-                            <td className="py-2.5 px-3 text-right font-black text-navy font-mono text-xs whitespace-nowrap">
-                              <span className="text-primary">{formatCurrency(unitPrice)}</span>
-                              <span className="block text-[9px] text-amber-700 font-bold">{disc}% OFF</span>
-                            </td>
-                            <td className="py-2.5 px-3 text-center whitespace-nowrap">
-                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                                In Stock
-                              </span>
+                            <td className="py-2.5 px-3 text-right font-mono font-black text-primary whitespace-nowrap">
+                              {formatCurrency(wsPrice)}
                             </td>
                             <td className="py-2.5 px-3 text-center whitespace-nowrap">
                               <button
@@ -853,9 +1270,9 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
                                   setSelectedProduct(p);
                                   setIsOrderModalOpen(true);
                                 }}
-                                className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-smooth shadow-xs cursor-pointer hover:shadow hover:scale-105 active:scale-95"
+                                className="px-2.5 py-1 rounded-lg bg-primary hover:bg-primary-dark text-white text-[11px] font-black cursor-pointer shadow-2xs transition-all"
                               >
-                                Order Now
+                                Order
                               </button>
                             </td>
                           </tr>
@@ -863,125 +1280,132 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
                       })}
                     </tbody>
                   </table>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )}
-
         </div>
-
       </div>
 
-      {/* 4. Quick Order Confirmation Modal */}
+      {/* Quick Order Modal */}
       {isOrderModalOpen && selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-200 space-y-5 animate-slideUp relative">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-3">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-wider text-primary">
-                  Order Placement Form
+                  Direct Factory Wholesale Booking
                 </span>
-                <h3 className="text-xl font-black text-navy">
-                  Confirm Order for {selectedProduct.partNumber}
+                <h3 className="text-xl font-black text-navy mt-0.5">
+                  Order Part: {selectedProduct.partNumber}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsOrderModalOpen(false)}
-                className="p-1 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Product Summary Box */}
-            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Component:</span>
+            {/* Product Summary */}
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs">
+              <div>
+                <span className="text-[10px] text-slate-400 block font-bold">SELECTED ITEM:</span>
                 <span className="font-bold text-navy">{selectedProduct.name}</span>
+                <span className="block text-[11px] text-slate-500 font-mono">
+                  Make: {selectedProduct.brand} • Section: {currentSection?.name}
+                </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Brand / Make:</span>
-                <span className="font-bold text-darkText">{selectedProduct.brand}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Quantity:</span>
-                <span className="font-black text-primary">{orderQuantity} Unit(s)</span>
-              </div>
-              <div className="flex justify-between font-black pt-1 border-t border-slate-200">
-                <span className="text-navy">Total (+18% GST):</span>
-                <span className="font-mono text-primary text-sm">
+              <div className="text-right">
+                <span className="text-[10px] text-slate-400 block font-bold">TOTAL ESTIMATE:</span>
+                <span className="text-base font-black text-primary font-mono">
                   {formatCurrency(pricingDetails?.totalWithGst || 0)}
+                </span>
+                <span className="text-[10px] text-slate-400 block">
+                  ({orderQuantity} Units incl. 18% GST)
                 </span>
               </div>
             </div>
 
-            {/* Form Fields */}
-            <form onSubmit={handlePlaceOrderSubmit} className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Your Full Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={orderForm.name}
-                  onChange={(e) => setOrderForm({ ...orderForm, name: e.target.value })}
-                  placeholder="e.g. Ramesh Kumar"
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-medium"
-                />
-              </div>
-
+            {/* Form */}
+            <form onSubmit={handlePlaceOrderSubmit} className="space-y-3.5 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Phone Number *</label>
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Contact Person Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={orderForm.name}
+                    onChange={(e) => setOrderForm({ ...orderForm, name: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-primary focus:outline-none font-medium"
+                    placeholder="e.g. Ramesh Kumar"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Contact Phone Number *</label>
                   <input
                     type="tel"
                     required
                     value={orderForm.phone}
                     onChange={(e) => setOrderForm({ ...orderForm, phone: e.target.value })}
-                    placeholder="+91 98765 43210"
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-medium"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-primary focus:outline-none font-medium"
+                    placeholder="e.g. 9876543210"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Company / Mill Name</label>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Company / Factory Name</label>
                   <input
                     type="text"
                     value={orderForm.companyName}
                     onChange={(e) => setOrderForm({ ...orderForm, companyName: e.target.value })}
-                    placeholder="e.g. Sri Balaji Mills"
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-medium"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-primary focus:outline-none font-medium"
+                    placeholder="e.g. Sri Balaji Mills Pvt Ltd"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="font-bold text-slate-700">Delivery City / Hub</label>
+                  <input
+                    type="text"
+                    value={orderForm.deliveryLocation}
+                    onChange={(e) => setOrderForm({ ...orderForm, deliveryLocation: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-primary focus:outline-none font-medium"
+                    placeholder="e.g. Madurai, Coimbatore, Chennai"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Delivery City / Address</label>
-                <input
-                  type="text"
-                  value={orderForm.deliveryLocation}
-                  onChange={(e) => setOrderForm({ ...orderForm, deliveryLocation: e.target.value })}
-                  placeholder="e.g. Srivilliputtur, Rajapalayam, Madurai..."
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-medium"
+              <div className="space-y-1">
+                <label className="font-bold text-slate-700">Special Notes / Urgent Dispatch Request</label>
+                <textarea
+                  rows={2}
+                  value={orderForm.notes}
+                  onChange={(e) => setOrderForm({ ...orderForm, notes: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-primary focus:outline-none font-medium text-xs"
+                  placeholder="Need immediate Delhivery dispatch or specific brand clearance certificate..."
                 />
               </div>
 
-              <div className="flex items-center gap-3 pt-3 border-t border-slate-100">
-                <Button
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
                   type="button"
-                  variant="outline"
                   onClick={() => setIsOrderModalOpen(false)}
-                  className="w-1/2 font-bold text-xs"
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 font-bold hover:bg-slate-50 cursor-pointer"
                 >
                   Cancel
-                </Button>
-                <Button
+                </button>
+                <button
                   type="submit"
-                  variant="primary"
                   disabled={orderSubmitting}
-                  className="w-1/2 font-black text-xs bg-primary hover:bg-primary-dark"
+                  className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-black shadow-md transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
                 >
-                  {orderSubmitting ? 'Submitting...' : 'Confirm Order'}
-                </Button>
+                  {orderSubmitting ? <Spinner size="sm" /> : <ShoppingBag className="w-4 h-4" />}
+                  <span>Confirm Order Request</span>
+                </button>
               </div>
             </form>
           </div>
@@ -990,5 +1414,3 @@ export const InteractivePdfSectionViewer = ({ initialSearch = '', onCategoryDete
     </div>
   );
 };
-
-export default InteractivePdfSectionViewer;
