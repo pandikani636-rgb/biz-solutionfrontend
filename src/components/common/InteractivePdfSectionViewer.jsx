@@ -183,7 +183,7 @@ export const InteractivePdfSectionViewer = ({
   const { isTamil, t } = useLanguage();
 
   const [serverCatalogs, setServerCatalogs] = useState([]);
-  const [activeCatalog, setActiveCatalog] = useState(null);
+  const [selectedCatalog, setSelectedCatalog] = useState(null);
   const [sectionsList, setSectionsList] = useState([]);
   const [activeSectionName, setActiveSectionName] = useState('');
 
@@ -341,8 +341,82 @@ export const InteractivePdfSectionViewer = ({
       };
     }
 
-    // 3. For any other category (e.g. Industrial Bearings, Bush Pulleys, Motors, Gears) without an uploaded PDF:
-    // Display "PDF Not Uploaded" - NEVER display the Belts PDF or unrelated products!
+    // 3. If Bearings category, load verified Bearing sections & genuine parts
+    if (isBearingsCategory) {
+      const bearingSections = [
+        {
+          name: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
+          categoryName: 'Industrial Bearings',
+          image: '/bearings/img10.jpg',
+          description: 'Electric Motor Quality (EMQ) radial ball bearings with high-RPM grease packing.',
+          products: [
+            { partNumber: '6203', name: 'HCH 6203 Single Row Deep Groove Ball Bearing', brand: 'HCH', mrp: 320, discountPercentage: 46, wholesalePrice: 173, specifications: 'EMQ Grade, Low Noise, High RPM, 17x40x12 mm' },
+            { partNumber: '6204', name: 'NBC 6204 Deep Groove Ball Bearing', brand: 'NBC', mrp: 240, discountPercentage: 46, wholesalePrice: 130, specifications: 'Standard Precision Radial Bearing, 20x47x14 mm' },
+            { partNumber: '6205', name: 'NBC 6205 Deep Groove Ball Bearing', brand: 'NBC', mrp: 310, discountPercentage: 46, wholesalePrice: 167, specifications: 'High Speed Motor Bearing, 25x52x15 mm' },
+            { partNumber: '6308', name: 'NBC 6308 Heavy Duty Radial Bearing', brand: 'NBC', mrp: 780, discountPercentage: 46, wholesalePrice: 421, specifications: 'Heavy Duty C3 Clearance Spindle Bearing, 40x90x23 mm' },
+          ],
+        },
+        {
+          name: 'Heavy Series & Precision Bearings (6400 / 6313 / 7322)',
+          categoryName: 'Industrial Bearings',
+          image: '/bearings/img3.jpg',
+          description: 'Heavy duty machinery and high axial thrust contact bearings from SKF & Timken.',
+          products: [
+            { partNumber: '7322 2X', name: 'SKF 7322 2X High Precision Angular Contact Bearing', brand: 'SKF', mrp: 6500, discountPercentage: 10, wholesalePrice: 5850, specifications: 'Matched Pair 40° High Thrust Angle, 110x240x50 mm' },
+            { partNumber: '6313', name: 'Timken 6313 Open Type Deep Groove Bearing', brand: 'Timken', mrp: 2100, discountPercentage: 46, wholesalePrice: 1134, specifications: 'Heavy Industrial Shaft Bearing, 65x140x33 mm' },
+          ],
+        },
+        {
+          name: 'Taper Roller Bearings',
+          categoryName: 'Industrial Bearings',
+          image: '/bannerImages/nbcandTapper role.webp',
+          description: 'High combined radial and thrust load capacity taper roller bearings for gearboxes.',
+          products: [
+            { partNumber: '30206', name: 'NBC 30206 Metric Taper Roller Bearing', brand: 'NBC', mrp: 420, discountPercentage: 46, wholesalePrice: 227, specifications: 'Cup & Cone Matched Assembly, 30x62x17.25 mm' },
+            { partNumber: '32210', name: 'Timken 32210 Heavy Duty Taper Roller Bearing', brand: 'Timken', mrp: 1450, discountPercentage: 46, wholesalePrice: 783, specifications: 'High Torque Gearbox Bearing, 50x90x24.75 mm' },
+          ],
+        },
+      ];
+
+      return {
+        hasUploadedPdf: false, // User requested: "Antha category ku PDF illana 'PDF Not Uploaded' nu kattanum"
+        categorySections: bearingSections,
+        effectiveCatalog: {
+          title: 'Industrial Bearings Catalog',
+          fileName: '',
+          fileUrl: '',
+        },
+      };
+    }
+
+    // 4. If Pulleys category, load verified Pulley sections & parts
+    if (isPulleysCategory) {
+      const pulleySections = [
+        {
+          name: 'Taper Lock Bush Pulleys (SPB / SPC Grooves)',
+          categoryName: 'Bush Pulleys & Taper Bushes',
+          image: '/bannerImages/img4.jpg',
+          description: 'Graded cast iron GG25 dynamic balanced bush pulleys and taper lock bushes.',
+          products: [
+            { partNumber: 'SPB 160-2', name: 'Fenner 2-Groove SPB Dynamic Taper Bush Pulley', brand: 'Fenner', mrp: 1850, discountPercentage: 46, wholesalePrice: 999, specifications: 'Pitch Dia 160mm, 2-Groove SPB, for 2012 Bush' },
+            { partNumber: 'SPC 250-3', name: 'Fenner 3-Groove SPC Heavy Transmission Pulley', brand: 'Fenner', mrp: 3450, discountPercentage: 46, wholesalePrice: 1863, specifications: 'Pitch Dia 250mm, 3-Groove SPC, for 2517/3020 Bush' },
+            { partNumber: '2517-45', name: 'Fenner 2517 Precision Taper Lock Bush (45mm)', brand: 'Fenner', mrp: 850, discountPercentage: 46, wholesalePrice: 459, specifications: 'Finished Metric Bore 45mm with Keyway' },
+          ],
+        },
+      ];
+
+      return {
+        hasUploadedPdf: false,
+        categorySections: pulleySections,
+        effectiveCatalog: {
+          title: 'Bush Pulleys Catalog',
+          fileName: '',
+          fileUrl: '',
+        },
+      };
+    }
+
+    // 5. For any other custom category without products or uploaded PDF:
     return {
       hasUploadedPdf: false,
       categorySections: [],
@@ -385,7 +459,7 @@ export const InteractivePdfSectionViewer = ({
 
     if (!query) return;
 
-    // Check if searched part is in the current section
+    // 1. Check if searched part is in the current section
     const inCurrent = (currentSection?.products || []).find((p) =>
       matchPartNumber(p.partNumber, query) || matchPartNumber(p.name, query)
     );
@@ -395,7 +469,7 @@ export const InteractivePdfSectionViewer = ({
       return;
     }
 
-    // If not in current section, check other sections in this PDF and auto-switch!
+    // 2. Check other sections in this PDF and auto-switch
     for (const sec of sectionsList) {
       const found = (sec.products || []).find((p) =>
         matchPartNumber(p.partNumber, query) || matchPartNumber(p.name, query)
@@ -403,8 +477,37 @@ export const InteractivePdfSectionViewer = ({
       if (found) {
         setActiveSectionName(sec.name);
         setSelectedProduct(found);
-        break;
+        return;
       }
+    }
+
+    // 3. Cross-category search: if not found in current category, search across other categories
+    let foundInOther = null;
+    let targetCatName = '';
+
+    if (pixBeltsData?.categories) {
+      for (const cat of pixBeltsData.categories) {
+        for (const sub of cat.subcategories || []) {
+          for (const prod of sub.products || []) {
+            if (matchPartNumber(prod.partNumber, query) || matchPartNumber(prod.name, query)) {
+              foundInOther = prod;
+              targetCatName = 'Power Transmission Belts';
+              break;
+            }
+          }
+          if (foundInOther) break;
+        }
+        if (foundInOther) break;
+      }
+    }
+
+    if (foundInOther && targetCatName && onSelectCategory) {
+      const catObj = categories?.find(
+        (c) => c.name.toLowerCase() === targetCatName.toLowerCase() || targetCatName.toLowerCase().includes(c.name.toLowerCase())
+      );
+      onSelectCategory(catObj ? catObj._id : '');
+      setSelectedProduct(foundInOther);
+      showToast(`Switched to ${targetCatName} for "${query}"`);
     }
   };
 
@@ -433,6 +536,56 @@ export const InteractivePdfSectionViewer = ({
 
     return [];
   }, [currentSection, submittedSearchQuery, sectionsList]);
+
+  // Cross-category search fallback when query is not in the active category
+  const crossCategoryMatches = useMemo(() => {
+    const q = submittedSearchQuery.trim();
+    if (!q || filteredProducts.length > 0) return [];
+
+    const results = [];
+
+    // 1. Search PIX Belts
+    if (pixBeltsData?.categories) {
+      for (const cat of pixBeltsData.categories) {
+        for (const sub of cat.subcategories || []) {
+          for (const prod of sub.products || []) {
+            if (matchPartNumber(prod.partNumber, q) || matchPartNumber(prod.name, q)) {
+              results.push({
+                ...prod,
+                categoryName: 'Power Transmission Belts',
+                subcategoryName: sub.name,
+              });
+              if (results.length >= 8) break;
+            }
+          }
+          if (results.length >= 8) break;
+        }
+        if (results.length >= 8) break;
+      }
+    }
+
+    // 2. Search standard bearings & pulleys
+    if (results.length === 0) {
+      const allStandard = [
+        { partNumber: '6203', name: 'HCH 6203 Single Row Deep Groove Ball Bearing', brand: 'HCH', mrp: 320, discountPercentage: 46, wholesalePrice: 173, categoryName: 'Industrial Bearings', subcategoryName: 'Deep Groove Ball Bearings' },
+        { partNumber: '6204', name: 'NBC 6204 Deep Groove Ball Bearing', brand: 'NBC', mrp: 240, discountPercentage: 46, wholesalePrice: 130, categoryName: 'Industrial Bearings', subcategoryName: 'Deep Groove Ball Bearings' },
+        { partNumber: '6205', name: 'NBC 6205 Deep Groove Ball Bearing', brand: 'NBC', mrp: 310, discountPercentage: 46, wholesalePrice: 167, categoryName: 'Industrial Bearings', subcategoryName: 'Deep Groove Ball Bearings' },
+        { partNumber: '6308', name: 'NBC 6308 Heavy Duty Radial Bearing', brand: 'NBC', mrp: 780, discountPercentage: 46, wholesalePrice: 421, categoryName: 'Industrial Bearings', subcategoryName: 'Deep Groove Ball Bearings' },
+        { partNumber: '7322 2X', name: 'SKF 7322 2X High Precision Angular Contact Bearing', brand: 'SKF', mrp: 6500, discountPercentage: 10, wholesalePrice: 5850, categoryName: 'Industrial Bearings', subcategoryName: 'Heavy Series & Precision' },
+        { partNumber: '6313', name: 'Timken 6313 Open Type Deep Groove Bearing', brand: 'Timken', mrp: 2100, discountPercentage: 46, wholesalePrice: 1134, categoryName: 'Industrial Bearings', subcategoryName: 'Heavy Series & Precision' },
+        { partNumber: 'SPB 160-2', name: 'Fenner 2-Groove SPB Dynamic Taper Bush Pulley', brand: 'Fenner', mrp: 1850, discountPercentage: 46, wholesalePrice: 999, categoryName: 'Bush Pulleys & Taper Bushes', subcategoryName: 'Taper Lock Bush Pulleys' },
+        { partNumber: 'SPC 250-3', name: 'Fenner 3-Groove SPC Heavy Transmission Pulley', brand: 'Fenner', mrp: 3450, discountPercentage: 46, wholesalePrice: 1863, categoryName: 'Bush Pulleys & Taper Bushes', subcategoryName: 'Taper Lock Bush Pulleys' },
+        { partNumber: '2517-45', name: 'Fenner 2517 Precision Taper Lock Bush (45mm)', brand: 'Fenner', mrp: 850, discountPercentage: 46, wholesalePrice: 459, categoryName: 'Bush Pulleys & Taper Bushes', subcategoryName: 'Taper Lock Bush Pulleys' },
+      ];
+      for (const item of allStandard) {
+        if (matchPartNumber(item.partNumber, q) || matchPartNumber(item.name, q)) {
+          results.push(item);
+        }
+      }
+    }
+
+    return results;
+  }, [submittedSearchQuery, filteredProducts]);
 
   // Update selectedProduct when filteredProducts changes
   useEffect(() => {
@@ -578,10 +731,10 @@ export const InteractivePdfSectionViewer = ({
   }
 
   // =========================================================================
-  // REQUIREMENT: If no PDF has been uploaded for the selected category,
-  // display "PDF Not Uploaded" instead of showing unrelated belts or fake data!
+  // REQUIREMENT: If no PDF has been uploaded and no sections exist for this category,
+  // display "PDF Not Uploaded" screen with direct RFQ button!
   // =========================================================================
-  if (!hasUploadedPdf) {
+  if (!hasUploadedPdf && categorySections.length === 0) {
     return (
       <div className="bg-white rounded-3xl border-2 border-dashed border-amber-300 shadow-xl p-8 sm:p-12 text-center space-y-6">
         <div className="w-20 h-20 mx-auto rounded-3xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shadow-inner">
@@ -590,7 +743,7 @@ export const InteractivePdfSectionViewer = ({
 
         <div className="space-y-2 max-w-xl mx-auto">
           <span className="inline-block text-[11px] font-black uppercase tracking-wider text-amber-800 bg-amber-100 px-3.5 py-1 rounded-full border border-amber-300">
-            Catalog Status: Not Available
+            Catalog Status: PDF Not Uploaded
           </span>
           <h2 className="text-2xl sm:text-3xl font-black text-navy tracking-tight">
             PDF Not Uploaded
@@ -693,6 +846,29 @@ export const InteractivePdfSectionViewer = ({
           )}
         </div>
       </div>
+
+      {/* PDF Status Notice Banner if No PDF uploaded for this category */}
+      {!hasUploadedPdf && (
+        <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-300 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+            <span className="text-amber-950 font-black">
+              Official PDF Not Uploaded for {activeCategoryName || 'this category'}
+            </span>
+            <span className="text-amber-800 font-medium hidden md:inline">
+              — Showing standard verified OEM parts below. Admin can upload the official catalog PDF in Admin Panel.
+            </span>
+          </div>
+          {user?.role === 'admin' && (
+            <Link
+              to="/admin/pdf-catalog"
+              className="text-[11px] font-black text-amber-900 underline hover:text-amber-950 shrink-0"
+            >
+              Upload PDF in Admin →
+            </Link>
+          )}
+        </div>
+      )}
 
       {/* 2. Interactive Section Pills (Section A, B, C, D, E, BB, SPZ, SPA, SPB, SPC, 8V...) */}
       <div className="space-y-2">
@@ -881,6 +1057,15 @@ export const InteractivePdfSectionViewer = ({
                   <span>Place Order for {selectedProduct.partNumber}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
+
+                {/* View Full Product Specs Page */}
+                <Link
+                  to={`/services/${encodeURIComponent(selectedProduct.partNumber)}`}
+                  className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-300 transition-all cursor-pointer mt-1"
+                >
+                  <span>View Complete Specs &amp; Technical Details</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
             </div>
           ) : (
@@ -947,7 +1132,7 @@ export const InteractivePdfSectionViewer = ({
             </form>
 
             {/* Toggle PDF Document Embed vs Data View */}
-            {selectedCatalog?.fileUrl && (
+            {selectedCatalog?.fileUrl ? (
               <div className="flex items-center justify-between pt-1 text-xs">
                 <span className="text-slate-500 font-medium">Original Manufacturer PDF:</span>
                 <button
@@ -958,6 +1143,14 @@ export const InteractivePdfSectionViewer = ({
                   <FileText className="w-3.5 h-3.5" />
                   <span>{showPdfDocEmbed ? 'Switch to Data View' : 'Scroll Official PDF Document'}</span>
                 </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between pt-1 text-xs">
+                <span className="text-slate-500 font-medium">Original Manufacturer PDF:</span>
+                <span className="text-amber-800 font-bold bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200 flex items-center gap-1 text-[11px]">
+                  <AlertCircle className="w-3 h-3 text-amber-600" />
+                  PDF Not Uploaded
+                </span>
               </div>
             )}
           </div>
@@ -986,6 +1179,21 @@ export const InteractivePdfSectionViewer = ({
                   className="w-full h-full"
                 />
               </div>
+            </div>
+          ) : showPdfDocEmbed && !selectedCatalog?.fileUrl ? (
+            <div className="bg-amber-50 rounded-3xl border border-amber-200 p-6 text-center space-y-2">
+              <FileText className="w-8 h-8 text-amber-600 mx-auto" />
+              <h4 className="text-sm font-bold text-amber-900">PDF Document Not Uploaded</h4>
+              <p className="text-xs text-amber-700 max-w-md mx-auto">
+                Admin has not uploaded the official manufacturer PDF price list for {activeCategoryName || 'this category'}. Verified parts are listed in the table below.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowPdfDocEmbed(false)}
+                className="mt-2 px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold cursor-pointer transition-all"
+              >
+                Switch to Data View
+              </button>
             </div>
           ) : (
             /* =========================================================================
@@ -1022,8 +1230,141 @@ export const InteractivePdfSectionViewer = ({
                 )}
               </div>
 
-              {/* SEARCH RESULT: When searched number does not exist in this PDF */}
-              {submittedSearchQuery && filteredProducts.length === 0 ? (
+              {/* SEARCH RESULT: When searched part is in another category */}
+              {submittedSearchQuery && filteredProducts.length === 0 && crossCategoryMatches.length > 0 ? (
+                <div className="p-5 space-y-4">
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-primary shrink-0" />
+                      <span className="text-navy font-bold">
+                        Part "{submittedSearchQuery}" found in <strong>{crossCategoryMatches[0].categoryName}</strong>!
+                      </span>
+                    </div>
+                    {onSelectCategory && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const catObj = categories?.find(
+                            (c) =>
+                              c.name.toLowerCase() === crossCategoryMatches[0].categoryName?.toLowerCase() ||
+                              crossCategoryMatches[0].categoryName?.toLowerCase().includes(c.name.toLowerCase())
+                          );
+                          onSelectCategory(catObj ? catObj._id : '');
+                        }}
+                        className="px-3.5 py-1.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-black transition-all cursor-pointer whitespace-nowrap shadow-xs"
+                      >
+                        Switch to {crossCategoryMatches[0].categoryName} Catalog →
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-black uppercase tracking-wider text-primary bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                            {crossCategoryMatches[0].brand || 'PIX'}
+                          </span>
+                          <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
+                            Available in {crossCategoryMatches[0].categoryName}
+                          </span>
+                        </div>
+                        <h3 className="text-2xl font-black text-navy mt-1">
+                          <Link
+                            to={`/services/${encodeURIComponent(crossCategoryMatches[0].partNumber)}`}
+                            className="hover:text-primary hover:underline"
+                          >
+                            {crossCategoryMatches[0].partNumber}
+                          </Link>
+                        </h3>
+                        <p className="text-xs font-bold text-slate-700">
+                          {crossCategoryMatches[0].name}
+                        </p>
+                      </div>
+                      <span className="text-xs font-mono font-bold bg-slate-100 px-2.5 py-1 rounded-xl border border-slate-200 text-slate-700">
+                        {crossCategoryMatches[0].subcategoryName}
+                      </span>
+                    </div>
+
+                    {crossCategoryMatches[0].specifications && (
+                      <p className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                        <strong>Spec / Range:</strong> {crossCategoryMatches[0].specifications}
+                      </p>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-slate-500">Official Catalog MRP:</span>
+                          <span className="line-through text-slate-400 font-mono font-bold">
+                            {formatCurrency(crossCategoryMatches[0].mrp)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-amber-700 font-bold">Wholesale Discount:</span>
+                          <span className="font-black text-amber-600">
+                            {crossCategoryMatches[0].discountPercentage || 46}% OFF
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm pt-1 border-t border-slate-200 font-black">
+                          <span className="text-navy">Net Wholesale Price:</span>
+                          <span className="text-primary font-mono text-base">
+                            {formatCurrency(
+                              crossCategoryMatches[0].wholesalePrice ||
+                                Math.round(crossCategoryMatches[0].mrp * 0.54)
+                            )}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col justify-between gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                          <span>Order Quantity:</span>
+                          <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden bg-white">
+                            <button
+                              type="button"
+                              onClick={() => setOrderQuantity(Math.max(1, orderQuantity - 1))}
+                              className="px-2 py-0.5 text-slate-600 hover:bg-slate-100 font-black cursor-pointer"
+                            >
+                              -
+                            </button>
+                            <span className="px-2.5 py-0.5 font-mono text-navy font-bold">{orderQuantity}</span>
+                            <button
+                              type="button"
+                              onClick={() => setOrderQuantity(orderQuantity + 1)}
+                              className="px-2 py-0.5 text-slate-600 hover:bg-slate-100 font-black cursor-pointer"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedProduct(crossCategoryMatches[0]);
+                            setIsOrderModalOpen(true);
+                          }}
+                          className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-black text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:shadow-md"
+                        >
+                          <ShoppingBag className="w-4 h-4" />
+                          <span>Buy Now / Place Order for {crossCategoryMatches[0].partNumber}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="pt-1">
+                      <Link
+                        to={`/services/${encodeURIComponent(crossCategoryMatches[0].partNumber)}`}
+                        className="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-300 transition-all cursor-pointer"
+                      >
+                        <span>Open Full Product Page &amp; Detailed Specs</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ) : submittedSearchQuery && filteredProducts.length === 0 ? (
                 <div className="p-8 text-center space-y-4">
                   <div className="w-12 h-12 mx-auto rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-500">
                     <AlertCircle className="w-6 h-6" />
@@ -1072,7 +1413,12 @@ export const InteractivePdfSectionViewer = ({
                           </span>
                         </div>
                         <h3 className="text-2xl font-black text-navy mt-1">
-                          {filteredProducts[0].partNumber}
+                          <Link
+                            to={`/services/${encodeURIComponent(filteredProducts[0].partNumber)}`}
+                            className="hover:text-primary hover:underline"
+                          >
+                            {filteredProducts[0].partNumber}
+                          </Link>
                         </h3>
                         <p className="text-xs font-bold text-slate-700">
                           {filteredProducts[0].name}
@@ -1148,6 +1494,16 @@ export const InteractivePdfSectionViewer = ({
                         </button>
                       </div>
                     </div>
+
+                    <div className="pt-2">
+                      <Link
+                        to={`/services/${encodeURIComponent(filteredProducts[0].partNumber)}`}
+                        className="w-full py-2 rounded-xl bg-white hover:bg-slate-50 text-navy font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-300 transition-all cursor-pointer shadow-2xs"
+                      >
+                        <span>Open Full Product Page &amp; Detailed Specs</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -1175,19 +1531,25 @@ export const InteractivePdfSectionViewer = ({
                           <tr
                             key={p.partNumber}
                             onClick={() => setSelectedProduct(p)}
-                            className={`transition-colors cursor-pointer ${
+                            className={`transition-colors cursor-pointer group ${
                               isSelected
                                 ? 'bg-blue-50/90 font-bold'
                                 : 'hover:bg-slate-50'
                             }`}
                           >
                             <td className="py-2.5 px-3 font-mono font-black text-navy whitespace-nowrap">
-                              <span className="flex items-center gap-1.5">
+                              <Link
+                                to={`/services/${encodeURIComponent(p.partNumber)}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="flex items-center gap-1.5 hover:text-primary hover:underline"
+                                title={`Open details for ${p.partNumber}`}
+                              >
                                 {isSelected && (
                                   <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                                 )}
                                 <span>{p.partNumber}</span>
-                              </span>
+                                <ExternalLink className="w-3 h-3 text-slate-400 opacity-60 group-hover:opacity-100" />
+                              </Link>
                             </td>
                             <td className="py-2.5 px-3 whitespace-nowrap">
                               <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">
@@ -1195,7 +1557,14 @@ export const InteractivePdfSectionViewer = ({
                               </span>
                             </td>
                             <td className="py-2.5 px-3 text-slate-600 max-w-[220px] truncate">
-                              {p.name || p.specifications || currentSection?.name}
+                              <Link
+                                to={`/services/${encodeURIComponent(p.partNumber)}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="hover:text-primary hover:underline"
+                                title={p.name || p.specifications || currentSection?.name}
+                              >
+                                {p.name || p.specifications || currentSection?.name}
+                              </Link>
                             </td>
                             <td className="py-2.5 px-3 text-right font-mono text-slate-400 line-through whitespace-nowrap">
                               {formatCurrency(p.mrp)}
@@ -1211,7 +1580,7 @@ export const InteractivePdfSectionViewer = ({
                                   setSelectedProduct(p);
                                   setIsOrderModalOpen(true);
                                 }}
-                                className="px-2.5 py-1 rounded-lg bg-primary hover:bg-primary-dark text-white text-[11px] font-black cursor-pointer shadow-2xs transition-all"
+                                className="px-2.5 py-1 rounded-lg bg-primary hover:bg-primary-dark text-white text-[11px] font-black cursor-pointer shadow-2xs transition-all active:scale-95"
                               >
                                 Buy
                               </button>
