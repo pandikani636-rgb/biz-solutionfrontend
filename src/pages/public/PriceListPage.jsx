@@ -288,7 +288,7 @@ export const PriceListPage = () => {
           <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 space-y-3">
             <div className="flex justify-between text-xs">
               <span className="text-secondaryText">Catalog List MRP:</span>
-              <span className="font-bold line-through text-slate-400">{formatCurrency(parsedMrp)}</span>
+              <span className="font-bold text-navy">{formatCurrency(parsedMrp)}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="font-bold text-amber-700">Contract Discount ({selectedBrandRule.discountPct}%):</span>
@@ -396,7 +396,7 @@ export const PriceListPage = () => {
                       <p className="font-semibold text-darkText line-clamp-1">{p.name}</p>
                       <span className="text-[10px] text-slate-400">{p.section}</span>
                     </td>
-                    <td className="py-3.5 px-4 text-right font-medium text-slate-400 line-through">
+                    <td className="py-3.5 px-4 text-right font-bold text-navy">
                       {formatCurrency(officialMrp)}
                     </td>
                     <td className="py-3.5 px-4 text-right font-black text-navy text-sm">

@@ -599,52 +599,29 @@ export const InteractivePdfSectionViewer = ({
     }
   }, [filteredProducts]);
 
-  // Pricing calculations
+  // Pricing calculations - Displays pure uncrossed MRP rate and orders at exact MRP rate
   const pricingDetails = useMemo(() => {
     if (!selectedProduct) return null;
 
-    const mrp = Number(selectedProduct.mrp) || 0;
-    const isSkf = (selectedProduct.brand || '').toUpperCase().includes('SKF');
-    const defaultDiscount = isSkf ? 10 : (selectedProduct.discountPercentage || 46);
+    const mrp = Number(selectedProduct.mrp) || Number(selectedProduct.wholesalePrice) || 0;
+    const unitPrice = mrp;
 
-    let finalDiscount = defaultDiscount;
-    let isUserCustomRate = false;
-    let rateLabel = isSkf ? 'Flat 10% OFF Official MRP' : '46% OFF Wholesale Standard Rate';
-
-    if (user) {
-      if (user.customDiscountPercentage > 0) {
-        finalDiscount = user.customDiscountPercentage;
-        isUserCustomRate = true;
-        rateLabel = `${user.customDiscountPercentage}% OFF Admin Assigned Custom Rate`;
-      } else if (user.pricingTier === 'vip_custom') {
-        finalDiscount = 50;
-        isUserCustomRate = true;
-        rateLabel = '50% OFF VIP Client Rate';
-      } else if (user.isNewUser || user.pricingTier === 'new_user') {
-        const surcharge = user.markupPercentage || 5;
-        finalDiscount = Math.max(0, defaultDiscount - surcharge);
-        rateLabel = `${finalDiscount}% OFF New User Tier (+${surcharge}% Surcharge)`;
-      }
-    }
-
-    const wholesaleUnitPrice =
-      mrp > 0 ? Math.round(mrp * (1 - finalDiscount / 100)) : (selectedProduct.wholesalePrice || 0);
-
-    const subtotal = wholesaleUnitPrice * orderQuantity;
+    const subtotal = unitPrice * orderQuantity;
     const gstAmount = Math.round(subtotal * 0.18);
     const totalWithGst = subtotal + gstAmount;
 
     return {
       mrp,
-      finalDiscount,
-      isUserCustomRate,
-      rateLabel,
-      wholesaleUnitPrice,
+      unitPrice,
+      wholesaleUnitPrice: unitPrice,
+      finalDiscount: 0,
+      isUserCustomRate: false,
+      rateLabel: 'Official Catalog MRP',
       subtotal,
       gstAmount,
       totalWithGst,
     };
-  }, [selectedProduct, user, orderQuantity]);
+  }, [selectedProduct, orderQuantity]);
 
   // Section specifications
   const sectionSpec = useMemo(() => {
@@ -696,14 +673,14 @@ export const InteractivePdfSectionViewer = ({
         phone: orderForm.phone,
         email: orderForm.email || `${orderForm.phone.replace(/[^0-9]/g, '')}@balumuni-client.com`,
         subject: `Order Booking: ${selectedProduct.partNumber} (${orderQuantity} Units)`,
-        message: `Order booking request placed from PDF Section Explorer.\n\nProduct: ${selectedProduct.name} (${selectedProduct.partNumber})\nBrand: ${selectedProduct.brand}\nSection: ${currentSection?.name}\nQuantity: ${orderQuantity} Units\nMRP: ₹${pricingDetails?.mrp}\nOffer: ${pricingDetails?.rateLabel}\nUnit Wholesale Price: ₹${pricingDetails?.wholesaleUnitPrice}\nTotal Amount (+18% GST): ₹${pricingDetails?.totalWithGst}\nDelivery City: ${orderForm.deliveryLocation}\nNotes: ${orderForm.notes || 'None'}`,
+        message: `Order booking request placed from PDF Section Explorer.\n\nProduct: ${selectedProduct.name} (${selectedProduct.partNumber})\nBrand: ${selectedProduct.brand}\nSection: ${currentSection?.name}\nQuantity: ${orderQuantity} Units\nMRP Rate: ₹${pricingDetails?.mrp}\nTotal Amount (+18% GST): ₹${pricingDetails?.totalWithGst}\nDelivery City: ${orderForm.deliveryLocation}\nNotes: ${orderForm.notes || 'None'}`,
         enquiryType: 'bulk_order',
         companyName: orderForm.companyName,
         deliveryLocation: orderForm.deliveryLocation,
         brand: selectedProduct.brand,
         partNumber: selectedProduct.partNumber,
         quantity: orderQuantity,
-        targetPrice: pricingDetails?.wholesaleUnitPrice,
+        targetPrice: pricingDetails?.mrp,
       };
 
       const res = await contentService.submitEnquiry(payload);
@@ -992,35 +969,36 @@ export const InteractivePdfSectionViewer = ({
                 </span>
               </div>
 
-              {/* Price Breakdown */}
+              {/* Price Breakdown - Pure MRP Rate */}
               {pricingDetails && (
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-100 space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-500">Official Catalog MRP:</span>
-                    <span className="line-through text-slate-400 font-mono font-medium">
+                    <span className="text-slate-700 font-bold">Official Catalog MRP:</span>
+                    <span className="text-base font-black text-navy font-mono">
                       {formatCurrency(pricingDetails.mrp)}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-amber-700 font-bold">Applied Offer:</span>
-                    <span className="font-black text-amber-600">
-                      {pricingDetails.finalDiscount}% OFF
+                  <div className="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-slate-200/60">
+                    <span>Subtotal ({orderQuantity} {orderQuantity > 1 ? 'Units' : 'Unit'}):</span>
+                    <span className="font-mono font-bold text-slate-800">
+                      {formatCurrency(pricingDetails.subtotal)}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between text-sm pt-1 border-t border-slate-200 font-black">
-                    <span className="text-navy">Net Wholesale Price:</span>
-                    <span className="text-primary font-mono text-base">
-                      {formatCurrency(pricingDetails.wholesaleUnitPrice)}
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    <span>GST (+18% B2B Input Credit):</span>
+                    <span className="font-mono font-semibold text-slate-700">
+                      +{formatCurrency(pricingDetails.gstAmount)}
                     </span>
                   </div>
 
-                  {pricingDetails.isUserCustomRate && (
-                    <span className="inline-block text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded mt-1">
-                      ★ {pricingDetails.rateLabel}
+                  <div className="flex items-center justify-between text-sm pt-1.5 border-t border-blue-200 font-black">
+                    <span className="text-navy">Total Payable:</span>
+                    <span className="text-primary font-mono text-base font-black">
+                      {formatCurrency(pricingDetails.totalWithGst)}
                     </span>
-                  )}
+                  </div>
                 </div>
               )}
 
@@ -1293,27 +1271,15 @@ export const InteractivePdfSectionViewer = ({
                     )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500">Official Catalog MRP:</span>
-                          <span className="line-through text-slate-400 font-mono font-bold">
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-col justify-center">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                          Official Catalog MRP
+                        </span>
+                        <div className="flex items-baseline gap-2 mt-0.5">
+                          <span className="text-xl font-black text-navy font-mono">
                             {formatCurrency(crossCategoryMatches[0].mrp)}
                           </span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-amber-700 font-bold">Wholesale Discount:</span>
-                          <span className="font-black text-amber-600">
-                            {crossCategoryMatches[0].discountPercentage || 46}% OFF
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm pt-1 border-t border-slate-200 font-black">
-                          <span className="text-navy">Net Wholesale Price:</span>
-                          <span className="text-primary font-mono text-base">
-                            {formatCurrency(
-                              crossCategoryMatches[0].wholesalePrice ||
-                                Math.round(crossCategoryMatches[0].mrp * 0.54)
-                            )}
-                          </span>
+                          <span className="text-[11px] font-semibold text-slate-500">+18% GST</span>
                         </div>
                       </div>
 
@@ -1438,24 +1404,15 @@ export const InteractivePdfSectionViewer = ({
 
                     {/* Price & Buy Action */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500">Official Catalog MRP:</span>
-                          <span className="line-through text-slate-400 font-mono font-bold">
+                      <div className="p-3 bg-white rounded-xl border border-slate-200 flex flex-col justify-center">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                          Official Catalog MRP
+                        </span>
+                        <div className="flex items-baseline gap-2 mt-0.5">
+                          <span className="text-xl font-black text-navy font-mono">
                             {formatCurrency(filteredProducts[0].mrp)}
                           </span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-amber-700 font-bold">Wholesale Discount:</span>
-                          <span className="font-black text-amber-600">
-                            {pricingDetails?.finalDiscount || filteredProducts[0].discountPercentage || 46}% OFF
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm pt-1 border-t border-slate-100 font-black">
-                          <span className="text-navy">Net Wholesale Price:</span>
-                          <span className="text-primary font-mono text-base">
-                            {formatCurrency(pricingDetails?.wholesaleUnitPrice || Math.round(filteredProducts[0].mrp * 0.54))}
-                          </span>
+                          <span className="text-[11px] font-semibold text-slate-500">+18% GST</span>
                         </div>
                       </div>
 
@@ -1515,17 +1472,13 @@ export const InteractivePdfSectionViewer = ({
                         <th className="py-2.5 px-3">Part #</th>
                         <th className="py-2.5 px-3">Make</th>
                         <th className="py-2.5 px-3">Description / Spec</th>
-                        <th className="py-2.5 px-3 text-right">MRP</th>
-                        <th className="py-2.5 px-3 text-right">Wholesale Price</th>
+                        <th className="py-2.5 px-3 text-right">MRP Rate</th>
                         <th className="py-2.5 px-3 text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {filteredProducts.map((p) => {
                         const isSelected = selectedProduct?.partNumber === p.partNumber;
-                        const isSkf = (p.brand || '').toUpperCase().includes('SKF');
-                        const disc = isSkf ? 10 : (p.discountPercentage || 46);
-                        const wsPrice = p.mrp > 0 ? Math.round(p.mrp * (1 - disc / 100)) : (p.wholesalePrice || 0);
 
                         return (
                           <tr
@@ -1566,11 +1519,8 @@ export const InteractivePdfSectionViewer = ({
                                 {p.name || p.specifications || currentSection?.name}
                               </Link>
                             </td>
-                            <td className="py-2.5 px-3 text-right font-mono text-slate-400 line-through whitespace-nowrap">
+                            <td className="py-2.5 px-3 text-right font-mono font-black text-navy text-sm whitespace-nowrap">
                               {formatCurrency(p.mrp)}
-                            </td>
-                            <td className="py-2.5 px-3 text-right font-mono font-black text-primary whitespace-nowrap">
-                              {formatCurrency(wsPrice)}
                             </td>
                             <td className="py-2.5 px-3 text-center whitespace-nowrap">
                               <button
@@ -1580,7 +1530,7 @@ export const InteractivePdfSectionViewer = ({
                                   setSelectedProduct(p);
                                   setIsOrderModalOpen(true);
                                 }}
-                                className="px-2.5 py-1 rounded-lg bg-primary hover:bg-primary-dark text-white text-[11px] font-black cursor-pointer shadow-2xs transition-all active:scale-95"
+                                className="px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-dark text-white text-xs font-black cursor-pointer shadow-2xs transition-all active:scale-95"
                               >
                                 Buy
                               </button>
@@ -1620,12 +1570,15 @@ export const InteractivePdfSectionViewer = ({
             </div>
 
             {/* Product Summary */}
-            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs">
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs">
               <div>
                 <span className="text-[10px] text-slate-400 block font-bold">SELECTED ITEM:</span>
-                <span className="font-bold text-navy">{selectedProduct.name}</span>
-                <span className="block text-[11px] text-slate-500 font-mono">
+                <span className="font-bold text-navy text-sm">{selectedProduct.name}</span>
+                <span className="block text-[11px] text-slate-500 font-mono mt-0.5">
                   Make: {selectedProduct.brand} • Section: {currentSection?.name}
+                </span>
+                <span className="inline-block mt-1 text-xs font-black text-primary font-mono">
+                  MRP Rate: {formatCurrency(pricingDetails?.mrp || selectedProduct.mrp)} / Unit
                 </span>
               </div>
               <div className="text-right">
@@ -1633,8 +1586,8 @@ export const InteractivePdfSectionViewer = ({
                 <span className="text-base font-black text-primary font-mono">
                   {formatCurrency(pricingDetails?.totalWithGst || 0)}
                 </span>
-                <span className="text-[10px] text-slate-400 block">
-                  ({orderQuantity} Units incl. 18% GST)
+                <span className="text-[10px] text-slate-500 block">
+                  ({orderQuantity} Units @ {formatCurrency(pricingDetails?.mrp || selectedProduct.mrp)} + 18% GST)
                 </span>
               </div>
             </div>

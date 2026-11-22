@@ -683,11 +683,11 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
                                       <div className="pt-2 border-t border-slate-100 space-y-2">
                                         <div className="flex items-baseline justify-between">
                                           <div>
-                                            <span className="text-[10px] text-slate-400 line-through block">
-                                              MRP: {formatCurrency(p.mrp)}
+                                            <span className="text-[10px] text-slate-500 font-bold block">
+                                              {isTamil ? 'அசல் விலை (MRP):' : 'Official MRP:'}
                                             </span>
-                                            <span className="text-sm font-black text-navy">
-                                              {formatCurrency(p.wholesalePrice)}
+                                            <span className="text-sm font-black text-navy font-mono">
+                                              {formatCurrency(p.mrp)}
                                             </span>
                                           </div>
                                           <span className="text-[9px] text-slate-400 font-medium">
@@ -756,8 +756,7 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
                                       <th className="py-3 px-3">{isTamil ? 'பிராண்ட்' : 'Brand'}</th>
                                       <th className="py-3 px-3">{isTamil ? 'பாகம் எண்' : 'Part Number'}</th>
                                       <th className="py-3 px-4">{isTamil ? 'தயாரிப்பு & குறிப்புகள்' : 'Product & Specs'}</th>
-                                      <th className="py-3 px-3 text-right">{isTamil ? 'அசல் விலை (MRP)' : 'List MRP'}</th>
-                                      <th className="py-3 px-3 text-right">{isTamil ? 'மொத்த விலை' : 'Wholesale Price'}</th>
+                                      <th className="py-3 px-3 text-right">{isTamil ? 'அசல் விலை (MRP)' : 'MRP Rate'}</th>
                                       <th className="py-3 px-3 text-center">{isTamil ? 'போக்குவரத்து' : 'Freight'}</th>
                                       <th className="py-3 px-3 text-center">{isTamil ? 'செயல்' : 'Action'}</th>
                                     </tr>
@@ -799,11 +798,8 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
                                             <p className="text-[10px] text-slate-400 truncate">{p.specifications}</p>
                                           )}
                                         </td>
-                                        <td className="py-2.5 px-3 text-right line-through text-slate-400">
+                                        <td className="py-2.5 px-3 text-right font-mono font-black text-navy text-sm whitespace-nowrap">
                                           {formatCurrency(p.mrp)}
-                                        </td>
-                                        <td className="py-2.5 px-3 text-right font-black text-navy text-xs">
-                                          {formatCurrency(p.wholesalePrice)}
                                         </td>
                                         <td className="py-2.5 px-3 text-center">
                                           <span className="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 whitespace-nowrap">
@@ -908,23 +904,16 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
               )}
             </div>
 
-            {/* Price Table Card */}
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
-              <div className="flex justify-between items-center text-slate-500">
-                <span>Standard List MRP:</span>
-                <span className="line-through">{formatCurrency(selectedProduct.mrp)}</span>
+            {/* Price Table Card - Pure Uncrossed MRP Rate */}
+            <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-200 space-y-2 text-xs">
+              <div className="flex justify-between items-center text-slate-700 font-bold">
+                <span>{isTamil ? 'அசல் விலை (MRP):' : 'Official Catalog MRP:'}</span>
+                <span className="font-black text-navy text-base font-mono">{formatCurrency(selectedProduct.mrp)}</span>
               </div>
-              <div className="flex justify-between items-center text-blue-700 font-bold">
-                <span>Contract Trade Status:</span>
-                <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 text-[11px]">Wholesale Direct</span>
+              <div className="flex justify-between items-center text-slate-500 pt-1 border-t border-blue-100 text-[11px]">
+                <span>18% GST Applicable</span>
+                <span className="text-emerald-700 font-bold">100% Genuine OEM Pricing</span>
               </div>
-              <div className="flex justify-between items-center text-navy font-black text-sm pt-2 border-t border-slate-200">
-                <span>Direct B2B Wholesale Rate:</span>
-                <span>{formatCurrency(selectedProduct.wholesalePrice)}</span>
-              </div>
-              <p className="text-[10px] text-slate-400 text-right pt-0.5">
-                + 18% GST Applicable
-              </p>
             </div>
 
             {/* Action Buttons */}

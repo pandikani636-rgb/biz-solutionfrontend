@@ -645,7 +645,7 @@ export const AdminPdfCatalogPage = () => {
                                   <td className="py-2.5 px-3 text-secondaryText text-[11px]">
                                     {p.specifications || 'Standard IS/ISO'}
                                   </td>
-                                  <td className="py-2.5 px-3 text-right text-slate-400 line-through">
+                                  <td className="py-2.5 px-3 text-right font-bold text-navy font-mono">
                                     {formatCurrency(p.mrp)}
                                   </td>
                                   <td className="py-2.5 px-3 text-center">

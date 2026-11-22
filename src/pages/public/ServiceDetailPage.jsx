@@ -138,9 +138,9 @@ export const ServiceDetailPage = () => {
     if (!prod) return;
     setSelectedPdfItem(prod);
 
-    const wholesalePrice = prod.wholesalePrice || prod.mrp || 0;
-    const mrp = prod.mrp || Math.round(wholesalePrice / 0.54);
-    const discountPercentage = prod.discountPercentage || 46;
+    const mrp = prod.mrp || prod.wholesalePrice || 0;
+    const wholesalePrice = mrp;
+    const discountPercentage = 0;
 
     const newService = {
       _id: prod._id || 'pdf-' + prod.partNumber,
@@ -154,12 +154,12 @@ export const ServiceDetailPage = () => {
       },
       categoryName: prod.categoryName,
       subcategoryName: prod.subcategoryName,
-      mainPrice: wholesalePrice,
-      basePrice: wholesalePrice,
+      mainPrice: mrp,
+      basePrice: mrp,
       officialMrp: mrp,
       mrp,
-      discountPercentage,
-      discountPrice: wholesalePrice,
+      discountPercentage: 0,
+      discountPrice: mrp,
       mainImage: prod.image || getProductImageUrl(prod),
       images: [prod.image || getProductImageUrl(prod)],
       shortDescription: prod.description || `${prod.brand || 'Genuine'} ${prod.name} (${prod.partNumber})`,
@@ -173,8 +173,8 @@ export const ServiceDetailPage = () => {
         {
           _id: 'standard-wholesale-pack',
           name: 'Standard Wholesale Pack',
-          price: wholesalePrice,
-          discountPrice: wholesalePrice,
+          price: mrp,
+          discountPrice: mrp,
           description: 'Factory-sealed OEM unit with 100% genuine warranty and tracked dispatch',
           features: ['100% Genuine Products', 'Factory Sealed', 'Pan-India Express Dispatch'],
           isActive: true,
@@ -440,9 +440,9 @@ export const ServiceDetailPage = () => {
           }
 
           if (found) {
-            const wholesalePrice = found.wholesalePrice || found.mrp || 0;
-            const mrp = found.mrp || Math.round(wholesalePrice / 0.54);
-            const discountPercentage = found.discountPercentage || 46;
+            const mrp = found.mrp || found.wholesalePrice || 0;
+            const wholesalePrice = mrp;
+            const discountPercentage = 0;
 
             loadedService = {
               _id: found._id || 'prod-' + found.partNumber,
@@ -458,12 +458,12 @@ export const ServiceDetailPage = () => {
               },
               categoryName: found.categoryName || foundCat?.name,
               subcategoryName: found.subcategoryName || foundSub?.name,
-              mainPrice: wholesalePrice,
-              basePrice: wholesalePrice,
+              mainPrice: mrp,
+              basePrice: mrp,
               officialMrp: mrp,
               mrp,
-              discountPercentage,
-              discountPrice: wholesalePrice,
+              discountPercentage: 0,
+              discountPrice: mrp,
               mainImage:
                 found.image ||
                 '/belts/PIX C 70 Classical V-Belt.jpg',
@@ -486,8 +486,8 @@ export const ServiceDetailPage = () => {
                 {
                   _id: 'standard-wholesale-pack',
                   name: 'Standard Wholesale Pack',
-                  price: wholesalePrice,
-                  discountPrice: wholesalePrice,
+                  price: mrp,
+                  discountPrice: mrp,
                   description: 'Factory-sealed OEM unit with 100% genuine warranty and tracked dispatch',
                   features: ['100% Genuine Products', 'Factory Sealed', 'Pan-India Express Dispatch'],
                   isActive: true,
@@ -832,23 +832,17 @@ export const ServiceDetailPage = () => {
             {service.shortDescription}
           </p>
 
-          {/* Pricing Highlight */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-wrap items-baseline gap-4">
-            <div>
-              <span className="text-xs text-secondaryText font-medium">List MRP: </span>
-              <span className="text-sm font-semibold text-slate-400 line-through">
-                {formatCurrency(officialMrp)}
+          {/* Pricing Highlight - Pure Uncrossed MRP Rate */}
+          <div className="bg-blue-50/60 border border-blue-200 rounded-2xl p-4 flex flex-wrap items-baseline justify-between gap-4">
+            <div className="flex items-baseline gap-3">
+              <span className="text-xs font-black uppercase tracking-wider text-slate-600">Official Catalog MRP:</span>
+              <span className="text-2xl sm:text-3xl font-black text-navy font-mono">
+                {formatCurrency(officialMrp || service.mainPrice || service.basePrice)}
               </span>
+              <span className="text-xs font-semibold text-slate-500 ml-1">+ 18% GST</span>
             </div>
-            <div>
-              <span className="text-xs text-emerald-700 font-bold">Wholesale Net: </span>
-              <span className="text-2xl sm:text-3xl font-black text-navy">
-                {formatCurrency(service.discountPrice || service.basePrice)}
-              </span>
-              <span className="text-xs text-slate-500 font-medium ml-1">+ 18% GST</span>
-            </div>
-            <span className="text-xs bg-emerald-100 text-emerald-900 font-bold px-2.5 py-1 rounded-md ml-auto">
-              You Save {formatCurrency(officialMrp - (service.discountPrice || service.basePrice))}
+            <span className="text-xs bg-emerald-100 text-emerald-900 font-bold px-3 py-1 rounded-lg">
+              100% Genuine OEM Pricing
             </span>
           </div>
 
@@ -1068,7 +1062,7 @@ export const ServiceDetailPage = () => {
                 <div className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-blue-100 grid grid-cols-2 sm:grid-cols-4 gap-3.5 text-center shadow-xs">
                   <div className="p-2 sm:p-2.5 rounded-xl bg-white/60 border border-slate-200/60 flex flex-col justify-center">
                     <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tight block">LIST MRP</span>
-                    <p className="text-sm sm:text-base font-extrabold text-slate-500 line-through mt-0.5 whitespace-nowrap">
+                    <p className="text-sm sm:text-base font-extrabold text-navy mt-0.5 whitespace-nowrap">
                       ₹{parsedMrpVal.toLocaleString('en-IN')}
                     </p>
                   </div>
@@ -1531,8 +1525,7 @@ export const ServiceDetailPage = () => {
                           <th className="py-3 px-3">Product Name &amp; Category</th>
                           <th className="py-3 px-3">Make</th>
                           <th className="py-3 px-4">Specifications &amp; Dimensions</th>
-                          <th className="py-3 px-3 text-right">List MRP</th>
-                          <th className="py-3 px-3 text-right">Wholesale Rate</th>
+                          <th className="py-3 px-3 text-right">MRP Rate</th>
                           <th className="py-3 px-3 text-center">Clickable Action</th>
                         </tr>
                       </thead>
@@ -1583,17 +1576,8 @@ export const ServiceDetailPage = () => {
                                 {prod.specifications || 'Standard OEM Dimension & Tolerance'}
                               </td>
 
-                              <td className="py-3 px-3 text-right line-through text-slate-400 whitespace-nowrap">
+                              <td className="py-3 px-3 text-right font-mono font-black text-navy text-sm whitespace-nowrap">
                                 {formatCurrency(prod.mrp)}
-                              </td>
-
-                              <td className="py-3 px-3 text-right whitespace-nowrap">
-                                <span className="font-black text-emerald-700 text-xs sm:text-sm block">
-                                  {formatCurrency(prod.wholesalePrice)}
-                                </span>
-                                <span className="text-[9px] font-bold text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded">
-                                  {prod.discountPercentage || 46}% OFF
-                                </span>
                               </td>
 
                               <td className="py-3 px-3 text-center whitespace-nowrap">
@@ -1697,8 +1681,8 @@ export const ServiceDetailPage = () => {
                               {prod.name}
                             </p>
                             <div className="mt-1 flex items-baseline justify-between pt-1 border-t border-slate-200/60">
-                              <span className="text-[10px] text-slate-400 line-through">₹{prod.mrp}</span>
-                              <span className="text-[11px] font-black text-emerald-700">₹{prod.wholesalePrice}</span>
+                              <span className="text-[10px] text-slate-500 font-bold">MRP Rate:</span>
+                              <span className="text-xs font-black text-navy font-mono">₹{prod.mrp}</span>
                             </div>
                           </button>
                         );
@@ -1759,8 +1743,8 @@ export const ServiceDetailPage = () => {
                           )}
                         </div>
                         <div className="mt-2 pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                          <span className="text-[10px] text-slate-400 line-through">₹{prod.mrp}</span>
-                          <span className="text-xs font-black text-emerald-700">₹{prod.wholesalePrice}</span>
+                          <span className="text-[10px] text-slate-500 font-bold">MRP Rate:</span>
+                          <span className="text-xs font-black text-navy font-mono">₹{prod.mrp}</span>
                         </div>
                       </button>
                     ))}
@@ -1815,29 +1799,17 @@ export const ServiceDetailPage = () => {
               </div>
             </div>
 
-            {/* Price & Commercial Terms Card */}
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
-              <div className="flex justify-between items-center text-slate-500">
-                <span>Official List MRP:</span>
-                <span className="line-through font-semibold text-slate-400">
+            {/* Price & Commercial Terms Card - Pure Uncrossed MRP Rate */}
+            <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-200 space-y-2 text-xs">
+              <div className="flex justify-between items-center text-slate-700 font-bold">
+                <span>Official Catalog MRP:</span>
+                <span className="font-black text-navy text-lg font-mono">
                   {formatCurrency(selectedPdfItem.mrp)}
                 </span>
               </div>
-              <div className="flex justify-between items-center text-emerald-700 font-bold">
-                <span>Contract Discount:</span>
-                <span className="bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded border border-emerald-200 text-[11px] font-black">
-                  {selectedPdfItem.discountPercentage || 46}% OFF LIST MRP
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-navy font-black text-base pt-2 border-t border-slate-200">
-                <span>Direct B2B Wholesale Rate:</span>
-                <span className="text-emerald-700 text-lg">
-                  {formatCurrency(selectedPdfItem.wholesalePrice)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-[10px] text-slate-400 pt-1">
+              <div className="flex justify-between items-center text-[11px] text-slate-500 pt-1 border-t border-blue-100">
                 <span>Statutory 18% GST Applicable</span>
-                <span className="text-emerald-700 font-bold">You Save: {formatCurrency(selectedPdfItem.mrp - selectedPdfItem.wholesalePrice)}</span>
+                <span className="text-emerald-700 font-bold">100% Genuine OEM Certified</span>
               </div>
             </div>
 
