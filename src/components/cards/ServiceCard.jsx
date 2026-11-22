@@ -44,15 +44,15 @@ export const ServiceCard = ({ service }) => {
   return (
     <div className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-xl transition-smooth flex flex-col group relative">
       {/* Top Image Container - Clickable to Product Details */}
-      <Link to={productUrl} className="block relative h-48 w-full overflow-hidden bg-slate-900 cursor-pointer">
+      <Link to={productUrl} className="block relative h-48 w-full overflow-hidden bg-white border-b border-slate-100 flex items-center justify-center p-3 cursor-pointer">
         <img
           src={getProductImageUrl(service)}
           alt={cleanName}
-          className="w-full h-full object-cover group-hover:scale-105 transition-smooth duration-500 opacity-95"
+          className="w-full h-full object-contain group-hover:scale-105 transition-smooth duration-500"
           loading="lazy"
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=800&q=80';
+            e.target.src = getProductImageUrl({ ...service, mainImage: null, image: null });
           }}
         />
 
@@ -136,7 +136,9 @@ export const ServiceCard = ({ service }) => {
             <ShieldCheck className="w-3.5 h-3.5" /> 100% Genuine
           </div>
         </div>
+          
 
+        
         {/* Pricing Footer */}
         <div className="pt-3 border-t border-slate-100 space-y-3">
           <div className="flex items-end justify-between">

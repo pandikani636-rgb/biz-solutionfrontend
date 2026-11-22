@@ -126,10 +126,14 @@ export const MyBookingsPage = () => {
                   <img
                     src={getProductImageUrl(booking.serviceSnapshot || booking.service)}
                     alt={booking.serviceSnapshot?.name || 'Industrial Component'}
-                    className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-cover border border-slate-200 shrink-0"
+                    className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-contain p-1 bg-white border border-slate-200 shrink-0"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=800&q=80';
+                      e.target.src = getProductImageUrl({
+                        ...(booking.serviceSnapshot || booking.service),
+                        mainImage: null,
+                        image: null,
+                      });
                     }}
                   />
                   <div className="space-y-1">

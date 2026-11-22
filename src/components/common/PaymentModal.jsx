@@ -125,7 +125,7 @@ export const PaymentModal = ({
           currency: orderRes.currency || 'INR',
           name: 'Balumuni Industrial Solutions',
           description: `Payment for Order #${bookingNumber}`,
-          image: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=200&q=80',
+          image: '/bearings/img10.jpg',
           order_id: orderRes.orderId,
           handler: async (response) => {
             try {

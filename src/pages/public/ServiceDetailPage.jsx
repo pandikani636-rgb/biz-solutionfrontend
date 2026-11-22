@@ -160,8 +160,8 @@ export const ServiceDetailPage = () => {
       mrp,
       discountPercentage,
       discountPrice: wholesalePrice,
-      mainImage: prod.image || service?.mainImage || 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png',
-      images: [prod.image || service?.mainImage || 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png'],
+      mainImage: prod.image || getProductImageUrl(prod),
+      images: [prod.image || getProductImageUrl(prod)],
       shortDescription: prod.description || `${prod.brand || 'Genuine'} ${prod.name} (${prod.partNumber})`,
       fullDescription: prod.description || `Original OEM certified ${prod.brand || 'Industrial'} ${prod.name}. Technical part number ${prod.partNumber}. ${prod.specifications || ''}`,
       specifications: prod.specifications ? [{ name: 'Technical Specs', value: prod.specifications }] : [],
@@ -878,14 +878,18 @@ export const ServiceDetailPage = () => {
 
         {/* Media Preview */}
         <div className="lg:col-span-5 space-y-3">
-          <div className="relative rounded-2xl overflow-hidden shadow-md bg-slate-900 border border-slate-200">
+          <div className="relative rounded-2xl overflow-hidden shadow-md bg-white border border-slate-200 flex items-center justify-center p-4">
             <img
               src={getProductImageUrl(service)}
               alt={service.name}
-              className="w-full h-64 md:h-80 object-cover"
+              className="w-full h-64 md:h-80 object-contain mx-auto"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=800&q=80';
+                e.target.src = getProductImageUrl({
+                  ...service,
+                  mainImage: null,
+                  image: null,
+                });
               }}
             />
             {service.brand && (

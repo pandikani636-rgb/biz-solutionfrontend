@@ -1356,11 +1356,11 @@ export const HomePage = () => {
             {/* Subtle background industrial bearing graphic */}
             <div className="absolute inset-0 z-0 pointer-events-none">
               <img
-                src="https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&w=800&q=80"
-                alt=""
+                src="/bannerImages/timken.jpg"
+                alt="Timken Bearings"
                 className="w-full h-full object-cover object-center opacity-15"
                 onError={(e) => {
-                  e.target.src = '/banners/img3.jpg';
+                  e.target.src = '/bearings/img3.jpg';
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-r from-amber-50/95 via-amber-50/80 to-transparent" />

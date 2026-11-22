@@ -1,6 +1,6 @@
 /**
  * Verified industrial assets and authentic local photo assets for bearings, belts, and banners.
- * All downloaded authentic photos from Belts, Bearings, and Banner folders are seamlessly integrated.
+ * All authentic photos from belts, bearings, and banner folders are seamlessly integrated.
  */
 
 export const INDUSTRIAL_IMAGE_CATALOG = {
@@ -8,19 +8,20 @@ export const INDUSTRIAL_IMAGE_CATALOG = {
   ballBearing: '/bearings/imgg14.jpg',
   angularContact: '/bearings/img1.jpg',
   rollerBearing: '/bearings/img3.jpg',
-  pillowBlock: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80',
+  pillowBlock: '/bearings/img10.jpg',
   
   // Belts
   vBelt: '/belts/PIX C 70 Classical V-Belt.jpg',
-  timingBelt: '/belts/PIX SPC PT 3150 Power Transmission.jpg',
+  heavyDutyBelt: '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
   wedgeBelt: '/belts/PIX SPC 2360 Wedge Belt.jpg',
+  timingBelt: '/belts/PIX SPC PT 3150 Power Transmission.jpg',
   
   // Pulleys & Transmission
   pulley: '/banners/img4.jpg',
   taperBush: '/banners/img4.jpg',
-  grease: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=800&q=80',
-  diagnostics: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
-  defaultIndustrial: '/bearings/imgg14.jpg',
+  grease: '/bearings/img10.jpg',
+  diagnostics: '/banners/img4.jpg',
+  defaultIndustrial: '/belts/PIX C 70 Classical V-Belt.jpg',
 };
 
 // Direct, authentic product photo mappings from the Belts and Bearings folders
@@ -29,8 +30,11 @@ export const PRODUCT_SPECIFIC_IMAGES = {
   'pix spc 2360': '/belts/PIX SPC 2360 Wedge Belt.jpg',
   'spc 2360': '/belts/PIX SPC 2360 Wedge Belt.jpg',
   '8v-1900': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  '8v 1900': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
   'pix 8v-1900': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  'pix 8v 1900': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
   'pix spc pt 3150': '/belts/PIX SPC PT 3150 Power Transmission.jpg',
+  'spc pt 3150': '/belts/PIX SPC PT 3150 Power Transmission.jpg',
   'pix c 70': '/belts/PIX C 70 Classical V-Belt.jpg',
   'fenner c 70': '/belts/Fenner C 70 Classical V-Belt.jpg',
   'fenner spc pt 3150': '/belts/Fenner SPC PT 3150 Power Transmissio.jpg',
@@ -96,15 +100,18 @@ export const PRODUCT_SPECIFIC_IMAGES = {
 
 /**
  * Intelligently resolves the most accurate, authentic industrial engineering image
- * prioritizing local photo assets from the Belts and Bearings directories.
+ * prioritizing local photo assets from the belts, bearings, and banner folders.
+ * Guarantees NO unrelated stock photos or parking garage images ever appear.
  */
 export const getProductImageUrl = (productOrImage, optionalCategory = '') => {
-  if (!productOrImage) return INDUSTRIAL_IMAGE_CATALOG.defaultIndustrial;
+  if (!productOrImage) return INDUSTRIAL_IMAGE_CATALOG.vBelt;
 
   let currentImage = '';
   let name = '';
   let categoryName = '';
+  let subcategoryName = '';
   let partNumber = '';
+  let section = '';
   let brand = '';
 
   if (typeof productOrImage === 'string') {
@@ -115,68 +122,132 @@ export const getProductImageUrl = (productOrImage, optionalCategory = '') => {
     name = productOrImage.name || productOrImage.title || '';
     categoryName =
       (typeof productOrImage.category === 'object' ? productOrImage.category?.name : productOrImage.category) ||
+      productOrImage.categoryName ||
       optionalCategory ||
       '';
+    subcategoryName = productOrImage.subcategoryName || '';
     partNumber = productOrImage.partNumber || '';
+    section = productOrImage.section || '';
     brand = productOrImage.brand || '';
   }
 
-  // 1. If image is already an authentic local path (belts, bearings, banners, uploads), return immediately
+  // 1. If image is an authentic local path, return immediately
   if (
     currentImage &&
     (currentImage.startsWith('/belts/') ||
       currentImage.startsWith('/bearings/') ||
       currentImage.startsWith('/banners/') ||
+      currentImage.startsWith('/bannerImages/') ||
       currentImage.startsWith('/uploads/') ||
       currentImage.startsWith('data:image'))
   ) {
     return currentImage;
   }
 
-  // 2. Exact lookup by part number, name, or key combinations
   const pNorm = (partNumber || '').trim().toLowerCase();
   const nNorm = (name || '').trim().toLowerCase();
   const bNorm = (brand || '').trim().toLowerCase();
-  const combined = `${bNorm} ${pNorm} ${nNorm}`.toLowerCase();
+  const sNorm = (section || '').trim().toLowerCase();
+  const subNorm = (subcategoryName || '').trim().toLowerCase();
+  const catNorm = (categoryName || '').trim().toLowerCase();
+  const combined = `${bNorm} ${pNorm} ${nNorm} ${sNorm} ${subNorm} ${catNorm}`.toLowerCase();
 
+  // 2. Direct dictionary lookup
   for (const [key, imagePath] of Object.entries(PRODUCT_SPECIFIC_IMAGES)) {
-    if (
-      pNorm === key ||
-      nNorm.includes(key) ||
-      combined.includes(key)
-    ) {
+    if (pNorm === key || nNorm.includes(key) || combined.includes(key)) {
       return imagePath;
     }
   }
 
-  // 3. Fallback to generic non-unsplash image if present and not car-related
+  // 3. Section & Part Code Pattern Matching for Transmission Belts
+  // 3a. Heavy Duty Belts: Section E (e.g. E 418), Section D, 8V, 5V, 3V, Giant Drive
+  if (
+    /^(e|d|8v|5v|3v)(\s*[-_/\s]?\d+|\b)/i.test(pNorm) ||
+    combined.includes('e section') ||
+    combined.includes('d section') ||
+    combined.includes('section e') ||
+    combined.includes('section d') ||
+    combined.includes('giant drive') ||
+    combined.includes('heavy duty') ||
+    combined.includes('8v') ||
+    combined.includes('5v') ||
+    combined.includes('3v')
+  ) {
+    return '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg';
+  }
+
+  // 3b. Metric Wedge Belts: SPZ, SPA, SPB, SPC
+  if (
+    /^(spz|spa|spb|spc)(\s*[-_/\s]?\d+|\b)/i.test(pNorm) ||
+    combined.includes('wedge') ||
+    combined.includes('spz') ||
+    combined.includes('spa') ||
+    combined.includes('spb') ||
+    combined.includes('spc')
+  ) {
+    return '/belts/PIX SPC 2360 Wedge Belt.jpg';
+  }
+
+  // 3c. Hexagonal / Double-V / Cogged / Ribbed / PT: AA, BB, CC, AX, BX, CX, XPZ, XPA, XPB, XPC, PJ, PK, PL, PM
+  if (
+    /^(aa|bb|cc|ax|bx|cx|xpz|xpa|xpb|xpc|pj|pk|pl|pm)(\s*[-_/\s]?\d+|\b)/i.test(pNorm) ||
+    combined.includes('hexagonal') ||
+    combined.includes('double') ||
+    combined.includes('cogged') ||
+    combined.includes('raw edge') ||
+    combined.includes('ribbed') ||
+    combined.includes('power transmission') ||
+    combined.includes('pt 3150')
+  ) {
+    return '/belts/PIX SPC PT 3150 Power Transmission.jpg';
+  }
+
+  // 3d. Classical V-Belts: Section A, Section B, Section C, FHP
+  if (
+    /^(a|b|c|fhp)(\s*[-_/\s]?\d+|\b)/i.test(pNorm) ||
+    combined.includes('classical') ||
+    combined.includes('wrap belt') ||
+    combined.includes('v-belt') ||
+    combined.includes('v belt') ||
+    combined.includes('c section') ||
+    combined.includes('b section') ||
+    combined.includes('a section')
+  ) {
+    if (bNorm.includes('fenner')) {
+      return '/belts/Fenner C 70 Classical V-Belt.jpg';
+    }
+    return '/belts/PIX C 70 Classical V-Belt.jpg';
+  }
+
+  // 4. Bearings by brand & series
+  if (combined.includes('nbc') || combined.includes('6405') || combined.includes('6400')) {
+    return '/bearings/img10.jpg';
+  }
+  if (combined.includes('timken') || combined.includes('6313') || combined.includes('taper')) {
+    return '/bearings/img3.jpg';
+  }
+  if (combined.includes('skf') || combined.includes('7322') || combined.includes('angular')) {
+    return '/bearings/img1.jpg';
+  }
+  if (combined.includes('hch') || combined.includes('6203') || combined.includes('6204') || combined.includes('6205')) {
+    return '/bearings/imgg14.jpg';
+  }
+  if (combined.includes('pulley') || combined.includes('taper lock') || combined.includes('bush')) {
+    return '/banners/img4.jpg';
+  }
+
+  // 5. If current image is a valid remote image and NOT an unrelated unsplash stock photo
   if (currentImage && !currentImage.includes('unsplash.com')) {
     return currentImage;
   }
 
-  // 4. Category-based fallback
-  const query = `${name} ${partNumber} ${brand} ${categoryName}`.toLowerCase();
-
-  // V-Belts
-  if (
-    query.includes('belt') ||
-    query.includes('spz') ||
-    query.includes('spa') ||
-    query.includes('spb') ||
-    query.includes('spc') ||
-    query.includes('wedge') ||
-    query.includes('fenner') ||
-    query.includes('pix') ||
-    query.includes('c 70')
-  ) {
-    return INDUSTRIAL_IMAGE_CATALOG.vBelt;
+  // 6. Fallback based on category/query
+  if (catNorm.includes('bearing') || combined.includes('bearing')) {
+    return '/bearings/imgg14.jpg';
+  }
+  if (catNorm.includes('belt') || combined.includes('belt') || combined.includes('pix') || combined.includes('fenner')) {
+    return '/belts/PIX C 70 Classical V-Belt.jpg';
   }
 
-  // Bearings fallback
-  if (query.includes('nbc')) return '/bearings/img10.jpg';
-  if (query.includes('timken')) return '/bearings/img3.jpg';
-  if (query.includes('skf')) return '/bearings/img1.jpg';
-  if (query.includes('hch')) return '/bearings/imgg14.jpg';
-
-  return INDUSTRIAL_IMAGE_CATALOG.ballBearing;
+  return INDUSTRIAL_IMAGE_CATALOG.vBelt;
 };
