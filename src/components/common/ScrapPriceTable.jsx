@@ -78,24 +78,22 @@ export const ScrapPriceTable = () => {
 
       {/* Compact Clean Aligned Daily Scrap Rate Rows */}
       <div className="mt-2.5 space-y-1">
-        {/* Table Header Row */}
-        <div className="flex items-center justify-between px-2 pb-1.5 border-b border-white/15 text-[10px] font-black uppercase tracking-wider text-amber-300/90">
-          <span>Material</span>
-          <div className="flex items-center gap-4">
-            <span className="w-14 text-center">Unit</span>
-            <span className="w-16 text-right">Price</span>
-          </div>
+        {/* Table Header Row: Decreased Gap between Material and Unit */}
+        <div className="grid grid-cols-12 px-2 pb-1.5 border-b border-white/15 text-[10px] font-black uppercase tracking-wider text-amber-300/90 gap-2 items-center">
+          <span className="col-span-6">Material</span>
+          <span className="col-span-3 text-center">Unit</span>
+          <span className="col-span-3 text-right">Price</span>
         </div>
 
-        {/* 10 Rows with Dotted Leader Alignment (No Awkward Vacant Space After Words) */}
+        {/* 10 Rows with Compact Gap between Material and Unit */}
         <div className="divide-y divide-white/10">
           {topTenRows.map((row, index) => (
             <div
               key={row._id || index}
-              className="py-1 px-2 flex items-center justify-between gap-1.5 hover:bg-white/10 rounded-md transition-colors group"
+              className="py-1 px-2 grid grid-cols-12 items-center gap-2 hover:bg-white/10 rounded-md transition-colors group"
             >
               {/* Material Name with Index */}
-              <div className="flex items-center gap-1.5 min-w-0 max-w-[55%]">
+              <div className="col-span-6 flex items-center gap-1.5 min-w-0">
                 <span className="text-[10px] font-mono text-amber-300/70 font-black w-4 shrink-0">
                   {index + 1}.
                 </span>
@@ -104,22 +102,23 @@ export const ScrapPriceTable = () => {
                 </span>
               </div>
 
-              {/* Dotted Leader Line to cleanly connect words to pricing without blank voids */}
-              <div className="flex-1 border-b border-dotted border-white/20 mx-1 mb-0.5" />
-
-              {/* Unit Badge */}
-              <span className="shrink-0 w-14 text-center inline-block bg-white/10 px-1.5 py-0.5 rounded border border-white/10 text-[10px] font-mono text-blue-100">
-                {row.quantityUnit || '1 KG'}
-              </span>
+              {/* Unit Badge (Directly adjacent to Material, decreased gap) */}
+              <div className="col-span-3 text-center">
+                <span className="inline-block bg-white/10 px-2 py-0.5 rounded border border-white/10 text-[10px] font-mono text-blue-100">
+                  {row.quantityUnit || '1 KG'}
+                </span>
+              </div>
 
               {/* Price */}
-              <span className="shrink-0 w-16 text-right font-black text-amber-400 font-mono text-xs">
-                {row.price > 0 ? (
-                  `₹${Number(row.price).toLocaleString('en-IN')}`
-                ) : (
-                  <span className="text-slate-400 text-[10px]">On Request</span>
-                )}
-              </span>
+              <div className="col-span-3 text-right">
+                <span className="font-black text-amber-400 font-mono text-xs">
+                  {row.price > 0 ? (
+                    `₹${Number(row.price).toLocaleString('en-IN')}`
+                  ) : (
+                    <span className="text-slate-400 text-[10px]">On Request</span>
+                  )}
+                </span>
+              </div>
             </div>
           ))}
         </div>

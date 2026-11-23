@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import api, { getAssetUrl } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { useSite } from '../../context/SiteContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { formatCurrency } from '../../utils/formatters';
 import { Button } from './Button';
@@ -182,7 +183,20 @@ export const InteractivePdfSectionViewer = ({
   onCategoryDetected,
 }) => {
   const { user, isAuthenticated } = useAuth();
+  const { settings } = useSite();
   const { isTamil, t } = useLanguage();
+
+  const defaultTaxRate = Number(settings?.defaultTaxRate) || 18;
+  const existingUserDiscount = Number(settings?.existingUserDiscountPercentage) || 46;
+  const newUserDiscount = Number(settings?.newUserDiscountPercentage) || 40;
+
+  // Active Discount Percentage based on User Status:
+  // Existing User: Has created account (or designated by Admin) -> existingUserDiscount
+  // New User: Guest or visitor without account -> newUserDiscount
+  const isExistingUser = Boolean(isAuthenticated && user && !user.isNewUser);
+  const activeDiscountPercentage = isExistingUser
+    ? (user?.customDiscountPercentage > 0 ? user.customDiscountPercentage : existingUserDiscount)
+    : newUserDiscount;
 
   const [serverCatalogs, setServerCatalogs] = useState([]);
   const [selectedCatalog, setSelectedCatalog] = useState(null);
@@ -343,82 +357,9 @@ export const InteractivePdfSectionViewer = ({
       };
     }
 
-    // 3. If Bearings category, load verified Bearing sections & genuine parts
-    if (isBearingsCategory) {
-      const bearingSections = [
-        {
-          name: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
-          categoryName: 'Industrial Bearings',
-          image: '/bearings/img10.jpg',
-          description: 'Electric Motor Quality (EMQ) radial ball bearings with high-RPM grease packing.',
-          products: [
-            { partNumber: '6203', name: 'HCH 6203 Single Row Deep Groove Ball Bearing', brand: 'HCH', mrp: 320, discountPercentage: 46, wholesalePrice: 173, specifications: 'EMQ Grade, Low Noise, High RPM, 17x40x12 mm' },
-            { partNumber: '6204', name: 'NBC 6204 Deep Groove Ball Bearing', brand: 'NBC', mrp: 240, discountPercentage: 46, wholesalePrice: 130, specifications: 'Standard Precision Radial Bearing, 20x47x14 mm' },
-            { partNumber: '6205', name: 'NBC 6205 Deep Groove Ball Bearing', brand: 'NBC', mrp: 310, discountPercentage: 46, wholesalePrice: 167, specifications: 'High Speed Motor Bearing, 25x52x15 mm' },
-            { partNumber: '6308', name: 'NBC 6308 Heavy Duty Radial Bearing', brand: 'NBC', mrp: 780, discountPercentage: 46, wholesalePrice: 421, specifications: 'Heavy Duty C3 Clearance Spindle Bearing, 40x90x23 mm' },
-          ],
-        },
-        {
-          name: 'Heavy Series & Precision Bearings (6400 / 6313 / 7322)',
-          categoryName: 'Industrial Bearings',
-          image: '/bearings/img3.jpg',
-          description: 'Heavy duty machinery and high axial thrust contact bearings from SKF & Timken.',
-          products: [
-            { partNumber: '7322 2X', name: 'SKF 7322 2X High Precision Angular Contact Bearing', brand: 'SKF', mrp: 6500, discountPercentage: 10, wholesalePrice: 5850, specifications: 'Matched Pair 40° High Thrust Angle, 110x240x50 mm' },
-            { partNumber: '6313', name: 'Timken 6313 Open Type Deep Groove Bearing', brand: 'Timken', mrp: 2100, discountPercentage: 46, wholesalePrice: 1134, specifications: 'Heavy Industrial Shaft Bearing, 65x140x33 mm' },
-          ],
-        },
-        {
-          name: 'Taper Roller Bearings',
-          categoryName: 'Industrial Bearings',
-          image: '/bannerImages/nbcandTapper role.webp',
-          description: 'High combined radial and thrust load capacity taper roller bearings for gearboxes.',
-          products: [
-            { partNumber: '30206', name: 'NBC 30206 Metric Taper Roller Bearing', brand: 'NBC', mrp: 420, discountPercentage: 46, wholesalePrice: 227, specifications: 'Cup & Cone Matched Assembly, 30x62x17.25 mm' },
-            { partNumber: '32210', name: 'Timken 32210 Heavy Duty Taper Roller Bearing', brand: 'Timken', mrp: 1450, discountPercentage: 46, wholesalePrice: 783, specifications: 'High Torque Gearbox Bearing, 50x90x24.75 mm' },
-          ],
-        },
-      ];
-
-      return {
-        hasUploadedPdf: false, // User requested: "Antha category ku PDF illana 'PDF Not Uploaded' nu kattanum"
-        categorySections: bearingSections,
-        effectiveCatalog: {
-          title: 'Industrial Bearings Catalog',
-          fileName: '',
-          fileUrl: '',
-        },
-      };
-    }
-
-    // 4. If Pulleys category, load verified Pulley sections & parts
-    if (isPulleysCategory) {
-      const pulleySections = [
-        {
-          name: 'Taper Lock Bush Pulleys (SPB / SPC Grooves)',
-          categoryName: 'Bush Pulleys & Taper Bushes',
-          image: '/bannerImages/img4.jpg',
-          description: 'Graded cast iron GG25 dynamic balanced bush pulleys and taper lock bushes.',
-          products: [
-            { partNumber: 'SPB 160-2', name: 'Fenner 2-Groove SPB Dynamic Taper Bush Pulley', brand: 'Fenner', mrp: 1850, discountPercentage: 46, wholesalePrice: 999, specifications: 'Pitch Dia 160mm, 2-Groove SPB, for 2012 Bush' },
-            { partNumber: 'SPC 250-3', name: 'Fenner 3-Groove SPC Heavy Transmission Pulley', brand: 'Fenner', mrp: 3450, discountPercentage: 46, wholesalePrice: 1863, specifications: 'Pitch Dia 250mm, 3-Groove SPC, for 2517/3020 Bush' },
-            { partNumber: '2517-45', name: 'Fenner 2517 Precision Taper Lock Bush (45mm)', brand: 'Fenner', mrp: 850, discountPercentage: 46, wholesalePrice: 459, specifications: 'Finished Metric Bore 45mm with Keyway' },
-          ],
-        },
-      ];
-
-      return {
-        hasUploadedPdf: false,
-        categorySections: pulleySections,
-        effectiveCatalog: {
-          title: 'Bush Pulleys Catalog',
-          fileName: '',
-          fileUrl: '',
-        },
-      };
-    }
-
-    // 5. For any other custom category without products or uploaded PDF:
+    // 3. For any other category (Bearings, Pulleys, Motors, etc.):
+    // ONLY display products if Admin has uploaded an official PDF for that category!
+    // If no PDF has been uploaded by admin, show "Intha Type Of Category ku Pdf Available illa"!
     return {
       hasUploadedPdf: false,
       categorySections: [],
@@ -601,29 +542,35 @@ export const InteractivePdfSectionViewer = ({
     }
   }, [filteredProducts]);
 
-  // Pricing calculations - Displays pure uncrossed MRP rate and orders at exact MRP rate
+  // Pricing calculations - Calculates price after discount (MRP minus admin-configured discount %) + GST
   const pricingDetails = useMemo(() => {
     if (!selectedProduct) return null;
 
     const mrp = Number(selectedProduct.mrp) || Number(selectedProduct.wholesalePrice) || 0;
-    const unitPrice = mrp;
+    const discountAmount = Math.round((mrp * activeDiscountPercentage) / 100);
+    const unitPrice = Math.max(1, mrp - discountAmount);
 
     const subtotal = unitPrice * orderQuantity;
-    const gstAmount = Math.round(subtotal * 0.18);
+    const gstRate = defaultTaxRate / 100;
+    const gstAmount = Math.round(subtotal * gstRate);
     const totalWithGst = subtotal + gstAmount;
 
     return {
       mrp,
+      discountPercentage: activeDiscountPercentage,
+      discountAmount,
       unitPrice,
       wholesaleUnitPrice: unitPrice,
-      finalDiscount: 0,
-      isUserCustomRate: false,
-      rateLabel: 'Official Catalog MRP',
+      isExistingUser,
+      rateLabel: isExistingUser
+        ? `Existing User Offer (${activeDiscountPercentage}% OFF)`
+        : `New User Offer (${activeDiscountPercentage}% OFF)`,
+      taxRate: defaultTaxRate,
       subtotal,
       gstAmount,
       totalWithGst,
     };
-  }, [selectedProduct, orderQuantity]);
+  }, [selectedProduct, orderQuantity, activeDiscountPercentage, defaultTaxRate, isExistingUser]);
 
   // Section specifications
   const sectionSpec = useMemo(() => {
@@ -690,7 +637,7 @@ export const InteractivePdfSectionViewer = ({
         setIsOrderModalOpen(false);
         await showSuccessAlert(
           'Order Request Submitted!',
-          `Your order for ${orderQuantity}x ${selectedProduct.partNumber} has been received. Quotation #${res.data?.quotationNumber || 'QTN-LIVE'} is generated. Sales desk will call you shortly.`
+          `Your order for ${orderQuantity}x ${selectedProduct.partNumber} has been received. Quotation #${(res.data?.quotationNumber || 'QT-LIVE').replace('QTN', 'QT')} is generated. Sales desk will call you shortly.`
         );
       }
     } catch (err) {
@@ -711,34 +658,44 @@ export const InteractivePdfSectionViewer = ({
 
   // =========================================================================
   // REQUIREMENT: If no PDF has been uploaded and no sections exist for this category,
-  // display "PDF Not Uploaded" screen with direct RFQ button!
+  // display "Intha Type Of Category ku Pdf Available illa" with direct RFQ button!
   // =========================================================================
-  if (!hasUploadedPdf && categorySections.length === 0) {
+  if (!hasUploadedPdf || categorySections.length === 0) {
     return (
-      <div className="bg-white rounded-3xl border-2 border-dashed border-amber-300 shadow-xl p-8 sm:p-12 text-center space-y-6">
-        <div className="w-20 h-20 mx-auto rounded-3xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shadow-inner">
+      <div className="bg-white rounded-3xl border-2 border-dashed border-rose-300 shadow-xl p-8 sm:p-12 text-center space-y-6">
+        <div className="w-20 h-20 mx-auto rounded-3xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shadow-inner">
           <FileText className="w-10 h-10" />
         </div>
 
         <div className="space-y-2 max-w-xl mx-auto">
-          <span className="inline-block text-[11px] font-black uppercase tracking-wider text-amber-800 bg-amber-100 px-3.5 py-1 rounded-full border border-amber-300">
-            Catalog Status: PDF Not Uploaded
+          <span className="inline-block text-[11px] font-black uppercase tracking-wider text-rose-800 bg-rose-100 px-3.5 py-1 rounded-full border border-rose-300">
+            Intha Type Of Category ku Pdf Available illa
           </span>
           <h2 className="text-2xl sm:text-3xl font-black text-navy tracking-tight">
-            PDF Not Uploaded
+            Intha Type Of Category ku Pdf Available illa
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            Official manufacturer PDF catalog has not been uploaded for{' '}
-            <strong className="text-navy font-bold">{activeCategoryName || 'this category'}</strong>{' '}
-            yet.
+          <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-semibold">
+            Admin side-ல் <strong className="text-navy font-black">{activeCategoryName || 'இந்த Category'}</strong>-க்கு PDF Catalog இன்னும் Upload செய்யப்படவில்லை.
           </p>
-          <p className="text-xs text-slate-400">
-            You can submit a custom RFQ for factory pricing, contact our sales desk directly, or browse other categories with active PDF catalogs.
+          <p className="text-xs text-slate-500">
+            Admin Panel-ல் இருந்து இந்த Category-க்கான அதிகாரப்பூர்வ Manufacturer PDF Upload செய்யப்பட்ட பிறகு மட்டுமே இந்த பக்கத்தில் Products பட்டியல் காண்பிக்கப்படும்.
           </p>
         </div>
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          {user?.role === 'admin' && (
+            <Link to="/admin/pdf-catalog">
+              <button
+                type="button"
+                className="px-5 py-3 rounded-2xl bg-navy hover:bg-slate-800 text-white text-xs font-black shadow-md transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <UploadCloud className="w-4 h-4 text-emerald-400" />
+                <span>Upload PDF for {activeCategoryName || 'this Category'} (Admin)</span>
+              </button>
+            </Link>
+          )}
+
           <Link to={`/rfq?category=${encodeURIComponent(activeCategoryName)}`}>
             <button
               type="button"
@@ -809,19 +766,16 @@ export const InteractivePdfSectionViewer = ({
 
         {/* Pricing Tier Banner Indicator */}
         <div className="shrink-0 flex items-center gap-2">
-          {isAuthenticated && user?.customDiscountPercentage > 0 ? (
-            <span className="px-3.5 py-1.5 rounded-xl text-xs font-black bg-amber-400 text-slate-950 border border-amber-500 shadow-xs flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Assigned Rate: {user.customDiscountPercentage}% OFF</span>
-            </span>
-          ) : isAuthenticated ? (
-            <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-800 border border-blue-200">
-              Logged in as {user.name}
+          {isExistingUser ? (
+            <span className="px-3.5 py-1.5 rounded-xl text-xs font-black bg-emerald-50 text-emerald-900 border border-emerald-300 shadow-xs flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Existing User Offer: {activeDiscountPercentage}% OFF Applied</span>
             </span>
           ) : (
-            <Link to="/login" className="text-xs font-bold text-primary hover:underline">
-              Sign in for custom B2B rates →
-            </Link>
+            <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-xs flex items-center gap-1.5">
+              <BadgePercent className="w-3.5 h-3.5 text-amber-600" />
+              <span>New User Offer: {activeDiscountPercentage}% OFF (Login for Existing User Rates)</span>
+            </span>
           )}
         </div>
       </div>
@@ -1474,13 +1428,16 @@ export const InteractivePdfSectionViewer = ({
                         <th className="py-2.5 px-3">Part #</th>
                         <th className="py-2.5 px-3">Make</th>
                         <th className="py-2.5 px-3">Description / Spec</th>
-                        <th className="py-2.5 px-3 text-right">MRP Rate</th>
+                        <th className="py-2.5 px-3 text-right">Price ({activeDiscountPercentage}% OFF)</th>
                         <th className="py-2.5 px-3 text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {filteredProducts.map((p) => {
                         const isSelected = selectedProduct?.partNumber === p.partNumber;
+                        const productMrp = Number(p.mrp) || Number(p.wholesalePrice) || 0;
+                        const discountAmt = Math.round((productMrp * activeDiscountPercentage) / 100);
+                        const finalUnitPrice = Math.max(1, productMrp - discountAmt);
 
                         return (
                           <tr
@@ -1521,8 +1478,20 @@ export const InteractivePdfSectionViewer = ({
                                 {p.name || p.specifications || currentSection?.name}
                               </Link>
                             </td>
-                            <td className="py-2.5 px-3 text-right font-mono font-black text-navy text-sm whitespace-nowrap">
-                              {formatCurrency(p.mrp)}
+                            <td className="py-2.5 px-3 text-right whitespace-nowrap">
+                              <div className="flex flex-col items-end">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[11px] line-through text-slate-400 font-mono">
+                                    {formatCurrency(productMrp)}
+                                  </span>
+                                  <span className="px-1.5 py-0.2 rounded text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    -{activeDiscountPercentage}%
+                                  </span>
+                                </div>
+                                <span className="font-mono font-black text-navy text-sm">
+                                  {formatCurrency(finalUnitPrice)}
+                                </span>
+                              </div>
                             </td>
                             <td className="py-2.5 px-3 text-center whitespace-nowrap">
                               <button
@@ -1579,9 +1548,17 @@ export const InteractivePdfSectionViewer = ({
                 <span className="block text-[11px] text-slate-500 font-mono mt-0.5">
                   Make: {selectedProduct.brand} • Section: {currentSection?.name}
                 </span>
-                <span className="inline-block mt-1 text-xs font-black text-primary font-mono">
-                  MRP Rate: {formatCurrency(pricingDetails?.mrp || selectedProduct.mrp)} / Unit
-                </span>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="text-xs line-through text-slate-400 font-mono">
+                    {formatCurrency(pricingDetails?.mrp || selectedProduct.mrp)}
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    -{pricingDetails?.discountPercentage || activeDiscountPercentage}% OFF
+                  </span>
+                  <span className="text-xs font-black text-primary font-mono">
+                    {formatCurrency(pricingDetails?.unitPrice || selectedProduct.mrp)} / Unit
+                  </span>
+                </div>
               </div>
               <div className="text-right">
                 <span className="text-[10px] text-slate-400 block font-bold">TOTAL ESTIMATE:</span>
@@ -1589,7 +1566,7 @@ export const InteractivePdfSectionViewer = ({
                   {formatCurrency(pricingDetails?.totalWithGst || 0)}
                 </span>
                 <span className="text-[10px] text-slate-500 block">
-                  ({orderQuantity} Units @ {formatCurrency(pricingDetails?.mrp || selectedProduct.mrp)} + 18% GST)
+                  ({orderQuantity} Units @ {formatCurrency(pricingDetails?.unitPrice)} + {pricingDetails?.taxRate || defaultTaxRate}% GST)
                 </span>
               </div>
             </div>

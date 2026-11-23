@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Clock, Star, Truck, ShieldCheck, Tag } from 'lucide-react';
+import { ArrowRight, Clock, Star, Truck, ShieldCheck, Tag, Sparkles } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { useSite } from '../../context/SiteContext';
 import { formatCurrency } from '../../utils/formatters';
 import { getProductImageUrl } from '../../utils/productImages';
 
@@ -36,8 +38,17 @@ export const ServiceCard = ({ service }) => {
 
 
 
+  const { user, isAuthenticated } = useAuth();
+  const { settings } = useSite();
+
+  const isExistingUser = Boolean(isAuthenticated && user && !user.isNewUser);
+  const activeDiscount = isExistingUser
+    ? (user?.customDiscountPercentage > 0 ? user.customDiscountPercentage : (settings?.existingUserDiscountPercentage || 46))
+    : (settings?.newUserDiscountPercentage || 40);
+
   const productUrl = `/services/${slug || service._id}`;
-  const displayPrice = discountPrice > 0 && discountPrice < basePrice ? discountPrice : basePrice;
+  const rawMrp = Number(mrp) || Number(basePrice) || 0;
+  const discountedPrice = Math.max(1, Math.round(rawMrp - (rawMrp * activeDiscount) / 100));
   const cleanName = (name || '').replace(/authori[sz]ed\s*/gi, '');
   const cleanDescription = (shortDescription || '').replace(/authori[sz]ed\s*/gi, '');
 
@@ -143,10 +154,17 @@ export const ServiceCard = ({ service }) => {
         <div className="pt-3 border-t border-slate-100 space-y-3">
           <div className="flex items-end justify-between">
             <div>
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-[11px] line-through text-slate-400 font-mono">
+                  {formatCurrency(rawMrp)}
+                </span>
+                <span className="px-1.5 py-0.2 rounded text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  -{activeDiscount}% OFF
+                </span>
+              </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-xs font-bold text-slate-600">Price:</span>
                 <span className="text-xl font-black text-navy">
-                  {formatCurrency(displayPrice)}
+                  {formatCurrency(discountedPrice)}
                 </span>
                 <span className="text-[11px] text-slate-500 font-medium">+ GST</span>
               </div>

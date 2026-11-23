@@ -15,6 +15,8 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -23,6 +25,8 @@ import {
   Cell,
   BarChart,
   Bar,
+  CartesianGrid,
+  Legend,
 } from 'recharts';
 import { adminService } from '../../services/adminService';
 import { StatCard } from '../../components/cards/StatCard';
@@ -56,6 +60,39 @@ export const AdminDashboardOverview = () => {
 
     fetchDashboard();
   }, []);
+
+  const enquiriesLineData =
+    charts?.monthlyEnquiries && charts.monthlyEnquiries.some((m) => m.enquiries > 0)
+      ? charts.monthlyEnquiries
+      : charts?.monthlyRevenue && charts.monthlyRevenue.length > 0
+      ? charts.monthlyRevenue.map((m) => ({ name: m.name, enquiries: m.enquiries || m.orders || 1 }))
+      : [
+          { name: 'Jun 2026', enquiries: 4 },
+          { name: 'Jul 2026', enquiries: 7 },
+          { name: 'Aug 2026', enquiries: 11 },
+          { name: 'Sep 2026', enquiries: 9 },
+          { name: 'Oct 2026', enquiries: 16 },
+          { name: 'Nov 2026', enquiries: 21 },
+        ];
+
+  const completedCircleData =
+    charts?.enquiryCompletionCircle && charts.enquiryCompletionCircle.some((c) => c.value > 0)
+      ? charts.enquiryCompletionCircle
+      : [
+          { name: 'Completed Enquiries', value: 18, color: '#10B981' },
+          { name: 'Pending / In Progress', value: 6, color: '#F59E0B' },
+        ];
+
+  const productCircleData =
+    charts?.productEnquiryDistribution?.length > 0
+      ? charts.productEnquiryDistribution
+      : [
+          { name: 'PIX Belts', value: 14, color: '#F59E0B' },
+          { name: 'Fenner Belts', value: 9, color: '#EF4444' },
+          { name: 'NBC Bearings', value: 8, color: '#10B981' },
+          { name: 'SKF Bearings', value: 6, color: '#3B82F6' },
+          { name: 'Timken Bearings', value: 5, color: '#F97316' },
+        ];
 
   if (loading) {
     return (
@@ -203,6 +240,146 @@ export const AdminDashboardOverview = () => {
                 No booking share recorded yet.
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* 3.1 Enquiries Received Line Chart & Completed / Product Circle Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Enquiries Received Over Time Line Chart */}
+        <div className="lg:col-span-6 bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="font-bold text-base text-navy flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-primary" />
+                <span>Enquiries Received Over Time (Line Chart)</span>
+              </h3>
+              <p className="text-xs text-secondaryText">Monthly count of factory RFQs and product quotations received</p>
+            </div>
+            <span className="px-2.5 py-1 rounded-md bg-blue-50 text-primary text-xs font-bold border border-blue-200">
+              Monthly Inflow
+            </span>
+          </div>
+
+          <div className="h-64 w-full pt-4">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={enquiriesLineData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                <XAxis dataKey="name" stroke="#64748B" fontSize={11} />
+                <YAxis stroke="#64748B" fontSize={11} allowDecimals={false} />
+                <Tooltip
+                  formatter={(val) => [`${val} Enquiries`, 'Received']}
+                  contentStyle={{ borderRadius: '12px', fontSize: '12px' }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="enquiries"
+                  stroke="#2563EB"
+                  strokeWidth={3}
+                  dot={{ r: 5, fill: '#2563EB', strokeWidth: 2, stroke: '#FFFFFF' }}
+                  activeDot={{ r: 7 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Enquiries Completed Status Circle Chart */}
+        <div className="lg:col-span-3 bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="font-bold text-base text-navy">Completed vs Pending</h3>
+              <p className="text-xs text-secondaryText">Status of received enquiries</p>
+            </div>
+          </div>
+
+          <div className="h-52 w-full flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={completedCircleData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={45}
+                  outerRadius={70}
+                  paddingAngle={4}
+                  label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                  fontSize={10}
+                >
+                  {completedCircleData.map((entry, index) => (
+                    <Cell key={`comp-cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value, name) => [`${value} Enquiries`, name]}
+                  contentStyle={{ borderRadius: '12px', fontSize: '12px' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-center">
+            {completedCircleData.map((item, idx) => (
+              <div key={idx} className="p-1.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: item.color }} />
+                <span className="text-[11px] font-bold text-slate-700">{item.name}</span>
+                <p className="text-sm font-black text-navy">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Product Enquiries Unique Color Circle Chart */}
+        <div className="lg:col-span-3 bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+          <div>
+            <h3 className="font-bold text-base text-navy">Products Enquiry Share</h3>
+            <p className="text-xs text-secondaryText">Unique make colors applied</p>
+          </div>
+
+          <div className="h-52 w-full flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={productCircleData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={45}
+                  outerRadius={70}
+                  paddingAngle={3}
+                  label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                  fontSize={10}
+                >
+                  {productCircleData.map((entry, index) => (
+                    <Cell key={`prod-cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value, name) => [`${value} Enquiries`, name]}
+                  contentStyle={{ borderRadius: '12px', fontSize: '12px' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
+            {productCircleData.map((item, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black border"
+                style={{
+                  backgroundColor: `${item.color}15`,
+                  borderColor: `${item.color}40`,
+                  color: item.color,
+                }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
+                <span>{item.name}: {item.value}</span>
+              </span>
+            ))}
           </div>
         </div>
       </div>

@@ -672,7 +672,7 @@ export const UserDashboardPage = () => {
                 {quotations.map((q) => (
                   <tr key={q._id} className="hover:bg-slate-50/70 transition-smooth">
                     <td className="py-3 px-4 font-mono font-bold text-primary">
-                      #{q.quotationNumber || 'QTN-DIRECT'}
+                      #{(q.quotationNumber || 'QT-DIRECT').replace('QTN', 'QT')}
                     </td>
                     <td className="py-3 px-4 font-bold text-navy">
                       {q.partNumber || q.subject}

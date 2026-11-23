@@ -34,6 +34,7 @@ import api, { getAssetUrl } from '../../services/api';
 import { contentService } from '../../services/contentService';
 import { bookingService } from '../../services/bookingService';
 import { useAuth } from '../../context/AuthContext';
+import { useSite } from '../../context/SiteContext';
 import { PackageCard } from '../../components/cards/PackageCard';
 import { DynamicFormRenderer } from '../../components/dynamic/DynamicFormRenderer';
 import { Button } from '../../components/common/Button';
@@ -76,7 +77,17 @@ const brandsList = [
 export const ServiceDetailPage = () => {
   const { identifier } = useParams();
   const { user, isAuthenticated } = useAuth();
+  const { settings } = useSite();
   const navigate = useNavigate();
+
+  const defaultTaxRate = Number(settings?.defaultTaxRate) || 18;
+  const existingUserDiscount = Number(settings?.existingUserDiscountPercentage) || 46;
+  const newUserDiscount = Number(settings?.newUserDiscountPercentage) || 40;
+
+  const isExistingUser = Boolean(isAuthenticated && user && !user.isNewUser);
+  const activeDiscountPercentage = isExistingUser
+    ? (user?.customDiscountPercentage > 0 ? user.customDiscountPercentage : existingUserDiscount)
+    : newUserDiscount;
 
   const [service, setService] = useState(null);
   const [packages, setPackages] = useState([]);
@@ -1576,8 +1587,20 @@ export const ServiceDetailPage = () => {
                                 {prod.specifications || 'Standard OEM Dimension & Tolerance'}
                               </td>
 
-                              <td className="py-3 px-3 text-right font-mono font-black text-navy text-sm whitespace-nowrap">
-                                {formatCurrency(prod.mrp)}
+                              <td className="py-3 px-3 text-right whitespace-nowrap">
+                                <div className="flex flex-col items-end">
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[10px] line-through text-slate-400 font-mono">
+                                      {formatCurrency(prod.mrp)}
+                                    </span>
+                                    <span className="px-1 py-0.2 rounded text-[9px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                      -{activeDiscountPercentage}%
+                                    </span>
+                                  </div>
+                                  <span className="font-mono font-black text-navy text-xs">
+                                    {formatCurrency(Math.max(1, Math.round(prod.mrp - (prod.mrp * activeDiscountPercentage) / 100)))}
+                                  </span>
+                                </div>
                               </td>
 
                               <td className="py-3 px-3 text-center whitespace-nowrap">
@@ -1799,16 +1822,27 @@ export const ServiceDetailPage = () => {
               </div>
             </div>
 
-            {/* Price & Commercial Terms Card - Pure Uncrossed MRP Rate */}
+            {/* Price & Commercial Terms Card - Discount Subtracted from MRP */}
             <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-200 space-y-2 text-xs">
               <div className="flex justify-between items-center text-slate-700 font-bold">
                 <span>Official Catalog MRP:</span>
-                <span className="font-black text-navy text-lg font-mono">
+                <span className="line-through text-slate-400 font-mono text-sm">
                   {formatCurrency(selectedPdfItem.mrp)}
                 </span>
               </div>
+              <div className="flex justify-between items-center text-slate-700 font-bold">
+                <span className="flex items-center gap-1.5">
+                  <span>Your Wholesale Price:</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    -{activeDiscountPercentage}% OFF
+                  </span>
+                </span>
+                <span className="font-black text-navy text-lg font-mono">
+                  {formatCurrency(Math.max(1, Math.round(selectedPdfItem.mrp - (selectedPdfItem.mrp * activeDiscountPercentage) / 100)))}
+                </span>
+              </div>
               <div className="flex justify-between items-center text-[11px] text-slate-500 pt-1 border-t border-blue-100">
-                <span>Statutory 18% GST Applicable</span>
+                <span>Statutory {defaultTaxRate}% GST Applicable</span>
                 <span className="text-emerald-700 font-bold">100% Genuine OEM Certified</span>
               </div>
             </div>

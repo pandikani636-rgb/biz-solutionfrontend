@@ -22,8 +22,9 @@ export const AdminCustomersPage = () => {
   // Rate Tier Edit Modal
   const [rateEditCustomer, setRateEditCustomer] = useState(null);
   const [isRateModalOpen, setIsRateModalOpen] = useState(false);
-  const [selectedTier, setSelectedTier] = useState('new_user');
-  const [customMarkup, setCustomMarkup] = useState(5);
+  const [selectedTier, setSelectedTier] = useState('existing_standard');
+  const [customMarkup, setCustomMarkup] = useState(0);
+  const [customDiscount, setCustomDiscount] = useState(0);
   const [rateUpdating, setRateUpdating] = useState(false);
 
   const fetchCustomers = async () => {
@@ -59,11 +60,26 @@ export const AdminCustomersPage = () => {
     }
   };
 
+  const handleToggleUserType = async (customer) => {
+    try {
+      const willBeNewUser = !Boolean(customer.isNewUser);
+      await api.patch(`/users/customers/${customer._id}/rate`, {
+        isNewUser: willBeNewUser,
+        pricingTier: willBeNewUser ? 'new_user' : 'existing_standard',
+      });
+      showToast(`${customer.name} marked as ${willBeNewUser ? 'New User' : 'Existing User'}`);
+      fetchCustomers();
+    } catch (err) {
+      showErrorAlert('Error', err.message);
+    }
+  };
+
   const handleOpenRateModal = (customer) => {
     setRateEditCustomer(customer);
     const isNew = Boolean(customer.isNewUser || customer.pricingTier === 'new_user');
     setSelectedTier(isNew ? 'new_user' : 'existing_standard');
     setCustomMarkup(isNew ? (customer.markupPercentage ?? 5) : 0);
+    setCustomDiscount(customer.customDiscountPercentage || 0);
     setIsRateModalOpen(true);
   };
 
@@ -73,16 +89,18 @@ export const AdminCustomersPage = () => {
     try {
       const isNewUser = selectedTier === 'new_user';
       const markupPercentage = isNewUser ? Number(customMarkup) || 5 : 0;
+      const customDiscountPercentage = Number(customDiscount) || 0;
 
       await api.patch(`/users/customers/${rateEditCustomer._id}/rate`, {
         isNewUser,
         pricingTier: selectedTier,
         markupPercentage,
+        customDiscountPercentage,
       });
 
       showSuccessAlert(
-        'Pricing Rate Updated',
-        `Assigned ${isNewUser ? `New User Rate (+${markupPercentage}%)` : 'Existing Standard Wholesale (0% Surcharge)'} to ${rateEditCustomer.name}.`
+        'User Discount Status Updated',
+        `Assigned ${isNewUser ? 'New User' : 'Existing User'} status with ${customDiscountPercentage > 0 ? `${customDiscountPercentage}% Custom Discount` : 'Default Discount'} to ${rateEditCustomer.name}.`
       );
       setIsRateModalOpen(false);
       fetchCustomers();
@@ -149,8 +167,8 @@ export const AdminCustomersPage = () => {
                   <th className="py-3 px-4">Customer</th>
                   <th className="py-3 px-4">Phone</th>
                   <th className="py-3 px-4">City / State</th>
-                  <th className="py-3 px-4 text-center">Applicable Rate (Assigned)</th>
-                  <th className="py-3 px-4 text-center">Status</th>
+                  <th className="py-3 px-4 text-center">User Status (Existing vs New)</th>
+                  <th className="py-3 px-4 text-center">Account Status</th>
                   <th className="py-3 px-4">Joined Date</th>
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
@@ -181,22 +199,31 @@ export const AdminCustomersPage = () => {
                         {c.address?.city ? `${c.address.city}, ${c.address.state || 'TN'}` : 'Not provided'}
                       </td>
 
-                      {/* Applicable Rate Assigned to Customer (Requirement 1) */}
+                      {/* User Status: Existing vs New User (Admin Designated) */}
                       <td className="py-3 px-4 text-center">
                         <div className="inline-flex items-center gap-1.5">
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-[11px] font-black border ${
+                          <button
+                            type="button"
+                            onClick={() => handleToggleUserType(c)}
+                            title="Click to toggle between Existing User and New User"
+                            className={`px-2.5 py-1 rounded-full text-[11px] font-black border transition-smooth cursor-pointer ${
                               isNew
-                                ? 'bg-amber-50 text-amber-800 border-amber-300'
-                                : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'
+                                : 'bg-emerald-50 text-emerald-900 border-emerald-300 hover:bg-emerald-100'
                             }`}
                           >
-                            {isNew ? `New User Rate (+${markup}%)` : 'Existing Standard (0% Extra)'}
-                          </span>
+                            {isNew ? 'New User (Guest Offer)' : 'Existing User (Account Offer)'}
+                          </button>
+                          {c.customDiscountPercentage > 0 && (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-blue-100 text-blue-900 border border-blue-200">
+                              {c.customDiscountPercentage}% Custom
+                            </span>
+                          )}
                           <button
+                            type="button"
                             onClick={() => handleOpenRateModal(c)}
-                            className="p-1 hover:bg-slate-200 rounded text-slate-500 hover:text-navy transition-smooth"
-                            title="Edit Customer Rate"
+                            className="p-1 hover:bg-slate-200 rounded text-slate-500 hover:text-navy transition-smooth cursor-pointer"
+                            title="Fix / Edit User Discount Status & Rate"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                           </button>
@@ -238,11 +265,11 @@ export const AdminCustomersPage = () => {
         )}
       </div>
 
-      {/* Edit Customer Rate Modal */}
+      {/* Edit Customer Discount & Status Modal */}
       <Modal
         isOpen={isRateModalOpen}
         onClose={() => setIsRateModalOpen(false)}
-        title={`Assign Pricing Rate: ${rateEditCustomer?.name}`}
+        title={`Designate User Discount: ${rateEditCustomer?.name}`}
         maxWidth="max-w-md"
       >
         <form onSubmit={handleSaveRate} className="space-y-4 text-xs">
@@ -250,38 +277,40 @@ export const AdminCustomersPage = () => {
             <p className="font-bold text-navy">{rateEditCustomer?.name}</p>
             <p className="text-secondaryText">{rateEditCustomer?.email}</p>
             <p className="text-[11px] text-slate-500">
-              Select whether this client is charged the new user percentage surcharge or receives the existing standard wholesale rate (0% extra).
+              Admin can designate whether this user is treated as an Existing User (Account Holder) or a New User, and assign an optional custom discount percentage.
             </p>
           </div>
 
           <div className="space-y-1">
-            <label className="block font-bold text-slate-700">Customer Rate Tier</label>
+            <label className="block font-bold text-slate-700">User Classification *</label>
             <select
               value={selectedTier}
               onChange={(e) => setSelectedTier(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold bg-slate-50"
+              className="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold bg-white"
             >
-              <option value="new_user">New User Rate (Apply Percentage Surcharge)</option>
-              <option value="existing_standard">Existing Standard Client (0% Surcharge)</option>
+              <option value="existing_standard">Existing User (Account Created - Receives Existing User Discount)</option>
+              <option value="new_user">New User (Receives New User Discount)</option>
             </select>
           </div>
 
-          {selectedTier === 'new_user' && (
-            <div className="space-y-1">
-              <label className="block font-bold text-slate-700">Percentage Surcharge Rate (%)</label>
-              <input
-                type="number"
-                min="0"
-                max="50"
-                value={customMarkup}
-                onChange={(e) => setCustomMarkup(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold font-mono bg-slate-50 text-navy"
-              />
-              <p className="text-[10px] text-secondaryText">
-                Applied to base catalog price only for this user on checkout.
-              </p>
-            </div>
-          )}
+          <div className="space-y-1">
+            <label className="block font-bold text-slate-700">
+              Custom Assigned Discount (%) <span className="font-normal text-slate-400">(Optional override)</span>
+            </label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="0.5"
+              value={customDiscount}
+              onChange={(e) => setCustomDiscount(e.target.value)}
+              placeholder="0 (uses default wholesale discount)"
+              className="w-full px-3 py-2 border border-slate-300 rounded-xl font-bold font-mono bg-white text-navy"
+            />
+            <p className="text-[10px] text-secondaryText">
+              Enter 0 to use the global site discount percentage fixed in Settings.
+            </p>
+          </div>
 
           <div className="pt-2 flex justify-end gap-2">
             <Button
@@ -298,7 +327,7 @@ export const AdminCustomersPage = () => {
               size="sm"
               isLoading={rateUpdating}
             >
-              Save Rate Assignment
+              Save Designation
             </Button>
           </div>
         </form>

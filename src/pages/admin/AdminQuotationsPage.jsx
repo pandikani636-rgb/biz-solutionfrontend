@@ -23,6 +23,7 @@ import { showSuccessAlert, showErrorAlert, showConfirmDialog, showToast } from '
 export const AdminQuotationsPage = () => {
   const [quotations, setQuotations] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
+  const [thisMonthCount, setThisMonthCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Filters
@@ -59,6 +60,17 @@ export const AdminQuotationsPage = () => {
       if (res.data?.success) {
         setQuotations(res.data.data || []);
         setPagination(res.data.pagination || { page: 1, pages: 1, total: 0 });
+        if (res.data.thisMonthTotal !== undefined) {
+          setThisMonthCount(res.data.thisMonthTotal);
+        } else {
+          const currentMonth = new Date().getMonth();
+          const currentYear = new Date().getFullYear();
+          const count = (res.data.data || []).filter((q) => {
+            const d = new Date(q.createdAt);
+            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+          }).length;
+          setThisMonthCount(count);
+        }
       }
     } catch (err) {
       console.error('[Quotations Fetch Error]', err);
@@ -160,9 +172,14 @@ export const AdminQuotationsPage = () => {
           </p>
         </div>
 
-        <span className="text-xs font-bold bg-lightBlue text-primary px-3 py-1.5 rounded-xl border border-blue-200">
-          Total Quotations: {pagination.total}
-        </span>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 px-3.5 py-1.5 rounded-xl shadow-xs">
+            Total of this Month Quotation: <strong className="font-mono text-sm ml-1 text-amber-950">{thisMonthCount}</strong>
+          </span>
+          <span className="text-xs font-bold bg-lightBlue text-primary px-3.5 py-1.5 rounded-xl border border-blue-200">
+            Total Overall: {pagination.total}
+          </span>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -206,7 +223,7 @@ export const AdminQuotationsPage = () => {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-navy font-bold border-b border-slate-200">
                 <tr>
-                  <th className="py-3 px-4">Quotation Ref</th>
+                  <th className="py-3 px-4">QT #</th>
                   <th className="py-3 px-4">Client / Company</th>
                   <th className="py-3 px-4">Part # & Quantity</th>
                   <th className="py-3 px-4 text-right">Target Price</th>
@@ -217,10 +234,15 @@ export const AdminQuotationsPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {quotations.map((q) => (
+                {quotations.map((q, index) => (
                   <tr key={q._id} className="hover:bg-slate-50/70 transition-smooth">
                     <td className="py-3 px-4 font-mono font-bold text-primary">
-                      {q.quotationNumber || `QTN-${formatDate(q.createdAt).slice(-4)}`}
+                      <div className="text-sm font-black text-primary">
+                        {(q.quotationNumber || `QT-${formatDate(q.createdAt).slice(-4)}`).replace('QTN', 'QT')}
+                      </div>
+                      <span className="inline-block mt-0.5 text-[10px] font-sans font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                        #{q.monthlySequence || (quotations.length - index)} this month
+                      </span>
                     </td>
 
                     <td className="py-3 px-4">

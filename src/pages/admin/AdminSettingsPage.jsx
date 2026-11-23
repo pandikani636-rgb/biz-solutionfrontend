@@ -12,6 +12,8 @@ import {
   CheckCircle2,
   ExternalLink,
   Eye,
+  Percent,
+  Receipt,
 } from 'lucide-react';
 import { contentService } from '../../services/contentService';
 import { adminService } from '../../services/adminService';
@@ -45,6 +47,8 @@ export const AdminSettingsPage = () => {
     currency: 'INR',
     currencySymbol: '₹',
     defaultTaxRate: 18,
+    existingUserDiscountPercentage: 46,
+    newUserDiscountPercentage: 40,
   });
 
   useEffect(() => {
@@ -57,6 +61,9 @@ export const AdminSettingsPage = () => {
             ...res.data,
             siteNameFirstPart: res.data.siteNameFirstPart || 'Balumuni',
             siteNameRemainingPart: res.data.siteNameRemainingPart || 'and Associates',
+            defaultTaxRate: res.data.defaultTaxRate ?? 18,
+            existingUserDiscountPercentage: res.data.existingUserDiscountPercentage ?? 46,
+            newUserDiscountPercentage: res.data.newUserDiscountPercentage ?? 40,
             googleMapsLocation:
               res.data.googleMapsLocation ||
               res.data.address ||
@@ -441,6 +448,123 @@ export const AdminSettingsPage = () => {
             <p className="text-[10px] text-slate-500">
               Query used for map: <code className="bg-slate-100 px-1 py-0.5 rounded">{mapQuery}</code>
             </p>
+          </div>
+        </div>
+
+        {/* 4. Tax Assignment & Customer Wholesale Discount Policy */}
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-xs space-y-6">
+          <div className="border-b pb-3 flex items-center justify-between">
+            <h3 className="font-extrabold text-sm text-navy uppercase tracking-wider flex items-center gap-2">
+              <Receipt className="w-4 h-4 text-emerald-600" />
+              <span>4. Tax Assignment &amp; Customer Discount Policy</span>
+            </h3>
+            <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+              Live Price Subtraction
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {/* Tax Assignment */}
+            <div className="space-y-1.5 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <label className="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                <Receipt className="w-3.5 h-3.5 text-slate-600" />
+                <span>Tax Assignment (% GST Rate) *</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  required
+                  value={settings.defaultTaxRate}
+                  onChange={(e) =>
+                    setSettings({ ...settings, defaultTaxRate: Number(e.target.value) || 0 })
+                  }
+                  className="w-full px-3.5 py-2.5 pr-8 border border-slate-300 rounded-xl text-sm font-bold bg-white focus:ring-2 focus:ring-primary"
+                />
+                <span className="absolute right-3 top-2.5 text-xs font-bold text-slate-400">%</span>
+              </div>
+              <p className="text-[10px] text-slate-500">
+                Default Goods &amp; Services Tax (GST) applied on quotations, proforma &amp; orders.
+              </p>
+            </div>
+
+            {/* Existing User Discount */}
+            <div className="space-y-1.5 p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200">
+              <label className="font-bold text-xs text-emerald-950 flex items-center gap-1.5">
+                <Percent className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Existing User Discount (%) *</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  required
+                  value={settings.existingUserDiscountPercentage}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      existingUserDiscountPercentage: Number(e.target.value) || 0,
+                    })
+                  }
+                  className="w-full px-3.5 py-2.5 pr-8 border border-emerald-300 rounded-xl text-sm font-bold bg-white focus:ring-2 focus:ring-emerald-500 text-emerald-900"
+                />
+                <span className="absolute right-3 top-2.5 text-xs font-bold text-emerald-600">%</span>
+              </div>
+              <p className="text-[10px] text-emerald-700">
+                <strong>Registered Account Users:</strong> This discount is subtracted from MRP for existing users.
+              </p>
+            </div>
+
+            {/* New User Discount */}
+            <div className="space-y-1.5 p-4 rounded-2xl bg-amber-50/70 border border-amber-200">
+              <label className="font-bold text-xs text-amber-950 flex items-center gap-1.5">
+                <Percent className="w-3.5 h-3.5 text-amber-600" />
+                <span>New User Discount (%) *</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  required
+                  value={settings.newUserDiscountPercentage}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      newUserDiscountPercentage: Number(e.target.value) || 0,
+                    })
+                  }
+                  className="w-full px-3.5 py-2.5 pr-8 border border-amber-300 rounded-xl text-sm font-bold bg-white focus:ring-2 focus:ring-amber-500 text-amber-900"
+                />
+                <span className="absolute right-3 top-2.5 text-xs font-bold text-amber-600">%</span>
+              </div>
+              <p className="text-[10px] text-amber-700">
+                <strong>New / Guest Visitors:</strong> Applied to visitors without an account. Subtracted from MRP.
+              </p>
+            </div>
+          </div>
+
+          {/* Real-time formula preview banner */}
+          <div className="p-4 rounded-2xl bg-blue-50/80 border border-blue-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="space-y-0.5">
+              <span className="font-black text-navy text-[11px] uppercase tracking-wider block">
+                Live Formula Calculation Example (MRP: ₹1,000):
+              </span>
+              <p className="text-slate-600">
+                • <strong>Existing User Price:</strong> ₹1,000 - {settings.existingUserDiscountPercentage}% = <span className="font-mono font-black text-emerald-700">₹{Math.round(1000 - (1000 * (settings.existingUserDiscountPercentage || 0)) / 100)}</span> (+ {settings.defaultTaxRate}% GST)
+              </p>
+              <p className="text-slate-600">
+                • <strong>New User Price:</strong> ₹1,000 - {settings.newUserDiscountPercentage}% = <span className="font-mono font-black text-amber-700">₹{Math.round(1000 - (1000 * (settings.newUserDiscountPercentage || 0)) / 100)}</span> (+ {settings.defaultTaxRate}% GST)
+              </p>
+            </div>
+            <span className="px-3 py-1.5 rounded-xl bg-white border border-blue-200 text-primary font-black text-center shrink-0 self-start sm:self-auto">
+              Tax: {settings.defaultTaxRate}% GST
+            </span>
           </div>
         </div>
 
