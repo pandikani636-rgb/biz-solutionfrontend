@@ -35,6 +35,7 @@ export const ContactPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [cardSide, setCardSide] = useState('front');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -215,17 +216,50 @@ export const ContactPage = () => {
             </div>
           </div>
 
-          {/* Business Card Display */}
+          {/* Business Card Display with Front & Backside View */}
           <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
-            <h3 className="text-xs font-bold text-navy uppercase tracking-wider">
-              Official Corporate Business Card
-            </h3>
-            <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-xs bg-slate-50">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-navy uppercase tracking-wider">
+                Official Corporate Business Card
+              </h3>
+              <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setCardSide('front')}
+                  className={`px-2.5 py-0.5 rounded-md text-[10px] font-black tracking-wide transition-all cursor-pointer ${
+                    cardSide === 'front'
+                      ? 'bg-navy text-accent shadow-xs'
+                      : 'text-slate-600 hover:text-navy'
+                  }`}
+                >
+                  Front View
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCardSide('back')}
+                  className={`px-2.5 py-0.5 rounded-md text-[10px] font-black tracking-wide transition-all cursor-pointer ${
+                    cardSide === 'back'
+                      ? 'bg-navy text-accent shadow-xs'
+                      : 'text-slate-600 hover:text-navy'
+                  }`}
+                >
+                  Backside View
+                </button>
+              </div>
+            </div>
+            <div
+              onClick={() => setCardSide((prev) => (prev === 'front' ? 'back' : 'front'))}
+              className="rounded-2xl overflow-hidden border border-slate-200 shadow-xs bg-slate-50 cursor-pointer relative group"
+              title="Click to flip visiting card (Front / Backside view)"
+            >
               <img
-                src="/balumuni-visiting-card.png"
-                alt="Balumuni and Associates Corporate Card"
+                src={cardSide === 'front' ? '/balumuni-visiting-card.png' : '/balumuni-visiting-card-back.svg'}
+                alt={`Balumuni and Associates Corporate Card ${cardSide === 'front' ? 'Front' : 'Backside'} View`}
                 className="w-full h-auto object-contain hover:scale-105 transition-smooth duration-500"
               />
+              <span className="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-xs text-[9px] font-bold text-amber-300 px-1.5 py-0.5 rounded border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                {cardSide === 'front' ? 'Flip to Back ↺' : 'Flip to Front ↺'}
+              </span>
             </div>
           </div>
         </div>

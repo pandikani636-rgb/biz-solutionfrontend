@@ -102,8 +102,8 @@ export const AIChatbotWidget = () => {
         fallbackQuickLink = { label: 'Explore Belts & Pulleys', url: '/services?brand=PIX' };
       } else if (q.includes('price') || q.includes('discount') || q.includes('mrp') || q.includes('rate')) {
         fallbackReply = isTamil
-          ? 'எங்கள் மொத்த விலை தள்ளுபடி:\n• PIX, NBC, HCH, Fenner & Timken: 45% - 48% தள்ளுபடி\n• SKF: 10% நேரடி தள்ளுபடி\n• நேரடி ஜிஎஸ்டி இன்புட் கிரெடிட் இன்வாய்ஸ்.'
-          : 'Our wholesale discount policy:\n• PIX, NBC, HCH, Fenner & Timken: 45% - 48% OFF official list MRP\n• SKF Genuine: Flat 10% OFF official MRP\n• Official GST Input Tax Credit.';
+          ? 'எங்கள் மொத்த விலை தள்ளுபடி:\n• PIX, Fenner, NBC, HCH & Timken: 45% - 48% தள்ளுபடி\n• SKF: 10% நேரடி தள்ளுபடி\n• நேரடி ஜிஎஸ்டி இன்புட் கிரெடிட் இன்வாய்ஸ்.'
+          : 'Our wholesale discount policy:\n• PIX, Fenner, NBC, HCH & Timken: 45% - 48% OFF official list MRP\n• SKF Genuine: Flat 10% OFF official MRP\n• Official GST Input Tax Credit.';
         fallbackQuickLink = { label: 'View MRP Calculator', url: '/mrp-pricing' };
       } else if (q.includes('brand') || q.includes('make') || q.includes('skf') || q.includes('timken')) {
         fallbackReply = isTamil

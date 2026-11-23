@@ -59,7 +59,9 @@ const SECTION_IMAGE_MAP = {
   'spc wedge profile (22 x 18 mm)': '/belts/PIX SPC PT 3150 Power Transmission.jpg',
   '3v section (9.7 x 8 mm)': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
   '5v section (15.8 x 13.5 mm)': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  '8v section': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
   '8v section (25.4 x 23 mm)': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  '8v section (25.4 x 23 mm, mfg. range: 86.5" to 933.5")': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
   'ax cogged section (13 x 8 mm)': '/belts/pix-c-70.jpg',
   'bx cogged section (17 x 11 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
   'cx cogged section (22 x 14 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
@@ -137,7 +139,7 @@ const SECTION_SPEC_MAP = {
     application: 'Steel Mills, Heavy Mining, Ball Mills, Turbines',
   },
   '8v': {
-    profile: '25mm Top Width × 23mm Thickness',
+    profile: '25.4mm Top Width × 23mm Thickness | Mfg. range: 86.5" to 933.5"',
     angle: '38° Deep Wedge Angle',
     pitchFactor: 'Ultra heavy space-saver drive',
     application: 'Extrusion Presses, Oil Field Rigs, Heavy Crushers',

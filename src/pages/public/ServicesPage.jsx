@@ -179,7 +179,7 @@ export const ServicesPage = () => {
             Industrial Bearings, Belts & Pulleys
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Direct B2B wholesale prices on genuine PIX, NBC, HCH, Fenner, Timken, and SKF. Fast pan-India delivery, official GST invoices, and 100% genuine products.
+            Direct B2B wholesale prices on genuine PIX, Fenner, NBC, HCH, Timken, and SKF. Fast pan-India delivery, official GST invoices, and 100% genuine products.
           </p>
         </div>
 

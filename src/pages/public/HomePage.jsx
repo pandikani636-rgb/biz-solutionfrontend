@@ -25,6 +25,8 @@ import {
   TrainFront,
   Plane,
   Bus,
+  X,
+  RotateCcw,
 } from 'lucide-react';
 import { contentService } from '../../services/contentService';
 import { ScrapPriceTable } from '../../components/common/ScrapPriceTable';
@@ -362,6 +364,21 @@ const travelSlides = [
     tagColor: 'bg-emerald-400/20 text-emerald-300 border-emerald-400/30',
   },
   {
+    id: 'flight',
+    type: 'Flight Ticket Booking',
+    badge: 'Domestic & International Flights',
+    title: 'Air Ticket Booking Desk',
+    subtitle: 'Corporate & personal flight reservations on Indigo, Air India, Vistara, and international carriers at competitive rates.',
+    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1000&q=80',
+    fallbackImage: '/banners/img2.png',
+    icon: Plane,
+    route: '/ticket-booking/flight',
+    highlights: ['Economy & Business Class', 'GST Invoice for ITC Claim', 'Direct & Connecting Flights'],
+    btnText: 'Book Flights Now',
+    gradient: 'from-blue-900 via-sky-950 to-slate-950',
+    tagColor: 'bg-blue-400/20 text-blue-300 border-blue-400/30',
+  },
+  {
     id: 'bus',
     type: 'Bus Ticket Booking',
     badge: 'Intercity AC Sleeper & Volvo',
@@ -376,20 +393,44 @@ const travelSlides = [
     gradient: 'from-indigo-900 via-purple-950 to-slate-950',
     tagColor: 'bg-amber-400/20 text-amber-300 border-amber-400/30',
   },
+];
+
+const defaultProductCategories = [
   {
-    id: 'flight',
-    type: 'Flight Ticket Booking',
-    badge: 'Domestic & International Flights',
-    title: 'Air Ticket Booking Desk',
-    subtitle: 'Corporate & personal flight reservations on Indigo, Air India, Vistara, and international carriers at competitive rates.',
-    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1000&q=80',
-    fallbackImage: '/banners/img2.png',
-    icon: Plane,
-    route: '/ticket-booking/flight',
-    highlights: ['Economy & Business Class', 'GST Invoice for ITC Claim', 'Direct & Connecting Flights'],
-    btnText: 'Book Flights Now',
-    gradient: 'from-blue-900 via-sky-950 to-slate-950',
-    tagColor: 'bg-blue-400/20 text-blue-300 border-blue-400/30',
+    id: 'bearings',
+    name: 'Industrial Bearings',
+    subtitle: 'Deep Groove, Angular Contact & Roller Bearings',
+    brands: 'SKF • NBC • TIMKEN • FAG',
+    image: '/bearings/img10.jpg',
+    badge: '100% Genuine Certified',
+    discount: '45% - 48% OFF (SKF 10% OFF)',
+    popularSizes: ['7322', '7322 2X', '6313', '6405ZZ', '6205'],
+    link: '/services?category=bearings',
+    searchKey: 'bearing',
+  },
+  {
+    id: 'belts',
+    name: 'Power Transmission Belts',
+    subtitle: 'High-Torque Classical, Metric Wedge & 8V Series',
+    brands: 'PIX TRANSMISSIONS • JK FENNER',
+    image: '/belts/PIX SPC PT 3150 Power Transmission.jpg',
+    badge: 'High Endurance Rubber',
+    discount: '45% - 48% OFF MRP',
+    popularSizes: ['SPC 2360', '8V-1900', 'C 70', 'SPC PT 3150', 'SPB'],
+    link: '/services?category=belts',
+    searchKey: 'belt',
+  },
+  {
+    id: 'bush-pulleys',
+    name: 'Bush Pulleys & Couplings',
+    subtitle: 'Dynamically Balanced Taper Lock Grooved Pulleys',
+    brands: 'JK FENNER • PRECISION BUILT',
+    image: '/bannerImages/diamondRollerChain.jpg',
+    badge: 'Precision Dynamic Balance',
+    discount: '45% - 48% OFF MRP',
+    popularSizes: ['200 X 3C (2517)', '2517 Bush', 'Taper Bore', 'PB Pulleys'],
+    link: '/services?category=bush-pulleys',
+    searchKey: 'pulley',
   },
 ];
 
@@ -405,6 +446,20 @@ export const HomePage = () => {
   const [faqs, setFaqs] = useState([]);
   const [activeFaq, setActiveFaq] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Products Section Category Search States
+  const [productSearchInput, setProductSearchInput] = useState('');
+  const [submittedProductSearch, setSubmittedProductSearch] = useState('');
+
+  const handleProductSearch = (e) => {
+    if (e) e.preventDefault();
+    setSubmittedProductSearch(productSearchInput.trim());
+  };
+
+  const handleClearProductSearch = () => {
+    setProductSearchInput('');
+    setSubmittedProductSearch('');
+  };
 
   useEffect(() => {
     const fetchHomeData = async () => {
@@ -777,7 +832,7 @@ export const HomePage = () => {
             </div>
             <div>
               <h4 className="font-bold text-sm text-darkText group-hover:text-primary transition-smooth">45% - 48% Off MRP</h4>
-              <p className="text-xs text-secondaryText">On PIX, NBC, HCH, Fenner & Timken</p>
+              <p className="text-xs text-secondaryText">On PIX, Fenner, NBC, HCH & Timken</p>
             </div>
           </div>
 
@@ -1115,7 +1170,7 @@ export const HomePage = () => {
             </div>
           </div>
 
-          {/* Card 2 (Right Division): Exact Order -> 1. GST, 2. Train, 3. Bus, 4. Flight */}
+          {/* Card 2 (Right Division): Exact Order -> 1. GST, 2. Train, 3. Flight, 4. Bus */}
           <div className="bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 rounded-3xl p-5 sm:p-7 border border-blue-700/60 shadow-2xl text-white flex flex-col justify-between">
             <div>
               {/* Header */}
@@ -1134,7 +1189,7 @@ export const HomePage = () => {
                 </span>
               </div>
 
-              {/* 4 Items in EXACT Requested Order: 1. gst, 2. train, 3. bud (bus), 4. flight */}
+              {/* 4 Items in EXACT Requested Order: 1. gst, 2. train, 3. flight, 4. bus */}
               <div className="space-y-2.5 mt-3.5">
                 
                 {/* 1. GST Service */}
@@ -1207,46 +1262,11 @@ export const HomePage = () => {
                   </Link>
                 </div>
 
-                {/* 3. Bus Ticket Booking */}
+                {/* 3. Flight Ticket Booking */}
                 <div
                   onClick={() => setTravelSlideIdx(2)}
                   className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                     travelSlideIdx === 2
-                      ? 'bg-white/15 border-amber-400 shadow-md ring-1 ring-amber-400/40'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shrink-0 shadow-xs">
-                      <Bus className="w-5 h-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-black text-sm text-white truncate">Bus Ticket Booking</h4>
-                        <span className="text-[9px] font-black uppercase px-2 py-0.2 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                          Volvo &amp; AC
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-300 truncate mt-0.5">
-                        Intercity AC Volvo Multi-Axle, Scania and luxury Sleeper coaches nationwide
-                      </p>
-                    </div>
-                  </div>
-                  <Link
-                    to="/ticket-booking"
-                    onClick={(e) => e.stopPropagation()}
-                    className="shrink-0 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-all shadow-xs inline-flex items-center gap-1"
-                  >
-                    <span>Book Bus</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </Link>
-                </div>
-
-                {/* 4. Flight Ticket Booking */}
-                <div
-                  onClick={() => setTravelSlideIdx(3)}
-                  className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                    travelSlideIdx === 3
                       ? 'bg-white/15 border-sky-400 shadow-md ring-1 ring-sky-400/40'
                       : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                   }`}
@@ -1273,6 +1293,41 @@ export const HomePage = () => {
                     className="shrink-0 px-3 py-1.5 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 text-xs font-black transition-all shadow-xs inline-flex items-center gap-1"
                   >
                     <span>Book Flight</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
+
+                {/* 4. Bus Ticket Booking */}
+                <div
+                  onClick={() => setTravelSlideIdx(3)}
+                  className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                    travelSlideIdx === 3
+                      ? 'bg-white/15 border-amber-400 shadow-md ring-1 ring-amber-400/40'
+                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shrink-0 shadow-xs">
+                      <Bus className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-black text-sm text-white truncate">Bus Ticket Booking</h4>
+                        <span className="text-[9px] font-black uppercase px-2 py-0.2 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                          Volvo &amp; AC
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-300 truncate mt-0.5">
+                        Intercity AC Volvo Multi-Axle, Scania and luxury Sleeper coaches nationwide
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/ticket-booking"
+                    onClick={(e) => e.stopPropagation()}
+                    className="shrink-0 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-all shadow-xs inline-flex items-center gap-1"
+                  >
+                    <span>Book Bus</span>
                     <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
@@ -1439,41 +1494,293 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* 7. Featured Industrial Products Grid (With Freeze Effect Container) */}
+      {/* 7. Featured Industrial Products & Category Explorer (With Search & Freeze Effect Container) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="bg-gradient-to-br from-white/95 via-sky-50/70 to-blue-50/60 backdrop-blur-md rounded-3xl p-6 sm:p-10 border border-blue-200/80 shadow-[0_16px_45px_-12px_rgba(37,99,235,0.12)] relative overflow-hidden">
           {/* Subtle ice / freeze ambient accent */}
           <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-bl from-blue-300/20 via-sky-200/15 to-transparent rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-tr from-sky-300/20 via-blue-200/15 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 relative z-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 relative z-10">
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100/90 border border-blue-200 text-blue-800 text-[11px] font-extrabold uppercase tracking-widest mb-2 shadow-2xs backdrop-blur-xs">
                 <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                <span>Verified Product Catalog & Freeze Dispatch Inventory</span>
+                <span>Verified Product Catalog &amp; Freeze Dispatch Inventory</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-navy mt-1">
-                Featured Bearings, Belts & Pulleys
+                Featured Bearings, Belts &amp; Pulleys
               </h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Search by part number, size, or select a category below to explore its allocated profile &amp; verified inventory.
+              </p>
             </div>
             <Link
               to="/services"
               className="text-xs font-bold text-primary hover:text-primary-dark mt-2 md:mt-0 flex items-center gap-1"
             >
-              View All {featuredServices.length}+ Products <ChevronRight className="w-4 h-4" />
+              View Full 24+ Parts Catalog <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
 
+          {/* Dedicated Products & Category Search Bar with explicit Search Button */}
+          <form
+            onSubmit={handleProductSearch}
+            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-2xl mb-8 relative z-10"
+          >
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-slate-400 absolute left-4 top-3.5" />
+              <input
+                type="text"
+                placeholder="Search part #, make, size or category (e.g. 7322, SPC 2360, 6204, Belts, Bearings)..."
+                value={productSearchInput}
+                onChange={(e) => setProductSearchInput(e.target.value)}
+                className="w-full pl-11 pr-10 py-3 rounded-2xl bg-white border border-blue-200 text-xs font-bold text-navy focus:outline-none focus:ring-2 focus:ring-primary shadow-xs"
+              />
+              {productSearchInput && (
+                <button
+                  type="button"
+                  onClick={handleClearProductSearch}
+                  className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  title="Clear Search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            <button
+              type="submit"
+              className="px-6 py-3 rounded-2xl bg-primary hover:bg-primary-dark text-white text-xs font-black flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer active:scale-95 shrink-0"
+            >
+              <Search className="w-4 h-4" />
+              <span>Search</span>
+            </button>
+            {submittedProductSearch && (
+              <button
+                type="button"
+                onClick={handleClearProductSearch}
+                className="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-300 flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset</span>
+              </button>
+            )}
+          </form>
+
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-              {[1, 2, 3, 4, 5, 6].map((n) => (
+              {[1, 2, 3].map((n) => (
                 <CardSkeleton key={n} />
               ))}
             </div>
+          ) : submittedProductSearch ? (
+            /* SEARCH ACTIVE VIEW: Show Matching Category Image Card + Matching Products */
+            <div className="space-y-6 relative z-10">
+              {(() => {
+                const q = submittedProductSearch.toLowerCase().trim();
+                const matchedCats = defaultProductCategories.filter(
+                  (c) =>
+                    c.name.toLowerCase().includes(q) ||
+                    c.subtitle.toLowerCase().includes(q) ||
+                    c.brands.toLowerCase().includes(q) ||
+                    c.searchKey.toLowerCase().includes(q) ||
+                    c.popularSizes.some((s) => s.toLowerCase().includes(q) || q.includes(s.toLowerCase()))
+                );
+
+                const matchedProducts = featuredServices.filter((s) => {
+                  const nameMatch = (s.name || '').toLowerCase().includes(q);
+                  const partMatch = (s.partNumber || '').toLowerCase().includes(q);
+                  const brandMatch = (s.brand || '').toLowerCase().includes(q);
+                  const catMatch = (s.category?.name || s.section || '').toLowerCase().includes(q);
+                  return nameMatch || partMatch || brandMatch || catMatch;
+                });
+
+                if (matchedCats.length === 0 && matchedProducts.length === 0) {
+                  return (
+                    <div className="bg-white/80 rounded-2xl p-8 border border-slate-200 text-center space-y-3">
+                      <p className="font-black text-slate-800 text-sm">
+                        No products or categories matching "{submittedProductSearch}"
+                      </p>
+                      <p className="text-xs text-slate-500 max-w-md mx-auto">
+                        Please check the part number or size code (e.g. 7322, SPC 2360, 6204), or explore our full catalog.
+                      </p>
+                      <div className="flex items-center justify-center gap-3 pt-2">
+                        <button
+                          type="button"
+                          onClick={handleClearProductSearch}
+                          className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 border border-slate-300 cursor-pointer"
+                        >
+                          Clear Search
+                        </button>
+                        <Link to={`/rfq?partNumber=${encodeURIComponent(submittedProductSearch)}`}>
+                          <Button variant="accent" size="sm" className="font-bold text-xs bg-amber-400 hover:bg-amber-300 text-slate-950">
+                            Submit RFQ for "{submittedProductSearch}"
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="space-y-6">
+                    {/* Show matched category images */}
+                    {matchedCats.length > 0 && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {matchedCats.map((cat) => (
+                          <div
+                            key={cat.id}
+                            className="bg-white rounded-3xl p-5 border border-blue-200 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+                          >
+                            <div className="space-y-3">
+                              <div className="relative h-48 w-full rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 flex items-center justify-center p-3">
+                                <img
+                                  src={cat.image}
+                                  alt={cat.name}
+                                  className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500"
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = '/banners/img4.jpg';
+                                  }}
+                                />
+                                <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-primary text-white shadow-xs">
+                                  {cat.badge}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-[10px] font-mono font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-block mb-1">
+                                  {cat.discount}
+                                </span>
+                                <h3 className="font-black text-lg text-navy group-hover:text-primary transition-colors">
+                                  {cat.name}
+                                </h3>
+                                <p className="text-xs text-secondaryText mt-0.5 font-medium leading-relaxed">
+                                  {cat.subtitle}
+                                </p>
+                              </div>
+                              <div className="pt-1">
+                                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                                  Popular Sizes &amp; Parts:
+                                </span>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {cat.popularSizes.map((size) => (
+                                    <span
+                                      key={size}
+                                      onClick={() => {
+                                        setProductSearchInput(size);
+                                        setSubmittedProductSearch(size);
+                                      }}
+                                      className="px-2 py-0.5 rounded bg-slate-100 hover:bg-primary hover:text-white text-[11px] font-mono font-bold text-slate-700 cursor-pointer transition-colors shadow-2xs"
+                                    >
+                                      {size}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
+                              <span className="text-[10px] font-bold text-slate-500">{cat.brands}</span>
+                              <Link
+                                to={cat.link}
+                                className="inline-flex items-center gap-1 text-xs font-black text-primary hover:text-navy transition-colors"
+                              >
+                                <span>Explore Category</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Show matching product cards if specific part was searched */}
+                    {matchedProducts.length > 0 && (
+                      <div className="space-y-3 pt-2">
+                        <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">
+                          Matching Parts ({matchedProducts.length} items):
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {matchedProducts.slice(0, 6).map((service) => (
+                            <ServiceCard key={service._id} service={service} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-              {featuredServices.slice(0, 9).map((service) => (
-                <ServiceCard key={service._id} service={service} />
+            /* DEFAULT VIEW: Show Category Image Cards Only (Category Images like in Category Search, not all raw products) */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+              {defaultProductCategories.map((cat) => (
+                <div
+                  key={cat.id}
+                  className="bg-white rounded-3xl p-5 border border-blue-200/90 shadow-md hover:shadow-2xl hover:border-primary/50 transition-all duration-300 flex flex-col justify-between group"
+                >
+                  <div className="space-y-3">
+                    {/* Category Image Profile */}
+                    <div className="relative h-48 w-full rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 flex items-center justify-center p-3 group-hover:bg-blue-50/30 transition-colors">
+                      <img
+                        src={cat.image}
+                        alt={cat.name}
+                        className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/banners/img4.jpg';
+                        }}
+                      />
+                      <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-primary text-white shadow-xs">
+                        {cat.badge}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-block mb-1">
+                        {cat.discount}
+                      </span>
+                      <h3 className="font-black text-lg text-navy group-hover:text-primary transition-colors">
+                        {cat.name}
+                      </h3>
+                      <p className="text-xs text-secondaryText mt-0.5 font-medium leading-relaxed">
+                        {cat.subtitle}
+                      </p>
+                    </div>
+
+                    {/* Popular Sizes / Parts under this Category */}
+                    <div className="pt-1">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+                        Popular Section Sizes:
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {cat.popularSizes.map((size) => (
+                          <span
+                            key={size}
+                            onClick={() => {
+                              setProductSearchInput(size);
+                              setSubmittedProductSearch(size);
+                            }}
+                            className="px-2 py-0.5 rounded bg-slate-100 hover:bg-primary hover:text-white text-[11px] font-mono font-bold text-slate-700 cursor-pointer transition-colors shadow-2xs"
+                            title={`Search ${size}`}
+                          >
+                            {size}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-slate-500">{cat.brands}</span>
+                    <Link
+                      to={cat.link}
+                      className="inline-flex items-center gap-1 text-xs font-black text-primary hover:text-navy transition-colors group-hover:translate-x-0.5"
+                    >
+                      <span>Explore Category</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
               ))}
             </div>
           )}
