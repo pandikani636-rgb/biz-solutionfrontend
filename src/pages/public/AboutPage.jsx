@@ -75,7 +75,7 @@ export const AboutPage = () => {
       <section className="relative overflow-hidden bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-xl border border-blue-400/30">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1600&q=80"
+            src="/banners/img4.jpg"
             alt="Industrial mechanical gears"
             className="w-full h-full object-cover object-center opacity-20"
           />

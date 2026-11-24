@@ -341,14 +341,9 @@ export const Navbar = () => {
                   <span className="text-xs font-bold text-slate-800 max-w-[80px] xl:max-w-[120px] truncate whitespace-nowrap">
                     {user.name}
                   </span>
-                  <img
-                    src={
-                      user.avatar ||
-                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'
-                    }
-                    alt={user.name}
-                    className="w-7 h-7 rounded-full object-cover border border-primary/20 shrink-0"
-                  />
+                  <div className="w-7 h-7 rounded-full bg-blue-100 text-primary border border-blue-200 flex items-center justify-center font-bold shrink-0">
+                    <User className="w-3.5 h-3.5" />
+                  </div>
                 </button>
 
                 {isUserDropdownOpen && (
@@ -455,14 +450,9 @@ export const Navbar = () => {
                 className="flex items-center gap-1.5 p-1 px-2.5 rounded-full border border-blue-200 bg-blue-50 shrink-0 text-xs font-bold text-blue-900"
                 title="My Dashboard"
               >
-                <img
-                  src={
-                    user.avatar ||
-                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'
-                  }
-                  alt={user.name}
-                  className="w-6 h-6 rounded-full object-cover"
-                />
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-primary border border-blue-200 flex items-center justify-center font-bold shrink-0">
+                  <User className="w-3.5 h-3.5" />
+                </div>
                 <span className="hidden sm:inline font-bold">Dashboard</span>
               </Link>
             ) : (
@@ -654,11 +644,9 @@ export const Navbar = () => {
             {isAuthenticated ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl">
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-9 h-9 rounded-full object-cover"
-                  />
+                  <div className="w-9 h-9 rounded-full bg-blue-100 text-primary border border-blue-200 flex items-center justify-center font-bold shrink-0">
+                    <User className="w-4 h-4" />
+                  </div>
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
                     <p className="text-[11px] text-slate-500 truncate">{user.email}</p>

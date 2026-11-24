@@ -10,6 +10,7 @@ import {
   ArrowRight,
   MessageSquare,
   ShieldAlert,
+  User,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -453,11 +454,9 @@ export const AdminDashboardOverview = () => {
                 className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs"
               >
                 <div className="flex items-center gap-2.5">
-                  <img
-                    src={c.avatar}
-                    alt={c.name}
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
+                  <div className="w-8 h-8 rounded-full bg-blue-100 text-primary border border-blue-200 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                    <User className="w-4 h-4" />
+                  </div>
                   <div>
                     <p className="font-bold text-darkText">{c.name}</p>
                     <p className="text-[11px] text-secondaryText">{c.email}</p>

@@ -42,11 +42,9 @@ export const CustomerLayout = () => {
         {/* Customer Header Banner */}
         <div className="bg-white rounded-3xl p-4 sm:p-6 md:p-8 border border-slate-200/80 shadow-xs mb-6 sm:mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 sm:gap-6">
           <div className="flex items-center gap-3.5 sm:gap-4">
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-primary/20 shadow-sm shrink-0"
-            />
+            <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-blue-100 border-2 border-primary/20 flex items-center justify-center text-primary font-bold shadow-sm shrink-0">
+              <User className="w-7 h-7 sm:w-8 sm:h-8" />
+            </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-navy">{user.name}</h1>
               <p className="text-xs sm:text-sm text-secondaryText truncate max-w-[200px] sm:max-w-none">{user.email}</p>

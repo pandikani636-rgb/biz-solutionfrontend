@@ -1,8 +1,8 @@
 import React from 'react';
-import { Star, Quote } from 'lucide-react';
+import { Star, Quote, User } from 'lucide-react';
 
 export const TestimonialCard = ({ testimonial }) => {
-  const { customerName, customerRole, avatar, rating, content } = testimonial;
+  const { customerName, customerRole, rating, content } = testimonial;
 
   return (
     <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-smooth flex flex-col justify-between relative">
@@ -26,11 +26,9 @@ export const TestimonialCard = ({ testimonial }) => {
       </div>
 
       <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-100">
-        <img
-          src={avatar}
-          alt={customerName}
-          className="w-11 h-11 rounded-full object-cover border border-slate-200"
-        />
+        <div className="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-primary font-bold shadow-2xs shrink-0">
+          <User className="w-5 h-5 text-primary" />
+        </div>
         <div>
           <h4 className="font-bold text-sm text-darkText">{customerName}</h4>
           <p className="text-xs text-secondaryText">{customerRole}</p>

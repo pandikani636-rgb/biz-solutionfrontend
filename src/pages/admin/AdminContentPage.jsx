@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HelpCircle, Star, Plus, Edit2, Trash2, MessageSquareQuote } from 'lucide-react';
+import { HelpCircle, Star, Plus, Edit2, Trash2, MessageSquareQuote, User } from 'lucide-react';
 import { contentService } from '../../services/contentService';
 import { adminService } from '../../services/adminService';
 import { Button } from '../../components/common/Button';
@@ -249,7 +249,9 @@ export const AdminContentPage = () => {
               </div>
 
               <div className="flex items-center gap-3 pt-3 border-t">
-                <img src={t.avatar} alt={t.customerName} className="w-9 h-9 rounded-full object-cover border" />
+                <div className="w-9 h-9 rounded-full bg-blue-100 text-primary border border-blue-200 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                  <User className="w-4 h-4" />
+                </div>
                 <div>
                   <p className="font-bold text-xs text-darkText">{t.customerName}</p>
                   <p className="text-[11px] text-secondaryText">{t.customerRole}</p>

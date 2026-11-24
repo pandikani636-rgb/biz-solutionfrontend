@@ -41,7 +41,7 @@ const sections = ['Bearing', 'Belt', 'Bush Pulley'];
 
 export const ServicesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { categories } = useSite();
+  const { categories, settings } = useSite();
 
   const [services, setServices] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
@@ -158,7 +158,7 @@ export const ServicesPage = () => {
         {/* Transparent background image blending smoothly with blue */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img
-            src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1600&q=80"
+            src="/banners/img3.jpg"
             alt=""
             className="w-full h-full object-cover object-center opacity-25"
           />
@@ -236,8 +236,9 @@ export const ServicesPage = () => {
             All Brands (14 Makes)
           </button>
           {brands.map((b) => {
-            const isSkf = b === 'SKF';
             const isSelected = selectedBrand.toLowerCase() === b.toLowerCase();
+            const brandDiscounts = settings?.brandDiscounts || {};
+            const brandDiscount = brandDiscounts[b] ?? (b === 'SKF' ? 10 : 46);
             return (
               <button
                 key={b}
@@ -253,12 +254,12 @@ export const ServicesPage = () => {
                   className={`text-[9px] px-1.5 py-0.2 rounded font-black ${
                     isSelected
                       ? 'bg-slate-900 text-amber-300'
-                      : isSkf
+                      : b === 'SKF'
                       ? 'bg-blue-400/30 text-blue-200'
                       : 'bg-amber-400/20 text-amber-300'
                   }`}
                 >
-                  {isSkf ? '10% OFF' : '46% OFF'}
+                  {brandDiscount}% OFF
                 </span>
               </button>
             );
@@ -324,6 +325,8 @@ export const ServicesPage = () => {
       {/* Interactive PDF Catalog Section Explorer & Ordering Engine */}
       <InteractivePdfSectionViewer
         initialSearch={search}
+        selectedBrand={selectedBrand}
+        onSelectBrand={(b) => setSelectedBrand(b)}
         selectedCategory={selectedCategory}
         categories={categories}
         onSelectCategory={(catId) => setSelectedCategory(catId)}

@@ -14,6 +14,7 @@ import {
   Eye,
   Percent,
   Receipt,
+  Tag,
 } from 'lucide-react';
 import { contentService } from '../../services/contentService';
 import { adminService } from '../../services/adminService';
@@ -21,6 +22,23 @@ import { useSite } from '../../context/SiteContext';
 import { Button } from '../../components/common/Button';
 import { Spinner } from '../../components/common/Spinner';
 import { showSuccessAlert, showErrorAlert, showToast } from '../../utils/alerts';
+
+const FOURTEEN_BRANDS = [
+  'PIX',
+  'JK Fenner',
+  'Diamond',
+  'NBC',
+  'FAG',
+  'SKF',
+  'Timken',
+  'NTN',
+  'Siemens',
+  'Crompton',
+  'ABB',
+  'Bharat Bijlee',
+  'Shanthi Gears',
+  'Vignesh Gears',
+];
 
 export const AdminSettingsPage = () => {
   const { refreshSiteData } = useSite();
@@ -546,6 +564,58 @@ export const AdminSettingsPage = () => {
               <p className="text-[10px] text-amber-700">
                 <strong>New / Guest Visitors:</strong> Applied to visitors without an account. Subtracted from MRP.
               </p>
+            </div>
+          </div>
+
+          {/* Brand-Specific Wholesale Discount Matrix (All 14 Makes) */}
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h4 className="font-bold text-xs text-navy uppercase tracking-wider flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-primary" />
+                  <span>14 Authorized Industrial Makes &amp; Brands Discount Configuration</span>
+                </h4>
+                <p className="text-[11px] text-slate-500">
+                  Configure the discount percentage subtracted from original MRP prices for each brand on the website.
+                </p>
+              </div>
+              <span className="text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-200 px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto">
+                Subtracted from Original Price
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5 pt-1">
+              {FOURTEEN_BRANDS.map((brandName) => {
+                const currentDisc = settings.brandDiscounts?.[brandName] ?? (brandName === 'SKF' ? 10 : 46);
+                return (
+                  <div key={brandName} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                    <span className="block font-black text-xs text-slate-800 truncate" title={brandName}>
+                      {brandName}
+                    </span>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={currentDisc}
+                        onChange={(e) => {
+                          const val = Number(e.target.value) || 0;
+                          setSettings((prev) => ({
+                            ...prev,
+                            brandDiscounts: {
+                              ...(prev.brandDiscounts || {}),
+                              [brandName]: val,
+                            },
+                          }));
+                        }}
+                        className="w-full px-2 py-1 pr-6 border border-slate-300 rounded-lg text-xs font-bold bg-white text-navy focus:ring-1 focus:ring-primary"
+                      />
+                      <span className="absolute right-2 top-1 text-[11px] font-bold text-slate-400">%</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

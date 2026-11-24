@@ -20,6 +20,10 @@ import {
   Files,
   Power,
   Check,
+  Percent,
+  Tag,
+  Edit3,
+  Save,
 } from 'lucide-react';
 import api, { getAssetUrl } from '../../services/api';
 import { Button } from '../../components/common/Button';
@@ -30,6 +34,23 @@ import { extractPdfTextInBrowser } from '../../utils/pdfExtractor';
 
 const FALLBACK_IMAGE = 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png';
 
+const FOURTEEN_BRANDS = [
+  'PIX',
+  'JK Fenner',
+  'Diamond',
+  'NBC',
+  'FAG',
+  'SKF',
+  'Timken',
+  'NTN',
+  'Siemens',
+  'Crompton',
+  'ABB',
+  'Bharat Bijlee',
+  'Shanthi Gears',
+  'Vignesh Gears',
+];
+
 export const AdminPdfCatalogPage = () => {
   const [catalogs, setCatalogs] = useState([]);
   const [activeCatalog, setActiveCatalog] = useState(null);
@@ -39,6 +60,12 @@ export const AdminPdfCatalogPage = () => {
   // Multi-PDF upload state
   const [pdfFiles, setPdfFiles] = useState([]);
   const [catalogTitle, setCatalogTitle] = useState('');
+  const [uploadBrand, setUploadBrand] = useState('');
+  const [uploadDiscount, setUploadDiscount] = useState('46');
+  const [editingCatalogId, setEditingCatalogId] = useState(null);
+  const [editingDiscountValue, setEditingDiscountValue] = useState('');
+  const [editingBrandValue, setEditingBrandValue] = useState('');
+  const [savingDiscount, setSavingDiscount] = useState(false);
   const [uploadProgressText, setUploadProgressText] = useState('');
   const [selectedUploadCategory, setSelectedUploadCategory] = useState('');
   const [availableCategories, setAvailableCategories] = useState([]);
@@ -197,6 +224,8 @@ export const AdminPdfCatalogPage = () => {
             extractedText: extracted.text,
             categoryId: catObj?._id || null,
             categoryName: catObj?.name || '',
+            brand: uploadBrand || undefined,
+            discountPercentage: uploadDiscount ? Number(uploadDiscount) : 46,
           });
         }
 
@@ -207,6 +236,8 @@ export const AdminPdfCatalogPage = () => {
           title: catalogTitle && pdfFiles.length === 1 ? catalogTitle : undefined,
           categoryId: catObj?._id,
           categoryName: catObj?.name,
+          brand: uploadBrand || undefined,
+          discountPercentage: uploadDiscount ? Number(uploadDiscount) : 46,
         });
 
         if (res.data?.success) {
@@ -216,6 +247,8 @@ export const AdminPdfCatalogPage = () => {
           );
           setPdfFiles([]);
           setCatalogTitle('');
+          setUploadBrand('');
+          setUploadDiscount('46');
           setSelectedUploadCategory('');
           setSelectedCatalogFilter('ALL');
           fetchCatalogs('ALL');
@@ -238,6 +271,13 @@ export const AdminPdfCatalogPage = () => {
         formData.append('categoryName', catObj.name);
       }
 
+      if (uploadBrand) {
+        formData.append('brand', uploadBrand);
+      }
+      if (uploadDiscount) {
+        formData.append('discountPercentage', uploadDiscount);
+      }
+
       setUploadProgressText('Uploading & Processing on Server...');
 
       const res = await api.post('/pdf-catalog/upload', formData, {
@@ -251,6 +291,8 @@ export const AdminPdfCatalogPage = () => {
         );
         setPdfFiles([]);
         setCatalogTitle('');
+        setUploadBrand('');
+        setUploadDiscount('46');
         setSelectedUploadCategory('');
         setSelectedCatalogFilter('ALL');
         fetchCatalogs('ALL');
@@ -277,6 +319,8 @@ export const AdminPdfCatalogPage = () => {
               extractedText: extracted.text,
               categoryId: catObj?._id || null,
               categoryName: catObj?.name || '',
+              brand: uploadBrand || undefined,
+              discountPercentage: uploadDiscount ? Number(uploadDiscount) : 46,
             });
           }
 
@@ -286,6 +330,8 @@ export const AdminPdfCatalogPage = () => {
             title: catalogTitle && pdfFiles.length === 1 ? catalogTitle : undefined,
             categoryId: catObj?._id,
             categoryName: catObj?.name,
+            brand: uploadBrand || undefined,
+            discountPercentage: uploadDiscount ? Number(uploadDiscount) : 46,
           });
 
           if (retryRes.data?.success) {
@@ -295,6 +341,8 @@ export const AdminPdfCatalogPage = () => {
             );
             setPdfFiles([]);
             setCatalogTitle('');
+            setUploadBrand('');
+            setUploadDiscount('46');
             setSelectedUploadCategory('');
             setSelectedCatalogFilter('ALL');
             fetchCatalogs('ALL');
@@ -329,6 +377,25 @@ export const AdminPdfCatalogPage = () => {
       showErrorAlert('Error', err.response?.data?.message || err.message);
     } finally {
       setTogglingId(null);
+    }
+  };
+
+  const handleSaveCatalogDiscount = async (id) => {
+    setSavingDiscount(true);
+    try {
+      const res = await api.patch(`/pdf-catalog/admin/update-discount/${id}`, {
+        discountPercentage: Number(editingDiscountValue),
+        brand: editingBrandValue || undefined,
+      });
+      if (res.data?.success) {
+        showToast(res.data.message || 'Discount updated and product prices recalculated!');
+        setEditingCatalogId(null);
+        fetchCatalogs();
+      }
+    } catch (err) {
+      showErrorAlert('Update Failed', err.response?.data?.message || err.message);
+    } finally {
+      setSavingDiscount(false);
     }
   };
 
@@ -426,20 +493,66 @@ export const AdminPdfCatalogPage = () => {
         </div>
 
         <form onSubmit={handleUploadSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Optional Catalog Title (for single file) */}
-            {pdfFiles.length <= 1 && (
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">Catalog Title (Optional)</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Optional Catalog Title */}
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-slate-700">Catalog Title (Optional)</label>
+              <input
+                type="text"
+                placeholder="e.g. TIMKEN India Price List"
+                value={catalogTitle}
+                onChange={(e) => setCatalogTitle(e.target.value)}
+                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-medium bg-slate-50 focus:ring-2 focus:ring-primary focus:outline-none"
+              />
+            </div>
+
+            {/* Target Brand Assignment */}
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-slate-700 flex items-center gap-1">
+                <Tag className="w-3.5 h-3.5 text-primary" />
+                <span>Assign Make / Brand</span>
+              </label>
+              <select
+                value={uploadBrand}
+                onChange={(e) => {
+                  const b = e.target.value;
+                  setUploadBrand(b);
+                  if (b === 'SKF') setUploadDiscount('10');
+                  else if (!uploadDiscount || uploadDiscount === '10') setUploadDiscount('46');
+                }}
+                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold bg-slate-50 focus:ring-2 focus:ring-primary focus:outline-none"
+              >
+                <option value="">Auto-Detect from File</option>
+                {FOURTEEN_BRANDS.map((b) => (
+                  <option key={b} value={b}>{b}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Wholesale Discount (% OFF MRP) */}
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-slate-700 flex items-center justify-between">
+                <span className="flex items-center gap-1">
+                  <Percent className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Discount (% OFF) *</span>
+                </span>
+                <span className="text-[10px] text-emerald-700 font-semibold">Subtracted from MRP</span>
+              </label>
+              <div className="relative">
                 <input
-                  type="text"
-                  placeholder="e.g. PIX Industrial Belts Price List (Defaults to file name)"
-                  value={catalogTitle}
-                  onChange={(e) => setCatalogTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-medium bg-slate-50 focus:ring-2 focus:ring-primary focus:outline-none"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  required
+                  value={uploadDiscount}
+                  onChange={(e) => setUploadDiscount(e.target.value)}
+                  placeholder="e.g. 46"
+                  className="w-full px-3.5 py-2.5 pr-8 border border-slate-300 rounded-xl text-xs font-black bg-slate-50 focus:ring-2 focus:ring-primary focus:outline-none text-navy"
                 />
+                <span className="absolute right-3 top-2.5 text-xs font-bold text-slate-400">%</span>
               </div>
-            )}
+            </div>
 
             {/* Target Category Assignment */}
             <div className="space-y-1">
@@ -837,13 +950,80 @@ export const AdminPdfCatalogPage = () => {
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-secondaryText">
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                      <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-900 text-[10px] font-black border border-blue-200">
+                        Brand: {doc.brand || 'Auto-Detected'}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 text-[10px] font-black border border-amber-200">
+                        {doc.discountPercentage ?? 46}% OFF MRP (Deducted from Original Price)
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-secondaryText mt-0.5">
                       {doc.fileName} • {doc.totalCategories || 0} Categories • {doc.totalProducts || 0} Products • {formatFileSize(doc.fileSize)} • {formatDate(doc.createdAt)}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto">
+                  {/* Inline Discount & Brand Edit */}
+                  {editingCatalogId === doc._id ? (
+                    <div className="flex items-center gap-1.5 p-1.5 bg-amber-50 rounded-xl border border-amber-300 animate-fadeIn shadow-xs">
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] font-bold text-slate-600">Discount:</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={editingDiscountValue}
+                          onChange={(e) => setEditingDiscountValue(e.target.value)}
+                          className="w-14 px-1.5 py-1 text-xs font-black border rounded bg-white text-navy focus:outline-none"
+                          placeholder="%"
+                        />
+                        <span className="text-xs font-bold text-slate-500">%</span>
+                      </div>
+                      <select
+                        value={editingBrandValue}
+                        onChange={(e) => setEditingBrandValue(e.target.value)}
+                        className="px-2 py-1 text-xs font-bold border rounded bg-white text-navy max-w-[110px] focus:outline-none"
+                      >
+                        <option value="">Auto Brand</option>
+                        {FOURTEEN_BRANDS.map((b) => (
+                          <option key={b} value={b}>{b}</option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveCatalogDiscount(doc._id)}
+                        disabled={savingDiscount}
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-black shadow-xs cursor-pointer flex items-center gap-1"
+                        title="Recalculate all products with this discount"
+                      >
+                        <Save className="w-3 h-3" />
+                        <span>{savingDiscount ? 'Saving...' : 'Save'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingCatalogId(null)}
+                        className="px-2 py-1 text-slate-500 hover:text-slate-800 text-xs font-bold cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingCatalogId(doc._id);
+                        setEditingDiscountValue(doc.discountPercentage ?? 46);
+                        setEditingBrandValue(doc.brand || '');
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl text-xs font-bold transition-smooth cursor-pointer"
+                      title="Set / Edit Wholesale Discount for this catalog"
+                    >
+                      <Percent className="w-3.5 h-3.5" />
+                      <span>Edit Discount ({doc.discountPercentage ?? 46}%)</span>
+                    </button>
+                  )}
                   {/* Toggle Active/Inactive */}
                   <button
                     type="button"

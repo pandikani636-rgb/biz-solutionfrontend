@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, CheckCircle, XCircle, Eye, ShieldAlert, Tag, Percent, Edit3 } from 'lucide-react';
+import { Users, Search, CheckCircle, XCircle, Eye, ShieldAlert, Tag, Percent, Edit3, User } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import api from '../../services/api';
 import { Button } from '../../components/common/Button';
@@ -181,11 +181,9 @@ export const AdminCustomersPage = () => {
                     <tr key={c._id} className="hover:bg-slate-50/50 transition-smooth">
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          <img
-                            src={c.avatar}
-                            alt={c.name}
-                            className="w-9 h-9 rounded-full object-cover border"
-                          />
+                          <div className="w-9 h-9 rounded-full bg-blue-100 text-primary border border-blue-200 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                            <User className="w-4 h-4" />
+                          </div>
                           <div>
                             <p className="font-bold text-darkText">{c.name}</p>
                             <p className="text-[11px] text-secondaryText">{c.email}</p>
@@ -347,11 +345,9 @@ export const AdminCustomersPage = () => {
         ) : selectedUserDetail ? (
           <div className="space-y-6 text-xs text-darkText">
             <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border">
-              <img
-                src={selectedUserDetail.user?.avatar}
-                alt={selectedUserDetail.user?.name}
-                className="w-14 h-14 rounded-2xl object-cover border"
-              />
+              <div className="w-14 h-14 rounded-2xl bg-blue-100 border border-blue-200 flex items-center justify-center text-primary font-bold shadow-2xs shrink-0">
+                <User className="w-7 h-7" />
+              </div>
               <div className="space-y-0.5">
                 <h3 className="text-base font-bold text-navy">{selectedUserDetail.user?.name}</h3>
                 <p className="text-secondaryText">{selectedUserDetail.user?.email}</p>

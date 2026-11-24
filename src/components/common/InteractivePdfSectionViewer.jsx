@@ -177,6 +177,8 @@ export const matchPartNumber = (partNumber, query) => {
 
 export const InteractivePdfSectionViewer = ({
   initialSearch = '',
+  selectedBrand = '',
+  onSelectBrand,
   selectedCategory = '',
   categories = [],
   onSelectCategory,
@@ -266,33 +268,114 @@ export const InteractivePdfSectionViewer = ({
   }, []);
 
   // =========================================================================
-  // REQUIREMENT: Category-Specific PDF & Section Resolution
-  // 1. "Power Transmission Belts" (or Belts) -> Uses the PIX Belts PDF & 1290 extracted products
-  // 2. "Industrial Bearings" -> Check if admin uploaded a Bearings PDF. If NOT, show "PDF Not Uploaded"!
-  // 3. "Bush Pulleys" -> Check if admin uploaded a Pulley PDF. If NOT, show "PDF Not Uploaded"!
-  // 4. Any other category -> Check if uploaded. If NOT, show "PDF Not Uploaded"!
+  // REQUIREMENT: Brand & Category PDF & Section Resolution
+  // 1. If user clicks any brand from Blue Card (e.g. Timken, PIX, SKF, NBC, FAG, etc.):
+  //    - Find matching catalog from serverCatalogs (or pixBeltsData for PIX)
+  //    - If found: show that brand's PDF products, prices, and discounts!
+  //    - If NOT found: show "PDF Not Found" (NO Tanglish!)
+  // 2. If no brand clicked ("All Brands"), resolve by selected category or default master catalog
   // =========================================================================
-  const { hasUploadedPdf, categorySections, effectiveCatalog } = useMemo(() => {
+  const { hasUploadedPdf, categorySections, effectiveCatalog, brandDiscount } = useMemo(() => {
+    const brandLower = (selectedBrand || '').trim().toLowerCase();
     const catNameLower = activeCategoryName.toLowerCase().trim();
     const catId = activeCategoryObj?._id || selectedCategory;
 
-    // Check if user selected "All Categories" (empty selectedCategory)
-    const isAllCategories = !selectedCategory;
+    // A. USER CLICKED A SPECIFIC BRAND IN THE BLUE CARD (e.g. Timken, PIX, SKF, etc.)
+    if (brandLower) {
+      // 1. Check serverCatalogs for matching brand
+      const matchingCatalog = serverCatalogs.find((c) => {
+        if (!c.isActive) return false;
+        const cBrand = (c.brand || '').toLowerCase().trim();
+        const cTitle = (c.title || '').toLowerCase().trim();
+        const cFile = (c.fileName || '').toLowerCase().trim();
 
-    // Is this a Belts category?
+        if (cBrand === brandLower || cBrand.includes(brandLower) || brandLower.includes(cBrand)) return true;
+        if (cTitle.includes(brandLower) || brandLower.includes(cTitle)) return true;
+        if (cFile.includes(brandLower)) return true;
+
+        if (c.categories && Array.isArray(c.categories)) {
+          for (const cat of c.categories) {
+            for (const sub of cat.subcategories || []) {
+              if (sub.products && sub.products.some((p) => (p.brand || '').toLowerCase() === brandLower)) {
+                return true;
+              }
+            }
+          }
+        }
+        return false;
+      });
+
+      if (matchingCatalog && matchingCatalog.categories?.length > 0) {
+        const extracted = [];
+        matchingCatalog.categories.forEach((cat) => {
+          (cat.subcategories || []).forEach((sub) => {
+            extracted.push({
+              name: sub.name,
+              categoryName: cat.name,
+              image: sub.image || SECTION_IMAGE_MAP[sub.name.toLowerCase()] || '/belts/PIX C 70 Classical V-Belt.jpg',
+              description: sub.description || '',
+              products: sub.products || [],
+            });
+          });
+        });
+
+        return {
+          hasUploadedPdf: true,
+          categorySections: extracted,
+          effectiveCatalog: matchingCatalog,
+          brandDiscount: matchingCatalog.discountPercentage ?? 46,
+        };
+      }
+
+      // If selected brand is PIX and no custom PIX uploaded, fallback to verified PIX master catalog
+      if (brandLower === 'pix') {
+        const extractedBelts = [];
+        (pixBeltsData.categories || []).forEach((cat) => {
+          (cat.subcategories || []).forEach((sub) => {
+            extractedBelts.push({
+              name: sub.name,
+              categoryName: cat.name,
+              image: sub.image || SECTION_IMAGE_MAP[sub.name.toLowerCase()] || '/belts/PIX C 70 Classical V-Belt.jpg',
+              description: sub.description || '',
+              products: sub.products || [],
+            });
+          });
+        });
+
+        return {
+          hasUploadedPdf: true,
+          categorySections: extractedBelts,
+          effectiveCatalog: {
+            title: pixBeltsData.title || 'PIX Industrial Belts Master Price List',
+            fileName: pixBeltsData.fileName || 'PIX-Industrial-Belts-Price-List.pdf',
+            fileUrl: pixBeltsData.fileUrl || '/sample-catalog.pdf',
+            brand: 'PIX',
+            discountPercentage: 46,
+          },
+          brandDiscount: 46,
+        };
+      }
+
+      // If no PDF found for this clicked brand, return false -> Renders "PDF Not Found"
+      return {
+        hasUploadedPdf: false,
+        categorySections: [],
+        effectiveCatalog: null,
+        brandDiscount: null,
+      };
+    }
+
+    // B. "All Brands (14 Makes)" / Category resolution
+    const isAllCategories = !selectedCategory;
     const isBeltsCategory =
       isAllCategories ||
       catNameLower.includes('belt') ||
       catNameLower.includes('v-belt') ||
       catNameLower.includes('power transmission');
-
-    // Is this a Bearings category?
     const isBearingsCategory = catNameLower.includes('bearing');
-
-    // Is this a Pulleys category?
     const isPulleysCategory = catNameLower.includes('pulley') || catNameLower.includes('bush');
 
-    // 1. Check if admin uploaded an explicit catalog for this category in serverCatalogs
+    // Check if admin uploaded an explicit catalog in serverCatalogs
     const uploadedForCategory = serverCatalogs.find((c) => {
       if (!c.isActive) return false;
       const titleLower = (c.title || '').toLowerCase();
@@ -309,10 +392,9 @@ export const InteractivePdfSectionViewer = ({
       return false;
     });
 
-    if (uploadedForCategory) {
-      // Build sections from uploaded catalog
+    if (uploadedForCategory && uploadedForCategory.categories?.length > 0) {
       const extracted = [];
-      (uploadedForCategory.categories || []).forEach((cat) => {
+      uploadedForCategory.categories.forEach((cat) => {
         (cat.subcategories || []).forEach((sub) => {
           extracted.push({
             name: sub.name,
@@ -328,10 +410,11 @@ export const InteractivePdfSectionViewer = ({
         hasUploadedPdf: true,
         categorySections: extracted,
         effectiveCatalog: uploadedForCategory,
+        brandDiscount: uploadedForCategory.discountPercentage ?? 46,
       };
     }
 
-    // 2. If Belts category (or All Categories default), load the verified PIX Master Catalog (all 1290 parts)
+    // Default to PIX master catalog for belts / all categories
     if (isBeltsCategory) {
       const extractedBelts = [];
       (pixBeltsData.categories || []).forEach((cat) => {
@@ -353,19 +436,20 @@ export const InteractivePdfSectionViewer = ({
           title: pixBeltsData.title || 'PIX Industrial Belts Master Price List',
           fileName: pixBeltsData.fileName || 'PIX-Industrial-Belts-Price-List.pdf',
           fileUrl: pixBeltsData.fileUrl || '/sample-catalog.pdf',
+          brand: 'PIX',
+          discountPercentage: 46,
         },
+        brandDiscount: 46,
       };
     }
 
-    // 3. For any other category (Bearings, Pulleys, Motors, etc.):
-    // ONLY display products if Admin has uploaded an official PDF for that category!
-    // If no PDF has been uploaded by admin, show "Intha Type Of Category ku Pdf Available illa"!
     return {
       hasUploadedPdf: false,
       categorySections: [],
       effectiveCatalog: null,
+      brandDiscount: null,
     };
-  }, [selectedCategory, activeCategoryName, activeCategoryObj, serverCatalogs]);
+  }, [selectedBrand, selectedCategory, activeCategoryName, activeCategoryObj, serverCatalogs]);
 
   // Sync sections and catalog state
   useEffect(() => {
@@ -547,8 +631,16 @@ export const InteractivePdfSectionViewer = ({
     if (!selectedProduct) return null;
 
     const mrp = Number(selectedProduct.mrp) || Number(selectedProduct.wholesalePrice) || 0;
-    const discountAmount = Math.round((mrp * activeDiscountPercentage) / 100);
-    const unitPrice = Math.max(1, mrp - discountAmount);
+    const effectiveDiscount = Number(selectedProduct.discountPercentage) > 0
+      ? Number(selectedProduct.discountPercentage)
+      : (Number(effectiveCatalog?.discountPercentage) > 0
+          ? Number(effectiveCatalog.discountPercentage)
+          : (brandDiscount ? Number(brandDiscount) : activeDiscountPercentage));
+
+    const discountAmount = Math.round((mrp * effectiveDiscount) / 100);
+    const unitPrice = selectedProduct.wholesalePrice > 0 && selectedProduct.discountPercentage === effectiveDiscount
+      ? selectedProduct.wholesalePrice
+      : Math.max(1, mrp - discountAmount);
 
     const subtotal = unitPrice * orderQuantity;
     const gstRate = defaultTaxRate / 100;
@@ -557,20 +649,18 @@ export const InteractivePdfSectionViewer = ({
 
     return {
       mrp,
-      discountPercentage: activeDiscountPercentage,
+      discountPercentage: effectiveDiscount,
       discountAmount,
       unitPrice,
       wholesaleUnitPrice: unitPrice,
       isExistingUser,
-      rateLabel: isExistingUser
-        ? `Existing User Offer (${activeDiscountPercentage}% OFF)`
-        : `New User Offer (${activeDiscountPercentage}% OFF)`,
+      rateLabel: `Special Wholesale Offer (${effectiveDiscount}% OFF)`,
       taxRate: defaultTaxRate,
       subtotal,
       gstAmount,
       totalWithGst,
     };
-  }, [selectedProduct, orderQuantity, activeDiscountPercentage, defaultTaxRate, isExistingUser]);
+  }, [selectedProduct, orderQuantity, activeDiscountPercentage, defaultTaxRate, isExistingUser, effectiveCatalog, brandDiscount]);
 
   // Section specifications
   const sectionSpec = useMemo(() => {
@@ -657,28 +747,29 @@ export const InteractivePdfSectionViewer = ({
   }
 
   // =========================================================================
-  // REQUIREMENT: If no PDF has been uploaded and no sections exist for this category,
-  // display "Intha Type Of Category ku Pdf Available illa" with direct RFQ button!
+  // REQUIREMENT: If no PDF has been uploaded and no sections exist for this selection,
+  // display clean "PDF Not Found" (NO Tanglish as requested!)
   // =========================================================================
   if (!hasUploadedPdf || categorySections.length === 0) {
+    const filterTitle = selectedBrand || activeCategoryName || 'This Selection';
     return (
-      <div className="bg-white rounded-3xl border-2 border-dashed border-rose-300 shadow-xl p-8 sm:p-12 text-center space-y-6">
-        <div className="w-20 h-20 mx-auto rounded-3xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shadow-inner">
-          <FileText className="w-10 h-10" />
+      <div className="bg-white rounded-3xl border-2 border-dashed border-slate-300 shadow-xl p-8 sm:p-12 text-center space-y-6 animate-fadeIn">
+        <div className="w-20 h-20 mx-auto rounded-3xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 shadow-inner">
+          <FileText className="w-10 h-10 text-slate-400" />
         </div>
 
         <div className="space-y-2 max-w-xl mx-auto">
-          <span className="inline-block text-[11px] font-black uppercase tracking-wider text-rose-800 bg-rose-100 px-3.5 py-1 rounded-full border border-rose-300">
-            Intha Type Of Category ku Pdf Available illa
+          <span className="inline-block text-[11px] font-black uppercase tracking-wider text-slate-700 bg-slate-100 px-3.5 py-1 rounded-full border border-slate-300">
+            PDF Not Found
           </span>
           <h2 className="text-2xl sm:text-3xl font-black text-navy tracking-tight">
-            Intha Type Of Category ku Pdf Available illa
+            PDF Not Found
           </h2>
-          <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-semibold">
-            Admin side-ல் <strong className="text-navy font-black">{activeCategoryName || 'இந்த Category'}</strong>-க்கு PDF Catalog இன்னும் Upload செய்யப்படவில்லை.
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+            No official manufacturer PDF price list or catalog has been uploaded for <strong className="text-navy font-black">{filterTitle}</strong> yet.
           </p>
-          <p className="text-xs text-slate-500">
-            Admin Panel-ல் இருந்து இந்த Category-க்கான அதிகாரப்பூர்வ Manufacturer PDF Upload செய்யப்பட்ட பிறகு மட்டுமே இந்த பக்கத்தில் Products பட்டியல் காண்பிக்கப்படும்.
+          <p className="text-xs text-slate-400">
+            Once uploaded via the Admin Panel, all products, part numbers, and discounted rates will automatically appear here.
           </p>
         </div>
 
@@ -691,20 +782,34 @@ export const InteractivePdfSectionViewer = ({
                 className="px-5 py-3 rounded-2xl bg-navy hover:bg-slate-800 text-white text-xs font-black shadow-md transition-all flex items-center gap-2 cursor-pointer"
               >
                 <UploadCloud className="w-4 h-4 text-emerald-400" />
-                <span>Upload PDF for {activeCategoryName || 'this Category'} (Admin)</span>
+                <span>Upload PDF for {filterTitle} in Admin</span>
               </button>
             </Link>
           )}
 
-          <Link to={`/rfq?category=${encodeURIComponent(activeCategoryName)}`}>
+          <Link to={`/rfq?brand=${encodeURIComponent(selectedBrand || '')}&category=${encodeURIComponent(activeCategoryName || '')}`}>
             <button
               type="button"
               className="px-5 py-3 rounded-2xl bg-primary hover:bg-primary-dark text-white text-xs font-black shadow-md transition-all flex items-center gap-2 cursor-pointer"
             >
               <ShoppingBag className="w-4 h-4" />
-              <span>Submit RFQ for {activeCategoryName || 'Products'}</span>
+              <span>Submit RFQ for {filterTitle}</span>
             </button>
           </Link>
+
+          {(selectedBrand || selectedCategory) && (
+            <button
+              type="button"
+              onClick={() => {
+                if (onSelectBrand) onSelectBrand('');
+                if (onSelectCategory) onSelectCategory('');
+              }}
+              className="px-5 py-3 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200 transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Explore Available Catalogs</span>
+            </button>
+          )}
 
           <Link to="/contact">
             <button
@@ -715,29 +820,6 @@ export const InteractivePdfSectionViewer = ({
               <span>Contact Sales Desk</span>
             </button>
           </Link>
-
-          {onSelectCategory && (
-            <button
-              type="button"
-              onClick={() => onSelectCategory('')}
-              className="px-5 py-3 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200 transition-all flex items-center gap-2 cursor-pointer"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span>Explore Available Catalogs</span>
-            </button>
-          )}
-
-          {user?.role === 'admin' && (
-            <Link to="/admin/pdf-catalog">
-              <button
-                type="button"
-                className="px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-black shadow-sm transition-all flex items-center gap-2 cursor-pointer border border-amber-500"
-              >
-                <UploadCloud className="w-4 h-4" />
-                <span>Upload PDF for {activeCategoryName} in Admin</span>
-              </button>
-            </Link>
-          )}
         </div>
       </div>
     );
@@ -1428,7 +1510,7 @@ export const InteractivePdfSectionViewer = ({
                         <th className="py-2.5 px-3">Part #</th>
                         <th className="py-2.5 px-3">Make</th>
                         <th className="py-2.5 px-3">Description / Spec</th>
-                        <th className="py-2.5 px-3 text-right">Price ({activeDiscountPercentage}% OFF)</th>
+                        <th className="py-2.5 px-3 text-right">Price ({brandDiscount || effectiveCatalog?.discountPercentage || activeDiscountPercentage}% OFF)</th>
                         <th className="py-2.5 px-3 text-center">Action</th>
                       </tr>
                     </thead>
@@ -1436,8 +1518,15 @@ export const InteractivePdfSectionViewer = ({
                       {filteredProducts.map((p) => {
                         const isSelected = selectedProduct?.partNumber === p.partNumber;
                         const productMrp = Number(p.mrp) || Number(p.wholesalePrice) || 0;
-                        const discountAmt = Math.round((productMrp * activeDiscountPercentage) / 100);
-                        const finalUnitPrice = Math.max(1, productMrp - discountAmt);
+                        const itemDiscount = Number(p.discountPercentage) > 0
+                          ? Number(p.discountPercentage)
+                          : (Number(effectiveCatalog?.discountPercentage) > 0
+                              ? Number(effectiveCatalog.discountPercentage)
+                              : (brandDiscount ? Number(brandDiscount) : activeDiscountPercentage));
+                        const discountAmt = Math.round((productMrp * itemDiscount) / 100);
+                        const finalUnitPrice = p.wholesalePrice > 0 && p.discountPercentage === itemDiscount
+                          ? p.wholesalePrice
+                          : Math.max(1, productMrp - discountAmt);
 
                         return (
                           <tr
@@ -1485,7 +1574,7 @@ export const InteractivePdfSectionViewer = ({
                                     {formatCurrency(productMrp)}
                                   </span>
                                   <span className="px-1.5 py-0.2 rounded text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                    -{activeDiscountPercentage}%
+                                    -{itemDiscount}%
                                   </span>
                                 </div>
                                 <span className="font-mono font-black text-navy text-sm">

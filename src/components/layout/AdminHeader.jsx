@@ -29,11 +29,9 @@ export const AdminHeader = ({ title = 'Dashboard Overview', subtitle, onToggleSi
         </div>
 
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
-          <img
-            src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
-            alt={user?.name}
-            className="w-9 h-9 rounded-full object-cover border border-primary/30"
-          />
+          <div className="w-9 h-9 rounded-full bg-blue-100 text-primary border border-blue-200 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+            <User className="w-4 h-4" />
+          </div>
           <div className="hidden md:block text-left">
             <p className="text-xs font-bold text-darkText leading-tight">{user?.name}</p>
             <p className="text-[10px] uppercase font-bold text-accent-hover tracking-wider">
