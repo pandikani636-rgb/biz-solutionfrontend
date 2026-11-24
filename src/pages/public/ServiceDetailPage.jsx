@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Clock,
@@ -757,6 +757,80 @@ export const ServiceDetailPage = () => {
   const officialMrp = service.mrp > 0 ? service.mrp : Math.round(service.basePrice / (1 - (service.discountPercentage || 46) / 100));
   const discountLabel = service.discountPercentage ? `${service.discountPercentage}% OFF` : '46% OFF';
 
+  // Cleanly parse specifications regardless of format (Array of objects, Map/Object, string, etc.)
+  const parsedSpecifications = useMemo(() => {
+    if (!service?.specifications) return [];
+    const specs = service.specifications;
+    const result = [];
+
+    const addSpec = (label, value) => {
+      if (value === null || value === undefined) return;
+      if (typeof value === 'object') {
+        const nestedLabel = value.name || value.key || value.label || value.title || label;
+        const nestedVal = value.value ?? value.val ?? value.description ?? '';
+        if (typeof nestedVal === 'object' && nestedVal !== null) {
+          Object.entries(nestedVal).forEach(([k, v]) => addSpec(k, v));
+        } else if (nestedVal) {
+          result.push({ label: String(nestedLabel), value: String(nestedVal) });
+        } else {
+          Object.entries(value).forEach(([k, v]) => {
+            if (k !== 'name' && k !== 'key' && k !== 'label' && k !== 'title') {
+              addSpec(k, v);
+            }
+          });
+        }
+        return;
+      }
+
+      const strVal = String(value).trim();
+      if (strVal && strVal !== '[object Object]') {
+        result.push({ label: String(label), value: strVal });
+      }
+    };
+
+    if (Array.isArray(specs)) {
+      specs.forEach((item, idx) => {
+        if (typeof item === 'object' && item !== null) {
+          const itemLabel = item.name || item.key || item.label || item.title || `Specification ${idx + 1}`;
+          const itemVal = item.value ?? item.val ?? item.description ?? item;
+          addSpec(itemLabel, itemVal);
+        } else {
+          addSpec(`Specification ${idx + 1}`, item);
+        }
+      });
+    } else if (typeof specs === 'object' && specs !== null) {
+      Object.entries(specs).forEach(([k, v]) => {
+        if (/^\d+$/.test(k) && typeof v === 'object' && v !== null) {
+          const subLabel = v.name || v.key || v.label || `Specification ${Number(k) + 1}`;
+          addSpec(subLabel, v.value ?? v.val ?? v);
+        } else {
+          addSpec(k, v);
+        }
+      });
+    } else if (typeof specs === 'string') {
+      const trimmed = specs.trim();
+      if (trimmed && trimmed !== '[object Object]') {
+        if (trimmed.includes(',')) {
+          trimmed.split(',').forEach((part) => {
+            const p = part.trim();
+            if (p) {
+              if (p.includes(':')) {
+                const [k, ...rest] = p.split(':');
+                result.push({ label: k.trim(), value: rest.join(':').trim() });
+              } else {
+                result.push({ label: 'Specification', value: p });
+              }
+            }
+          });
+        } else {
+          result.push({ label: 'Technical Specs', value: trimmed });
+        }
+      }
+    }
+
+    return result;
+  }, [service?.specifications]);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
       {/* Top Back Navigation */}
@@ -965,20 +1039,20 @@ export const ServiceDetailPage = () => {
       )}
 
       {/* Technical Specifications Table */}
-      {service.specifications && Object.keys(service.specifications).length > 0 && (
+      {parsedSpecifications.length > 0 && (
         <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center gap-2">
             <Settings className="w-5 h-5 text-primary" />
-            <h3 className="text-xl font-black text-navy">Technical & Dimensional Specifications</h3>
+            <h3 className="text-xl font-black text-navy">Technical &amp; Dimensional Specifications</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-2">
-            {Object.entries(service.specifications).map(([key, val]) => (
+            {parsedSpecifications.map((spec, idx) => (
               <div
-                key={key}
+                key={`${spec.label}-${idx}`}
                 className="bg-slate-50 rounded-xl p-3.5 border border-slate-200/80 flex flex-col justify-between"
               >
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{key}</span>
-                <span className="text-sm font-black text-darkText mt-1 font-mono">{String(val)}</span>
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{spec.label}</span>
+                <span className="text-sm font-black text-darkText mt-1 font-mono">{spec.value}</span>
               </div>
             ))}
           </div>
@@ -1761,7 +1835,7 @@ export const ServiceDetailPage = () => {
                           </h4>
                           {prod.specifications && (
                             <p className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">
-                              {prod.specifications}
+                              {typeof prod.specifications === 'object' ? (prod.specifications.value || JSON.stringify(prod.specifications)) : String(prod.specifications)}
                             </p>
                           )}
                         </div>
@@ -1851,7 +1925,9 @@ export const ServiceDetailPage = () => {
             {selectedPdfItem.specifications && (
               <div className="p-3 bg-blue-50/60 rounded-xl border border-blue-200 text-xs text-slate-700">
                 <strong className="text-navy font-bold block mb-1">Technical Specifications:</strong>
-                <p className="font-mono text-slate-800">{selectedPdfItem.specifications}</p>
+                <p className="font-mono text-slate-800">
+                  {typeof selectedPdfItem.specifications === 'object' ? (selectedPdfItem.specifications.value || JSON.stringify(selectedPdfItem.specifications)) : String(selectedPdfItem.specifications)}
+                </p>
               </div>
             )}
 

@@ -900,7 +900,11 @@ export const PdfCatalogViewer = ({ initialSearch = '', initialCategory = 'ALL' }
               </div>
               <h3 className="text-base sm:text-lg font-black text-navy">{selectedProduct.name}</h3>
               {selectedProduct.specifications && (
-                <p className="text-xs text-secondaryText">{selectedProduct.specifications}</p>
+                <p className="text-xs text-secondaryText">
+                  {typeof selectedProduct.specifications === 'object'
+                    ? (selectedProduct.specifications.value || selectedProduct.specifications.val || JSON.stringify(selectedProduct.specifications))
+                    : String(selectedProduct.specifications)}
+                </p>
               )}
             </div>
 

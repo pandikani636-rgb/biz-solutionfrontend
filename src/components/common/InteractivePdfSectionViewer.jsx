@@ -145,6 +145,18 @@ const SECTION_SPEC_MAP = {
     pitchFactor: 'Ultra heavy space-saver drive',
     application: 'Extrusion Presses, Oil Field Rigs, Heavy Crushers',
   },
+  'deep groove ball bearings': {
+    profile: 'Single Row Deep Groove Radial Ball Geometry',
+    angle: 'Concentric Deep Raceways, Low Friction Torque',
+    pitchFactor: 'IS 6455 / ISO 15 Dimension Series (EMQ Quality)',
+    application: 'Electric Motors, Machine Tools, Pumps, Gearboxes, High-RPM Shafts',
+  },
+  'tapered roller bearings': {
+    profile: 'Conical Tapered Roller Cup & Cone Matched Assembly',
+    angle: 'Tapered Contact Angle for Combined Heavy Radial & Thrust Loads',
+    pitchFactor: 'ISO 355 / ANSI ABMA Metric & Inch Series Tolerances',
+    application: 'Automotive Axles, Mill Reduction Drives, Crushers, Wheel Hubs',
+  },
 };
 
 // Flexible Part Number & Size Matcher: handles b25 -> B 25, bb60 -> BB 60, spc2360 -> SPC 2360, 6204, etc.
@@ -173,6 +185,390 @@ export const matchPartNumber = (partNumber, query) => {
   }
 
   return false;
+};
+
+// Verified standard catalog configurations for primary stocked makes (when no custom PDF is uploaded)
+const STANDARD_BRAND_CATALOGS = {
+  nbc: {
+    title: 'NBC Bearings Official Industrial Price List & Catalog',
+    fileName: 'NBC-Industrial-Bearings-Price-List.pdf',
+    fileUrl: '/sample-catalog.pdf',
+    brand: 'NBC',
+    discountPercentage: 46,
+    sections: [
+      {
+        name: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
+        categoryName: 'Industrial Bearings',
+        image: '/bearings/img10.jpg',
+        description: 'Electric Motor Quality (EMQ) precision radial ball bearings manufactured by NBC (NEI Ltd.)',
+        products: [
+          {
+            partNumber: '6204',
+            name: 'NBC 6204 Single Row Deep Groove Ball Bearing',
+            brand: 'NBC',
+            section: 'Deep Groove Ball Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
+            image: '/bearings/img10.jpg',
+            mrp: 240,
+            discountPercentage: 46,
+            wholesalePrice: 130,
+            specifications: 'Bore 20mm, OD 47mm, Width 14mm • Standard Radial Motor Quality',
+            inStock: true,
+          },
+          {
+            partNumber: '6205',
+            name: 'NBC 6205 Single Row Deep Groove Ball Bearing',
+            brand: 'NBC',
+            section: 'Deep Groove Ball Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
+            image: '/bearings/img10.jpg',
+            mrp: 310,
+            discountPercentage: 46,
+            wholesalePrice: 167,
+            specifications: 'Bore 25mm, OD 52mm, Width 15mm • Electric Motor Quality (EMQ)',
+            inStock: true,
+          },
+          {
+            partNumber: '6305',
+            name: 'NBC 6305 Heavy Series Radial Ball Bearing',
+            brand: 'NBC',
+            section: 'Deep Groove Ball Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
+            image: '/bearings/img10.jpg',
+            mrp: 490,
+            discountPercentage: 46,
+            wholesalePrice: 265,
+            specifications: 'Bore 25mm, OD 62mm, Width 17mm • High Dynamic Load Rating',
+            inStock: true,
+          },
+          {
+            partNumber: '6308',
+            name: 'NBC 6308 Heavy Duty Radial Bearing',
+            brand: 'NBC',
+            section: 'Deep Groove Ball Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
+            image: '/bearings/img10.jpg',
+            mrp: 780,
+            discountPercentage: 46,
+            wholesalePrice: 421,
+            specifications: 'Bore 40mm, OD 90mm, Width 23mm • C3 Internal Clearance',
+            inStock: true,
+          },
+          {
+            partNumber: '6405ZZ C3',
+            name: 'NBC 6405ZZ C3 Heavy Deep Groove Bearing (Both Sides Metal Shield)',
+            brand: 'NBC',
+            section: 'Deep Groove Ball Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
+            image: '/bearings/img10.jpg',
+            mrp: 1450,
+            discountPercentage: 46,
+            wholesalePrice: 783,
+            specifications: 'Bore 25mm, OD 80mm, Width 21mm, C3 Internal Clearance',
+            inStock: true,
+          },
+        ],
+      },
+      {
+        name: 'Tapered Roller Bearings (Metric & Imperial)',
+        categoryName: 'Industrial Bearings',
+        image: '/bannerImages/nbcandTapper role.webp',
+        description: 'High capacity cup and cone matched assemblies for heavy shock loads and gearbox shafts',
+        products: [
+          {
+            partNumber: 'LM 11949/10',
+            name: 'NBC LM 11949/10 Precision Tapered Roller Bearing (Cup & Cone)',
+            brand: 'NBC',
+            section: 'Tapered Roller Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Tapered Roller Bearings (Metric & Imperial)',
+            image: '/bannerImages/nbcandTapper role.webp',
+            mrp: 980,
+            discountPercentage: 46,
+            wholesalePrice: 529,
+            specifications: 'Bore 19.05mm, OD 45.237mm, Width 15.494mm • Matched Cup & Cone',
+            inStock: true,
+          },
+          {
+            partNumber: '30205',
+            name: 'NBC 30205 Metric Tapered Roller Bearing',
+            brand: 'NBC',
+            section: 'Tapered Roller Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Tapered Roller Bearings (Metric & Imperial)',
+            image: '/bannerImages/nbcandTapper role.webp',
+            mrp: 890,
+            discountPercentage: 46,
+            wholesalePrice: 481,
+            specifications: 'Bore 25mm, OD 52mm, Width 16.25mm • High Radial & Axial Capacity',
+            inStock: true,
+          },
+          {
+            partNumber: '32007',
+            name: 'NBC 32007 Tapered Roller Bearing',
+            brand: 'NBC',
+            section: 'Tapered Roller Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Tapered Roller Bearings (Metric & Imperial)',
+            image: '/bannerImages/nbcandTapper role.webp',
+            mrp: 1120,
+            discountPercentage: 46,
+            wholesalePrice: 605,
+            specifications: 'Bore 35mm, OD 62mm, Width 18mm • Precision Ground Raceways',
+            inStock: true,
+          },
+          {
+            partNumber: '32208',
+            name: 'NBC 32208 Heavy Duty Tapered Roller Bearing',
+            brand: 'NBC',
+            section: 'Tapered Roller Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Tapered Roller Bearings (Metric & Imperial)',
+            image: '/bannerImages/nbcandTapper role.webp',
+            mrp: 1650,
+            discountPercentage: 46,
+            wholesalePrice: 891,
+            specifications: 'Bore 40mm, OD 80mm, Width 24.75mm • Heavy Gearbox & Mill Application',
+            inStock: true,
+          },
+          {
+            partNumber: '32210',
+            name: 'NBC 32210 Heavy Duty Tapered Roller Bearing',
+            brand: 'NBC',
+            section: 'Tapered Roller Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Tapered Roller Bearings (Metric & Imperial)',
+            image: '/bannerImages/nbcandTapper role.webp',
+            mrp: 2150,
+            discountPercentage: 46,
+            wholesalePrice: 1161,
+            specifications: 'Bore 50mm, OD 90mm, Width 24.75mm • Premium NEI OEM Construction',
+            inStock: true,
+          },
+        ],
+      },
+    ],
+  },
+  timken: {
+    title: 'TIMKEN India Master Bearing Price List',
+    fileName: 'TIMKEN-India-Master-Bearing-Price-List.pdf',
+    fileUrl: '/sample-catalog.pdf',
+    brand: 'Timken',
+    discountPercentage: 46,
+    sections: [
+      {
+        name: 'Timken Heavy Series & Open Type Bearings',
+        categoryName: 'Industrial Bearings',
+        image: '/bearings/img3.jpg',
+        description: 'Timken heavy shaft and machinery bearings with extreme dynamic load tolerances',
+        products: [
+          {
+            partNumber: '6313',
+            name: 'Timken 6313 Open Type Heavy Industrial Bearing',
+            brand: 'Timken',
+            section: 'Ball Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Timken Heavy Series & Open Type Bearings',
+            image: '/bearings/img3.jpg',
+            mrp: 3800,
+            discountPercentage: 46,
+            wholesalePrice: 2052,
+            specifications: 'Bore 65mm, OD 140mm, Width 33mm, 100% Genuine Product',
+            inStock: true,
+          },
+          {
+            partNumber: '6310-2RS',
+            name: 'Timken 6310-2RS Heavy Duty Sealed Ball Bearing',
+            brand: 'Timken',
+            section: 'Ball Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Timken Heavy Series & Open Type Bearings',
+            image: '/bearings/img3.jpg',
+            mrp: 2200,
+            discountPercentage: 46,
+            wholesalePrice: 1188,
+            specifications: 'Bore 50mm, OD 110mm, Width 27mm, Nitrile Rubber Sealed',
+            inStock: true,
+          },
+        ],
+      },
+      {
+        name: 'Timken Tapered Roller Bearings (TS Series)',
+        categoryName: 'Industrial Bearings',
+        image: '/bearings/img3.jpg',
+        description: 'World-renowned Timken tapered roller cup and cone matched sets',
+        products: [
+          {
+            partNumber: 'SET4',
+            name: 'Timken SET4 Precision Tapered Roller Bearing (LM11949 / LM11910)',
+            brand: 'Timken',
+            section: 'Tapered Roller Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Timken Tapered Roller Bearings (TS Series)',
+            image: '/bearings/img3.jpg',
+            mrp: 1850,
+            discountPercentage: 46,
+            wholesalePrice: 999,
+            specifications: 'Bore 19.05mm, OD 45.237mm, Width 16.637mm • Genuine Timken USA',
+            inStock: true,
+          },
+          {
+            partNumber: 'SET14',
+            name: 'Timken SET14 Heavy Tapered Roller Bearing Set (L68149 / L68110)',
+            brand: 'Timken',
+            section: 'Tapered Roller Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'Timken Tapered Roller Bearings (TS Series)',
+            image: '/bearings/img3.jpg',
+            mrp: 2350,
+            discountPercentage: 46,
+            wholesalePrice: 1269,
+            specifications: 'Bore 34.988mm, OD 59.131mm, Width 15.875mm',
+            inStock: true,
+          },
+        ],
+      },
+    ],
+  },
+  skf: {
+    title: 'SKF Industrial Bearings Master Price List',
+    fileName: 'SKF-Industrial-Bearings-Price-List.pdf',
+    fileUrl: '/sample-catalog.pdf',
+    brand: 'SKF',
+    discountPercentage: 10,
+    sections: [
+      {
+        name: 'SKF Explorer Deep Groove Ball Bearings',
+        categoryName: 'Industrial Bearings',
+        image: '/bearings/img1.jpg',
+        description: 'Genuine Swedish / European SKF Explorer precision ball bearings',
+        products: [
+          {
+            partNumber: '6205-2RSH',
+            name: 'SKF 6205-2RSH Explorer Deep Groove Ball Bearing',
+            brand: 'SKF',
+            section: 'Ball Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'SKF Explorer Deep Groove Ball Bearings',
+            image: '/bearings/img1.jpg',
+            mrp: 520,
+            discountPercentage: 10,
+            wholesalePrice: 468,
+            specifications: 'Bore 25mm, OD 52mm, Width 15mm, Contact Rubber Seals Both Sides',
+            inStock: true,
+          },
+          {
+            partNumber: '6308-2Z',
+            name: 'SKF 6308-2Z Metal Shielded Radial Ball Bearing',
+            brand: 'SKF',
+            section: 'Ball Bearing',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'SKF Explorer Deep Groove Ball Bearings',
+            image: '/bearings/img1.jpg',
+            mrp: 1350,
+            discountPercentage: 10,
+            wholesalePrice: 1215,
+            specifications: 'Bore 40mm, OD 90mm, Width 23mm, High-RPM Low Friction',
+            inStock: true,
+          },
+        ],
+      },
+      {
+        name: 'SKF Angular Contact Ball Bearings (7000 Series)',
+        categoryName: 'Industrial Bearings',
+        image: '/bearings/img1.jpg',
+        description: 'High axial thrust matched pairs with 40° contact angles',
+        products: [
+          {
+            partNumber: '7322 2X',
+            name: 'SKF 7322 2X Angular Contact Ball Bearing (National & Imported European)',
+            brand: 'SKF',
+            section: 'Angular Contact',
+            categoryName: 'Industrial Bearings',
+            subcategoryName: 'SKF Angular Contact Ball Bearings (7000 Series)',
+            image: '/bearings/img1.jpg',
+            mrp: 24500,
+            discountPercentage: 10,
+            wholesalePrice: 22050,
+            specifications: 'Bore 110mm, OD 240mm, Width 50mm, 40° Contact Angle',
+            inStock: true,
+          },
+        ],
+      },
+    ],
+  },
+  'jk fenner': {
+    title: 'JK Fenner Power Transmission & Bush Pulley Price List',
+    fileName: 'JK-Fenner-Pulley-Price-List.pdf',
+    fileUrl: '/sample-catalog.pdf',
+    brand: 'JK Fenner',
+    discountPercentage: 46,
+    sections: [
+      {
+        name: 'Fenner Dynamic Taper Lock Bush Pulleys',
+        categoryName: 'Bush Pulleys & Taper Bushes',
+        image: '/bannerImages/img4.jpg',
+        description: 'Cast iron dynamically balanced pulleys for SPZ, SPA, SPB, and SPC belts',
+        products: [
+          {
+            partNumber: 'SPB 160-2',
+            name: 'Fenner 2-Groove SPB Dynamic Taper Bush Pulley',
+            brand: 'Fenner',
+            section: 'Taper Lock Bush Pulley',
+            categoryName: 'Bush Pulleys & Taper Bushes',
+            subcategoryName: 'Fenner Dynamic Taper Lock Bush Pulleys',
+            image: '/bannerImages/img4.jpg',
+            mrp: 1850,
+            discountPercentage: 46,
+            wholesalePrice: 999,
+            specifications: 'Cast Iron GG25, Dynamically Balanced up to 30m/s',
+            inStock: true,
+          },
+          {
+            partNumber: 'SPC 250-3',
+            name: 'Fenner 3-Groove SPC Heavy Transmission Pulley',
+            brand: 'Fenner',
+            section: 'Taper Lock Bush Pulley',
+            categoryName: 'Bush Pulleys & Taper Bushes',
+            subcategoryName: 'Fenner Dynamic Taper Lock Bush Pulleys',
+            image: '/bannerImages/img4.jpg',
+            mrp: 3450,
+            discountPercentage: 46,
+            wholesalePrice: 1863,
+            specifications: 'Heavy Industrial 3-Groove Pulley for 2517/3020 Bushes',
+            inStock: true,
+          },
+        ],
+      },
+      {
+        name: 'Fenner Precision Taper Lock Bushes',
+        categoryName: 'Bush Pulleys & Taper Bushes',
+        image: '/bannerImages/img4.jpg',
+        description: 'Finished metric bore taper bushes with keyways',
+        products: [
+          {
+            partNumber: '2517-45',
+            name: 'Fenner 2517 Precision Taper Lock Bush (45mm)',
+            brand: 'Fenner',
+            section: 'Taper Lock Bush',
+            categoryName: 'Bush Pulleys & Taper Bushes',
+            subcategoryName: 'Fenner Precision Taper Lock Bushes',
+            image: '/bannerImages/img4.jpg',
+            mrp: 850,
+            discountPercentage: 46,
+            wholesalePrice: 459,
+            specifications: 'Finished Metric Bore 45mm with Keyway',
+            inStock: true,
+          },
+        ],
+      },
+    ],
+  },
 };
 
 export const InteractivePdfSectionViewer = ({
@@ -280,54 +676,113 @@ export const InteractivePdfSectionViewer = ({
     const catNameLower = activeCategoryName.toLowerCase().trim();
     const catId = activeCategoryObj?._id || selectedCategory;
 
-    // A. USER CLICKED A SPECIFIC BRAND IN THE BLUE CARD (e.g. Timken, PIX, SKF, etc.)
+    // A. USER CLICKED A SPECIFIC BRAND IN THE BLUE CARD (e.g. NBC, Timken, PIX, SKF, Fenner, etc.)
     if (brandLower) {
-      // 1. Check serverCatalogs for matching brand
-      const matchingCatalog = serverCatalogs.find((c) => {
+      // 1. Helper function to test if a string contains the brand as an independent word/token
+      const brandTokenRegex = new RegExp(`(^|[^a-z0-9])${brandLower}([^a-z0-9]|$)`, 'i');
+
+      const isMatchingBrand = (str) => {
+        if (!str || typeof str !== 'string') return false;
+        const s = str.trim().toLowerCase();
+        if (s === brandLower) return true;
+        return brandTokenRegex.test(s);
+      };
+
+      // 2. First, check if Admin uploaded a catalog dedicated specifically to this brand
+      let dedicatedCatalogs = serverCatalogs.filter((c) => {
         if (!c.isActive) return false;
-        const cBrand = (c.brand || '').toLowerCase().trim();
-        const cTitle = (c.title || '').toLowerCase().trim();
-        const cFile = (c.fileName || '').toLowerCase().trim();
+        const cBrand = (c.brand || '').trim().toLowerCase();
+        const cTitle = (c.title || '').trim().toLowerCase();
+        const cFile = (c.fileName || '').trim().toLowerCase();
 
-        if (cBrand === brandLower || cBrand.includes(brandLower) || brandLower.includes(cBrand)) return true;
-        if (cTitle.includes(brandLower) || brandLower.includes(cTitle)) return true;
-        if (cFile.includes(brandLower)) return true;
-
-        if (c.categories && Array.isArray(c.categories)) {
-          for (const cat of c.categories) {
-            for (const sub of cat.subcategories || []) {
-              if (sub.products && sub.products.some((p) => (p.brand || '').toLowerCase() === brandLower)) {
-                return true;
-              }
-            }
-          }
-        }
+        if (cBrand && isMatchingBrand(cBrand)) return true;
+        if (cTitle && isMatchingBrand(cTitle)) return true;
+        if (cFile && isMatchingBrand(cFile)) return true;
         return false;
       });
 
-      if (matchingCatalog && matchingCatalog.categories?.length > 0) {
-        const extracted = [];
-        matchingCatalog.categories.forEach((cat) => {
-          (cat.subcategories || []).forEach((sub) => {
-            extracted.push({
-              name: sub.name,
-              categoryName: cat.name,
-              image: sub.image || SECTION_IMAGE_MAP[sub.name.toLowerCase()] || '/belts/PIX C 70 Classical V-Belt.jpg',
-              description: sub.description || '',
-              products: sub.products || [],
-            });
-          });
+      // 3. If no dedicated catalog, check if any active catalog contains products matching this brand
+      if (dedicatedCatalogs.length === 0) {
+        dedicatedCatalogs = serverCatalogs.filter((c) => {
+          if (!c.isActive || !Array.isArray(c.categories)) return false;
+          return c.categories.some((cat) =>
+            (cat.subcategories || []).some((sub) =>
+              (sub.products || []).some((p) => isMatchingBrand(p.brand) || isMatchingBrand(p.name))
+            )
+          );
         });
+      }
+
+      // 4. Extract ONLY the products and sections that strictly belong to this brand!
+      // (NEVER include Timken products when NBC is selected, and vice versa)
+      const matchingSections = [];
+      let primaryCatalog = dedicatedCatalogs[0] || null;
+
+      for (const cat of dedicatedCatalogs) {
+        for (const c of cat.categories || []) {
+          for (const sub of c.subcategories || []) {
+            const prods = (sub.products || []).filter(
+              (p) => isMatchingBrand(p.brand) || isMatchingBrand(p.name)
+            );
+            if (prods.length > 0) {
+              matchingSections.push({
+                name: sub.name,
+                categoryName: c.name,
+                image: sub.image || SECTION_IMAGE_MAP[sub.name.toLowerCase()] || (brandLower === 'nbc' ? '/bannerImages/nbcandTapper role.webp' : '/bearings/img10.jpg'),
+                description: sub.description || '',
+                products: prods, // Strictly filtered to this brand!
+              });
+            }
+          }
+        }
+      }
+
+      // If we found matching sections & products from Admin's uploaded catalogs:
+      if (matchingSections.length > 0) {
+        const brandDiscounts = settings?.brandDiscounts || {};
+        const configDiscount = brandDiscounts[selectedBrand] ?? (brandLower === 'skf' ? 10 : 46);
+        const effectiveDiscount = primaryCatalog?.discountPercentage ?? configDiscount;
+
+        const effectiveTitle = primaryCatalog?.title && isMatchingBrand(primaryCatalog.title)
+          ? primaryCatalog.title
+          : `${selectedBrand} Official Price List & Catalog`;
 
         return {
           hasUploadedPdf: true,
-          categorySections: extracted,
-          effectiveCatalog: matchingCatalog,
-          brandDiscount: matchingCatalog.discountPercentage ?? 46,
+          categorySections: matchingSections,
+          effectiveCatalog: {
+            ...primaryCatalog,
+            title: effectiveTitle,
+            brand: selectedBrand,
+            discountPercentage: effectiveDiscount,
+          },
+          brandDiscount: effectiveDiscount,
         };
       }
 
-      // If selected brand is PIX and no custom PIX uploaded, fallback to verified PIX master catalog
+      // 5. If no custom PDF uploaded yet for this brand, check verified standard catalog data
+      const standardCatalog = STANDARD_BRAND_CATALOGS[brandLower] ||
+        (brandLower.includes('fenner') ? STANDARD_BRAND_CATALOGS['jk fenner'] : null);
+
+      if (standardCatalog) {
+        const brandDiscounts = settings?.brandDiscounts || {};
+        const configDiscount = brandDiscounts[selectedBrand] ?? standardCatalog.discountPercentage;
+
+        return {
+          hasUploadedPdf: true,
+          categorySections: standardCatalog.sections,
+          effectiveCatalog: {
+            title: standardCatalog.title,
+            fileName: standardCatalog.fileName,
+            fileUrl: standardCatalog.fileUrl,
+            brand: selectedBrand,
+            discountPercentage: configDiscount,
+          },
+          brandDiscount: configDiscount,
+        };
+      }
+
+      // 6. Special fallback for PIX: PIX belts data if no custom PIX catalog uploaded
       if (brandLower === 'pix') {
         const extractedBelts = [];
         (pixBeltsData.categories || []).forEach((cat) => {
@@ -356,7 +811,9 @@ export const InteractivePdfSectionViewer = ({
         };
       }
 
-      // If no PDF found for this clicked brand, return false -> Renders "PDF Not Found"
+      // 7. If no catalog and no products found for this clicked brand (e.g. FAG, NTN, etc. if not yet uploaded):
+      // Return false -> Strictly renders clean "PDF Not Found" for this brand!
+      // Absolutely NO showing Timken or any other brand!
       return {
         hasUploadedPdf: false,
         categorySections: [],
@@ -368,7 +825,7 @@ export const InteractivePdfSectionViewer = ({
     // B. "All Brands (14 Makes)" / Category resolution
     const isAllCategories = !selectedCategory;
     const isBeltsCategory =
-      isAllCategories ||
+      !selectedCategory ||
       catNameLower.includes('belt') ||
       catNameLower.includes('v-belt') ||
       catNameLower.includes('power transmission');
@@ -443,13 +900,43 @@ export const InteractivePdfSectionViewer = ({
       };
     }
 
+    if (isBearingsCategory) {
+      return {
+        hasUploadedPdf: true,
+        categorySections: STANDARD_BRAND_CATALOGS.nbc.sections,
+        effectiveCatalog: {
+          title: 'Industrial Bearings Master Price List & Catalog',
+          fileName: 'Industrial-Bearings-Catalog.pdf',
+          fileUrl: '/sample-catalog.pdf',
+          brand: 'NBC & SKF',
+          discountPercentage: 46,
+        },
+        brandDiscount: 46,
+      };
+    }
+
+    if (isPulleysCategory) {
+      return {
+        hasUploadedPdf: true,
+        categorySections: STANDARD_BRAND_CATALOGS['jk fenner'].sections,
+        effectiveCatalog: {
+          title: 'Industrial Pulleys & Taper Bushes Price List',
+          fileName: 'Fenner-Pulleys-Catalog.pdf',
+          fileUrl: '/sample-catalog.pdf',
+          brand: 'Fenner',
+          discountPercentage: 46,
+        },
+        brandDiscount: 46,
+      };
+    }
+
     return {
       hasUploadedPdf: false,
       categorySections: [],
       effectiveCatalog: null,
       brandDiscount: null,
     };
-  }, [selectedBrand, selectedCategory, activeCategoryName, activeCategoryObj, serverCatalogs]);
+  }, [selectedBrand, selectedCategory, activeCategoryName, activeCategoryObj, serverCatalogs, settings?.brandDiscounts]);
 
   // Sync sections and catalog state
   useEffect(() => {
@@ -457,8 +944,10 @@ export const InteractivePdfSectionViewer = ({
     setSelectedCatalog(effectiveCatalog);
 
     if (categorySections.length > 0) {
-      const exists = categorySections.some((s) => s.name === activeSectionName);
-      if (!exists) {
+      const currentSec = categorySections.find((s) => s.name === activeSectionName);
+      const prodMatchesBrand = selectedProduct && (!selectedBrand || (selectedProduct.brand || '').toLowerCase() === selectedBrand.toLowerCase());
+
+      if (!currentSec || !prodMatchesBrand) {
         setActiveSectionName(categorySections[0].name);
         setSelectedProduct(categorySections[0].products?.[0] || null);
       }
@@ -466,7 +955,7 @@ export const InteractivePdfSectionViewer = ({
       setActiveSectionName('');
       setSelectedProduct(null);
     }
-  }, [categorySections, effectiveCatalog]);
+  }, [categorySections, effectiveCatalog, selectedBrand]);
 
   // Current active section
   const currentSection = useMemo(() => {
