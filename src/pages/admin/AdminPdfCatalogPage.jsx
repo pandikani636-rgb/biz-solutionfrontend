@@ -26,6 +26,7 @@ import { Button } from '../../components/common/Button';
 import { Spinner } from '../../components/common/Spinner';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { showSuccessAlert, showErrorAlert, showConfirmDialog, showToast } from '../../utils/alerts';
+import { extractPdfTextInBrowser } from '../../utils/pdfExtractor';
 
 const FALLBACK_IMAGE = 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png';
 
@@ -38,6 +39,7 @@ export const AdminPdfCatalogPage = () => {
   // Multi-PDF upload state
   const [pdfFiles, setPdfFiles] = useState([]);
   const [catalogTitle, setCatalogTitle] = useState('');
+  const [uploadProgressText, setUploadProgressText] = useState('');
   const [selectedUploadCategory, setSelectedUploadCategory] = useState('');
   const [availableCategories, setAvailableCategories] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -164,8 +166,64 @@ export const AdminPdfCatalogPage = () => {
 
     setUploading(true);
     setUploadError('');
+    setUploadProgressText('Preparing PDF files...');
+
+    const catObj = selectedUploadCategory
+      ? availableCategories.find((c) => c._id === selectedUploadCategory)
+      : null;
 
     try {
+      // Check if any selected file exceeds 3.5 MB (Vercel serverless has a strict 4.5 MB request body cap)
+      const hasLargeFiles = pdfFiles.some((f) => f.size > 3.5 * 1024 * 1024);
+
+      if (hasLargeFiles) {
+        // Extract text in the browser to turn multi-megabyte PDFs into lightweight JSON (<200KB)
+        const clientCatalogs = [];
+
+        for (let i = 0; i < pdfFiles.length; i++) {
+          const file = pdfFiles[i];
+          setUploadProgressText(`Reading PDF ${i + 1}/${pdfFiles.length}: ${file.name}...`);
+
+          const extracted = await extractPdfTextInBrowser(file, (percent) => {
+            setUploadProgressText(
+              `Reading PDF ${i + 1}/${pdfFiles.length} (${percent}%): ${file.name}`
+            );
+          });
+
+          clientCatalogs.push({
+            title: catalogTitle && pdfFiles.length === 1 ? catalogTitle : file.name.replace(/\.pdf$/i, ''),
+            fileName: file.name,
+            fileSize: file.size,
+            extractedText: extracted.text,
+            categoryId: catObj?._id || null,
+            categoryName: catObj?.name || '',
+          });
+        }
+
+        setUploadProgressText('Importing & Categorizing Products on Server...');
+
+        const res = await api.post('/pdf-catalog/upload', {
+          catalogs: clientCatalogs,
+          title: catalogTitle && pdfFiles.length === 1 ? catalogTitle : undefined,
+          categoryId: catObj?._id,
+          categoryName: catObj?.name,
+        });
+
+        if (res.data?.success) {
+          await showSuccessAlert(
+            'PDF Catalogs Uploaded & Extracted!',
+            res.data.message || 'All uploaded PDF documents have been categorized with internet product images and are now live on the Products page.'
+          );
+          setPdfFiles([]);
+          setCatalogTitle('');
+          setSelectedUploadCategory('');
+          setSelectedCatalogFilter('ALL');
+          fetchCatalogs('ALL');
+        }
+        return;
+      }
+
+      // For smaller files (<= 3.5 MB), upload via FormData
       const formData = new FormData();
       pdfFiles.forEach((file) => {
         formData.append('pdfs', file);
@@ -175,13 +233,12 @@ export const AdminPdfCatalogPage = () => {
         formData.append('title', catalogTitle);
       }
 
-      if (selectedUploadCategory) {
-        const catObj = availableCategories.find((c) => c._id === selectedUploadCategory);
-        if (catObj) {
-          formData.append('categoryId', catObj._id);
-          formData.append('categoryName', catObj.name);
-        }
+      if (catObj) {
+        formData.append('categoryId', catObj._id);
+        formData.append('categoryName', catObj.name);
       }
+
+      setUploadProgressText('Uploading & Processing on Server...');
 
       const res = await api.post('/pdf-catalog/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -199,11 +256,64 @@ export const AdminPdfCatalogPage = () => {
         fetchCatalogs('ALL');
       }
     } catch (err) {
+      // If standard upload failed with Network Error (e.g. Vercel 413 dropped connection), auto-fallback to client extraction
+      const isNetworkError = !err.response || err.message === 'Network Error' || err.code === 'ERR_NETWORK';
+
+      if (isNetworkError) {
+        try {
+          setUploadProgressText('Retrying with browser-side text extraction...');
+          const clientCatalogs = [];
+
+          for (let i = 0; i < pdfFiles.length; i++) {
+            const file = pdfFiles[i];
+            const extracted = await extractPdfTextInBrowser(file, (percent) => {
+              setUploadProgressText(`Reading PDF ${i + 1}/${pdfFiles.length} (${percent}%)...`);
+            });
+
+            clientCatalogs.push({
+              title: catalogTitle && pdfFiles.length === 1 ? catalogTitle : file.name.replace(/\.pdf$/i, ''),
+              fileName: file.name,
+              fileSize: file.size,
+              extractedText: extracted.text,
+              categoryId: catObj?._id || null,
+              categoryName: catObj?.name || '',
+            });
+          }
+
+          setUploadProgressText('Importing products to database...');
+          const retryRes = await api.post('/pdf-catalog/upload', {
+            catalogs: clientCatalogs,
+            title: catalogTitle && pdfFiles.length === 1 ? catalogTitle : undefined,
+            categoryId: catObj?._id,
+            categoryName: catObj?.name,
+          });
+
+          if (retryRes.data?.success) {
+            await showSuccessAlert(
+              'PDF Catalogs Uploaded & Extracted!',
+              retryRes.data.message || 'All uploaded PDF documents have been categorized with internet product images and are now live on the Products page.'
+            );
+            setPdfFiles([]);
+            setCatalogTitle('');
+            setSelectedUploadCategory('');
+            setSelectedCatalogFilter('ALL');
+            fetchCatalogs('ALL');
+            return;
+          }
+        } catch (retryErr) {
+          const msg = retryErr.response?.data?.message || retryErr.message || 'PDF extraction failed';
+          setUploadError(msg);
+          showErrorAlert('Upload Error', msg);
+          return;
+        }
+      }
+
       const msg = err.response?.data?.message || err.message || 'PDF extraction failed';
       setUploadError(msg);
       showErrorAlert('Upload Error', msg);
     } finally {
       setUploading(false);
+      setUploadProgressText('');
     }
   };
 
@@ -429,6 +539,13 @@ export const AdminPdfCatalogPage = () => {
             </div>
           )}
 
+          {uploading && uploadProgressText && (
+            <div className="p-3 bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold rounded-xl flex items-center gap-2 animate-fadeIn shadow-2xs">
+              <Spinner size="sm" />
+              <span>{uploadProgressText}</span>
+            </div>
+          )}
+
           {uploadError && (
             <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -438,7 +555,7 @@ export const AdminPdfCatalogPage = () => {
 
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-2">
             <p className="text-[11px] text-slate-400">
-              * Multiple PDFs will be processed, organized into categories, and combined into the live catalog simultaneously.
+              * Large PDFs are parsed securely in the browser to ensure instantaneous upload without payload limits.
             </p>
             <Button
               type="submit"
@@ -451,7 +568,7 @@ export const AdminPdfCatalogPage = () => {
               <UploadCloud className="w-4 h-4" />
               <span>
                 {uploading
-                  ? `Extracting ${pdfFiles.length} PDF Catalog${pdfFiles.length > 1 ? 's' : ''}...`
+                  ? (uploadProgressText || `Extracting ${pdfFiles.length} PDF Catalog${pdfFiles.length > 1 ? 's' : ''}...`)
                   : `Extract & Upload ${pdfFiles.length > 0 ? `${pdfFiles.length} PDF${pdfFiles.length > 1 ? 's' : ''}` : 'PDFs'}`}
               </span>
             </Button>

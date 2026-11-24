@@ -18,6 +18,7 @@ import {
   Ticket,
   HardHat,
   TrainFront,
+  LogIn,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useSite } from '../../context/SiteContext';
@@ -68,16 +69,11 @@ export const Navbar = () => {
   };
 
   const navLinkClass = ({ isActive }) =>
-    `px-1.5 lg:px-2 xl:px-2.5 2xl:px-3.5 py-1.5 lg:py-2 rounded-xl text-xs xl:text-sm 2xl:text-[15px] font-black tracking-tight transition-all inline-flex items-center gap-1 xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0 ${
+    `px-1.5 lg:px-2 xl:px-2.5 2xl:px-3 py-1.5 lg:py-1.5 xl:py-2 rounded-xl text-xs xl:text-[13px] 2xl:text-sm font-bold tracking-tight transition-all inline-flex items-center gap-1 xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0 ${
       isActive
         ? 'text-primary bg-blue-50/90 font-black shadow-xs ring-1 ring-primary/20'
-        : 'text-slate-900 hover:text-primary hover:bg-slate-100/90'
+        : 'text-slate-800 hover:text-primary hover:bg-slate-100/90'
     }`;
-
-  // Keep navbar completely hidden until the preloader finishes
-  if (showPreloader) {
-    return null;
-  }
 
   return (
     <>
@@ -113,24 +109,39 @@ export const Navbar = () => {
             </a>
           </div>
 
-          {/* Right Info: GSTIN, Admin */}
-          <div className="flex items-center gap-3 lg:gap-4 flex-nowrap whitespace-nowrap shrink-0">
+          {/* Right Info: GSTIN, Admin / Portal */}
+          <div className="flex items-center gap-2.5 lg:gap-4 flex-nowrap whitespace-nowrap shrink-0">
             <span className="text-white font-black text-xs lg:text-sm whitespace-nowrap drop-shadow-sm">
               GSTIN: <span className="font-mono font-black text-amber-300 tracking-wider">33HONPK5547G2ZK</span>
             </span>
 
             <span className="text-blue-300 font-normal">|</span>
 
-            {isAdmin && (
-              <>
-                <Link
-                  to="/admin"
-                  className="text-amber-300 hover:text-yellow-200 font-black text-xs sm:text-sm inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
-                >
-                  <ShieldAlert className="w-4 h-4 shrink-0" />
-                  <span>Admin Console</span>
-                </Link>
-              </>
+            {isAdmin ? (
+              <Link
+                to="/admin"
+                className="text-amber-300 hover:text-yellow-200 font-black text-xs sm:text-sm inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
+              >
+                <ShieldAlert className="w-4 h-4 shrink-0" />
+                <span>Admin Console</span>
+              </Link>
+            ) : isAuthenticated ? (
+              <Link
+                to="/customer"
+                className="text-amber-300 hover:text-yellow-200 font-black text-xs sm:text-sm inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
+                <span>Customer Portal</span>
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="text-amber-300 hover:text-yellow-200 font-black text-xs sm:text-sm inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
+                title="Client Portal Login"
+              >
+                <LogIn className="w-3.5 h-3.5 shrink-0" />
+                <span>Client Login</span>
+              </Link>
             )}
           </div>
         </div>
@@ -147,11 +158,11 @@ export const Navbar = () => {
         }`}
       >
         {/* Main Navigation Bar - Balanced layout fitting all viewports including laptop screens */}
-        <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-4 lg:px-5 xl:px-6 2xl:px-8 h-16 lg:h-[70px] xl:h-20 flex items-center justify-between flex-nowrap whitespace-nowrap gap-2 lg:gap-2 xl:gap-3 relative">
-          {/* Brand Lockup: BM Logo (Proportionate on Mobile & Desktop) + Balumuni and Associates */}
+        <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-4 lg:px-4 xl:px-6 2xl:px-8 h-16 lg:h-[70px] xl:h-20 flex items-center justify-between gap-2 lg:gap-3 xl:gap-4 relative">
+          {/* Brand Lockup: BM Logo + Balumuni and Associates (Responsive, never overflows) */}
           <Link
             to="/"
-            className="flex items-center gap-1.5 sm:gap-2 group shrink-0 flex-nowrap whitespace-nowrap"
+            className="flex items-center gap-1.5 sm:gap-2 group shrink-0 min-w-0"
           >
             <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-xl bg-white border border-slate-200/90 p-0.5 sm:p-1 flex items-center justify-center shadow-xs group-hover:border-primary/40 group-hover:shadow-md transition-all shrink-0">
               <img
@@ -163,8 +174,9 @@ export const Navbar = () => {
                 }}
               />
             </div>
-            <span className="font-cinzel text-blue-700 hover:text-blue-800 text-sm sm:text-base md:text-lg lg:text-[17px] xl:text-xl 2xl:text-2xl font-black tracking-wide leading-tight whitespace-nowrap shrink-0 transition-colors flex items-center select-none drop-shadow-xs">
-              {settings?.siteName || 'Balumuni and Associates'}
+            <span className="font-cinzel text-blue-700 hover:text-blue-800 text-sm sm:text-base md:text-lg lg:text-[15px] xl:text-lg 2xl:text-xl font-black tracking-wide leading-tight transition-colors flex items-center select-none drop-shadow-xs truncate">
+              <span className="truncate">Balumuni</span>
+              <span className="hidden sm:inline whitespace-nowrap ml-1 font-black">&amp; Associates</span>
             </span>
           </Link>
 
@@ -175,12 +187,7 @@ export const Navbar = () => {
               <span>{t('nav_home') || 'Home'}</span>
             </NavLink>
 
-            {/* 2. About Us */}
-            <NavLink to="/about" className={navLinkClass}>
-              <span>{t('nav_about') || 'About Us'}</span>
-            </NavLink>
-
-            {/* 3. Products Catalog with Clickable & Hoverable Dropdown */}
+            {/* 2. Products Catalog with Clickable & Hoverable Dropdown */}
             <div
               ref={categoryDropdownRef}
               className="relative shrink-0 whitespace-nowrap"
@@ -194,10 +201,10 @@ export const Navbar = () => {
                   e.stopPropagation();
                   setIsCategoryDropdownOpen((prev) => !prev);
                 }}
-                className={`px-1.5 lg:px-2 xl:px-2.5 2xl:px-3.5 py-1.5 lg:py-2 rounded-xl text-xs xl:text-sm 2xl:text-[15px] font-black tracking-tight transition-all inline-flex items-center gap-1 xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0 cursor-pointer ${
+                className={`px-1.5 lg:px-2 xl:px-2.5 2xl:px-3 py-1.5 lg:py-1.5 xl:py-2 rounded-xl text-xs xl:text-[13px] 2xl:text-sm font-bold tracking-tight transition-all inline-flex items-center gap-1 xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0 cursor-pointer ${
                   isCategoryDropdownOpen
                     ? 'bg-blue-50/90 text-primary font-black shadow-xs ring-1 ring-primary/20'
-                    : 'text-slate-900 hover:text-primary hover:bg-slate-100/90'
+                    : 'text-slate-800 hover:text-primary hover:bg-slate-100/90'
                 }`}
                 aria-expanded={isCategoryDropdownOpen}
                 aria-haspopup="true"
@@ -279,24 +286,30 @@ export const Navbar = () => {
               )}
             </div>
 
-            {/* 4. Travel Booking Desk (Train & Flight) */}
+            {/* 3. Travel Booking Desk (Train & Flight) */}
             <NavLink to="/ticket-booking" className={navLinkClass}>
               <TrainFront className="h-3.5 w-3.5 text-emerald-600 hidden 2xl:inline-block shrink-0" />
               <span className="hidden xl:inline">Travel Desk</span>
               <span className="xl:hidden">Travel</span>
             </NavLink>
 
-            {/* 5. Labour Insurance Section */}
+            {/* 4. Labour Insurance Section */}
             <NavLink to="/labour-insurance" className={navLinkClass}>
               <HardHat className="h-3.5 w-3.5 text-amber-500 hidden 2xl:inline-block shrink-0" />
               <span className="hidden xl:inline">Labour Insurance</span>
               <span className="xl:hidden">Insurance</span>
             </NavLink>
 
-            {/* 6. MRP Discounts */}
+            {/* 5. MRP Discounts */}
             <NavLink to="/mrp-pricing" className={navLinkClass}>
               <span className="hidden xl:inline">{t('nav_mrp_discounts') || 'MRP Discounts'}</span>
               <span className="xl:hidden">Discounts</span>
+            </NavLink>
+
+            {/* 6. About Us */}
+            <NavLink to="/about" className={navLinkClass}>
+              <span className="hidden xl:inline">{t('nav_about') || 'About Us'}</span>
+              <span className="xl:hidden">About</span>
             </NavLink>
 
             {/* 7. Contact */}
@@ -415,7 +428,7 @@ export const Navbar = () => {
                 <Link to="/login" className="shrink-0 whitespace-nowrap">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-xs transition-all cursor-pointer hover:shadow-md active:scale-95"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 xl:px-4 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer select-none"
                     title="Sign In to Account"
                   >
                     <User className="w-3.5 h-3.5 text-slate-950 shrink-0" />
@@ -425,7 +438,7 @@ export const Navbar = () => {
                 <Link to="/register" className="shrink-0 whitespace-nowrap inline-flex">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-xs transition-all cursor-pointer hover:shadow-md active:scale-95"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer select-none"
                   >
                     <span>{t('nav_signup') || t('nav_register') || 'Sign Up'}</span>
                   </button>
@@ -434,8 +447,8 @@ export const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile & Tablet Actions: Prominent Login & Sign Up / Avatar + Hamburger Toggle */}
-          <div className="flex lg:hidden items-center gap-2 shrink-0">
+          {/* Mobile & Tablet Actions: Prominent Login Button ALWAYS visible + Hamburger Toggle */}
+          <div className="flex lg:hidden items-center gap-1.5 sm:gap-2 shrink-0">
             {isAuthenticated ? (
               <Link
                 to="/customer"
@@ -457,16 +470,17 @@ export const Navbar = () => {
                 <Link to="/login" className="shrink-0 whitespace-nowrap">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-xs cursor-pointer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-xs cursor-pointer active:scale-95 transition-all"
+                    title="Sign In"
                   >
-                    <User className="w-3 h-3 text-slate-950 shrink-0" />
+                    <User className="w-3.5 h-3.5 text-slate-950 shrink-0" />
                     <span>Login</span>
                   </button>
                 </Link>
-                <Link to="/register" className="shrink-0 whitespace-nowrap">
+                <Link to="/register" className="hidden sm:inline-flex shrink-0 whitespace-nowrap">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-xs cursor-pointer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-xs cursor-pointer active:scale-95 transition-all"
                   >
                     <span>Sign Up</span>
                   </button>
@@ -672,13 +686,14 @@ export const Navbar = () => {
             ) : (
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 border-amber-400">
-                    {t('nav_login') || 'Login'}
+                  <Button variant="outline" className="w-full text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border-amber-500 shadow-xs flex items-center justify-center gap-1.5 py-2.5">
+                    <User className="w-3.5 h-3.5" />
+                    <span>{t('nav_login') || 'Login'}</span>
                   </Button>
                 </Link>
                 <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button variant="primary" className="w-full text-xs font-bold bg-primary hover:bg-primary-dark">
-                    {t('nav_signup') || t('nav_register') || 'Sign Up'}
+                  <Button variant="primary" className="w-full text-xs font-black bg-primary hover:bg-primary-dark shadow-xs flex items-center justify-center gap-1.5 py-2.5">
+                    <span>{t('nav_signup') || t('nav_register') || 'Sign Up'}</span>
                   </Button>
                 </Link>
               </div>
