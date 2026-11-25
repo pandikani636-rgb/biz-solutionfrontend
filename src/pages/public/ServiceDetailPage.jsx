@@ -477,10 +477,10 @@ export const ServiceDetailPage = () => {
               discountPrice: mrp,
               mainImage:
                 found.image ||
-                '/belts/PIX C 70 Classical V-Belt.jpg',
+                getProductImageUrl(found),
               images: [
                 found.image ||
-                  '/belts/PIX C 70 Classical V-Belt.jpg',
+                  getProductImageUrl(found),
               ],
               shortDescription: found.description || `${found.brand} ${found.name} (${found.partNumber})`,
               fullDescription:

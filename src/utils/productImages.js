@@ -11,8 +11,8 @@ export const INDUSTRIAL_IMAGE_CATALOG = {
   pillowBlock: '/bearings/img10.jpg',
   
   // Belts
-  vBelt: '/belts/PIX C 70 Classical V-Belt.jpg',
-  heavyDutyBelt: '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
+  vBelt: '/belts/pix-section-c.jpg',
+  heavyDutyBelt: '/belts/pix-section-d.jpg',
   wedgeBelt: '/belts/PIX SPC 2360 Wedge Belt.jpg',
   timingBelt: '/belts/PIX SPC PT 3150 Power Transmission.jpg',
   
@@ -21,12 +21,21 @@ export const INDUSTRIAL_IMAGE_CATALOG = {
   taperBush: '/banners/img4.jpg',
   grease: '/bearings/img10.jpg',
   diagnostics: '/banners/img4.jpg',
-  defaultIndustrial: '/belts/PIX C 70 Classical V-Belt.jpg',
+  defaultIndustrial: '/belts/pix-section-c.jpg',
 };
 
 // Direct, authentic product photo mappings from the Belts and Bearings folders
 export const PRODUCT_SPECIFIC_IMAGES = {
   // ---------------- Belts Folder ----------------
+  'pix-section-c': '/belts/pix-section-c.jpg',
+  'pix-section-d': '/belts/pix-section-d.jpg',
+  'pix-section-b': '/belts/pix-section-b.jpg',
+  'pix-section-a': '/belts/pix-section-a.jpg',
+  'pix-section-e': '/belts/pix-section-e.jpg',
+  'pix d 100': '/belts/pix-section-d.jpg',
+  'pix c 70': '/belts/pix-section-c.jpg',
+  'pix b 50': '/belts/pix-section-b.jpg',
+  'pix a 50': '/belts/pix-section-a.jpg',
   'pix spc 2360': '/belts/PIX SPC 2360 Wedge Belt.jpg',
   'spc 2360': '/belts/PIX SPC 2360 Wedge Belt.jpg',
   '8v-1900': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
@@ -35,7 +44,6 @@ export const PRODUCT_SPECIFIC_IMAGES = {
   'pix 8v 1900': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
   'pix spc pt 3150': '/belts/PIX SPC PT 3150 Power Transmission.jpg',
   'spc pt 3150': '/belts/PIX SPC PT 3150 Power Transmission.jpg',
-  'pix c 70': '/belts/PIX C 70 Classical V-Belt.jpg',
   'fenner c 70': '/belts/Fenner C 70 Classical V-Belt.jpg',
   'fenner spc pt 3150': '/belts/Fenner SPC PT 3150 Power Transmissio.jpg',
 
@@ -160,23 +168,28 @@ export const getProductImageUrl = (productOrImage, optionalCategory = '') => {
   }
 
   // 3. Section & Part Code Pattern Matching for Transmission Belts
-  // 3a. Heavy Duty Belts: Section E (e.g. E 418), Section D, 8V, 5V, 3V, Giant Drive
+  // 3a. Section D (32 x 19 mm) Heavy Duty wrapped V-belt
+  if (/^d(\s*[-_/\s]?\d+|\b)/i.test(pNorm) || combined.includes('section d') || combined.includes('32 x 19')) {
+    return '/belts/pix-section-d.jpg';
+  }
+
+  // 3b. Section E (38 x 23 mm) Heavy Crusher Drive
+  if (/^e(\s*[-_/\s]?\d+|\b)/i.test(pNorm) || combined.includes('section e') || combined.includes('38 x 23')) {
+    return '/belts/pix-section-e.jpg';
+  }
+
+  // 3c. Narrow Heavy Duty Cogged Belts: 8V, 5V, 3V
   if (
-    /^(e|d|8v|5v|3v)(\s*[-_/\s]?\d+|\b)/i.test(pNorm) ||
-    combined.includes('e section') ||
-    combined.includes('d section') ||
-    combined.includes('section e') ||
-    combined.includes('section d') ||
-    combined.includes('giant drive') ||
-    combined.includes('heavy duty') ||
+    /^(8v|5v|3v)(\s*[-_/\s]?\d+|\b)/i.test(pNorm) ||
     combined.includes('8v') ||
     combined.includes('5v') ||
-    combined.includes('3v')
+    combined.includes('3v') ||
+    combined.includes('giant drive')
   ) {
     return '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg';
   }
 
-  // 3b. Metric Wedge Belts: SPZ, SPA, SPB, SPC
+  // 3d. Metric Wedge Belts: SPZ, SPA, SPB, SPC
   if (
     /^(spz|spa|spb|spc)(\s*[-_/\s]?\d+|\b)/i.test(pNorm) ||
     combined.includes('wedge') ||
@@ -188,7 +201,7 @@ export const getProductImageUrl = (productOrImage, optionalCategory = '') => {
     return '/belts/PIX SPC 2360 Wedge Belt.jpg';
   }
 
-  // 3c. Hexagonal / Double-V / Cogged / Ribbed / PT: AA, BB, CC, AX, BX, CX, XPZ, XPA, XPB, XPC, PJ, PK, PL, PM
+  // 3e. Hexagonal / Double-V / Cogged / Ribbed / PT: AA, BB, CC, AX, BX, CX, XPZ, XPA, XPB, XPC, PJ, PK, PL, PM
   if (
     /^(aa|bb|cc|ax|bx|cx|xpz|xpa|xpb|xpc|pj|pk|pl|pm)(\s*[-_/\s]?\d+|\b)/i.test(pNorm) ||
     combined.includes('hexagonal') ||
@@ -202,21 +215,34 @@ export const getProductImageUrl = (productOrImage, optionalCategory = '') => {
     return '/belts/PIX SPC PT 3150 Power Transmission.jpg';
   }
 
-  // 3d. Classical V-Belts: Section A, Section B, Section C, FHP
+  // 3f. Classical V-Belts: Section C
+  if (/^c(\s*[-_/\s]?\d+|\b)/i.test(pNorm) || combined.includes('section c') || combined.includes('22 x 14')) {
+    if (bNorm.includes('fenner')) {
+      return '/belts/Fenner C 70 Classical V-Belt.jpg';
+    }
+    return '/belts/pix-section-c.jpg';
+  }
+
+  // 3g. Classical V-Belts: Section B
+  if (/^b(\s*[-_/\s]?\d+|\b)/i.test(pNorm) || combined.includes('section b') || combined.includes('17 x 11')) {
+    return '/belts/pix-section-b.jpg';
+  }
+
+  // 3h. Classical V-Belts: Section A, FHP
+  if (/^(a|fhp)(\s*[-_/\s]?\d+|\b)/i.test(pNorm) || combined.includes('section a') || combined.includes('13 x 8')) {
+    return '/belts/pix-section-a.jpg';
+  }
+
   if (
-    /^(a|b|c|fhp)(\s*[-_/\s]?\d+|\b)/i.test(pNorm) ||
     combined.includes('classical') ||
     combined.includes('wrap belt') ||
     combined.includes('v-belt') ||
-    combined.includes('v belt') ||
-    combined.includes('c section') ||
-    combined.includes('b section') ||
-    combined.includes('a section')
+    combined.includes('v belt')
   ) {
     if (bNorm.includes('fenner')) {
       return '/belts/Fenner C 70 Classical V-Belt.jpg';
     }
-    return '/belts/PIX C 70 Classical V-Belt.jpg';
+    return '/belts/pix-section-c.jpg';
   }
 
   // 4. Bearings by brand & series

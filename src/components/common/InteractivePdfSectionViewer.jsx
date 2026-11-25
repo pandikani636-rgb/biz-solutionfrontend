@@ -36,24 +36,95 @@ import { contentService } from '../../services/contentService';
 import pixBeltsData from '../../data/pixBeltsCatalogData.json';
 
 // Authentic technical profile image map for every section in the PDF
+export const getSectionImage = (sectionName = '') => {
+  const norm = (sectionName || '').toLowerCase().trim();
+  if (!norm) return '/belts/pix-section-c.jpg';
+
+  // Section D (32 x 19 mm) Heavy Duty wrapped V-belt
+  if (norm.includes('section d') || norm.includes('32 x 19') || norm === 'd') {
+    return '/belts/pix-section-d.jpg';
+  }
+  // Section E (38 x 23 mm) Heavy Crusher Drive
+  if (norm.includes('section e') || norm.includes('38 x 23') || norm === 'e') {
+    return '/belts/pix-section-e.jpg';
+  }
+  // Section C (22 x 14 mm) & Section CC Classical wrapped V-belt
+  if (norm.includes('section cc') || norm.includes('22 x 17') || norm.includes('cx')) {
+    return '/belts/pix-section-c.jpg';
+  }
+  if (norm.includes('section c') || norm.includes('22 x 14') || norm === 'c') {
+    return '/belts/pix-section-c.jpg';
+  }
+  // Section B (17 x 11 mm) & Section BB
+  if (norm.includes('section bb') || norm.includes('17 x 14') || norm.includes('bx')) {
+    return '/belts/pix-section-b.jpg';
+  }
+  if (norm.includes('section b') || norm.includes('17 x 11') || norm === 'b') {
+    return '/belts/pix-section-b.jpg';
+  }
+  // Section A (13 x 8 mm), Section AA, FHP
+  if (norm.includes('section aa') || norm.includes('13 x 10') || norm.includes('ax')) {
+    return '/belts/pix-section-a.jpg';
+  }
+  if (norm.includes('section a') || norm.includes('13 x 8') || norm.includes('fhp') || norm === 'a') {
+    return '/belts/pix-section-a.jpg';
+  }
+  // 3V, 5V, 8V Narrow Heavy Duty Cogged Belts
+  if (norm.includes('3v') || norm.includes('5v') || norm.includes('8v')) {
+    return '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg';
+  }
+  // Wedge Belts
+  if (norm.includes('spz') || norm.includes('spa') || norm.includes('spb')) {
+    return '/belts/PIX SPC 2360 Wedge Belt.jpg';
+  }
+  if (norm.includes('spc') || norm.includes('xpz') || norm.includes('xpa') || norm.includes('xpb') || norm.includes('xpc')) {
+    return '/belts/PIX SPC PT 3150 Power Transmission.jpg';
+  }
+  // Industrial Bearings
+  if (norm.includes('deep groove') || norm.includes('ball bearing')) {
+    return '/bearings/img10.jpg';
+  }
+  if (norm.includes('taper') || norm.includes('roller')) {
+    return '/bannerImages/nbcandTapper role.webp';
+  }
+  if (norm.includes('spherical')) {
+    return '/bearings/img3.jpg';
+  }
+  if (norm.includes('angular')) {
+    return '/bearings/img1.jpg';
+  }
+  // Machinery & Drives
+  if (norm.includes('pulley') || norm.includes('bush')) {
+    return '/bannerImages/img4.jpg';
+  }
+  if (norm.includes('motor')) {
+    return '/bannerImages/siemens.jpg';
+  }
+  if (norm.includes('gear')) {
+    return '/bannerImages/santhiGears.jpg';
+  }
+
+  return SECTION_IMAGE_MAP[norm] || '/belts/pix-section-c.jpg';
+};
+
 const SECTION_IMAGE_MAP = {
-  'section a': '/belts/pix-c-70.jpg',
-  'section a (13 x 8 mm)': '/belts/pix-c-70.jpg',
-  'section b': '/belts/PIX C 70 Classical V-Belt.jpg',
-  'section b (17 x 11 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
-  'section c': '/belts/PIX C 70 Classical V-Belt.jpg',
-  'section c (22 x 14 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
-  'section d': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
-  'section d (32 x 19 mm)': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
-  'section e': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
-  'section e (38 x 23 mm)': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
-  'fractional horsepower (fhp series)': '/belts/pix-c-70.jpg',
-  'section aa': '/belts/PIX C 70 Classical V-Belt.jpg',
-  'section aa (13 x 10 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
-  'section bb': '/belts/PIX C 70 Classical V-Belt.jpg',
-  'section bb (17 x 14 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
-  'section cc': '/belts/PIX C 70 Classical V-Belt.jpg',
-  'section cc (22 x 17 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'section a': '/belts/pix-section-a.jpg',
+  'section a (13 x 8 mm)': '/belts/pix-section-a.jpg',
+  'section b': '/belts/pix-section-b.jpg',
+  'section b (17 x 11 mm)': '/belts/pix-section-b.jpg',
+  'section c': '/belts/pix-section-c.jpg',
+  'section c (22 x 14 mm)': '/belts/pix-section-c.jpg',
+  'section d': '/belts/pix-section-d.jpg',
+  'section d (32 x 19 mm)': '/belts/pix-section-d.jpg',
+  'section e': '/belts/pix-section-e.jpg',
+  'section e (38 x 23 mm)': '/belts/pix-section-e.jpg',
+  'fractional horsepower (fhp series)': '/belts/pix-section-a.jpg',
+  'section aa': '/belts/pix-section-a.jpg',
+  'section aa (13 x 10 mm)': '/belts/pix-section-a.jpg',
+  'section bb': '/belts/pix-section-b.jpg',
+  'section bb (17 x 14 mm)': '/belts/pix-section-b.jpg',
+  'section cc': '/belts/pix-section-c.jpg',
+  'section cc (22 x 17 mm)': '/belts/pix-section-c.jpg',
   'spz wedge profile (10 x 8 mm)': '/belts/PIX SPC 2360 Wedge Belt.jpg',
   'spa wedge profile (13 x 10 mm)': '/belts/PIX SPC 2360 Wedge Belt.jpg',
   'spb wedge profile (17 x 14 mm)': '/belts/PIX SPC 2360 Wedge Belt.jpg',
@@ -63,9 +134,9 @@ const SECTION_IMAGE_MAP = {
   '8v section': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
   '8v section (25.4 x 23 mm)': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
   '8v section (25.4 x 23 mm, mfg. range: 86.5" to 933.5")': '/belts/PIX 8V-1900 Heavy Duty V-Belt.jpg',
-  'ax cogged section (13 x 8 mm)': '/belts/pix-c-70.jpg',
-  'bx cogged section (17 x 11 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
-  'cx cogged section (22 x 14 mm)': '/belts/PIX C 70 Classical V-Belt.jpg',
+  'ax cogged section (13 x 8 mm)': '/belts/pix-section-a.jpg',
+  'bx cogged section (17 x 11 mm)': '/belts/pix-section-b.jpg',
+  'cx cogged section (22 x 14 mm)': '/belts/pix-section-c.jpg',
   'xpz / xpa / xpb / xpc cogged wedge': '/belts/PIX SPC PT 3150 Power Transmission.jpg',
   'deep groove ball bearings': '/bearings/img10.jpg',
   'taper roller bearings': '/bannerImages/nbcandTapper role.webp',
@@ -728,7 +799,7 @@ export const InteractivePdfSectionViewer = ({
               matchingSections.push({
                 name: sub.name,
                 categoryName: c.name,
-                image: sub.image || SECTION_IMAGE_MAP[sub.name.toLowerCase()] || (brandLower === 'nbc' ? '/bannerImages/nbcandTapper role.webp' : '/bearings/img10.jpg'),
+                image: getSectionImage(sub.name) || sub.image || (brandLower === 'nbc' ? '/bannerImages/nbcandTapper role.webp' : '/bearings/img10.jpg'),
                 description: sub.description || '',
                 products: prods, // Strictly filtered to this brand!
               });
@@ -790,7 +861,7 @@ export const InteractivePdfSectionViewer = ({
             extractedBelts.push({
               name: sub.name,
               categoryName: cat.name,
-              image: sub.image || SECTION_IMAGE_MAP[sub.name.toLowerCase()] || '/belts/PIX C 70 Classical V-Belt.jpg',
+              image: getSectionImage(sub.name) || sub.image || '/belts/pix-section-c.jpg',
               description: sub.description || '',
               products: sub.products || [],
             });
@@ -856,7 +927,7 @@ export const InteractivePdfSectionViewer = ({
           extracted.push({
             name: sub.name,
             categoryName: cat.name,
-            image: sub.image || SECTION_IMAGE_MAP[sub.name.toLowerCase()] || '/belts/PIX C 70 Classical V-Belt.jpg',
+            image: getSectionImage(sub.name) || sub.image || '/belts/pix-section-c.jpg',
             description: sub.description || '',
             products: sub.products || [],
           });
@@ -879,7 +950,7 @@ export const InteractivePdfSectionViewer = ({
           extractedBelts.push({
             name: sub.name,
             categoryName: cat.name,
-            image: sub.image || SECTION_IMAGE_MAP[sub.name.toLowerCase()] || '/belts/PIX C 70 Classical V-Belt.jpg',
+            image: getSectionImage(sub.name) || sub.image || '/belts/pix-section-c.jpg',
             description: sub.description || '',
             products: sub.products || [],
           });
@@ -1173,16 +1244,8 @@ export const InteractivePdfSectionViewer = ({
 
   // Section profile image
   const allocatedImage = useMemo(() => {
-    if (!currentSection) return '/belts/PIX C 70 Classical V-Belt.jpg';
-    const key = currentSection.name.toLowerCase();
-
-    for (const [k, img] of Object.entries(SECTION_IMAGE_MAP)) {
-      if (key.includes(k) || k.includes(key)) {
-        return img;
-      }
-    }
-
-    return currentSection.image || '/belts/PIX C 70 Classical V-Belt.jpg';
+    if (!currentSection) return '/belts/pix-section-c.jpg';
+    return getSectionImage(currentSection.name) || currentSection.image || '/belts/pix-section-c.jpg';
   }, [currentSection]);
 
   // Place Order Submit
@@ -1447,7 +1510,7 @@ export const InteractivePdfSectionViewer = ({
               className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = '/belts/PIX C 70 Classical V-Belt.jpg';
+                e.target.src = getSectionImage(currentSection?.name);
               }}
             />
             <span className="absolute bottom-2.5 left-2.5 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">
