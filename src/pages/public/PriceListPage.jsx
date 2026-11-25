@@ -23,8 +23,8 @@ const discountMatrix = [
     brand: 'PIX Transmissions Ltd',
     code: 'PIX',
     section: 'Industrial Belts (SPC, 8V, Classical C)',
-    discount: '45% - 48% OFF MRP',
-    discountPct: 46,
+    discount: '48% OFF MRP',
+    discountPct: 48,
     freight: 'Standard Shipping',
     warranty: '100% Genuine Factory Warranty',
     notes: 'Includes high torque narrow wedge, deep wedge 8V, and classical wrapped belts.',
@@ -34,12 +34,12 @@ const discountMatrix = [
   {
     brand: 'J.K. Fenner India',
     code: 'Fenner',
-    section: 'Bush Pulleys & PB Belts (200 X 3C / C 70)',
-    discount: '45% - 48% OFF MRP',
-    discountPct: 46,
+    section: 'Bush Pulleys & Taper Bushes (200 X 3C / 2517)',
+    discount: '25% OFF MRP',
+    discountPct: 25,
     freight: 'Standard Shipping',
     warranty: 'Precision Built (PB) Certification',
-    notes: 'Taper Lock Pulleys (2517 bush), finished bore 60mm, and matched wedge/classical belts.',
+    notes: 'Taper Lock Pulleys (2517 bush), finished bore 60mm, and matched transmission pulleys.',
     color: 'border-rose-300 bg-rose-50/50',
     tagColor: 'bg-rose-100 text-rose-900 border-rose-300',
   },
@@ -47,8 +47,8 @@ const discountMatrix = [
     brand: 'NBC Bearings (NEI)',
     code: 'NBC',
     section: 'Industrial Bearings (6400 Heavy Series)',
-    discount: '45% - 48% OFF MRP',
-    discountPct: 46,
+    discount: '48% OFF MRP',
+    discountPct: 48,
     freight: 'Standard Shipping',
     warranty: 'Factory Hologram & Traceability',
     notes: 'Heavy deep groove ball bearings with C3 clearance and ZZ shields.',
@@ -59,8 +59,8 @@ const discountMatrix = [
     brand: 'HCH Bearings',
     code: 'HCH',
     section: 'Ball Bearings & Matched Sets (6200/6300)',
-    discount: '45% - 48% OFF MRP',
-    discountPct: 46,
+    discount: '48% OFF MRP',
+    discountPct: 48,
     freight: 'Standard Shipping',
     warranty: 'Electric Motor Quality (EMQ)',
     notes: 'Open and ZZ shielded ball bearings, armature sets (6201_6202), and heavy sizes.',
@@ -71,8 +71,8 @@ const discountMatrix = [
     brand: 'The Timken Company',
     code: 'Timken',
     section: 'Industrial Bearings (All Types Available)',
-    discount: '45% - 48% OFF MRP',
-    discountPct: 46,
+    discount: '48% OFF MRP',
+    discountPct: 48,
     freight: 'Standard Shipping',
     warranty: 'Timken 100% Genuine Authenticity',
     notes: 'Featured 6313 open type + full Timken range (tapered, spherical, ball) on demand.',
@@ -174,7 +174,7 @@ export const PriceListPage = () => {
           MRP Price List & Wholesale Discounts
         </h1>
         <p className="text-xs sm:text-sm text-blue-100 max-w-2xl leading-relaxed">
-          Transparent wholesale pricing policy. We pass maximum distribution margins directly to plants and OEMs: 45% - 48% off MRP on standard lines, and strictly 10% on genuine SKF.
+          Transparent wholesale pricing policy. We pass maximum distribution margins directly to plants and OEMs: 48% off MRP on Belts &amp; Bearings, 25% off MRP on Bush Pulleys, and strictly 10% on genuine SKF.
         </p>
         </div>
       </div>
@@ -386,7 +386,7 @@ export const PriceListPage = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredProducts.map((p) => {
-                const officialMrp = p.mrp > 0 ? p.mrp : Math.round(p.basePrice / (1 - (p.discountPercentage || 46) / 100));
+                const officialMrp = p.mrp > 0 ? p.mrp : Math.round(p.basePrice / (1 - (p.discountPercentage || 48) / 100));
                 const netPrice = p.discountPrice || p.basePrice;
                 return (
                   <tr key={p._id} className="hover:bg-slate-50 transition-smooth">

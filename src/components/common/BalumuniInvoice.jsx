@@ -13,7 +13,7 @@ export const BalumuniInvoice = ({ invoice, onPrint, onClose }) => {
       amount: invoice.totalAmount ? Math.round(invoice.totalAmount / 1.18) : 1000,
       hsn: '8482 / 4010',
       uom: 'NOS',
-      discountPct: 46,
+      discountPct: 48,
     },
   ];
 
@@ -225,7 +225,7 @@ export const BalumuniInvoice = ({ invoice, onPrint, onClose }) => {
             </thead>
             <tbody className="divide-y border-slate-900 font-medium text-slate-900">
               {items.map((item, idx) => {
-                const discPct = item.discountPct ?? 46;
+                const discPct = item.discountPct ?? (/pulley|bush/i.test(item.description) ? 25 : 48);
                 const lineRate = item.unitPrice || item.amount || 0;
                 const lineAmount = item.amount || item.unitPrice * (item.quantity || 1);
                 return (

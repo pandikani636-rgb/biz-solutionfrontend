@@ -61,7 +61,7 @@ export const AdminPdfCatalogPage = () => {
   const [pdfFiles, setPdfFiles] = useState([]);
   const [catalogTitle, setCatalogTitle] = useState('');
   const [uploadBrand, setUploadBrand] = useState('');
-  const [uploadDiscount, setUploadDiscount] = useState('46');
+  const [uploadDiscount, setUploadDiscount] = useState('48');
   const [editingCatalogId, setEditingCatalogId] = useState(null);
   const [editingDiscountValue, setEditingDiscountValue] = useState('');
   const [editingBrandValue, setEditingBrandValue] = useState('');
@@ -225,7 +225,7 @@ export const AdminPdfCatalogPage = () => {
             categoryId: catObj?._id || null,
             categoryName: catObj?.name || '',
             brand: uploadBrand || undefined,
-            discountPercentage: uploadDiscount ? Number(uploadDiscount) : 46,
+            discountPercentage: uploadDiscount ? Number(uploadDiscount) : 48,
           });
         }
 
@@ -237,7 +237,7 @@ export const AdminPdfCatalogPage = () => {
           categoryId: catObj?._id,
           categoryName: catObj?.name,
           brand: uploadBrand || undefined,
-          discountPercentage: uploadDiscount ? Number(uploadDiscount) : 46,
+          discountPercentage: uploadDiscount ? Number(uploadDiscount) : 48,
         });
 
         if (res.data?.success) {
@@ -248,7 +248,7 @@ export const AdminPdfCatalogPage = () => {
           setPdfFiles([]);
           setCatalogTitle('');
           setUploadBrand('');
-          setUploadDiscount('46');
+          setUploadDiscount('48');
           setSelectedUploadCategory('');
           setSelectedCatalogFilter('ALL');
           fetchCatalogs('ALL');
@@ -292,7 +292,7 @@ export const AdminPdfCatalogPage = () => {
         setPdfFiles([]);
         setCatalogTitle('');
         setUploadBrand('');
-        setUploadDiscount('46');
+        setUploadDiscount('48');
         setSelectedUploadCategory('');
         setSelectedCatalogFilter('ALL');
         fetchCatalogs('ALL');
@@ -320,7 +320,7 @@ export const AdminPdfCatalogPage = () => {
               categoryId: catObj?._id || null,
               categoryName: catObj?.name || '',
               brand: uploadBrand || undefined,
-              discountPercentage: uploadDiscount ? Number(uploadDiscount) : 46,
+              discountPercentage: uploadDiscount ? Number(uploadDiscount) : 48,
             });
           }
 
@@ -331,7 +331,7 @@ export const AdminPdfCatalogPage = () => {
             categoryId: catObj?._id,
             categoryName: catObj?.name,
             brand: uploadBrand || undefined,
-            discountPercentage: uploadDiscount ? Number(uploadDiscount) : 46,
+            discountPercentage: uploadDiscount ? Number(uploadDiscount) : 48,
           });
 
           if (retryRes.data?.success) {
@@ -342,7 +342,7 @@ export const AdminPdfCatalogPage = () => {
             setPdfFiles([]);
             setCatalogTitle('');
             setUploadBrand('');
-            setUploadDiscount('46');
+            setUploadDiscount('48');
             setSelectedUploadCategory('');
             setSelectedCatalogFilter('ALL');
             fetchCatalogs('ALL');
@@ -518,7 +518,8 @@ export const AdminPdfCatalogPage = () => {
                   const b = e.target.value;
                   setUploadBrand(b);
                   if (b === 'SKF') setUploadDiscount('10');
-                  else if (!uploadDiscount || uploadDiscount === '10') setUploadDiscount('46');
+                  else if (b === 'JK Fenner') setUploadDiscount('25');
+                  else if (!uploadDiscount || uploadDiscount === '10' || uploadDiscount === '25') setUploadDiscount('48');
                 }}
                 className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold bg-slate-50 focus:ring-2 focus:ring-primary focus:outline-none"
               >
@@ -955,7 +956,7 @@ export const AdminPdfCatalogPage = () => {
                         Brand: {doc.brand || 'Auto-Detected'}
                       </span>
                       <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 text-[10px] font-black border border-amber-200">
-                        {doc.discountPercentage ?? 46}% OFF MRP (Deducted from Original Price)
+                        {doc.discountPercentage ?? 48}% OFF MRP (Deducted from Original Price)
                       </span>
                     </div>
                     <p className="text-[11px] text-secondaryText mt-0.5">
@@ -1014,14 +1015,14 @@ export const AdminPdfCatalogPage = () => {
                       type="button"
                       onClick={() => {
                         setEditingCatalogId(doc._id);
-                        setEditingDiscountValue(doc.discountPercentage ?? 46);
+                        setEditingDiscountValue(doc.discountPercentage ?? 48);
                         setEditingBrandValue(doc.brand || '');
                       }}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl text-xs font-bold transition-smooth cursor-pointer"
                       title="Set / Edit Wholesale Discount for this catalog"
                     >
                       <Percent className="w-3.5 h-3.5" />
-                      <span>Edit Discount ({doc.discountPercentage ?? 46}%)</span>
+                      <span>Edit Discount ({doc.discountPercentage ?? 48}%)</span>
                     </button>
                   )}
                   {/* Toggle Active/Inactive */}

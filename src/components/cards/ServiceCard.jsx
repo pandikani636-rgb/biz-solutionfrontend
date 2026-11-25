@@ -41,9 +41,16 @@ export const ServiceCard = ({ service }) => {
   const { user, isAuthenticated } = useAuth();
   const { settings } = useSite();
 
+  const categoryName = ((typeof category === 'object' ? category?.name : category) || section || name || '');
+  const categoryDiscount = 
+    /pulley|bush/i.test(categoryName) ? (settings?.categoryDiscounts?.Pulleys ?? 25) :
+    /belt/i.test(categoryName) ? (settings?.categoryDiscounts?.Belts ?? 48) :
+    /bearing/i.test(categoryName) ? (settings?.categoryDiscounts?.Bearings ?? 48) :
+    (settings?.existingUserDiscountPercentage || 48);
+
   const isExistingUser = Boolean(isAuthenticated && user && !user.isNewUser);
   const activeDiscount = isExistingUser
-    ? (user?.customDiscountPercentage > 0 ? user.customDiscountPercentage : (settings?.existingUserDiscountPercentage || 46))
+    ? (user?.customDiscountPercentage > 0 ? user.customDiscountPercentage : categoryDiscount)
     : (settings?.newUserDiscountPercentage || 40);
 
   const productUrl = `/services/${slug || service._id}`;

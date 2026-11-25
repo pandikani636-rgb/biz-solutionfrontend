@@ -58,14 +58,14 @@ const brandColors = {
 };
 
 const brandsList = [
-  { name: 'PIX', discount: '45% - 48% OFF', discountNum: 46 },
-  { name: 'JK Fenner', discount: '45% - 48% OFF', discountNum: 46 },
-  { name: 'Diamond', discount: '45% - 48% OFF', discountNum: 46 },
-  { name: 'NBC', discount: '45% - 48% OFF', discountNum: 46 },
+  { name: 'PIX', discount: '48% OFF MRP', discountNum: 48 },
+  { name: 'JK Fenner', discount: '25% - 48% OFF', discountNum: 25 },
+  { name: 'Diamond', discount: '48% OFF MRP', discountNum: 48 },
+  { name: 'NBC', discount: '48% OFF MRP', discountNum: 48 },
   { name: 'SKF', discount: 'Flat 10% OFF', discountNum: 10 },
-  { name: 'FAG', discount: '45% - 48% OFF', discountNum: 46 },
-  { name: 'TMB Ken', discount: '45% - 48% OFF', discountNum: 46 },
-  { name: 'NTN', discount: '45% - 48% OFF', discountNum: 46 },
+  { name: 'FAG', discount: '48% OFF MRP', discountNum: 48 },
+  { name: 'Timken', discount: '48% OFF MRP', discountNum: 48 },
+  { name: 'NTN', discount: '48% OFF MRP', discountNum: 48 },
   { name: 'Siemens', discount: '40% - 45% OFF', discountNum: 42 },
   { name: 'Crompton', discount: '40% - 45% OFF', discountNum: 42 },
   { name: 'ABB', discount: '40% - 45% OFF', discountNum: 42 },
@@ -81,7 +81,7 @@ export const ServiceDetailPage = () => {
   const navigate = useNavigate();
 
   const defaultTaxRate = Number(settings?.defaultTaxRate) || 18;
-  const existingUserDiscount = Number(settings?.existingUserDiscountPercentage) || 46;
+  const existingUserDiscount = Number(settings?.existingUserDiscountPercentage) || 48;
   const newUserDiscount = Number(settings?.newUserDiscountPercentage) || 40;
 
   const isExistingUser = Boolean(isAuthenticated && user && !user.isNewUser);
@@ -403,15 +403,15 @@ export const ServiceDetailPage = () => {
           // 3. If not found, check verified bearings and pulleys catalogue
           if (!found) {
             const standardHardcoded = [
-              { partNumber: '6203', name: 'HCH 6203 Single Row Deep Groove Ball Bearing', brand: 'HCH', mrp: 320, discountPercentage: 46, section: 'Deep Groove Ball Bearings', categoryName: 'Industrial Bearings', image: '/bearings/img10.jpg', specifications: 'Electric Motor Quality (EMQ), Low Noise, High-RPM' },
-              { partNumber: '6204', name: 'NBC 6204 Deep Groove Ball Bearing', brand: 'NBC', mrp: 240, discountPercentage: 46, section: 'Deep Groove Ball Bearings', categoryName: 'Industrial Bearings', image: '/bearings/img10.jpg', specifications: 'Precision Metric Radial Ball Bearing' },
-              { partNumber: '6205', name: 'NBC 6205 Deep Groove Ball Bearing', brand: 'NBC', mrp: 310, discountPercentage: 46, section: 'Deep Groove Ball Bearings', categoryName: 'Industrial Bearings', image: '/bearings/img10.jpg', specifications: 'Standard Radial Motor Quality Bearing' },
-              { partNumber: '6308', name: 'NBC 6308 Heavy Duty Radial Bearing', brand: 'NBC', mrp: 780, discountPercentage: 46, section: 'Deep Groove Ball Bearings', categoryName: 'Industrial Bearings', image: '/bearings/img10.jpg', specifications: 'C3 Internal Clearance, Heavy Radial Capacity' },
+              { partNumber: '6203', name: 'HCH 6203 Single Row Deep Groove Ball Bearing', brand: 'HCH', mrp: 320, discountPercentage: 48, section: 'Deep Groove Ball Bearings', categoryName: 'Industrial Bearings', image: '/bearings/img10.jpg', specifications: 'Electric Motor Quality (EMQ), Low Noise, High-RPM' },
+              { partNumber: '6204', name: 'NBC 6204 Deep Groove Ball Bearing', brand: 'NBC', mrp: 240, discountPercentage: 48, section: 'Deep Groove Ball Bearings', categoryName: 'Industrial Bearings', image: '/bearings/img10.jpg', specifications: 'Precision Metric Radial Ball Bearing' },
+              { partNumber: '6205', name: 'NBC 6205 Deep Groove Ball Bearing', brand: 'NBC', mrp: 310, discountPercentage: 48, section: 'Deep Groove Ball Bearings', categoryName: 'Industrial Bearings', image: '/bearings/img10.jpg', specifications: 'Standard Radial Motor Quality Bearing' },
+              { partNumber: '6308', name: 'NBC 6308 Heavy Duty Radial Bearing', brand: 'NBC', mrp: 780, discountPercentage: 48, section: 'Deep Groove Ball Bearings', categoryName: 'Industrial Bearings', image: '/bearings/img10.jpg', specifications: 'C3 Internal Clearance, Heavy Radial Capacity' },
               { partNumber: '7322 2X', name: 'SKF 7322 2X High Precision Angular Contact Bearing', brand: 'SKF', mrp: 6500, discountPercentage: 10, section: 'Angular Contact Bearings', categoryName: 'Industrial Bearings', image: '/bearings/img1.jpg', specifications: 'High Thrust Load Matched Pair, 40° Contact' },
-              { partNumber: '6313', name: 'Timken 6313 Open Type Deep Groove Bearing', brand: 'Timken', mrp: 2100, discountPercentage: 46, section: 'Heavy Series Bearings', categoryName: 'Industrial Bearings', image: '/bearings/img3.jpg', specifications: 'Heavy Industrial Shaft Quality, ISO Grade' },
-              { partNumber: 'SPB 160-2', name: 'Fenner 2-Groove SPB Dynamic Taper Bush Pulley', brand: 'Fenner', mrp: 1850, discountPercentage: 46, section: 'Taper Lock Bush Pulleys', categoryName: 'Bush Pulleys & Taper Bushes', image: '/bannerImages/img4.jpg', specifications: 'Cast Iron GG25, Dynamically Balanced up to 30m/s' },
-              { partNumber: 'SPC 250-3', name: 'Fenner 3-Groove SPC Heavy Transmission Pulley', brand: 'Fenner', mrp: 3450, discountPercentage: 46, section: 'Taper Lock Bush Pulleys', categoryName: 'Bush Pulleys & Taper Bushes', image: '/bannerImages/img4.jpg', specifications: 'Heavy Industrial 3-Groove Pulley for 2517/3020 Bushes' },
-              { partNumber: '2517-45', name: 'Fenner 2517 Precision Taper Lock Bush (45mm)', brand: 'Fenner', mrp: 850, discountPercentage: 46, section: 'Taper Lock Bush Pulleys', categoryName: 'Bush Pulleys & Taper Bushes', image: '/bannerImages/img4.jpg', specifications: 'Finished Metric Bore 45mm with Keyway' },
+              { partNumber: '6313', name: 'Timken 6313 Open Type Deep Groove Bearing', brand: 'Timken', mrp: 2100, discountPercentage: 48, section: 'Heavy Series Bearings', categoryName: 'Industrial Bearings', image: '/bearings/img3.jpg', specifications: 'Heavy Industrial Shaft Quality, ISO Grade' },
+              { partNumber: 'SPB 160-2', name: 'Fenner 2-Groove SPB Dynamic Taper Bush Pulley', brand: 'Fenner', mrp: 1850, discountPercentage: 25, section: 'Taper Lock Bush Pulleys', categoryName: 'Bush Pulleys & Taper Bushes', image: '/bannerImages/img4.jpg', specifications: 'Cast Iron GG25, Dynamically Balanced up to 30m/s' },
+              { partNumber: 'SPC 250-3', name: 'Fenner 3-Groove SPC Heavy Transmission Pulley', brand: 'Fenner', mrp: 3450, discountPercentage: 25, section: 'Taper Lock Bush Pulleys', categoryName: 'Bush Pulleys & Taper Bushes', image: '/bannerImages/img4.jpg', specifications: 'Heavy Industrial 3-Groove Pulley for 2517/3020 Bushes' },
+              { partNumber: '2517-45', name: 'Fenner 2517 Precision Taper Lock Bush (45mm)', brand: 'Fenner', mrp: 850, discountPercentage: 25, section: 'Taper Lock Bush Pulleys', categoryName: 'Bush Pulleys & Taper Bushes', image: '/bannerImages/img4.jpg', specifications: 'Finished Metric Bore 45mm with Keyway' },
             ];
 
             const matchH = standardHardcoded.find((p) => {
@@ -441,8 +441,8 @@ export const ServiceDetailPage = () => {
               description: `Authentic industrial part ${identifier.toUpperCase()} sourced directly from authorized manufacturers with genuine warranty and pan-India express dispatch.`,
               specifications: `Part Code: ${identifier.toUpperCase()} • Direct Factory Supply • GST Invoice`,
               mrp: 1200,
-              wholesalePrice: 650,
-              discountPercentage: 46,
+              wholesalePrice: 624,
+              discountPercentage: 48,
               image: '/belts/PIX C 70 Classical V-Belt.jpg',
               inStock: true,
             };
@@ -754,8 +754,8 @@ export const ServiceDetailPage = () => {
     );
   }
 
-  const officialMrp = service.mrp > 0 ? service.mrp : Math.round(service.basePrice / (1 - (service.discountPercentage || 46) / 100));
-  const discountLabel = service.discountPercentage ? `${service.discountPercentage}% OFF` : '46% OFF';
+  const officialMrp = service.mrp > 0 ? service.mrp : Math.round(service.basePrice / (1 - (service.discountPercentage || 48) / 100));
+  const discountLabel = service.discountPercentage ? `${service.discountPercentage}% OFF` : '48% OFF';
 
   // Cleanly parse specifications regardless of format (Array of objects, Map/Object, string, etc.)
   const parsedSpecifications = useMemo(() => {
@@ -1085,7 +1085,7 @@ export const ServiceDetailPage = () => {
             <div className="space-y-2.5 pt-2 text-xs text-slate-700 font-semibold">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>PIX, NBC, HCH, Fenner &amp; Timken: <strong className="text-primary font-black">46% off MRP</strong></span>
+                <span>Belts &amp; Bearings (PIX, NBC, Timken): <strong className="text-primary font-black">48% off MRP</strong>, Bush Pulleys: <strong className="text-primary font-black">25% off MRP</strong></span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -1137,7 +1137,7 @@ export const ServiceDetailPage = () => {
 
             {/* Live Price Calculation Display Cards */}
             {(() => {
-              const activeBrandObj = brandsList.find((b) => b.name === calcBrand) || { name: calcBrand, discountNum: 46, discount: '45% - 48% OFF' };
+              const activeBrandObj = brandsList.find((b) => b.name === calcBrand) || { name: calcBrand, discountNum: 48, discount: '48% OFF' };
               const activeDiscPct = activeBrandObj.discountNum;
               const parsedMrpVal = Math.max(0, Number(calcMrp) || 0);
               const discAmountVal = Math.round((parsedMrpVal * activeDiscPct) / 100);

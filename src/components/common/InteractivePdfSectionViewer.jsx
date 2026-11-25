@@ -265,7 +265,7 @@ const STANDARD_BRAND_CATALOGS = {
     fileName: 'NBC-Industrial-Bearings-Price-List.pdf',
     fileUrl: '/sample-catalog.pdf',
     brand: 'NBC',
-    discountPercentage: 46,
+    discountPercentage: 48,
     sections: [
       {
         name: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
@@ -282,8 +282,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
             image: '/bearings/img10.jpg',
             mrp: 240,
-            discountPercentage: 46,
-            wholesalePrice: 130,
+            discountPercentage: 48,
+            wholesalePrice: 125,
             specifications: 'Bore 20mm, OD 47mm, Width 14mm • Standard Radial Motor Quality',
             inStock: true,
           },
@@ -296,8 +296,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
             image: '/bearings/img10.jpg',
             mrp: 310,
-            discountPercentage: 46,
-            wholesalePrice: 167,
+            discountPercentage: 48,
+            wholesalePrice: 161,
             specifications: 'Bore 25mm, OD 52mm, Width 15mm • Electric Motor Quality (EMQ)',
             inStock: true,
           },
@@ -310,8 +310,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
             image: '/bearings/img10.jpg',
             mrp: 490,
-            discountPercentage: 46,
-            wholesalePrice: 265,
+            discountPercentage: 48,
+            wholesalePrice: 255,
             specifications: 'Bore 25mm, OD 62mm, Width 17mm • High Dynamic Load Rating',
             inStock: true,
           },
@@ -324,8 +324,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
             image: '/bearings/img10.jpg',
             mrp: 780,
-            discountPercentage: 46,
-            wholesalePrice: 421,
+            discountPercentage: 48,
+            wholesalePrice: 406,
             specifications: 'Bore 40mm, OD 90mm, Width 23mm • C3 Internal Clearance',
             inStock: true,
           },
@@ -338,8 +338,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Deep Groove Ball Bearings (6200 / 6300 Series)',
             image: '/bearings/img10.jpg',
             mrp: 1450,
-            discountPercentage: 46,
-            wholesalePrice: 783,
+            discountPercentage: 48,
+            wholesalePrice: 754,
             specifications: 'Bore 25mm, OD 80mm, Width 21mm, C3 Internal Clearance',
             inStock: true,
           },
@@ -360,8 +360,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Tapered Roller Bearings (Metric & Imperial)',
             image: '/bannerImages/nbcandTapper role.webp',
             mrp: 980,
-            discountPercentage: 46,
-            wholesalePrice: 529,
+            discountPercentage: 48,
+            wholesalePrice: 510,
             specifications: 'Bore 19.05mm, OD 45.237mm, Width 15.494mm • Matched Cup & Cone',
             inStock: true,
           },
@@ -374,8 +374,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Tapered Roller Bearings (Metric & Imperial)',
             image: '/bannerImages/nbcandTapper role.webp',
             mrp: 890,
-            discountPercentage: 46,
-            wholesalePrice: 481,
+            discountPercentage: 48,
+            wholesalePrice: 463,
             specifications: 'Bore 25mm, OD 52mm, Width 16.25mm • High Radial & Axial Capacity',
             inStock: true,
           },
@@ -388,8 +388,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Tapered Roller Bearings (Metric & Imperial)',
             image: '/bannerImages/nbcandTapper role.webp',
             mrp: 1120,
-            discountPercentage: 46,
-            wholesalePrice: 605,
+            discountPercentage: 48,
+            wholesalePrice: 582,
             specifications: 'Bore 35mm, OD 62mm, Width 18mm • Precision Ground Raceways',
             inStock: true,
           },
@@ -402,8 +402,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Tapered Roller Bearings (Metric & Imperial)',
             image: '/bannerImages/nbcandTapper role.webp',
             mrp: 1650,
-            discountPercentage: 46,
-            wholesalePrice: 891,
+            discountPercentage: 48,
+            wholesalePrice: 858,
             specifications: 'Bore 40mm, OD 80mm, Width 24.75mm • Heavy Gearbox & Mill Application',
             inStock: true,
           },
@@ -416,8 +416,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Tapered Roller Bearings (Metric & Imperial)',
             image: '/bannerImages/nbcandTapper role.webp',
             mrp: 2150,
-            discountPercentage: 46,
-            wholesalePrice: 1161,
+            discountPercentage: 48,
+            wholesalePrice: 1118,
             specifications: 'Bore 50mm, OD 90mm, Width 24.75mm • Premium NEI OEM Construction',
             inStock: true,
           },
@@ -430,7 +430,7 @@ const STANDARD_BRAND_CATALOGS = {
     fileName: 'TIMKEN-India-Master-Bearing-Price-List.pdf',
     fileUrl: '/sample-catalog.pdf',
     brand: 'Timken',
-    discountPercentage: 46,
+    discountPercentage: 48,
     sections: [
       {
         name: 'Timken Heavy Series & Open Type Bearings',
@@ -447,8 +447,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Timken Heavy Series & Open Type Bearings',
             image: '/bearings/img3.jpg',
             mrp: 3800,
-            discountPercentage: 46,
-            wholesalePrice: 2052,
+            discountPercentage: 48,
+            wholesalePrice: 1976,
             specifications: 'Bore 65mm, OD 140mm, Width 33mm, 100% Genuine Product',
             inStock: true,
           },
@@ -461,8 +461,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Timken Heavy Series & Open Type Bearings',
             image: '/bearings/img3.jpg',
             mrp: 2200,
-            discountPercentage: 46,
-            wholesalePrice: 1188,
+            discountPercentage: 48,
+            wholesalePrice: 1144,
             specifications: 'Bore 50mm, OD 110mm, Width 27mm, Nitrile Rubber Sealed',
             inStock: true,
           },
@@ -483,8 +483,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Timken Tapered Roller Bearings (TS Series)',
             image: '/bearings/img3.jpg',
             mrp: 1850,
-            discountPercentage: 46,
-            wholesalePrice: 999,
+            discountPercentage: 48,
+            wholesalePrice: 962,
             specifications: 'Bore 19.05mm, OD 45.237mm, Width 16.637mm • Genuine Timken USA',
             inStock: true,
           },
@@ -497,8 +497,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Timken Tapered Roller Bearings (TS Series)',
             image: '/bearings/img3.jpg',
             mrp: 2350,
-            discountPercentage: 46,
-            wholesalePrice: 1269,
+            discountPercentage: 48,
+            wholesalePrice: 1222,
             specifications: 'Bore 34.988mm, OD 59.131mm, Width 15.875mm',
             inStock: true,
           },
@@ -578,7 +578,7 @@ const STANDARD_BRAND_CATALOGS = {
     fileName: 'JK-Fenner-Pulley-Price-List.pdf',
     fileUrl: '/sample-catalog.pdf',
     brand: 'JK Fenner',
-    discountPercentage: 46,
+    discountPercentage: 25,
     sections: [
       {
         name: 'Fenner Dynamic Taper Lock Bush Pulleys',
@@ -595,8 +595,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Fenner Dynamic Taper Lock Bush Pulleys',
             image: '/bannerImages/img4.jpg',
             mrp: 1850,
-            discountPercentage: 46,
-            wholesalePrice: 999,
+            discountPercentage: 25,
+            wholesalePrice: 1388,
             specifications: 'Cast Iron GG25, Dynamically Balanced up to 30m/s',
             inStock: true,
           },
@@ -609,8 +609,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Fenner Dynamic Taper Lock Bush Pulleys',
             image: '/bannerImages/img4.jpg',
             mrp: 3450,
-            discountPercentage: 46,
-            wholesalePrice: 1863,
+            discountPercentage: 25,
+            wholesalePrice: 2588,
             specifications: 'Heavy Industrial 3-Groove Pulley for 2517/3020 Bushes',
             inStock: true,
           },
@@ -631,8 +631,8 @@ const STANDARD_BRAND_CATALOGS = {
             subcategoryName: 'Fenner Precision Taper Lock Bushes',
             image: '/bannerImages/img4.jpg',
             mrp: 850,
-            discountPercentage: 46,
-            wholesalePrice: 459,
+            discountPercentage: 25,
+            wholesalePrice: 638,
             specifications: 'Finished Metric Bore 45mm with Keyway',
             inStock: true,
           },
@@ -656,7 +656,7 @@ export const InteractivePdfSectionViewer = ({
   const { isTamil, t } = useLanguage();
 
   const defaultTaxRate = Number(settings?.defaultTaxRate) || 18;
-  const existingUserDiscount = Number(settings?.existingUserDiscountPercentage) || 46;
+  const existingUserDiscount = Number(settings?.existingUserDiscountPercentage) || 48;
   const newUserDiscount = Number(settings?.newUserDiscountPercentage) || 40;
 
   // Active Discount Percentage based on User Status:
@@ -811,7 +811,7 @@ export const InteractivePdfSectionViewer = ({
       // If we found matching sections & products from Admin's uploaded catalogs:
       if (matchingSections.length > 0) {
         const brandDiscounts = settings?.brandDiscounts || {};
-        const configDiscount = brandDiscounts[selectedBrand] ?? (brandLower === 'skf' ? 10 : 46);
+        const configDiscount = brandDiscounts[selectedBrand] ?? (brandLower === 'skf' ? 10 : (brandLower.includes('pulley') ? 25 : 48));
         const effectiveDiscount = primaryCatalog?.discountPercentage ?? configDiscount;
 
         const effectiveTitle = primaryCatalog?.title && isMatchingBrand(primaryCatalog.title)
@@ -876,9 +876,9 @@ export const InteractivePdfSectionViewer = ({
             fileName: pixBeltsData.fileName || 'PIX-Industrial-Belts-Price-List.pdf',
             fileUrl: pixBeltsData.fileUrl || '/sample-catalog.pdf',
             brand: 'PIX',
-            discountPercentage: 46,
+            discountPercentage: 48,
           },
-          brandDiscount: 46,
+          brandDiscount: 48,
         };
       }
 
@@ -938,7 +938,7 @@ export const InteractivePdfSectionViewer = ({
         hasUploadedPdf: true,
         categorySections: extracted,
         effectiveCatalog: uploadedForCategory,
-        brandDiscount: uploadedForCategory.discountPercentage ?? 46,
+        brandDiscount: uploadedForCategory.discountPercentage ?? (isPulleysCategory ? 25 : 48),
       };
     }
 
@@ -965,9 +965,9 @@ export const InteractivePdfSectionViewer = ({
           fileName: pixBeltsData.fileName || 'PIX-Industrial-Belts-Price-List.pdf',
           fileUrl: pixBeltsData.fileUrl || '/sample-catalog.pdf',
           brand: 'PIX',
-          discountPercentage: 46,
+          discountPercentage: 48,
         },
-        brandDiscount: 46,
+        brandDiscount: 48,
       };
     }
 
@@ -980,9 +980,9 @@ export const InteractivePdfSectionViewer = ({
           fileName: 'Industrial-Bearings-Catalog.pdf',
           fileUrl: '/sample-catalog.pdf',
           brand: 'NBC & SKF',
-          discountPercentage: 46,
+          discountPercentage: 48,
         },
-        brandDiscount: 46,
+        brandDiscount: 48,
       };
     }
 
@@ -995,9 +995,9 @@ export const InteractivePdfSectionViewer = ({
           fileName: 'Fenner-Pulleys-Catalog.pdf',
           fileUrl: '/sample-catalog.pdf',
           brand: 'Fenner',
-          discountPercentage: 46,
+          discountPercentage: 25,
         },
-        brandDiscount: 46,
+        brandDiscount: 25,
       };
     }
 
@@ -1154,15 +1154,15 @@ export const InteractivePdfSectionViewer = ({
     // 2. Search standard bearings & pulleys
     if (results.length === 0) {
       const allStandard = [
-        { partNumber: '6203', name: 'HCH 6203 Single Row Deep Groove Ball Bearing', brand: 'HCH', mrp: 320, discountPercentage: 46, wholesalePrice: 173, categoryName: 'Industrial Bearings', subcategoryName: 'Deep Groove Ball Bearings' },
-        { partNumber: '6204', name: 'NBC 6204 Deep Groove Ball Bearing', brand: 'NBC', mrp: 240, discountPercentage: 46, wholesalePrice: 130, categoryName: 'Industrial Bearings', subcategoryName: 'Deep Groove Ball Bearings' },
-        { partNumber: '6205', name: 'NBC 6205 Deep Groove Ball Bearing', brand: 'NBC', mrp: 310, discountPercentage: 46, wholesalePrice: 167, categoryName: 'Industrial Bearings', subcategoryName: 'Deep Groove Ball Bearings' },
-        { partNumber: '6308', name: 'NBC 6308 Heavy Duty Radial Bearing', brand: 'NBC', mrp: 780, discountPercentage: 46, wholesalePrice: 421, categoryName: 'Industrial Bearings', subcategoryName: 'Deep Groove Ball Bearings' },
+        { partNumber: '6203', name: 'HCH 6203 Single Row Deep Groove Ball Bearing', brand: 'HCH', mrp: 320, discountPercentage: 48, wholesalePrice: 166, categoryName: 'Industrial Bearings', subcategoryName: 'Deep Groove Ball Bearings' },
+        { partNumber: '6204', name: 'NBC 6204 Deep Groove Ball Bearing', brand: 'NBC', mrp: 240, discountPercentage: 48, wholesalePrice: 125, categoryName: 'Industrial Bearings', subcategoryName: 'Deep Groove Ball Bearings' },
+        { partNumber: '6205', name: 'NBC 6205 Deep Groove Ball Bearing', brand: 'NBC', mrp: 310, discountPercentage: 48, wholesalePrice: 161, categoryName: 'Industrial Bearings', subcategoryName: 'Deep Groove Ball Bearings' },
+        { partNumber: '6308', name: 'NBC 6308 Heavy Duty Radial Bearing', brand: 'NBC', mrp: 780, discountPercentage: 48, wholesalePrice: 406, categoryName: 'Industrial Bearings', subcategoryName: 'Deep Groove Ball Bearings' },
         { partNumber: '7322 2X', name: 'SKF 7322 2X High Precision Angular Contact Bearing', brand: 'SKF', mrp: 6500, discountPercentage: 10, wholesalePrice: 5850, categoryName: 'Industrial Bearings', subcategoryName: 'Heavy Series & Precision' },
-        { partNumber: '6313', name: 'Timken 6313 Open Type Deep Groove Bearing', brand: 'Timken', mrp: 2100, discountPercentage: 46, wholesalePrice: 1134, categoryName: 'Industrial Bearings', subcategoryName: 'Heavy Series & Precision' },
-        { partNumber: 'SPB 160-2', name: 'Fenner 2-Groove SPB Dynamic Taper Bush Pulley', brand: 'Fenner', mrp: 1850, discountPercentage: 46, wholesalePrice: 999, categoryName: 'Bush Pulleys & Taper Bushes', subcategoryName: 'Taper Lock Bush Pulleys' },
-        { partNumber: 'SPC 250-3', name: 'Fenner 3-Groove SPC Heavy Transmission Pulley', brand: 'Fenner', mrp: 3450, discountPercentage: 46, wholesalePrice: 1863, categoryName: 'Bush Pulleys & Taper Bushes', subcategoryName: 'Taper Lock Bush Pulleys' },
-        { partNumber: '2517-45', name: 'Fenner 2517 Precision Taper Lock Bush (45mm)', brand: 'Fenner', mrp: 850, discountPercentage: 46, wholesalePrice: 459, categoryName: 'Bush Pulleys & Taper Bushes', subcategoryName: 'Taper Lock Bush Pulleys' },
+        { partNumber: '6313', name: 'Timken 6313 Open Type Deep Groove Bearing', brand: 'Timken', mrp: 2100, discountPercentage: 48, wholesalePrice: 1092, categoryName: 'Industrial Bearings', subcategoryName: 'Heavy Series & Precision' },
+        { partNumber: 'SPB 160-2', name: 'Fenner 2-Groove SPB Dynamic Taper Bush Pulley', brand: 'Fenner', mrp: 1850, discountPercentage: 25, wholesalePrice: 1388, categoryName: 'Bush Pulleys & Taper Bushes', subcategoryName: 'Taper Lock Bush Pulleys' },
+        { partNumber: 'SPC 250-3', name: 'Fenner 3-Groove SPC Heavy Transmission Pulley', brand: 'Fenner', mrp: 3450, discountPercentage: 25, wholesalePrice: 2588, categoryName: 'Bush Pulleys & Taper Bushes', subcategoryName: 'Taper Lock Bush Pulleys' },
+        { partNumber: '2517-45', name: 'Fenner 2517 Precision Taper Lock Bush (45mm)', brand: 'Fenner', mrp: 850, discountPercentage: 25, wholesalePrice: 638, categoryName: 'Bush Pulleys & Taper Bushes', subcategoryName: 'Taper Lock Bush Pulleys' },
       ];
       for (const item of allStandard) {
         if (matchPartNumber(item.partNumber, q) || matchPartNumber(item.name, q)) {

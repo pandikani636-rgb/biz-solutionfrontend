@@ -65,8 +65,13 @@ export const AdminSettingsPage = () => {
     currency: 'INR',
     currencySymbol: '₹',
     defaultTaxRate: 18,
-    existingUserDiscountPercentage: 46,
+    existingUserDiscountPercentage: 48,
     newUserDiscountPercentage: 40,
+    categoryDiscounts: {
+      'Belts': 48,
+      'Pulleys': 25,
+      'Bearings': 48,
+    },
   });
 
   useEffect(() => {
@@ -80,8 +85,13 @@ export const AdminSettingsPage = () => {
             siteNameFirstPart: res.data.siteNameFirstPart || 'Balumuni',
             siteNameRemainingPart: res.data.siteNameRemainingPart || 'and Associates',
             defaultTaxRate: res.data.defaultTaxRate ?? 18,
-            existingUserDiscountPercentage: res.data.existingUserDiscountPercentage ?? 46,
+            existingUserDiscountPercentage: res.data.existingUserDiscountPercentage ?? 48,
             newUserDiscountPercentage: res.data.newUserDiscountPercentage ?? 40,
+            categoryDiscounts: res.data.categoryDiscounts || {
+              'Belts': 48,
+              'Pulleys': 25,
+              'Bearings': 48,
+            },
             googleMapsLocation:
               res.data.googleMapsLocation ||
               res.data.address ||
@@ -567,6 +577,122 @@ export const AdminSettingsPage = () => {
             </div>
           </div>
 
+          {/* 3 Core Product Category Discounts: Belts (48%), Pulleys (25%), Bearings (48%) */}
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h4 className="font-bold text-xs text-navy uppercase tracking-wider flex items-center gap-1.5">
+                  <Percent className="w-3.5 h-3.5 text-primary" />
+                  <span>Product Category Wholesale Discount Matrix (Belts 48% • Pulleys 25% • Bearings 48%)</span>
+                </h4>
+                <p className="text-[11px] text-slate-500">
+                  Global category discount applied to Industrial Belts, Bush Pulleys, and Bearings when specific catalogs don't override.
+                </p>
+              </div>
+              <span className="text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto">
+                Tax: {settings.defaultTaxRate}% GST
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              {/* Belts Discount */}
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-black text-xs text-slate-800">
+                    Belt Category Discount
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400">Classical &amp; Wedge Belts</span>
+                </div>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={settings.categoryDiscounts?.Belts ?? 48}
+                    onChange={(e) => {
+                      const val = Number(e.target.value) || 0;
+                      setSettings((prev) => ({
+                        ...prev,
+                        categoryDiscounts: {
+                          ...(prev.categoryDiscounts || {}),
+                          Belts: val,
+                          'Power Transmission Belts': val,
+                        },
+                      }));
+                    }}
+                    className="w-full px-3 py-1.5 pr-8 border border-slate-300 rounded-lg text-sm font-bold bg-white text-navy focus:ring-1 focus:ring-primary"
+                  />
+                  <span className="absolute right-3 top-1.5 text-xs font-bold text-slate-400">%</span>
+                </div>
+              </div>
+
+              {/* Pulleys Discount */}
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-black text-xs text-slate-800">
+                    Pulley Category Discount
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400">Taper Bush &amp; Pulleys</span>
+                </div>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={settings.categoryDiscounts?.Pulleys ?? 25}
+                    onChange={(e) => {
+                      const val = Number(e.target.value) || 0;
+                      setSettings((prev) => ({
+                        ...prev,
+                        categoryDiscounts: {
+                          ...(prev.categoryDiscounts || {}),
+                          Pulleys: val,
+                          'Bush Pulleys & Taper Bushes': val,
+                        },
+                      }));
+                    }}
+                    className="w-full px-3 py-1.5 pr-8 border border-slate-300 rounded-lg text-sm font-bold bg-white text-navy focus:ring-1 focus:ring-primary"
+                  />
+                  <span className="absolute right-3 top-1.5 text-xs font-bold text-slate-400">%</span>
+                </div>
+              </div>
+
+              {/* Bearings Discount */}
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-black text-xs text-slate-800">
+                    Bearing Category Discount
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400">NBC, Timken &amp; Deep Groove</span>
+                </div>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={settings.categoryDiscounts?.Bearings ?? 48}
+                    onChange={(e) => {
+                      const val = Number(e.target.value) || 0;
+                      setSettings((prev) => ({
+                        ...prev,
+                        categoryDiscounts: {
+                          ...(prev.categoryDiscounts || {}),
+                          Bearings: val,
+                          'Industrial Bearings': val,
+                        },
+                      }));
+                    }}
+                    className="w-full px-3 py-1.5 pr-8 border border-slate-300 rounded-lg text-sm font-bold bg-white text-navy focus:ring-1 focus:ring-primary"
+                  />
+                  <span className="absolute right-3 top-1.5 text-xs font-bold text-slate-400">%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Brand-Specific Wholesale Discount Matrix (All 14 Makes) */}
           <div className="space-y-3 pt-4 border-t border-slate-100">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -586,7 +712,7 @@ export const AdminSettingsPage = () => {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5 pt-1">
               {FOURTEEN_BRANDS.map((brandName) => {
-                const currentDisc = settings.brandDiscounts?.[brandName] ?? (brandName === 'SKF' ? 10 : 46);
+                const currentDisc = settings.brandDiscounts?.[brandName] ?? (brandName === 'SKF' ? 10 : (brandName === 'JK Fenner' ? 25 : 48));
                 return (
                   <div key={brandName} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
                     <span className="block font-black text-xs text-slate-800 truncate" title={brandName}>

@@ -220,13 +220,13 @@ RFQ Submission Details:
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 font-bold text-darkText focus:ring-2 focus:ring-primary focus:outline-none"
                   >
                     <option value="All / Multiple Brands">Multiple Brands (Mixed BOM)</option>
-                    <option value="PIX">PIX Transmissions (Belts - 46% Off MRP)</option>
-                    <option value="JK Fenner">JK Fenner (Belts, Pulleys & Couplings - 46% Off MRP)</option>
+                    <option value="PIX">PIX Transmissions (Belts - 48% Off MRP)</option>
+                    <option value="JK Fenner">JK Fenner (Pulleys 25% Off / Belts 48% Off MRP)</option>
                     <option value="Diamond">Diamond (Roller Chains & Sprockets - Wholesale Rates)</option>
-                    <option value="NBC">NBC Bearings (Ball & Taper Roller - 46% Off MRP)</option>
-                    <option value="FAG">FAG Bearings (Spherical & Cylindrical - Volume Discounts)</option>
+                    <option value="NBC">NBC Bearings (Ball & Taper Roller - 48% Off MRP)</option>
+                    <option value="FAG">FAG Bearings (Spherical & Cylindrical - 48% Off MRP)</option>
                     <option value="SKF">SKF Bearings (Deep Groove & Angular - Flat 10% Off MRP)</option>
-                    <option value="Timken">Timken (Tapered Roller & Heavy Bearings - 46% Off MRP)</option>
+                    <option value="Timken">Timken (Tapered Roller & Heavy Bearings - 48% Off MRP)</option>
                     <option value="NTN">NTN Bearings (High-Precision Machine Bearings)</option>
                     <option value="Siemens">Siemens (IE2/IE3 Electric Motors & Drives)</option>
                     <option value="Crompton">Crompton (Heavy Duty Induction Motors)</option>

@@ -238,7 +238,7 @@ export const ServicesPage = () => {
           {brands.map((b) => {
             const isSelected = selectedBrand.toLowerCase() === b.toLowerCase();
             const brandDiscounts = settings?.brandDiscounts || {};
-            const brandDiscount = brandDiscounts[b] ?? (b === 'SKF' ? 10 : 46);
+            const brandDiscount = brandDiscounts[b] ?? (b === 'SKF' ? 10 : (b === 'JK Fenner' ? 25 : 48));
             return (
               <button
                 key={b}

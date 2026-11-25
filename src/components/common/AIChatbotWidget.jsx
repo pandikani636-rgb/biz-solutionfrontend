@@ -97,14 +97,14 @@ export const AIChatbotWidget = () => {
 
       if (q.includes('belt') || q.includes('grander') || q.includes('v-belt') || q.includes('pulley')) {
         fallbackReply = isTamil
-          ? 'எங்களிடம் உயர்தர கிராண்டர் பெல்ட்கள் (Grander Belts), PIX மற்றும் Fenner இண்டஸ்ட்ரியல் V-பெல்ட்கள் (A, B, C, SPC, 8V) 45% - 48% மொத்த விலை தள்ளுபடியில் கிடைக்கின்றன. அனைத்து பெல்ட்களும் விரைவான சரக்குடன் அனுப்பப்படும்.'
-          : 'We supply high-tensile Grander Belts, PIX and Fenner industrial V-belts (Classical A/B/C, Narrow Wedge SPC/8V/SPZ) at 45% to 48% wholesale discount from official MRP.';
+          ? 'எங்களிடம் PIX மற்றும் Fenner இண்டஸ்ட்ரியல் V-பெல்ட்கள் 48% தள்ளுபடியிலும், டேப்பர் புல்லிகள் (Pulleys) 25% தள்ளுபடியிலும், பேரிங்ஸ் 48% தள்ளுபடியிலும் கிடைக்கின்றன. 18% GST பில் வழங்கப்படும்.'
+          : 'We supply industrial V-Belts at 48% discount, JK Fenner Bush Pulleys at 25% discount, and Bearings at 48% discount from official MRP list, plus 18% GST Input Tax Credit.';
         fallbackQuickLink = { label: 'Explore Belts & Pulleys', url: '/services?brand=PIX' };
-      } else if (q.includes('price') || q.includes('discount') || q.includes('mrp') || q.includes('rate')) {
+      } else if (q.includes('price') || q.includes('discount') || q.includes('mrp') || q.includes('rate') || q.includes('tax')) {
         fallbackReply = isTamil
-          ? 'எங்கள் மொத்த விலை தள்ளுபடி:\n• PIX, Fenner, NBC, HCH & Timken: 45% - 48% தள்ளுபடி\n• SKF: 10% நேரடி தள்ளுபடி\n• நேரடி ஜிஎஸ்டி இன்புட் கிரெடிட் இன்வாய்ஸ்.'
-          : 'Our wholesale discount policy:\n• PIX, Fenner, NBC, HCH & Timken: 45% - 48% OFF official list MRP\n• SKF Genuine: Flat 10% OFF official MRP\n• Official GST Input Tax Credit.';
-        fallbackQuickLink = { label: 'View MRP Calculator', url: '/mrp-pricing' };
+          ? 'எங்கள் மொத்த விலை தள்ளுபடி கொள்கை:\n• பெல்ட்கள் (Belts): 48% நேரடி தள்ளுபடி\n• புல்லிகள் (Pulleys): 25% நேரடி தள்ளுபடி\n• பேரிங்ஸ் (Bearings - NBC, Timken, HCH, FAG): 48% நேரடி தள்ளுபடி\n• SKF: 10% நேரடி தள்ளுபடி\n• ஜிஎஸ்டி வரி: 18% GST Input Tax Credit இன்வாய்ஸ்.'
+          : 'Our wholesale discount policy:\n• Belts (PIX & Industrial V-Belts): 48% OFF MRP\n• Pulleys (JK Fenner Bush Pulleys): 25% OFF MRP\n• Bearings (NBC, Timken, HCH, FAG): 48% OFF MRP\n• SKF Genuine Bearings: Flat 10% OFF MRP\n• GST Tax Invoices: 18% Input Tax Credit on every order.';
+        fallbackQuickLink = { label: 'View Price List', url: '/price-list' };
       } else if (q.includes('brand') || q.includes('make') || q.includes('skf') || q.includes('timken')) {
         fallbackReply = isTamil
           ? 'எங்கள் 14 அங்கீகரிக்கப்பட்ட பிராண்டுகள்:\n1. PIX\n2. JK Fenner\n3. Diamond\n4. NBC\n5. FAG\n6. SKF\n7. Timken\n8. NTN\n9. Siemens\n10. Crompton\n11. ABB\n12. Bharat Bijlee\n13. Shanthi Gears\n14. Vignesh Gears.'
