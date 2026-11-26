@@ -24,6 +24,7 @@ export const AdminCategoriesPage = () => {
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80',
     displayOrder: 0,
     isActive: true,
+    discountPercentage: 48,
   };
   const [formData, setFormData] = useState(initialForm);
 
@@ -58,6 +59,7 @@ export const AdminCategoriesPage = () => {
       image: cat.image || '',
       displayOrder: cat.displayOrder || 0,
       isActive: Boolean(cat.isActive),
+      discountPercentage: cat.discountPercentage !== undefined ? cat.discountPercentage : 48,
     });
     setIsModalOpen(true);
   };
@@ -106,18 +108,18 @@ export const AdminCategoriesPage = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center bg-white p-6 rounded-3xl border border-slate-200 shadow-xs">
         <div>
-          <h2 className="text-xl font-bold text-navy flex items-center gap-2">
+          <h2 className="text-xl font-bold text-navy flex items-center gap-2 uppercase tracking-wide">
             <Layers className="w-5 h-5 text-primary" />
-            <span>Category Taxonomy Management</span>
+            <span>PRODUCT CATEGORIES &amp; PRICING PERCENTAGES</span>
           </h2>
           <p className="text-xs text-secondaryText mt-1">
-            Organize services into business categories for navigation and filtering.
+            Configure category taxonomy and set wholesale discount percentage rates dynamically displayed on customer store.
           </p>
         </div>
 
         <Button variant="accent" onClick={handleOpenCreate}>
           <Plus className="w-4 h-4 mr-1.5" />
-          <span>Add Category</span>
+          <span>ADD CATEGORY</span>
         </Button>
       </div>
 
@@ -129,8 +131,9 @@ export const AdminCategoriesPage = () => {
         ) : categories.length > 0 ? (
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-navy font-bold">
+              <tr className="border-b border-slate-200 bg-slate-50 text-navy font-bold uppercase tracking-wider text-[11px]">
                 <th className="py-3 px-4">Category Name</th>
+                <th className="py-3 px-4 text-center">Assigned Pricing Rate</th>
                 <th className="py-3 px-4">Slug</th>
                 <th className="py-3 px-4">Icon Key</th>
                 <th className="py-3 px-4 text-center">Order</th>
@@ -142,6 +145,11 @@ export const AdminCategoriesPage = () => {
               {categories.map((c) => (
                 <tr key={c._id} className="hover:bg-slate-50/50">
                   <td className="py-3 px-4 font-bold text-darkText">{c.name}</td>
+                  <td className="py-3 px-4 text-center">
+                    <span className="px-2.5 py-1 rounded-xl bg-amber-50 text-amber-900 border border-amber-300 font-black text-xs font-mono shadow-2xs">
+                      {c.discountPercentage !== undefined ? c.discountPercentage : 48}% OFF
+                    </span>
+                  </td>
                   <td className="py-3 px-4 font-mono text-secondaryText">{c.slug}</td>
                   <td className="py-3 px-4 font-semibold text-primary">{c.icon}</td>
                   <td className="py-3 px-4 text-center font-bold">{c.displayOrder}</td>
@@ -161,12 +169,14 @@ export const AdminCategoriesPage = () => {
                       <button
                         onClick={() => handleOpenEdit(c)}
                         className="p-1.5 text-slate-500 hover:text-primary rounded-lg hover:bg-slate-100"
+                        title="Edit Category & Pricing Rate"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(c._id, c.name)}
                         className="p-1.5 text-slate-400 hover:text-danger rounded-lg hover:bg-rose-50"
+                        title="Delete Category"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -197,6 +207,28 @@ export const AdminCategoriesPage = () => {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="w-full px-3 py-2 border rounded-xl"
             />
+          </div>
+
+          <div className="space-y-1">
+            <label className="font-semibold text-darkText">Category Pricing Discount Rate (%) *</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min="0"
+                max="100"
+                required
+                value={formData.discountPercentage}
+                onChange={(e) => setFormData({ ...formData, discountPercentage: Number(e.target.value) })}
+                className="w-full px-3 py-2 border rounded-xl font-bold font-mono text-sm"
+                placeholder="e.g. 48"
+              />
+              <span className="font-black text-xs text-amber-700 bg-amber-50 px-2.5 py-2 rounded-xl border border-amber-200 shrink-0">
+                % OFF MRP
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500">
+              Configured rate will dynamically appear on the customer Products page for this category.
+            </p>
           </div>
 
           <div className="space-y-1">

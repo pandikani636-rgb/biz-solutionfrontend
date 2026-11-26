@@ -40,18 +40,21 @@ const PIE_COLORS = ['#2563EB', '#FACC15', '#16A34A', '#DC2626', '#8B5CF6', '#EC4
 export const AdminDashboardOverview = () => {
   const [overview, setOverview] = useState(null);
   const [charts, setCharts] = useState(null);
+  const [quotationStats, setQuotationStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const [overviewRes, chartsRes] = await Promise.all([
+        const [overviewRes, chartsRes, quotStatsRes] = await Promise.all([
           adminService.getOverview(),
           adminService.getCharts(),
+          adminService.getQuotationStats().catch(() => ({ data: { data: {} } })),
         ]);
 
         if (overviewRes.success) setOverview(overviewRes.data);
         if (chartsRes.success) setCharts(chartsRes.data);
+        if (quotStatsRes?.data?.data) setQuotationStats(quotStatsRes.data.data);
       } catch (err) {
         console.error('[Dashboard Error]', err);
       } finally {
@@ -108,29 +111,54 @@ export const AdminDashboardOverview = () => {
   return (
     <div className="space-y-8">
       {/* 1. Metric Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
-          title="Total Net Revenue"
+          title="TOTAL REVENUE"
           value={formatCurrency(summary.totalRevenue || 0)}
           icon={CreditCard}
           color="green"
-          trend="Real DB Settled Revenue"
+          trend="Real Settled Revenue"
         />
+
+        {/* Prominent Clickable Quotations Metric */}
+        <Link
+          to="/admin/quotations"
+          className="block group transition-all"
+          title="Click to view and manage all customer quotations"
+        >
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-200 shadow-xs flex items-center justify-between group-hover:shadow-md group-hover:border-amber-400 group-hover:scale-[1.01] transition-all cursor-pointer h-full">
+            <div className="space-y-1">
+              <p className="text-xs font-black text-amber-900 uppercase tracking-wider">
+                TOTAL QUOTATIONS
+              </p>
+              <p className="text-2xl font-black text-amber-950 font-mono">
+                {quotationStats?.totalQuotations ?? summary.totalQuotations ?? 0}
+              </p>
+              <p className="text-xs text-amber-700 font-bold flex items-center gap-1 group-hover:text-amber-900">
+                <span>→</span> View Quotations
+              </p>
+            </div>
+            <div className="p-3.5 rounded-xl border bg-amber-100 text-amber-800 border-amber-300 group-hover:bg-amber-200 transition-colors">
+              <FileSpreadsheet className="w-6 h-6" />
+            </div>
+          </div>
+        </Link>
+
         <StatCard
-          title="Total Service Bookings"
+          title="SERVICE BOOKINGS"
           value={summary.totalBookings || 0}
           icon={CalendarCheck}
           color="blue"
           trend={`${summary.confirmedBookings || 0} Confirmed / Active`}
         />
         <StatCard
-          title="Active Services"
+          title="ACTIVE SERVICES"
           value={`${summary.activeServices || 0} / ${summary.totalServices || 0}`}
           icon={Briefcase}
           color="yellow"
         />
         <StatCard
-          title="Registered Customers"
+          title="REGISTERED CUSTOMERS"
           value={summary.totalCustomers || 0}
           icon={Users}
           color="purple"

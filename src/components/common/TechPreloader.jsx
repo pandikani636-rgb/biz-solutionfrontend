@@ -49,12 +49,12 @@ export const TechPreloader = ({ onFinish }) => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
       </div>
 
-      {/* ONLY the Grander Belt Drive Card as requested in user's uploaded image */}
+      {/* Clean Belt Preloader Animation */}
       <div 
         onClick={(e) => e.stopPropagation()}
         className="relative z-10 bg-[#F0F6FF]/95 backdrop-blur-md border border-blue-100 shadow-[0_20px_50px_-12px_rgba(30,58,138,0.12)] rounded-3xl p-6 sm:p-9 flex flex-col items-center justify-center text-center transition-transform hover:scale-[1.01]"
       >
-        <GranderBeltPreloader size="xl" showLabel={true} />
+        <GranderBeltPreloader size="xl" showLabel={false} />
       </div>
     </div>
   );

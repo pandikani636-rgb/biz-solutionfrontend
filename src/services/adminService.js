@@ -4,6 +4,7 @@ export const adminService = {
   // Stats
   getOverview: (params) => api.get('/stats/overview', { params }),
   getCharts: () => api.get('/stats/charts'),
+  getQuotationStats: () => api.get('/enquiries/stats'),
   exportBookingsCSVUrl: () => `${api.defaults.baseURL}/stats/export-bookings`,
 
   // Services

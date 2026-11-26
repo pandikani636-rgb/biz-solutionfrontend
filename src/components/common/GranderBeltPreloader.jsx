@@ -133,16 +133,13 @@ export const GranderBeltPreloader = ({
         </svg>
       </div>
 
-      {/* Descriptive Text */}
-      {!isSmall && showLabel && (
+      {/* Optional Descriptive Text (Grander Belt text removed as required) */}
+      {!isSmall && showLabel && text && (
         <div className="text-center">
           <p className="text-xs sm:text-sm font-black uppercase tracking-wider text-primary flex items-center justify-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-            GRANDER BELT DRIVE
+            {text}
           </p>
-          {(isLarge || isXLarge) && text && (
-            <p className="text-[10px] text-slate-500 font-medium mt-0.5">{text}</p>
-          )}
         </div>
       )}
     </div>

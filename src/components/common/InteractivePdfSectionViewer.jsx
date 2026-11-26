@@ -23,6 +23,11 @@ import {
   RotateCcw,
   UploadCloud,
   HelpCircle,
+  Trash2,
+  Plus,
+  Minus,
+  Printer,
+  Download,
 } from 'lucide-react';
 import api, { getAssetUrl } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -33,6 +38,7 @@ import { Button } from './Button';
 import { Spinner } from './Spinner';
 import { showSuccessAlert, showErrorAlert, showToast } from '../../utils/alerts';
 import { contentService } from '../../services/contentService';
+import { BalumuniInvoice } from './BalumuniInvoice';
 import pixBeltsData from '../../data/pixBeltsCatalogData.json';
 
 // Authentic technical profile image map for every section in the PDF
@@ -682,7 +688,8 @@ export const InteractivePdfSectionViewer = ({
   // View PDF embed vs Table
   const [showPdfDocEmbed, setShowPdfDocEmbed] = useState(false);
 
-  // Quick Order Modal
+  // Products Cart & Quotation Generation
+  const [cartItems, setCartItems] = useState([]);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [orderQuantity, setOrderQuantity] = useState(1);
   const [orderForm, setOrderForm] = useState({
@@ -691,9 +698,14 @@ export const InteractivePdfSectionViewer = ({
     email: user?.email || '',
     companyName: user?.companyName || '',
     deliveryLocation: user?.address?.city || '',
+    gstin: user?.gstin || '',
     notes: '',
   });
+  const [customerImageFiles, setCustomerImageFiles] = useState([]);
+  const [customerImagePreviews, setCustomerImagePreviews] = useState([]);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
+  const [generatedQuotation, setGeneratedQuotation] = useState(null);
+  const [isQuotationViewModalOpen, setIsQuotationViewModalOpen] = useState(false);
 
   // Determine active category details from selectedCategory prop
   const activeCategoryObj = useMemo(() => {
@@ -1248,42 +1260,187 @@ export const InteractivePdfSectionViewer = ({
     return getSectionImage(currentSection.name) || currentSection.image || '/belts/pix-section-c.jpg';
   }, [currentSection]);
 
-  // Place Order Submit
-  const handlePlaceOrderSubmit = async (e) => {
+  // Cart Management Functions (Req 3 & 5)
+  const handleAddToCart = (product, qty = 1) => {
+    if (!product) return;
+    const disc = pricingDetails?.discountPercentage || activeDiscountPercentage;
+    const mrp = pricingDetails?.mrp || product.mrp || 1000;
+    const rate = Math.round(mrp * (1 - disc / 100));
+    const amount = rate * qty;
+
+    setCartItems((prev) => {
+      const existingIdx = prev.findIndex((i) => i.partNumber === product.partNumber);
+      if (existingIdx >= 0) {
+        const updated = [...prev];
+        const newQty = updated[existingIdx].quantity + qty;
+        updated[existingIdx] = {
+          ...updated[existingIdx],
+          quantity: newQty,
+          amount: updated[existingIdx].rate * newQty,
+        };
+        return updated;
+      }
+      return [
+        ...prev,
+        {
+          category: currentSection?.name || activeCategoryName || product.brand || 'Industrial Parts',
+          partNumber: product.partNumber,
+          name: product.name,
+          description: `${product.brand ? product.brand + ' - ' : ''}${product.partNumber}`,
+          hsn: '8482',
+          quantity: qty,
+          mrp,
+          discountPercentage: disc,
+          rate,
+          amount,
+        },
+      ];
+    });
+    showToast(`Added ${product.partNumber} to Quotation Cart (${qty} unit)`);
+  };
+
+  const handleRemoveFromCart = (index) => {
+    setCartItems((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleClearCart = () => {
+    setCartItems([]);
+  };
+
+  const handleUpdateCartQty = (index, delta) => {
+    setCartItems((prev) => {
+      const updated = [...prev];
+      if (!updated[index]) return prev;
+      const newQty = updated[index].quantity + delta;
+      if (newQty <= 0) {
+        return updated.filter((_, idx) => idx !== index);
+      }
+      updated[index] = {
+        ...updated[index],
+        quantity: newQty,
+        amount: updated[index].rate * newQty,
+      };
+      return updated;
+    });
+  };
+
+  // Image Upload handler inside quotation form
+  const handleQuotationImageUpload = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setCustomerImageFiles((prev) => [...prev, ...files]);
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setCustomerImagePreviews((prev) => [...prev, ...previews]);
+  };
+
+  const handleRemoveImage = (index) => {
+    setCustomerImageFiles((prev) => prev.filter((_, idx) => idx !== index));
+    setCustomerImagePreviews((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  // Generate Quotation Submit
+  const handleGenerateQuotationSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedProduct) return;
     if (!orderForm.name || !orderForm.phone) {
       showErrorAlert('Missing Information', 'Please provide your full name and contact phone number.');
       return;
     }
 
+    // Determine items for quotation: cart items or currently selected product
+    let itemsToQuote = [];
+    if (cartItems.length > 0) {
+      itemsToQuote = cartItems;
+    } else if (selectedProduct) {
+      const disc = pricingDetails?.discountPercentage || activeDiscountPercentage;
+      const mrp = pricingDetails?.mrp || selectedProduct.mrp || 1000;
+      const rate = Math.round(mrp * (1 - disc / 100));
+      itemsToQuote = [
+        {
+          category: currentSection?.name || activeCategoryName || selectedProduct.brand || 'Industrial Parts',
+          partNumber: selectedProduct.partNumber,
+          name: selectedProduct.name,
+          description: `${selectedProduct.brand ? selectedProduct.brand + ' - ' : ''}${selectedProduct.partNumber}`,
+          hsn: '8482',
+          quantity: orderQuantity,
+          mrp,
+          discountPercentage: disc,
+          rate,
+          amount: rate * orderQuantity,
+        },
+      ];
+    } else {
+      showErrorAlert('Empty Quotation', 'Please select a product or add items to your quotation cart.');
+      return;
+    }
+
     setOrderSubmitting(true);
     try {
+      // Upload any customer images first
+      let uploadedCustomerImages = [];
+      for (const file of customerImageFiles) {
+        try {
+          const imgFormData = new FormData();
+          imgFormData.append('image', file);
+          imgFormData.append('customerName', orderForm.name);
+          imgFormData.append('contactPerson', orderForm.name);
+          imgFormData.append('phone', orderForm.phone);
+          imgFormData.append('email', orderForm.email);
+          imgFormData.append('companyName', orderForm.companyName);
+          imgFormData.append('city', orderForm.deliveryLocation);
+          imgFormData.append('gstNumber', orderForm.gstin);
+          const upRes = await api.post('/user-uploads', imgFormData);
+          if (upRes.data?.success && upRes.data.data?.imageUrl) {
+            uploadedCustomerImages.push({
+              url: upRes.data.data.imageUrl,
+              filename: file.name,
+              uploadedAt: new Date(),
+            });
+          }
+        } catch (imgErr) {
+          console.warn('[Image upload warning]', imgErr.message);
+        }
+      }
+
+      const subtotal = itemsToQuote.reduce((acc, it) => acc + (it.amount || 0), 0);
+      const taxRate = 18;
+      const taxAmount = Math.round((subtotal * (taxRate / 100)) * 100) / 100;
+      const totalAmount = Math.round((subtotal + taxAmount) * 100) / 100;
+
       const payload = {
         name: orderForm.name,
         phone: orderForm.phone,
         email: orderForm.email || `${orderForm.phone.replace(/[^0-9]/g, '')}@balumuni-client.com`,
-        subject: `Order Booking: ${selectedProduct.partNumber} (${orderQuantity} Units)`,
-        message: `Order booking request placed from PDF Section Explorer.\n\nProduct: ${selectedProduct.name} (${selectedProduct.partNumber})\nBrand: ${selectedProduct.brand}\nSection: ${currentSection?.name}\nQuantity: ${orderQuantity} Units\nMRP Rate: ₹${pricingDetails?.mrp}\nTotal Amount (+18% GST): ₹${pricingDetails?.totalWithGst}\nDelivery City: ${orderForm.deliveryLocation}\nNotes: ${orderForm.notes || 'None'}`,
-        enquiryType: 'bulk_order',
+        subject: `Quotation Request: ${itemsToQuote.map((it) => it.partNumber).join(', ')}`,
+        message: `Quotation generated from Products Catalog Section Explorer.\nItems: ${itemsToQuote.length} line items.\nDelivery City: ${orderForm.deliveryLocation}\nNotes: ${orderForm.notes || 'None'}`,
+        enquiryType: 'rfq',
         companyName: orderForm.companyName,
         deliveryLocation: orderForm.deliveryLocation,
-        brand: selectedProduct.brand,
-        partNumber: selectedProduct.partNumber,
-        quantity: orderQuantity,
-        targetPrice: pricingDetails?.mrp,
+        gstin: orderForm.gstin,
+        brand: itemsToQuote[0]?.category || selectedProduct?.brand || 'Industrial Spares',
+        partNumber: itemsToQuote.map((it) => it.partNumber).join(', '),
+        quantity: itemsToQuote.reduce((acc, it) => acc + it.quantity, 0),
+        targetPrice: subtotal,
+        approvedPrice: totalAmount,
+        items: itemsToQuote,
+        subtotal,
+        taxRate,
+        taxAmount,
+        totalAmount,
+        paymentTerms: '7 DAYS CREDIT',
+        deliveryTerms: orderForm.deliveryLocation ? `DOORSTEP TO ${orderForm.deliveryLocation.toUpperCase()}` : 'SELF TO SRIVIL',
+        customerImages: uploadedCustomerImages,
       };
 
       const res = await contentService.submitEnquiry(payload);
       if (res.success) {
         setIsOrderModalOpen(false);
-        await showSuccessAlert(
-          'Order Request Submitted!',
-          `Your order for ${orderQuantity}x ${selectedProduct.partNumber} has been received. Quotation #${(res.data?.quotationNumber || 'QT-LIVE').replace('QTN', 'QT')} is generated. Sales desk will call you shortly.`
-        );
+        setCartItems([]);
+        setGeneratedQuotation(res.data);
+        setIsQuotationViewModalOpen(true);
+        showToast(`Quotation #${res.data?.quotationNumber || 'Generated'} created successfully!`);
       }
     } catch (err) {
-      showErrorAlert('Order Failed', err.message || 'Unable to submit order request');
+      showErrorAlert('Quotation Failed', err.message || 'Unable to generate quotation request');
     } finally {
       setOrderSubmitting(false);
     }
@@ -1615,16 +1772,28 @@ export const InteractivePdfSectionViewer = ({
                   </div>
                 </div>
 
-                {/* Place Order Button */}
-                <button
-                  type="button"
-                  onClick={() => setIsOrderModalOpen(true)}
-                  className="w-full py-3 rounded-xl bg-primary hover:bg-primary-dark text-white font-black text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:shadow-lg active:scale-[0.99]"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>Place Order for {selectedProduct.partNumber}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                {/* Add to Cart & Generate Quotation Buttons (Req 3) */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleAddToCart(selectedProduct, orderQuantity)}
+                    className="py-3 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 border border-slate-300 cursor-pointer active:scale-[0.99]"
+                    title="Add to Quotation Cart"
+                  >
+                    <ShoppingBag className="w-4 h-4 text-primary" />
+                    <span>Add to Cart</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsOrderModalOpen(true)}
+                    className="py-3 px-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:shadow-lg active:scale-[0.99]"
+                    title="Generate official B2B quotation"
+                  >
+                    <FileText className="w-4 h-4 text-slate-950" />
+                    <span>Generate Quotation</span>
+                  </button>
+                </div>
 
                 {/* View Full Product Specs Page */}
                 <Link
@@ -1895,17 +2064,27 @@ export const InteractivePdfSectionViewer = ({
                           </div>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedProduct(crossCategoryMatches[0]);
-                            setIsOrderModalOpen(true);
-                          }}
-                          className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-black text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:shadow-md"
-                        >
-                          <ShoppingBag className="w-4 h-4" />
-                          <span>Buy Now / Place Order for {crossCategoryMatches[0].partNumber}</span>
-                        </button>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleAddToCart(crossCategoryMatches[0], orderQuantity)}
+                            className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy font-bold text-xs shadow-2xs transition-all flex items-center justify-center gap-1 cursor-pointer border border-slate-300"
+                          >
+                            <ShoppingBag className="w-3.5 h-3.5 text-primary" />
+                            <span>Add to Cart</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedProduct(crossCategoryMatches[0]);
+                              setIsOrderModalOpen(true);
+                            }}
+                            className="py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer hover:shadow-md"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>Generate Quotation</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -2028,17 +2207,27 @@ export const InteractivePdfSectionViewer = ({
                           </div>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedProduct(filteredProducts[0]);
-                            setIsOrderModalOpen(true);
-                          }}
-                          className="w-full py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-black text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:shadow-md"
-                        >
-                          <ShoppingBag className="w-4 h-4" />
-                          <span>Buy Now / Place Order for {filteredProducts[0].partNumber}</span>
-                        </button>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleAddToCart(filteredProducts[0], orderQuantity)}
+                            className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy font-bold text-xs shadow-2xs transition-all flex items-center justify-center gap-1 cursor-pointer border border-slate-300"
+                          >
+                            <ShoppingBag className="w-3.5 h-3.5 text-primary" />
+                            <span>Add to Cart</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedProduct(filteredProducts[0]);
+                              setIsOrderModalOpen(true);
+                            }}
+                            className="py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer hover:shadow-md"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>Generate Quotation</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -2135,17 +2324,32 @@ export const InteractivePdfSectionViewer = ({
                               </div>
                             </td>
                             <td className="py-2.5 px-3 text-center whitespace-nowrap">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedProduct(p);
-                                  setIsOrderModalOpen(true);
-                                }}
-                                className="px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-dark text-white text-xs font-black cursor-pointer shadow-2xs transition-all active:scale-95"
-                              >
-                                Buy
-                              </button>
+                              <div className="flex items-center justify-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddToCart(p, 1);
+                                  }}
+                                  className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer shadow-xs transition-all active:scale-95 flex items-center gap-1"
+                                  title="Add to quotation cart"
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                  <span>Add</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedProduct(p);
+                                    setIsOrderModalOpen(true);
+                                  }}
+                                  className="px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-dark text-white text-xs font-black cursor-pointer shadow-2xs transition-all active:scale-95"
+                                  title="Generate quotation for this item"
+                                >
+                                  Quote
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );
@@ -2159,18 +2363,204 @@ export const InteractivePdfSectionViewer = ({
         </div>
       </div>
 
-      {/* Quick Order Modal */}
-      {isOrderModalOpen && selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5">
+      {/* 4. Products Page — Quotation Cart & Details Below PDF Content (Requirement 3) */}
+      {cartItems.length > 0 && (
+        <div className="mt-8 bg-white rounded-3xl border-2 border-primary/20 shadow-xl overflow-hidden animate-fadeIn">
+          {/* Cart Header */}
+          <div className="bg-gradient-to-r from-navy via-slate-900 to-navy text-white px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-700">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-black">
+                <ShoppingBag className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base sm:text-lg font-black tracking-wide uppercase">
+                    Quotation Cart
+                  </h3>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-400 text-slate-950">
+                    {cartItems.length} {cartItems.length === 1 ? 'Product' : 'Products'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Products selected for official quotation generation and instant PDF download.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-end sm:self-center">
+              <button
+                type="button"
+                onClick={handleClearCart}
+                className="px-3 py-1.5 rounded-xl border border-rose-500/40 text-rose-300 hover:bg-rose-500/10 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Clear Cart</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsOrderModalOpen(true)}
+                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer hover:shadow-lg active:scale-95"
+              >
+                <FileText className="w-4 h-4 text-slate-950" />
+                <span>Generate Quotation</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Cart Items Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+                  <th className="py-3 px-4 w-12 text-center">#</th>
+                  <th className="py-3 px-4">Product Details</th>
+                  <th className="py-3 px-4">Category / Brand</th>
+                  <th className="py-3 px-4 text-right">MRP</th>
+                  <th className="py-3 px-4 text-center">Discount</th>
+                  <th className="py-3 px-4 text-right">Rate</th>
+                  <th className="py-3 px-4 text-center w-32">Quantity</th>
+                  <th className="py-3 px-4 text-right">Amount</th>
+                  <th className="py-3 px-4 text-center w-16">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {cartItems.map((item, idx) => (
+                  <tr key={`${item.partNumber}-${idx}`} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3 px-4 text-center font-bold text-slate-400 font-mono">
+                      {idx + 1}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="font-mono font-black text-navy block text-sm">
+                        {item.partNumber}
+                      </span>
+                      <span className="text-slate-600 font-medium line-clamp-1">
+                        {item.name}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 inline-block">
+                        {item.category || 'Standard'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono text-slate-400 line-through">
+                      {formatCurrency(item.mrp)}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        -{item.discountPercentage}%
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono font-bold text-navy">
+                      {formatCurrency(item.rate)}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateCartQty(idx, -1)}
+                          className="w-7 h-7 rounded-lg border border-slate-300 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold cursor-pointer transition-colors"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="w-8 text-center font-mono font-black text-navy text-sm">
+                          {item.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateCartQty(idx, 1)}
+                          className="w-7 h-7 rounded-lg border border-slate-300 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold cursor-pointer transition-colors"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-right font-mono font-black text-primary text-sm">
+                      {formatCurrency(item.amount)}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFromCart(idx)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="Remove item"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Cart Summary & Grand Total (Requirement 3) */}
+          <div className="p-6 bg-slate-50 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-xs text-slate-500 space-y-1 max-w-md">
+              <div className="flex items-center gap-1.5 font-bold text-slate-700">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>All prices quoted are backed by Balumuni & Associates Official Dealer Warranty.</span>
+              </div>
+              <p>
+                Click "Generate Quotation" to enter delivery address, attach nameplate/sample photos, and get an official downloadable PDF quotation.
+              </p>
+            </div>
+
+            <div className="w-full md:w-auto bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-2 min-w-[300px]">
+              {(() => {
+                const sub = cartItems.reduce((acc, it) => acc + (it.amount || 0), 0);
+                const tax = Math.round((sub * 0.18) * 100) / 100;
+                const grand = Math.round((sub + tax) * 100) / 100;
+                return (
+                  <>
+                    <div className="flex justify-between items-center text-xs text-slate-600">
+                      <span>Subtotal (Excl. Tax):</span>
+                      <span className="font-mono font-bold">{formatCurrency(sub)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs text-slate-600">
+                      <span>Applicable GST (18%):</span>
+                      <span className="font-mono font-bold text-slate-700">{formatCurrency(tax)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs text-slate-600">
+                      <span>Logistics / Delhivery:</span>
+                      <span className="font-bold text-emerald-700">INCLUDED / TO-PAY</span>
+                    </div>
+                    <div className="border-t border-slate-200 pt-2 flex justify-between items-baseline">
+                      <span className="text-sm font-black text-navy uppercase">Grand Total:</span>
+                      <span className="text-xl font-mono font-black text-amber-500">
+                        {formatCurrency(grand)}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsOrderModalOpen(true)}
+                      className="mt-2 w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:shadow-lg active:scale-95"
+                    >
+                      <FileText className="w-4 h-4 text-slate-950" />
+                      <span>Generate Quotation (PDF)</span>
+                    </button>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Official B2B Quotation Generation Modal */}
+      {isOrderModalOpen && (selectedProduct || cartItems.length > 0) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs animate-fadeIn overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 my-8">
             <div className="flex items-start justify-between border-b border-slate-100 pb-3">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-primary">
-                  Direct Factory Wholesale Booking
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-block">
+                  Balumuni and Associates • Quotation Request
                 </span>
-                <h3 className="text-xl font-black text-navy mt-0.5">
-                  Order Part: {selectedProduct.partNumber}
+                <h3 className="text-xl font-black text-navy mt-1">
+                  Generate Official B2B Quotation
                 </h3>
+                <p className="text-xs text-slate-500">
+                  A sequential ENQ No will be assigned with current month & year.
+                </p>
               </div>
               <button
                 type="button"
@@ -2181,39 +2571,47 @@ export const InteractivePdfSectionViewer = ({
               </button>
             </div>
 
-            {/* Product Summary */}
-            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs">
-              <div>
-                <span className="text-[10px] text-slate-400 block font-bold">SELECTED ITEM:</span>
-                <span className="font-bold text-navy text-sm">{selectedProduct.name}</span>
-                <span className="block text-[11px] text-slate-500 font-mono mt-0.5">
-                  Make: {selectedProduct.brand} • Section: {currentSection?.name}
-                </span>
-                <div className="mt-1 flex items-center gap-2">
-                  <span className="text-xs line-through text-slate-400 font-mono">
-                    {formatCurrency(pricingDetails?.mrp || selectedProduct.mrp)}
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
-                    -{pricingDetails?.discountPercentage || activeDiscountPercentage}% OFF
-                  </span>
-                  <span className="text-xs font-black text-primary font-mono">
-                    {formatCurrency(pricingDetails?.unitPrice || selectedProduct.mrp)} / Unit
-                  </span>
+            {/* Products Summary in Modal */}
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
+              <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">
+                Quotation Items Summary:
+              </span>
+              {cartItems.length > 0 ? (
+                <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                  {cartItems.map((it, idx) => (
+                    <div key={idx} className="flex items-center justify-between py-1 border-b border-slate-200/60 last:border-0">
+                      <div>
+                        <span className="font-mono font-bold text-navy">{it.partNumber}</span>
+                        <span className="text-slate-500 text-[11px] block">{it.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-mono font-bold text-slate-700">{it.quantity} x {formatCurrency(it.rate)}</span>
+                        <span className="block font-mono font-black text-primary text-xs">{formatCurrency(it.amount)}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-              <div className="text-right">
-                <span className="text-[10px] text-slate-400 block font-bold">TOTAL ESTIMATE:</span>
-                <span className="text-base font-black text-primary font-mono">
-                  {formatCurrency(pricingDetails?.totalWithGst || 0)}
-                </span>
-                <span className="text-[10px] text-slate-500 block">
-                  ({orderQuantity} Units @ {formatCurrency(pricingDetails?.unitPrice)} + {pricingDetails?.taxRate || defaultTaxRate}% GST)
-                </span>
-              </div>
+              ) : selectedProduct ? (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="font-mono font-bold text-navy">{selectedProduct.partNumber}</span>
+                    <span className="text-slate-500 text-[11px] block">{selectedProduct.name}</span>
+                    <span className="text-[10px] font-black text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded inline-block mt-0.5">
+                      -{pricingDetails?.discountPercentage || activeDiscountPercentage}% Wholesale Discount
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] text-slate-400 block">Estimate for {orderQuantity} unit(s):</span>
+                    <span className="font-mono font-black text-primary text-sm">
+                      {formatCurrency(pricingDetails?.totalWithGst || (selectedProduct.mrp * orderQuantity))}
+                    </span>
+                  </div>
+                </div>
+              ) : null}
             </div>
 
-            {/* Form */}
-            <form onSubmit={handlePlaceOrderSubmit} className="space-y-3.5 text-xs">
+            {/* Quotation Form */}
+            <form onSubmit={handleGenerateQuotationSubmit} className="space-y-3.5 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="font-bold text-slate-700">Contact Person Name *</label>
@@ -2263,6 +2661,60 @@ export const InteractivePdfSectionViewer = ({
               </div>
 
               <div className="space-y-1">
+                <label className="font-bold text-slate-700">Email Address (For PDF Quotation Delivery)</label>
+                <input
+                  type="email"
+                  value={orderForm.email}
+                  onChange={(e) => setOrderForm({ ...orderForm, email: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-primary focus:outline-none font-medium"
+                  placeholder="e.g. procurement@balajimills.com"
+                />
+              </div>
+
+              {/* Customer Image Upload (Requirement 5 & 8) */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-slate-700 flex items-center justify-between">
+                  <span>Upload Reference Images / Part Nameplates (Optional)</span>
+                  <span className="text-[10px] text-slate-400 font-normal">PNG, JPG up to 5MB</span>
+                </label>
+                <div className="border-2 border-dashed border-slate-300 rounded-2xl p-3 text-center hover:border-primary/50 transition-colors bg-slate-50/50">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleQuotationImageUpload}
+                    id="quotation-image-upload"
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="quotation-image-upload"
+                    className="cursor-pointer flex flex-col items-center justify-center gap-1 text-slate-600 hover:text-primary"
+                  >
+                    <UploadCloud className="w-6 h-6 text-slate-400" />
+                    <span className="text-xs font-bold">Click to attach photos</span>
+                    <span className="text-[10px] text-slate-400">Photos will be included in quotation & visible to Admin</span>
+                  </label>
+                </div>
+
+                {customerImagePreviews.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {customerImagePreviews.map((preview, pIdx) => (
+                      <div key={pIdx} className="relative w-14 h-14 rounded-lg overflow-hidden border border-slate-200 group">
+                        <img src={preview} alt="Upload preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(pIdx)}
+                          className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-1">
                 <label className="font-bold text-slate-700">Special Notes / Urgent Dispatch Request</label>
                 <textarea
                   rows={2}
@@ -2284,13 +2736,26 @@ export const InteractivePdfSectionViewer = ({
                 <button
                   type="submit"
                   disabled={orderSubmitting}
-                  className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-black shadow-md transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
+                  className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black shadow-md transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
                 >
-                  {orderSubmitting ? <Spinner size="sm" /> : <ShoppingBag className="w-4 h-4" />}
-                  <span>Confirm Order Request</span>
+                  {orderSubmitting ? <Spinner size="sm" /> : <FileText className="w-4 h-4 text-slate-950" />}
+                  <span>Generate Official Quotation</span>
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Generated Quotation View Modal with Print & PDF Download (Requirement 5 & 6) */}
+      {isQuotationViewModalOpen && generatedQuotation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto animate-fadeIn">
+          <div className="relative w-full max-w-4xl my-auto">
+            <BalumuniInvoice
+              data={generatedQuotation}
+              mode="quotation"
+              onClose={() => setIsQuotationViewModalOpen(false)}
+            />
           </div>
         </div>
       )}

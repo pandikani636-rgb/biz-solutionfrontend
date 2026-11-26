@@ -20,7 +20,6 @@ export const Footer = () => {
   const { settings, categories } = useSite();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
-  const [visitingCardSide, setVisitingCardSide] = useState('front');
 
   const handleNewsletter = (e) => {
     e.preventDefault();
@@ -59,8 +58,8 @@ export const Footer = () => {
                 />
               </div>
               <div>
-                <span className="font-cinzel text-xl sm:text-2xl font-black tracking-wide leading-tight flex items-center text-amber-400 drop-shadow-sm">
-                  {settings?.siteName || 'Balumuni and Associates'}
+                <span className="font-cinzel text-xl sm:text-2xl font-black tracking-wide leading-tight flex items-center text-amber-400 drop-shadow-sm uppercase">
+                  BALUMUNI AND ASSOCIATES
                 </span>
                 <span className="text-[10px] text-blue-200 uppercase tracking-wider font-semibold">
                   Industrial Power Transmission &amp; Bearings
@@ -136,50 +135,26 @@ export const Footer = () => {
               </div>
             </div>
 
-            {/* Official Visiting Card with Front & Backside View */}
+            {/* Official Visiting Card - Front & Back Side by Side */}
             <div className="pt-2">
-              <div className="flex items-center justify-between mb-1.5 max-w-[280px]">
-                <span className="text-[10px] uppercase font-extrabold text-amber-300 tracking-wider">
-                  Official Visiting Card:
-                </span>
-                <div className="flex items-center gap-1 bg-blue-900/80 p-0.5 rounded-lg border border-blue-600/60 shadow-xs">
-                  <button
-                    type="button"
-                    onClick={() => setVisitingCardSide('front')}
-                    className={`px-2 py-0.5 rounded text-[10px] font-black tracking-wide transition-all cursor-pointer ${
-                      visitingCardSide === 'front'
-                        ? 'bg-amber-400 text-slate-950 shadow-xs'
-                        : 'text-slate-300 hover:text-white'
-                    }`}
-                  >
-                    Front View
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setVisitingCardSide('back')}
-                    className={`px-2 py-0.5 rounded text-[10px] font-black tracking-wide transition-all cursor-pointer ${
-                      visitingCardSide === 'back'
-                        ? 'bg-amber-400 text-slate-950 shadow-xs'
-                        : 'text-slate-300 hover:text-white'
-                    }`}
-                  >
-                    Backside View
-                  </button>
+              <span className="text-[10px] uppercase font-extrabold text-amber-300 tracking-wider block mb-2">
+                Official Visiting Card:
+              </span>
+              <div className="grid grid-cols-2 gap-3 max-w-[340px]">
+                <div className="rounded-xl overflow-hidden border border-blue-700/80 shadow-md bg-white p-1">
+                  <img
+                    src="/balumuni-visiting-card.png"
+                    alt="Balumuni and Associates Corporate Visiting Card Front"
+                    className="w-full h-auto object-contain rounded-lg shadow-2xs hover:scale-[1.02] transition-transform"
+                  />
                 </div>
-              </div>
-              <div
-                onClick={() => setVisitingCardSide((prev) => (prev === 'front' ? 'back' : 'front'))}
-                className="rounded-2xl overflow-hidden border border-blue-700/80 shadow-md bg-white p-1 max-w-[280px] group cursor-pointer relative"
-                title="Click to flip visiting card (Front / Backside view)"
-              >
-                <img
-                  src={visitingCardSide === 'front' ? '/balumuni-visiting-card.png' : '/balumuni-visiting-card-back.svg'}
-                  alt={`Balumuni and Associates Corporate Visiting Card ${visitingCardSide === 'front' ? 'Front' : 'Backside'} View`}
-                  className="w-full h-auto object-contain rounded-xl group-hover:scale-[1.03] transition-all duration-300"
-                />
-                <span className="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-xs text-[9px] font-bold text-amber-300 px-1.5 py-0.5 rounded border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {visitingCardSide === 'front' ? 'Flip to Back ↺' : 'Flip to Front ↺'}
-                </span>
+                <div className="rounded-xl overflow-hidden border border-blue-700/80 shadow-md bg-white p-1">
+                  <img
+                    src="/balumuni-visiting-card-back.svg"
+                    alt="Balumuni and Associates Corporate Visiting Card Back"
+                    className="w-full h-auto object-contain rounded-lg shadow-2xs hover:scale-[1.02] transition-transform"
+                  />
+                </div>
               </div>
             </div>
           </div>

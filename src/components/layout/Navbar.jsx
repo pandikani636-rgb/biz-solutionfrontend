@@ -111,8 +111,9 @@ export const Navbar = () => {
 
           {/* Right Info: GSTIN, Admin / Portal */}
           <div className="flex items-center gap-2.5 lg:gap-4 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="text-white font-black text-xs lg:text-sm whitespace-nowrap drop-shadow-sm">
-              GSTIN: <span className="font-mono font-black text-amber-300 tracking-wider">33HONPK5547G2ZK</span>
+            <span className="inline-flex items-center gap-1.5 text-amber-300 font-black text-xs sm:text-sm lg:text-base whitespace-nowrap drop-shadow-sm tracking-wide">
+              <span>GSTIN:</span>
+              <span>33HONPK5547G2ZK</span>
             </span>
 
             <span className="text-blue-300 font-normal">|</span>
@@ -174,9 +175,9 @@ export const Navbar = () => {
                 }}
               />
             </div>
-            <span className="font-cinzel text-blue-700 hover:text-blue-800 text-sm sm:text-base md:text-lg lg:text-[15px] xl:text-lg 2xl:text-xl font-black tracking-wide leading-tight transition-colors flex items-center select-none drop-shadow-xs truncate">
-              <span className="truncate">Balumuni</span>
-              <span className="hidden sm:inline whitespace-nowrap ml-1 font-black">&amp; Associates</span>
+            <span className="font-cinzel text-blue-700 hover:text-blue-800 text-sm sm:text-base md:text-lg lg:text-[15px] xl:text-lg 2xl:text-xl font-black tracking-wide leading-tight transition-colors flex items-center select-none drop-shadow-xs truncate uppercase">
+              <span className="truncate">BALUMUNI</span>
+              <span className="hidden sm:inline whitespace-nowrap ml-1 font-black">AND ASSOCIATES</span>
             </span>
           </Link>
 
