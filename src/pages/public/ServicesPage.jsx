@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useSite } from '../../context/SiteContext';
 import { Button } from '../../components/common/Button';
-import { InteractivePdfSectionViewer } from '../../components/common/InteractivePdfSectionViewer';
+import { PdfCatalogViewer } from '../../components/common/PdfCatalogViewer';
 
 const brands = ['PIX', 'NBC', 'HCH', 'Fenner', 'Timken', 'SKF'];
 
@@ -209,24 +209,10 @@ export const ServicesPage = () => {
         </div>
       </div>
 
-      {/* Interactive PDF Catalog Section Viewer & Quotation Engine (PDF View) */}
-      <InteractivePdfSectionViewer
+      {/* Official Manufacturer PDF Catalog Viewer & Quotation Engine (Admin Uploaded PDF) */}
+      <PdfCatalogViewer
         initialSearch={search}
-        selectedBrand={selectedBrand}
-        onSelectBrand={(b) => setSelectedBrand(b)}
-        selectedCategory={selectedCategory}
-        categories={categories}
-        onSelectCategory={(catId) => setSelectedCategory(catId)}
-        onCategoryDetected={(catName) => {
-          const matched = categories?.find(
-            (c) =>
-              c.name.toLowerCase() === catName.toLowerCase() ||
-              catName.toLowerCase().includes(c.name.toLowerCase())
-          );
-          if (matched && selectedCategory !== matched._id) {
-            setSelectedCategory(matched._id);
-          }
-        }}
+        initialCategory={selectedCategory}
       />
 
       {/* Direct Bulk Inquiries & Custom RFQ Banner */}
