@@ -18,9 +18,12 @@ import {
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
+  MousePointerClick,
 } from 'lucide-react';
 import { Spinner } from './Spinner';
 import { getAssetUrl } from '../../services/api';
+import { formatCurrency } from '../../utils/formatters';
+import { showToast } from '../../utils/alerts';
 
 // Configure PDF.js worker
 if (typeof window !== 'undefined') {
@@ -53,7 +56,8 @@ const getItemRect = (viewport, item, scale) => {
 
 /**
  * InteractivePdfDocumentViewer
- * Renders full scrollable PDF document with in-document search and real-time text highlighting.
+ * Renders full scrollable PDF document with in-document search, text highlighting,
+ * and clickable products that immediately sync to the left side!
  */
 export const InteractivePdfDocumentViewer = ({
   pdfUrl,
@@ -62,7 +66,9 @@ export const InteractivePdfDocumentViewer = ({
   searchTerm = '',
   onSearchChange,
   brandName = '',
-  onSelectTextMatch,
+  availableProducts = [],
+  selectedProduct = null,
+  onSelectProduct,
 }) => {
   const containerRef = useRef(null);
   const [pdfDoc, setPdfDoc] = useState(null);
@@ -87,7 +93,7 @@ export const InteractivePdfDocumentViewer = ({
     }
   }, [searchTerm]);
 
-  // Load PDF Document
+  // Load PDF Document via direct Binary ArrayBuffer fetch to prevent worker origin/CORS fetch errors
   useEffect(() => {
     let isCancelled = false;
     setLoading(true);
@@ -96,55 +102,81 @@ export const InteractivePdfDocumentViewer = ({
     setCurrentMatchIdx(0);
     pageTextDataRef.current = {};
 
-    const effectiveUrl = pdfUrl ? getAssetUrl(pdfUrl) : '/sample-catalog.pdf';
+    const loadPdfData = async () => {
+      // Build candidate URLs to try in order
+      const candidates = [];
 
-    const loadTask = pdfjsLib.getDocument({
-      url: effectiveUrl,
-      cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
-      cMapPacked: true,
-    });
+      if (pdfUrl) {
+        if (pdfUrl.startsWith('http://') || pdfUrl.startsWith('https://')) {
+          candidates.push(pdfUrl);
+        } else {
+          const cleanPath = pdfUrl.startsWith('/') ? pdfUrl : `/${pdfUrl}`;
+          if (typeof window !== 'undefined') {
+            candidates.push(`${window.location.origin}${cleanPath}`);
+          }
+          candidates.push(cleanPath);
+          candidates.push(getAssetUrl(pdfUrl));
+        }
+      }
 
-    loadTask.promise
-      .then((doc) => {
+      if (typeof window !== 'undefined') {
+        candidates.push(`${window.location.origin}/sample-catalog.pdf`);
+      }
+      candidates.push('/sample-catalog.pdf');
+
+      let arrayBuffer = null;
+      let lastErr = null;
+
+      for (const url of candidates) {
+        if (!url) continue;
+        try {
+          const res = await fetch(url, { cache: 'no-cache' });
+          if (res.ok) {
+            const buf = await res.arrayBuffer();
+            if (buf && buf.byteLength > 100) {
+              arrayBuffer = buf;
+              break;
+            }
+          }
+        } catch (fetchErr) {
+          lastErr = fetchErr;
+        }
+      }
+
+      if (isCancelled) return;
+
+      if (!arrayBuffer) {
+        setError(
+          `Unable to load PDF document (${lastErr?.message || 'File not reachable'}). Please check network or click retry.`
+        );
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const loadTask = pdfjsLib.getDocument({
+          data: new Uint8Array(arrayBuffer),
+          cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+          cMapPacked: true,
+        });
+
+        const doc = await loadTask.promise;
         if (isCancelled) return;
         setPdfDoc(doc);
         setNumPages(doc.numPages);
         setLoading(false);
-      })
-      .catch((err) => {
+      } catch (parseErr) {
         if (isCancelled) return;
-        console.error('[PDF Load Error]', err);
-        // If failed with custom URL, try fallback /sample-catalog.pdf
-        if (effectiveUrl !== '/sample-catalog.pdf') {
-          console.log('[PDF Viewer] Trying fallback /sample-catalog.pdf...');
-          const fallbackTask = pdfjsLib.getDocument({
-            url: '/sample-catalog.pdf',
-            cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
-            cMapPacked: true,
-          });
-          fallbackTask.promise
-            .then((doc) => {
-              if (isCancelled) return;
-              setPdfDoc(doc);
-              setNumPages(doc.numPages);
-              setLoading(false);
-            })
-            .catch((fErr) => {
-              if (isCancelled) return;
-              setError(`Failed to load PDF document: ${err.message || 'Network error'}`);
-              setLoading(false);
-            });
-        } else {
-          setError(`Failed to load PDF document: ${err.message || 'Network error'}`);
-          setLoading(false);
-        }
-      });
+        console.error('[PDF.js Parse Error]', parseErr);
+        setError(`Failed to parse PDF document: ${parseErr.message || 'Corrupted file'}`);
+        setLoading(false);
+      }
+    };
+
+    loadPdfData();
 
     return () => {
       isCancelled = true;
-      try {
-        loadTask.destroy();
-      } catch (e) {}
     };
   }, [pdfUrl]);
 
@@ -448,7 +480,58 @@ export const InteractivePdfDocumentViewer = ({
         </div>
       </div>
 
-      {/* 3. FULL SCROLLABLE PDF DOCUMENT CONTAINER */}
+      {/* 3. INTERACTIVE CLICKABLE PRODUCTS IN THIS PDF BAR (User Requirement) */}
+      {/* "Enaku intha Pdf la ye Antha Product eh Clcikable Ah venum Atha Click panaa Left side la Nammaa Click Panra Product Left Side la Show Akanum" */}
+      {availableProducts && availableProducts.length > 0 && (
+        <div className="bg-slate-950 p-3 sm:p-4 border-b border-slate-800 space-y-2 select-none">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-black uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <span>Interactive Catalog: Click Any Product to View on Left Side:</span>
+            </span>
+            <span className="text-[10px] text-slate-400">
+              {availableProducts.length} interactive item{availableProducts.length !== 1 ? 's' : ''} in catalog
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+            {availableProducts.map((prod) => {
+              const isSelected = selectedProduct?.partNumber === prod.partNumber;
+              return (
+                <button
+                  key={prod.partNumber}
+                  type="button"
+                  onClick={() => {
+                    if (onSelectProduct) onSelectProduct(prod);
+                    setInDocSearch(prod.partNumber);
+                    if (onSearchChange) onSearchChange(prod.partNumber);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer shadow-xs shrink-0 ${
+                    isSelected
+                      ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-300 shadow-md scale-105'
+                      : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-amber-400/50'
+                  }`}
+                  title={`Select ${prod.partNumber} & view technical pricing on left side`}
+                >
+                  <span className="font-mono">{prod.partNumber}</span>
+                  <span
+                    className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
+                      isSelected
+                        ? 'bg-slate-950 text-amber-400'
+                        : 'bg-amber-400/20 text-amber-300'
+                    }`}
+                  >
+                    {formatCurrency(prod.wholesalePrice)}
+                  </span>
+                  {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-slate-950" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 4. FULL SCROLLABLE PDF DOCUMENT CONTAINER */}
       {/* "Antha Pdf Full Ah ve Nan Scroll Panni Pakura mathiri Irukkanum... Anth Pdf ah ve Irukkanum" */}
       <div
         ref={containerRef}
@@ -498,6 +581,9 @@ export const InteractivePdfDocumentViewer = ({
               matches={matches}
               currentMatchIdx={currentMatchIdx}
               pageTextDataRef={pageTextDataRef}
+              availableProducts={availableProducts}
+              selectedProduct={selectedProduct}
+              onSelectProduct={onSelectProduct}
             />
           ))
         ) : (
@@ -507,7 +593,7 @@ export const InteractivePdfDocumentViewer = ({
         )}
       </div>
 
-      {/* 4. Bottom Footer Info Bar */}
+      {/* 5. Bottom Footer Info Bar */}
       <div className="p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-emerald-400" />
@@ -527,6 +613,7 @@ export const InteractivePdfDocumentViewer = ({
 
 /**
  * Individual PDF Page Renderer with Real-Time Highlight Overlay Layer
+ * and Clickable Product Hotspots that immediately sync to left side!
  */
 const PdfPageRenderer = ({
   pdfDoc,
@@ -537,11 +624,15 @@ const PdfPageRenderer = ({
   matches,
   currentMatchIdx,
   pageTextDataRef,
+  availableProducts = [],
+  selectedProduct = null,
+  onSelectProduct,
 }) => {
   const canvasRef = useRef(null);
   const [rendered, setRendered] = useState(false);
   const [viewportDims, setViewportDims] = useState({ width: 0, height: 0 });
   const [pageMatches, setPageMatches] = useState([]);
+  const [productHotspots, setProductHotspots] = useState([]);
 
   // Render Page to Canvas
   useEffect(() => {
@@ -591,7 +682,7 @@ const PdfPageRenderer = ({
           pageTextDataRef.current[pageNum] = textData;
         }
 
-        // Calculate highlights for this page if searchTerm exists
+        // 1. Calculate highlights for this page if searchTerm exists
         if (searchTerm && searchTerm.trim()) {
           const cleanQ = searchTerm.trim().toLowerCase();
           const pMatches = [];
@@ -601,7 +692,6 @@ const PdfPageRenderer = ({
             if (strLower.includes(cleanQ)) {
               const rect = getItemRect(viewport, item, scale);
               if (rect) {
-                // Find global index in matches array
                 const globalIdx = matches.findIndex(
                   (m) => m.pageNum === pageNum && m.itemIdx === itemIdx
                 );
@@ -616,6 +706,56 @@ const PdfPageRenderer = ({
           setPageMatches(pMatches);
         } else {
           setPageMatches([]);
+        }
+
+        // 2. Calculate Clickable Product Hotspots on this page (User Requirement)
+        // "intha Pdf la ye Antha Product eh Clcikable Ah venum Atha Click panaa Left side la Nammaa Click Panra Product Left Side la Show Akanum"
+        if (availableProducts && availableProducts.length > 0) {
+          const hotspots = [];
+          availableProducts.forEach((prod) => {
+            const pClean = prod.partNumber.toLowerCase().trim();
+            const pNameClean = (prod.name || '').toLowerCase().trim();
+            const pShort = pClean
+              .replace(
+                /^(diamond|fenner|nbc|fag|skf|timken|siemens|pix|abb|crompton|bharat\s+bijlee|shanthi\s+gears|vignesh\s+gears|ntn)\s+/i,
+                ''
+              )
+              .trim();
+
+            const matchedItems = textData.items.filter((item) => {
+              const strLower = (item.str || '').toLowerCase().trim();
+              if (!strLower || strLower.length < 2) return false;
+              return (
+                strLower === pClean ||
+                strLower.includes(pClean) ||
+                (pClean.includes(strLower) && strLower.length >= 4) ||
+                (pShort.length >= 3 && (strLower.includes(pShort) || pShort.includes(strLower))) ||
+                (pNameClean.length >= 6 && strLower.length >= 6 && pNameClean.includes(strLower))
+              );
+            });
+
+            if (matchedItems.length > 0) {
+              const rects = matchedItems.map((it) => getItemRect(viewport, it, scale)).filter(Boolean);
+              if (rects.length > 0) {
+                const minY = Math.min(...rects.map((r) => r.y));
+                const maxY = Math.max(...rects.map((r) => r.y + r.height));
+                const height = Math.max(maxY - minY, 24);
+
+                hotspots.push({
+                  product: prod,
+                  rect: {
+                    x: 12,
+                    y: Math.max(0, minY - 3),
+                    width: Math.max(viewport.width - 24, 200),
+                    height: height + 6,
+                  },
+                });
+              }
+            }
+          });
+          setProductHotspots(hotspots);
+        } else {
+          setProductHotspots([]);
         }
       } catch (err) {
         if (!isCancelled) {
@@ -634,12 +774,28 @@ const PdfPageRenderer = ({
         } catch (e) {}
       }
     };
-  }, [pdfDoc, pageNum, scale, searchTerm, matches]);
+  }, [pdfDoc, pageNum, scale, searchTerm, matches, availableProducts]);
+
+  // Click on page container to select nearest product row
+  const handlePageClick = (e) => {
+    if (e.target.closest('[data-hotspot="true"]')) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickY = e.clientY - rect.top;
+
+    const closest = productHotspots.find(
+      (hs) => clickY >= hs.rect.y - 12 && clickY <= hs.rect.y + hs.rect.height + 12
+    );
+
+    if (closest && onSelectProduct) {
+      onSelectProduct(closest.product);
+    }
+  };
 
   return (
     <div
       id={`pdf-page-${pageNum}`}
-      className="relative rounded-2xl bg-white shadow-2xl border border-slate-700/80 overflow-hidden transition-all duration-200"
+      onClick={handlePageClick}
+      className="relative rounded-2xl bg-white shadow-2xl border border-slate-700/80 overflow-hidden transition-all duration-200 cursor-pointer"
       style={{
         width: viewportDims.width ? `${viewportDims.width}px` : 'auto',
         minHeight: viewportDims.height ? `${viewportDims.height}px` : '400px',
@@ -648,10 +804,58 @@ const PdfPageRenderer = ({
       {/* 1. Canvas Layer */}
       <canvas ref={canvasRef} className="block select-none" />
 
-      {/* 2. REAL-TIME HIGHLIGHT OVERLAY LAYER (Requirement 3) */}
-      {/* "Pdf la Nan Seach box la type Pannathu Matutum Heiglight Akanum" */}
+      {/* 2. REAL-TIME CLICKABLE PRODUCT HOTSPOTS OVER PDF (User Requirement: Clickable Product in PDF) */}
+      {/* "intha Pdf la ye Antha Product eh Clcikable Ah venum Atha Click panaa Left side la Nammaa Click Panra Product Left Side la Show Akanum" */}
+      {rendered && productHotspots.length > 0 && (
+        <div className="absolute inset-0 z-20 pointer-events-none">
+          {productHotspots.map((hs, idx) => {
+            const isSelected = selectedProduct?.partNumber === hs.product.partNumber;
+            return (
+              <div
+                key={`page-${pageNum}-hotspot-${idx}-${hs.product.partNumber}`}
+                data-hotspot="true"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onSelectProduct) {
+                    onSelectProduct(hs.product);
+                  }
+                }}
+                style={{
+                  position: 'absolute',
+                  left: `${hs.rect.x}px`,
+                  top: `${hs.rect.y}px`,
+                  width: `${hs.rect.width}px`,
+                  height: `${hs.rect.height}px`,
+                }}
+                className={`pointer-events-auto cursor-pointer rounded-xl transition-all duration-200 flex items-center justify-between px-3 group ${
+                  isSelected
+                    ? 'bg-blue-600/30 border-2 border-primary shadow-[0_0_15px_rgba(37,99,235,0.8)] ring-2 ring-primary/50'
+                    : 'border border-transparent hover:border-amber-400 hover:bg-amber-400/20 hover:shadow-lg'
+                }`}
+                title={`Click to select ${hs.product.partNumber} and view on the left side`}
+              >
+                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="bg-slate-950/90 text-amber-300 text-[10px] font-black px-2 py-0.5 rounded-md shadow border border-amber-400/50 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-amber-400" />
+                    <span>Click to view on left side</span>
+                  </span>
+                </div>
+
+                {isSelected && (
+                  <div className="ml-auto flex items-center gap-1 bg-primary text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow animate-fadeIn">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-300" />
+                    <span>Selected for Quote</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* 3. REAL-TIME HIGHLIGHT OVERLAY LAYER */}
       {rendered && pageMatches.length > 0 && (
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none z-10">
           {pageMatches.map((m, idx) => {
             const isCurrent = m.globalIdx === currentMatchIdx;
             return (

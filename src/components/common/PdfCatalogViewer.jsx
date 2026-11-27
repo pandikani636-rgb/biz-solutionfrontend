@@ -890,6 +890,9 @@ export const PdfCatalogViewer = ({
               if (onSearchChange) onSearchChange(term);
             }}
             brandName={activeBrand === 'ALL' ? '' : activeBrand}
+            availableProducts={availableProducts}
+            selectedProduct={selectedProduct}
+            onSelectProduct={handleSelectProduct}
           />
         </div>
       </div>
