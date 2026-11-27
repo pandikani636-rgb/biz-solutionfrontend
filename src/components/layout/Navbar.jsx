@@ -19,15 +19,18 @@ import {
   HardHat,
   TrainFront,
   LogIn,
+  ShoppingBag,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useSite } from '../../context/SiteContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useCart } from '../../context/CartContext';
 import { Button } from '../common/Button';
 
 export const Navbar = () => {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { settings, categories, showPreloader } = useSite();
+  const { openCart, totalItemCount } = useCart();
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -321,6 +324,22 @@ export const Navbar = () => {
 
           {/* Desktop Right Action Cluster - Always 100% visible, non-clipping across all laptop & desktop screens */}
           <div className="hidden lg:flex items-center gap-1.5 xl:gap-2 shrink-0 flex-nowrap whitespace-nowrap pl-1 pr-1 sm:pr-2">
+            {/* Global Cart Button (Desktop) */}
+            <button
+              type="button"
+              onClick={openCart}
+              className="relative inline-flex items-center gap-1.5 px-2.5 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 shadow-xs hover:shadow transition-all cursor-pointer select-none shrink-0"
+              title="View Quotation Cart"
+            >
+              <ShoppingBag className="w-4 h-4 text-primary shrink-0" />
+              <span>Cart</span>
+              {totalItemCount > 0 && (
+                <span className="bg-amber-400 text-slate-950 font-black text-[10px] min-w-4 h-4 px-1 rounded-full flex items-center justify-center shadow-xs animate-pulse">
+                  {totalItemCount}
+                </span>
+              )}
+            </button>
+
             <Link to="/rfq" className="hidden 2xl:inline-flex shrink-0 whitespace-nowrap">
               <Button
                 variant="primary"
@@ -443,8 +462,23 @@ export const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile & Tablet Actions: Prominent Login Button ALWAYS visible + Hamburger Toggle */}
+          {/* Mobile & Tablet Actions: Prominent Cart + Login + Sign Up ALWAYS visible + Hamburger Toggle */}
           <div className="flex lg:hidden items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Mobile Cart Button */}
+            <button
+              type="button"
+              onClick={openCart}
+              className="relative p-2 rounded-xl bg-blue-50 text-blue-900 border border-blue-200 cursor-pointer shrink-0"
+              title="View Quotation Cart"
+            >
+              <ShoppingBag className="w-4 h-4 text-primary" />
+              {totalItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-amber-400 text-slate-950 font-black text-[9px] min-w-3.5 h-3.5 px-0.5 rounded-full flex items-center justify-center shadow-xs">
+                  {totalItemCount}
+                </span>
+              )}
+            </button>
+
             {isAuthenticated ? (
               <Link
                 to="/customer"
@@ -457,21 +491,22 @@ export const Navbar = () => {
                 <span className="hidden sm:inline font-bold">Dashboard</span>
               </Link>
             ) : (
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
                 <Link to="/login" className="shrink-0 whitespace-nowrap">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-xs cursor-pointer active:scale-95 transition-all"
+                    className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-xs cursor-pointer active:scale-95 transition-all"
                     title="Sign In"
                   >
-                    <User className="w-3.5 h-3.5 text-slate-950 shrink-0" />
+                    <User className="w-3 h-3 text-slate-950 shrink-0" />
                     <span>Login</span>
                   </button>
                 </Link>
-                <Link to="/register" className="hidden sm:inline-flex shrink-0 whitespace-nowrap">
+                {/* Sign Up is explicitly visible on all screen sizes, never hidden */}
+                <Link to="/register" className="inline-flex shrink-0 whitespace-nowrap">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-xs cursor-pointer active:scale-95 transition-all"
+                    className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-xs cursor-pointer active:scale-95 transition-all"
                   >
                     <span>Sign Up</span>
                   </button>

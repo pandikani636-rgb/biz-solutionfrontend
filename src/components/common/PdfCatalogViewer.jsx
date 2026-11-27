@@ -33,6 +33,7 @@ import { formatCurrency } from '../../utils/formatters';
 import { useLanguage } from '../../context/LanguageContext';
 import { useSite } from '../../context/SiteContext';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 import { Spinner } from './Spinner';
 import { Button } from './Button';
 import { showSuccessAlert, showErrorAlert, showToast } from '../../utils/alerts';
@@ -57,6 +58,18 @@ export const PdfCatalogViewer = ({
   const { isTamil, t } = useLanguage();
   const { categories, settings } = useSite();
   const { user } = useAuth();
+  const {
+    cartItems,
+    totalItemCount,
+    cartSubtotal,
+    cartTax,
+    cartGrandTotal,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    openCart,
+  } = useCart();
 
   // Catalog data from backend
   const [catalogData, setCatalogData] = useState(null);
@@ -73,8 +86,7 @@ export const PdfCatalogViewer = ({
   const [selectedProductQty, setSelectedProductQty] = useState(1);
   const [productLocalSearch, setProductLocalSearch] = useState('');
 
-  // Quotation Cart states
-  const [cartItems, setCartItems] = useState([]);
+  // Quotation Submission states
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [selectedProductForQuote, setSelectedProductForQuote] = useState(null);
   const [orderQuantity, setOrderQuantity] = useState(1);
@@ -87,8 +99,6 @@ export const PdfCatalogViewer = ({
     gstin: user?.gstin || '',
     notes: '',
   });
-  const [customerImageFiles, setCustomerImageFiles] = useState([]);
-  const [customerImagePreviews, setCustomerImagePreviews] = useState([]);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
   const [generatedQuotation, setGeneratedQuotation] = useState(null);
   const [isQuotationViewModalOpen, setIsQuotationViewModalOpen] = useState(false);
@@ -135,35 +145,34 @@ export const PdfCatalogViewer = ({
 
   useEffect(() => {
     fetchPdfCatalog(searchQuery, activeBrand);
-  }, []);
+  }, [activeBrand]);
 
   // Determine current active brand rule
   const currentBrandRule = useMemo(() => {
     if (!activeBrand || activeBrand === 'ALL') {
       return FOURTEEN_OFFICIAL_MAKES[0];
     }
+    const bLower = activeBrand.toLowerCase().trim();
     return (
       FOURTEEN_OFFICIAL_MAKES.find(
-        (b) => b.code.toLowerCase() === activeBrand.toLowerCase() || b.name.toLowerCase() === activeBrand.toLowerCase()
+        (b) =>
+          b.code.toLowerCase() === bLower ||
+          b.name.toLowerCase() === bLower ||
+          b.code.toLowerCase().includes(bLower) ||
+          bLower.includes(b.code.toLowerCase())
       ) || FOURTEEN_OFFICIAL_MAKES[0]
     );
   }, [activeBrand]);
 
   // Determine which PDF URL to show on the right side
-  // Looks for Admin-uploaded PDF corresponding to selected brand / category
+  // Priority:
+  // 1. Admin-uploaded PDF matching selected brand/category
+  // 2. Authentic brand-specific vector PDF (/catalogs/<brand>-catalog.pdf)
+  // 3. Admin-uploaded master catalog / fallback
   const activePdfInfo = useMemo(() => {
-    if (!catalogData) {
-      return {
-        url: '/sample-catalog.pdf',
-        title: 'Industrial Belts & Bearings Master Catalog',
-        fileName: 'PIX-Industrial-Belts-Price-List.pdf',
-        isBrandSpecific: false,
-      };
-    }
+    const allCatalogs = catalogData?.catalogs || [];
 
-    const allCatalogs = catalogData.catalogs || [];
-
-    // 1. If brand is selected, look for a catalog matching that brand
+    // 1. If brand is selected, look for a catalog matching that brand from admin uploads
     if (activeBrand && activeBrand !== 'ALL') {
       const bLower = activeBrand.toLowerCase().trim();
       const matchedCat = allCatalogs.find((c) => {
@@ -174,6 +183,7 @@ export const PdfCatalogViewer = ({
         return (
           cBrand === bLower ||
           cBrand.includes(bLower) ||
+          bLower.includes(cBrand && cBrand.length > 2 ? cBrand : '___') ||
           cName.includes(bLower) ||
           cTitle.includes(bLower) ||
           cFile.includes(bLower)
@@ -189,6 +199,16 @@ export const PdfCatalogViewer = ({
           catalogId: matchedCat._id,
         };
       }
+
+      // If no admin upload for this brand, use the brand's dedicated official PDF catalog!
+      if (currentBrandRule && currentBrandRule.defaultPdfUrl) {
+        return {
+          url: currentBrandRule.defaultPdfUrl,
+          title: `${currentBrandRule.name} Official Manufacturer Price List & Specifications`,
+          fileName: `${(currentBrandRule.code || currentBrandRule.name).toLowerCase().replace(/\s+/g, '-')}-catalog.pdf`,
+          isBrandSpecific: true,
+        };
+      }
     }
 
     // 2. If category is selected, look for catalog matching category
@@ -197,7 +217,8 @@ export const PdfCatalogViewer = ({
       const matchedCat = allCatalogs.find((c) => {
         const cName = (c.categoryName || '').toLowerCase().trim();
         const cTitle = (c.title || '').toLowerCase().trim();
-        return cName.includes(cLower) || cTitle.includes(cLower);
+        const cFile = (c.fileName || '').toLowerCase().trim();
+        return cName.includes(cLower) || cTitle.includes(cLower) || cFile.includes(cLower);
       });
       if (matchedCat && matchedCat.fileUrl) {
         return {
@@ -210,15 +231,25 @@ export const PdfCatalogViewer = ({
       }
     }
 
-    // 3. Fallback to primary catalog or /sample-catalog.pdf
+    // 3. If specific brand rule has a default URL and is not 'ALL'
+    if (currentBrandRule && currentBrandRule.code !== 'ALL' && currentBrandRule.defaultPdfUrl) {
+      return {
+        url: currentBrandRule.defaultPdfUrl,
+        title: `${currentBrandRule.name} Official Manufacturer Price List & Specifications`,
+        fileName: `${(currentBrandRule.code || currentBrandRule.name).toLowerCase().replace(/\s+/g, '-')}-catalog.pdf`,
+        isBrandSpecific: true,
+      };
+    }
+
+    // 4. Fallback to primary catalog or /sample-catalog.pdf
     return {
-      url: catalogData.fileUrl || '/sample-catalog.pdf',
-      title: catalogData.title || 'Industrial Belts & Bearings Master Catalog',
-      fileName: catalogData.fileName || 'PIX-Industrial-Belts-Price-List.pdf',
+      url: catalogData?.fileUrl || '/sample-catalog.pdf',
+      title: catalogData?.title || 'Industrial Belts & Bearings Master Catalog',
+      fileName: catalogData?.fileName || 'PIX-Industrial-Belts-Price-List.pdf',
       isBrandSpecific: false,
-      catalogId: catalogData._id,
+      catalogId: catalogData?._id,
     };
-  }, [catalogData, activeBrand, activeCategory]);
+  }, [catalogData, activeBrand, activeCategory, currentBrandRule]);
 
   // Extract products for the left side
   const availableProducts = useMemo(() => {
@@ -309,69 +340,10 @@ export const PdfCatalogViewer = ({
     showToast(`Selected ${product.partNumber} — highlighting in PDF document`);
   };
 
-  // Cart Add Handler
+  // Cart Add Handler - dispatches to global CartContext
   const handleAddToCart = (product, qty = 1) => {
     if (!product) return;
-    const mrp = Number(product.mrp) || 1000;
-    const disc = Number(product.discountPercentage) || currentBrandRule.discountPct || 48;
-    const rate = product.wholesalePrice || Math.round(mrp * (1 - disc / 100));
-    const amount = rate * qty;
-
-    setCartItems((prev) => {
-      const existingIdx = prev.findIndex((i) => i.partNumber === product.partNumber);
-      if (existingIdx >= 0) {
-        const updated = [...prev];
-        const newQty = updated[existingIdx].quantity + qty;
-        updated[existingIdx] = {
-          ...updated[existingIdx],
-          quantity: newQty,
-          amount: updated[existingIdx].rate * newQty,
-        };
-        return updated;
-      }
-      return [
-        ...prev,
-        {
-          category: product.categoryName || product.brand || 'Industrial Spares',
-          partNumber: product.partNumber,
-          name: product.name,
-          description: product.specifications || product.name,
-          hsn: '8482',
-          quantity: qty,
-          mrp,
-          discountPercentage: disc,
-          rate,
-          amount,
-        },
-      ];
-    });
-
-    showToast(`✓ Added ${product.partNumber} (${qty} ${qty > 1 ? 'units' : 'unit'}) to Quotation Cart!`);
-  };
-
-  const handleUpdateCartQty = (index, delta) => {
-    setCartItems((prev) => {
-      const updated = [...prev];
-      if (!updated[index]) return prev;
-      const newQty = updated[index].quantity + delta;
-      if (newQty <= 0) {
-        return updated.filter((_, idx) => idx !== index);
-      }
-      updated[index] = {
-        ...updated[index],
-        quantity: newQty,
-        amount: updated[index].rate * newQty,
-      };
-      return updated;
-    });
-  };
-
-  const handleRemoveFromCart = (index) => {
-    setCartItems((prev) => prev.filter((_, idx) => idx !== index));
-  };
-
-  const handleClearCart = () => {
-    setCartItems([]);
+    addToCart(product, qty);
   };
 
   // Generate Quotation Modal submit
@@ -382,11 +354,33 @@ export const PdfCatalogViewer = ({
       return;
     }
 
-    let itemsToQuote = cartItems;
-    if (itemsToQuote.length === 0 && selectedProduct) {
+    let itemsToQuote = [];
+    if (selectedProductForQuote) {
+      const mrp = Number(selectedProductForQuote.mrp) || 1000;
+      const disc = Number(selectedProductForQuote.discountPercentage) || 48;
+      const rate = selectedProductForQuote.wholesalePrice || Math.round(mrp * (1 - disc / 100));
+      const qty = orderQuantity || 1;
+      itemsToQuote = [
+        {
+          category: selectedProductForQuote.categoryName || selectedProductForQuote.brand || 'Industrial Parts',
+          partNumber: selectedProductForQuote.partNumber,
+          name: selectedProductForQuote.name,
+          description: selectedProductForQuote.specifications || selectedProductForQuote.name,
+          hsn: '8482',
+          quantity: qty,
+          mrp,
+          discountPercentage: disc,
+          rate,
+          amount: rate * qty,
+        },
+      ];
+    } else if (cartItems.length > 0) {
+      itemsToQuote = cartItems;
+    } else if (selectedProduct) {
       const mrp = Number(selectedProduct.mrp) || 1000;
       const disc = Number(selectedProduct.discountPercentage) || 48;
       const rate = selectedProduct.wholesalePrice || Math.round(mrp * (1 - disc / 100));
+      const qty = selectedProductQty || 1;
       itemsToQuote = [
         {
           category: selectedProduct.categoryName || selectedProduct.brand || 'Industrial Parts',
@@ -394,11 +388,11 @@ export const PdfCatalogViewer = ({
           name: selectedProduct.name,
           description: selectedProduct.specifications || selectedProduct.name,
           hsn: '8482',
-          quantity: selectedProductQty || 1,
+          quantity: qty,
           mrp,
           discountPercentage: disc,
           rate,
-          amount: rate * (selectedProductQty || 1),
+          amount: rate * qty,
         },
       ];
     }
@@ -427,7 +421,7 @@ export const PdfCatalogViewer = ({
         gstin: orderForm.gstin,
         brand: itemsToQuote[0]?.category || activeBrand || 'Industrial Spares',
         partNumber: itemsToQuote.map((it) => it.partNumber).join(', '),
-        quantity: itemsToQuote.reduce((acc, it) => acc + it.quantity, 0),
+        quantity: itemsToQuote.reduce((acc, it) => acc + (it.quantity || 1), 0),
         targetPrice: subtotal,
         approvedPrice: totalAmount,
         items: itemsToQuote,
@@ -442,7 +436,6 @@ export const PdfCatalogViewer = ({
       const res = await contentService.submitEnquiry(payload);
       if (res.success) {
         setIsOrderModalOpen(false);
-        setCartItems([]);
         setGeneratedQuotation(res.data);
         setIsQuotationViewModalOpen(true);
         showToast(`Quotation #${res.data?.quotationNumber || 'Generated'} created successfully!`);
@@ -464,8 +457,7 @@ export const PdfCatalogViewer = ({
   const grandTotalOrder = Math.round(grandTotalPerUnit * selectedProductQty * 100) / 100;
 
   // Cart total sum
-  const cartSubtotal = cartItems.reduce((acc, it) => acc + (it.amount || 0), 0);
-  const cartTotalWithTax = Math.round((cartSubtotal * 1.18) * 100) / 100;
+  const cartTotalWithTax = cartGrandTotal;
 
   return (
     <div className="space-y-6">
@@ -608,7 +600,7 @@ export const PdfCatalogViewer = ({
                   </div>
                 </div>
 
-                {/* Primary ADD TO CART Button */}
+                {/* Primary ADD TO CART & Instant Official RFQ Buttons */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <button
                     type="button"
@@ -628,10 +620,10 @@ export const PdfCatalogViewer = ({
                       setIsOrderModalOpen(true);
                     }}
                     disabled={!selectedProduct}
-                    className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-black text-xs transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    className="w-full py-3 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
-                    <FileText className="w-4 h-4" />
-                    <span>Instant Official RFQ</span>
+                    <FileSpreadsheet className="w-4 h-4 text-slate-950" />
+                    <span>Generate Quotation</span>
                   </button>
                 </div>
               </div>
@@ -720,9 +712,9 @@ export const PdfCatalogViewer = ({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 shrink-0">
-                        <div className="text-right">
-                          <span className="text-xs font-black text-navy block">
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <div className="text-right mr-1">
+                          <span className="text-xs font-black text-navy block font-mono">
                             {formatCurrency(p.wholesalePrice)}
                           </span>
                           <span className="text-[10px] text-slate-400 line-through">
@@ -736,10 +728,27 @@ export const PdfCatalogViewer = ({
                             e.stopPropagation();
                             handleAddToCart(p, 1);
                           }}
-                          className="p-1.5 rounded-xl bg-primary hover:bg-blue-700 text-white transition-colors shadow-2xs"
+                          className="px-2.5 py-1.5 rounded-xl bg-primary hover:bg-blue-700 text-white text-xs font-bold transition-colors shadow-2xs flex items-center gap-1 cursor-pointer"
                           title="Add 1 to Cart"
                         >
                           <Plus className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Add</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedProduct(p);
+                            setSelectedProductForQuote(p);
+                            setOrderQuantity(1);
+                            setIsOrderModalOpen(true);
+                          }}
+                          className="px-2.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-colors shadow-2xs flex items-center gap-1 cursor-pointer"
+                          title="Generate Quotation for this item"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-slate-950" />
+                          <span className="hidden sm:inline">Quote</span>
                         </button>
                       </div>
                     </div>
@@ -751,48 +760,85 @@ export const PdfCatalogViewer = ({
 
           {/* 3. STICKY / FLOATING QUOTATION CART BAR */}
           {cartItems.length > 0 && (
-            <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 rounded-3xl p-5 border border-amber-400/30 text-white shadow-2xl space-y-3 animate-fadeIn">
+            <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 rounded-3xl p-4 sm:p-5 border border-amber-400/40 text-white shadow-2xl space-y-3 animate-fadeIn">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shadow-xs">
                     <ShoppingBag className="w-4 h-4" />
                   </div>
                   <div>
                     <h4 className="text-xs font-black text-white uppercase tracking-wider">
-                      Quotation Cart ({cartItems.length} {cartItems.length > 1 ? 'Items' : 'Item'})
+                      Quotation Cart ({totalItemCount} {totalItemCount > 1 ? 'Units' : 'Unit'} • {cartItems.length} {cartItems.length > 1 ? 'Items' : 'Item'})
                     </h4>
-                    <span className="text-[11px] text-slate-300">
-                      Total: {formatCurrency(cartTotalWithTax)} (incl. 18% GST)
+                    <span className="text-xs text-amber-300 font-bold font-mono">
+                      Total: {formatCurrency(cartGrandTotal)} (incl. 18% GST)
                     </span>
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleClearCart}
-                  className="text-[11px] text-rose-400 hover:underline font-bold"
-                >
-                  Clear
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={openCart}
+                    className="text-xs text-amber-300 hover:text-white font-bold bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                  >
+                    View Cart
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearCart}
+                    className="text-xs text-rose-400 hover:underline font-bold"
+                  >
+                    Clear
+                  </button>
+                </div>
               </div>
 
-              {/* Compact Cart Items List */}
-              <div className="max-h-36 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin">
-                {cartItems.map((item, idx) => (
+              {/* Compact Cart Items List with Quantity Multiplication in real time */}
+              <div className="max-h-40 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin">
+                {cartItems.map((item) => (
                   <div
-                    key={`${item.partNumber}-${idx}`}
+                    key={item.partNumber}
                     className="flex items-center justify-between p-2 rounded-xl bg-white/5 border border-white/10 text-xs"
                   >
-                    <div className="truncate mr-2">
+                    <div className="truncate mr-2 flex-1">
                       <span className="font-extrabold text-amber-300">{item.partNumber}</span>
-                      <span className="text-slate-400 text-[11px] ml-1">× {item.quantity}</span>
+                      <span className="text-slate-400 text-[11px] block truncate">{item.name}</span>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="font-mono font-bold text-white">{formatCurrency(item.amount)}</span>
+
+                    <div className="flex items-center gap-2.5 shrink-0">
+                      {/* Quantity Controls - multiplies in real-time */}
+                      <div className="flex items-center gap-0.5 bg-white/10 rounded-lg p-0.5 border border-white/20">
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.partNumber, item.quantity - 1)}
+                          className="p-1 hover:bg-white/20 rounded text-slate-300 hover:text-white cursor-pointer"
+                          title="Decrease"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="w-6 text-center font-mono font-bold text-white text-[11px]">
+                          {item.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.partNumber, item.quantity + 1)}
+                          className="p-1 hover:bg-white/20 rounded text-slate-300 hover:text-white cursor-pointer"
+                          title="Increase"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+
+                      {/* Multiplied Total Price: rate * quantity */}
+                      <span className="font-mono font-bold text-white min-w-[65px] text-right">
+                        {formatCurrency(item.amount)}
+                      </span>
+
                       <button
                         type="button"
-                        onClick={() => handleRemoveFromCart(idx)}
-                        className="text-slate-400 hover:text-rose-400"
+                        onClick={() => removeFromCart(item.partNumber)}
+                        className="text-slate-400 hover:text-rose-400 cursor-pointer"
                         title="Remove item"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -802,14 +848,28 @@ export const PdfCatalogViewer = ({
                 ))}
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsOrderModalOpen(true)}
-                className="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer"
-              >
-                <FileSpreadsheet className="w-4 h-4" />
-                <span>Review Cart &amp; Generate Official Quotation</span>
-              </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedProductForQuote(null);
+                    setIsOrderModalOpen(true);
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span>Generate Quotation</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={openCart}
+                  className="w-full py-2.5 rounded-xl bg-primary hover:bg-blue-700 text-white font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Open Cart Drawer</span>
+                </button>
+              </div>
             </div>
           )}
         </div>

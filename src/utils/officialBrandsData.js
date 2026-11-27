@@ -11,6 +11,8 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Complete Industrial Power Transmission Catalog',
     image: '/bannerImages/pix.jpg',
+    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultSearch: '',
   },
   {
     code: 'PIX',
@@ -19,6 +21,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Power Transmission Belts (Classical, Wedge & Cogged)',
     image: '/bannerImages/pix.jpg',
+    defaultPdfUrl: '/catalogs/pix-catalog.pdf',
     defaultSearch: 'PIX',
   },
   {
@@ -28,6 +31,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 25,
     category: 'Bush Pulleys, Taper Bushes & Couplings',
     image: '/bannerImages/jkFenner.webp',
+    defaultPdfUrl: '/catalogs/jk-fenner-catalog.pdf',
     defaultSearch: 'Fenner',
   },
   {
@@ -37,6 +41,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Industrial Roller Chains, Conveyor Chains & Sprockets',
     image: '/bannerImages/diamondRollerChain.jpg',
+    defaultPdfUrl: '/catalogs/diamond-catalog.pdf',
     defaultSearch: 'Diamond',
   },
   {
@@ -46,6 +51,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Industrial Bearings (6400 Heavy Series & Deep Groove)',
     image: '/bannerImages/nbcandTapper role.webp',
+    defaultPdfUrl: '/catalogs/nbc-catalog.pdf',
     defaultSearch: 'NBC',
   },
   {
@@ -55,6 +61,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Spherical Roller & Cylindrical Roller Bearings',
     image: '/bannerImages/fagSperhical.jpg',
+    defaultPdfUrl: '/catalogs/fag-catalog.pdf',
     defaultSearch: 'FAG',
   },
   {
@@ -64,6 +71,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 10,
     category: 'Precision Deep Groove & Angular Contact Bearings',
     image: '/bannerImages/skf.jpg',
+    defaultPdfUrl: '/catalogs/skf-catalog.pdf',
     defaultSearch: 'SKF',
   },
   {
@@ -73,6 +81,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Tapered Roller & Heavy Deep Groove Bearings',
     image: '/bannerImages/timken.jpg',
+    defaultPdfUrl: '/catalogs/timken-catalog.pdf',
     defaultSearch: 'Timken',
   },
   {
@@ -82,6 +91,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Precision Bearing Units, Pillow Blocks & Flange Housings',
     image: '/bannerImages/NTN.jpg',
+    defaultPdfUrl: '/catalogs/ntn-catalog.pdf',
     defaultSearch: 'NTN',
   },
   {
@@ -91,6 +101,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Industrial Electric Motors (IE2 / IE3 Energy Efficient)',
     image: '/bannerImages/siemens.jpg',
+    defaultPdfUrl: '/catalogs/siemens-catalog.pdf',
     defaultSearch: 'Siemens',
   },
   {
@@ -100,6 +111,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Industrial Induction Motors & Cast Iron Drive Units',
     image: '/bannerImages/crompton.jpg',
+    defaultPdfUrl: '/catalogs/crompton-catalog.pdf',
     defaultSearch: 'Crompton',
   },
   {
@@ -109,6 +121,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Premium IE3 / IE4 High-Efficiency Industrial Motors',
     image: '/bannerImages/ABB.jpg',
+    defaultPdfUrl: '/catalogs/abb-catalog.pdf',
     defaultSearch: 'ABB',
   },
   {
@@ -118,6 +131,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Heavy-Duty Industrial Motors & Variable Speed Drives',
     image: '/bannerImages/bharath Bijili.jpg',
+    defaultPdfUrl: '/catalogs/bharat-bijlee-catalog.pdf',
     defaultSearch: 'Bharat Bijlee',
   },
   {
@@ -127,6 +141,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Heavy Industrial Reduction Gearboxes (Worm & Helical)',
     image: '/bannerImages/santhiGears.jpg',
+    defaultPdfUrl: '/catalogs/shanthi-gears-catalog.pdf',
     defaultSearch: 'Shanthi Gears',
   },
   {
@@ -136,6 +151,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     discountPct: 48,
     category: 'Custom Industrial Gears, Pinion Shafts & Bevel Pairs',
     image: '/bannerImages/vignesh Gears.jpg',
+    defaultPdfUrl: '/catalogs/vignesh-gears-catalog.pdf',
     defaultSearch: 'Vignesh Gears',
   },
 ];

@@ -3,12 +3,14 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SiteProvider, useSite } from './context/SiteContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { CartProvider } from './context/CartContext';
 import { AppRoutes } from './routes/AppRoutes';
 import { AIChatbotWidget } from './components/common/AIChatbotWidget';
 import { TechPreloader } from './components/common/TechPreloader';
 import { ScrollToTop } from './components/common/ScrollToTop';
 import { AdvertisementModal } from './components/common/AdvertisementModal';
 import { BackButton } from './components/common/BackButton';
+import { CartModal } from './components/common/CartModal';
 
 function AppContent() {
   const { showPreloader, setShowPreloader } = useSite();
@@ -20,6 +22,7 @@ function AppContent() {
       {!showPreloader && (
         <>
           <BackButton />
+          <CartModal />
           <AIChatbotWidget />
           <AdvertisementModal />
         </>
@@ -35,7 +38,9 @@ export function App() {
       <LanguageProvider>
         <AuthProvider>
           <SiteProvider>
-            <AppContent />
+            <CartProvider>
+              <AppContent />
+            </CartProvider>
           </SiteProvider>
         </AuthProvider>
       </LanguageProvider>

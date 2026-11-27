@@ -61,6 +61,19 @@ export const getAssetUrl = (assetPath) => {
   ) {
     return assetPath;
   }
+
+  // If it's a frontend public static asset, return relative path directly
+  if (
+    assetPath.startsWith('/catalogs/') ||
+    assetPath === '/sample-catalog.pdf' ||
+    assetPath.startsWith('/bannerImages/') ||
+    assetPath.startsWith('/logos/') ||
+    assetPath.startsWith('/icons/') ||
+    assetPath === '/bm-logo.png'
+  ) {
+    return assetPath;
+  }
+
   // Strip /api/v1 to get server origin
   const origin = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
   const cleanPath = assetPath.startsWith('/') ? assetPath : `/${assetPath}`;
