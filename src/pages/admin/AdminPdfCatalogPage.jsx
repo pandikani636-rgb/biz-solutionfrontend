@@ -200,63 +200,7 @@ export const AdminPdfCatalogPage = () => {
       : null;
 
     try {
-      // Check if any selected file exceeds 3.5 MB (Vercel serverless has a strict 4.5 MB request body cap)
-      const hasLargeFiles = pdfFiles.some((f) => f.size > 3.5 * 1024 * 1024);
-
-      if (hasLargeFiles) {
-        // Extract text in the browser to turn multi-megabyte PDFs into lightweight JSON (<200KB)
-        const clientCatalogs = [];
-
-        for (let i = 0; i < pdfFiles.length; i++) {
-          const file = pdfFiles[i];
-          setUploadProgressText(`Reading PDF ${i + 1}/${pdfFiles.length}: ${file.name}...`);
-
-          const extracted = await extractPdfTextInBrowser(file, (percent) => {
-            setUploadProgressText(
-              `Reading PDF ${i + 1}/${pdfFiles.length} (${percent}%): ${file.name}`
-            );
-          });
-
-          clientCatalogs.push({
-            title: catalogTitle && pdfFiles.length === 1 ? catalogTitle : file.name.replace(/\.pdf$/i, ''),
-            fileName: file.name,
-            fileSize: file.size,
-            extractedText: extracted.text,
-            categoryId: catObj?._id || null,
-            categoryName: catObj?.name || '',
-            brand: uploadBrand || undefined,
-            discountPercentage: uploadDiscount ? Number(uploadDiscount) : 48,
-          });
-        }
-
-        setUploadProgressText('Importing & Categorizing Products on Server...');
-
-        const res = await api.post('/pdf-catalog/upload', {
-          catalogs: clientCatalogs,
-          title: catalogTitle && pdfFiles.length === 1 ? catalogTitle : undefined,
-          categoryId: catObj?._id,
-          categoryName: catObj?.name,
-          brand: uploadBrand || undefined,
-          discountPercentage: uploadDiscount ? Number(uploadDiscount) : 48,
-        });
-
-        if (res.data?.success) {
-          await showSuccessAlert(
-            'PDF Catalogs Uploaded & Extracted!',
-            res.data.message || 'All uploaded PDF documents have been categorized with internet product images and are now live on the Products page.'
-          );
-          setPdfFiles([]);
-          setCatalogTitle('');
-          setUploadBrand('');
-          setUploadDiscount('48');
-          setSelectedUploadCategory('');
-          setSelectedCatalogFilter('ALL');
-          fetchCatalogs('ALL');
-        }
-        return;
-      }
-
-      // For smaller files (<= 3.5 MB), upload via FormData
+      // Always attempt full FormData upload first so the authentic PDF file is preserved and stored on server disk
       const formData = new FormData();
       pdfFiles.forEach((file) => {
         formData.append('pdfs', file);
@@ -296,6 +240,7 @@ export const AdminPdfCatalogPage = () => {
         setSelectedUploadCategory('');
         setSelectedCatalogFilter('ALL');
         fetchCatalogs('ALL');
+        return;
       }
     } catch (err) {
       // If standard upload failed with Network Error (e.g. Vercel 413 dropped connection), auto-fallback to client extraction

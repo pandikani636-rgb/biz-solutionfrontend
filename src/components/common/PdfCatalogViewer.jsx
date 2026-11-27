@@ -1165,6 +1165,7 @@ export const PdfCatalogViewer = ({
                 availableProducts={availableProducts}
                 selectedProduct={selectedProduct}
                 onSelectProduct={handleSelectProduct}
+                discountPercentage={currentBrandRule?.discountPct || 48}
               />
             )}
           </div>

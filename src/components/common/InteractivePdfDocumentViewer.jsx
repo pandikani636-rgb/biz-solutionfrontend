@@ -68,6 +68,7 @@ export const InteractivePdfDocumentViewer = ({
   availableProducts = [],
   selectedProduct = null,
   onSelectProduct,
+  discountPercentage = 48,
 }) => {
   const containerRef = useRef(null);
   const [pdfDoc, setPdfDoc] = useState(null);
@@ -583,6 +584,8 @@ export const InteractivePdfDocumentViewer = ({
               availableProducts={availableProducts}
               selectedProduct={selectedProduct}
               onSelectProduct={onSelectProduct}
+              brandName={brandName}
+              discountPercentage={discountPercentage}
             />
           ))
         ) : (
@@ -626,6 +629,8 @@ const PdfPageRenderer = ({
   availableProducts = [],
   selectedProduct = null,
   onSelectProduct,
+  brandName = '',
+  discountPercentage = 48,
 }) => {
   const canvasRef = useRef(null);
   const [rendered, setRendered] = useState(false);
@@ -707,55 +712,181 @@ const PdfPageRenderer = ({
           setPageMatches([]);
         }
 
-        // 2. Calculate Clickable Product Hotspots on this page (User Requirement)
+        // 2. Calculate Column-Accurate Clickable Product Hotspots on this page (User Requirement)
         // "intha Pdf la ye Antha Product eh Clcikable Ah venum Atha Click panaa Left side la Nammaa Click Panra Product Left Side la Show Akanum"
-        if (availableProducts && availableProducts.length > 0) {
-          const hotspots = [];
-          availableProducts.forEach((prod) => {
-            const pClean = prod.partNumber.toLowerCase().trim();
-            const pNameClean = (prod.name || '').toLowerCase().trim();
-            const pShort = pClean
-              .replace(
-                /^(diamond|fenner|nbc|fag|skf|timken|siemens|pix|abb|crompton|bharat\s+bijlee|shanthi\s+gears|vignesh\s+gears|ntn)\s+/i,
-                ''
-              )
-              .trim();
+        const hotspots = [];
+        const seenKeys = new Set();
 
-            const matchedItems = textData.items.filter((item) => {
-              const strLower = (item.str || '').toLowerCase().trim();
-              if (!strLower || strLower.length < 2) return false;
-              return (
-                strLower === pClean ||
-                strLower.includes(pClean) ||
-                (pClean.includes(strLower) && strLower.length >= 4) ||
-                (pShort.length >= 3 && (strLower.includes(pShort) || pShort.includes(strLower))) ||
-                (pNameClean.length >= 6 && strLower.length >= 6 && pNameClean.includes(strLower))
-              );
+        // Multi-column cell extraction from raw text items
+        const lineMap = new Map();
+        (textData.items || []).forEach((it, idx) => {
+          if (!it.str || !it.str.trim()) return;
+          const yKey = Math.round(it.transform[5] * 2) / 2;
+          if (!lineMap.has(yKey)) lineMap.set(yKey, []);
+          lineMap.get(yKey).push({ ...it, idx });
+        });
+
+        const isStopword = (s) =>
+          /^(page|total|mrp|price|list|sl|no|rate|rs|inr|sr|date|qty|hsn|code|desc|description|dimensions?|standard|series|model|inch|size|w\.e\.f|applicable|gst|taxes|terms|conditions|balumuni|industrial|power|transmission|classical|wrapped)$/i.test(
+            s.trim()
+          );
+
+        lineMap.forEach((lineItems) => {
+          // Sort line items horizontally by X position
+          lineItems.sort((a, b) => a.transform[4] - b.transform[4]);
+
+          for (let i = 0; i < lineItems.length; i++) {
+            const it = lineItems[i];
+            const str = it.str.trim();
+            if (isStopword(str) || str.length < 2) continue;
+
+            // Pattern 1: Belts (A 18, B 24, SPA 1250, 3V 500, etc.)
+            const isBeltCode =
+              /^([A-E]|SP[A-Z]|[1-9][0-9]*[A-Z]?|[358]V|[A-Z]{1,3})\s*(\d+[A-Z0-9\/\.\-]*)$/i.test(str) ||
+              /^(A|B|C|D|E|SPA|SPB|SPC|SPZ|3V|5V|8V)\s+\d+$/i.test(str) ||
+              /^(AX|BX|CX|XPZ|XPA|XPB|XPC)\s+\d+$/i.test(str);
+
+            // Pattern 2: Bearings & Roller Chains (6204, 6405, 08B-1, etc.)
+            const isBearingOrChainCode =
+              /^[0-9]{4,5}[A-Z0-9\-\.\/]*$/i.test(str) ||
+              /^[0-9]{2}[A-Z]\-[0-9]+$/i.test(str) ||
+              /^(NU|NJ|NUP|UC|UCP|UCF|UK|6[0-9]{3}|7[0-9]{3}|3[0-9]{4}|2[0-9]{4})\s*[A-Z0-9\-\.\/]*$/i.test(str);
+
+            // Pattern 3: Matches part number in availableProducts
+            const matchedInAvail = (availableProducts || []).find((p) => {
+              const pClean = p.partNumber
+                .toLowerCase()
+                .replace(
+                  /^(diamond|fenner|nbc|fag|skf|timken|siemens|pix|abb|crompton|bharat\s+bijlee|shanthi\s+gears|vignesh\s+gears|ntn)\s+/i,
+                  ''
+                )
+                .trim();
+              const sClean = str
+                .toLowerCase()
+                .replace(
+                  /^(diamond|fenner|nbc|fag|skf|timken|siemens|pix|abb|crompton|bharat\s+bijlee|shanthi\s+gears|vignesh\s+gears|ntn)\s+/i,
+                  ''
+                )
+                .trim();
+              return pClean === sClean || (pClean.length >= 3 && sClean === pClean);
             });
 
-            if (matchedItems.length > 0) {
-              const rects = matchedItems.map((it) => getItemRect(viewport, it, scale)).filter(Boolean);
-              if (rects.length > 0) {
-                const minY = Math.min(...rects.map((r) => r.y));
-                const maxY = Math.max(...rects.map((r) => r.y + r.height));
-                const height = Math.max(maxY - minY, 24);
+            if (isBeltCode || isBearingOrChainCode || matchedInAvail) {
+              // Search forward on the same line for an adjacent price
+              let priceItem = null;
+              for (let j = i + 1; j < Math.min(i + 4, lineItems.length); j++) {
+                const candidate = lineItems[j];
+                const cStr = candidate.str.trim();
+                const dist = candidate.transform[4] - it.transform[4];
+                if (dist > 180) break; // exceeded column boundary
+                if (/^\d{2,6}(\.\d{2})?$/.test(cStr)) {
+                  priceItem = candidate;
+                  i = j; // skip forward past price item
+                  break;
+                }
+              }
 
+              const r1 = getItemRect(viewport, it, scale);
+              if (r1) {
+                const r2 = priceItem ? getItemRect(viewport, priceItem, scale) : null;
+                const minX = r2 ? Math.min(r1.x, r2.x) : r1.x;
+                const maxX = r2 ? Math.max(r1.x + r1.width, r2.x + r2.width) : r1.x + r1.width + 45;
+                const minY = r2 ? Math.min(r1.y, r2.y) : r1.y;
+                const maxY = r2 ? Math.max(r1.y + r1.height, r2.y + r2.height) : r1.y + r1.height;
+
+                const width = Math.max(maxX - minX + 8, 55);
+                const height = Math.max(maxY - minY + 4, 16);
+
+                const effectiveBrand = brandName && brandName !== 'ALL' ? brandName : (matchedInAvail?.brand || 'PIX');
+                const rawCode = str.trim();
+                const partNumber =
+                  matchedInAvail?.partNumber ||
+                  (rawCode.toLowerCase().startsWith(effectiveBrand.toLowerCase())
+                    ? rawCode
+                    : `${effectiveBrand} ${rawCode}`);
+
+                const mrp = priceItem
+                  ? parseFloat(priceItem.str.trim().replace(/,/g, ''))
+                  : (matchedInAvail?.mrp || 250);
+
+                const discPct = Number(matchedInAvail?.discountPercentage) || discountPercentage || 48;
+                const wholesalePrice = Math.round(mrp * (1 - discPct / 100));
+
+                const key = `${Math.round(minX / 10)}_${Math.round(minY / 6)}_${partNumber}`;
+                if (!seenKeys.has(key)) {
+                  seenKeys.add(key);
+                  hotspots.push({
+                    product: matchedInAvail
+                      ? {
+                          ...matchedInAvail,
+                          mrp,
+                          wholesalePrice,
+                          discountPercentage: discPct,
+                        }
+                      : {
+                          partNumber,
+                          name: `${effectiveBrand} ${rawCode} Industrial Component`,
+                          brand: effectiveBrand,
+                          categoryName: matchedInAvail?.categoryName || 'Power Transmission Belts',
+                          dimensions: `Genuine Manufacturer Price List Item`,
+                          mrp,
+                          discountPercentage: discPct,
+                          wholesalePrice,
+                          image:
+                            matchedInAvail?.image ||
+                            'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png',
+                          specifications: `Item Code: ${rawCode} • Official Price List Entry • Wholesale: ₹${wholesalePrice}`,
+                        },
+                    rect: {
+                      x: Math.max(0, minX - 3),
+                      y: Math.max(0, minY - 2),
+                      width,
+                      height,
+                    },
+                  });
+                }
+              }
+            }
+          }
+        });
+
+        // Ensure any matching products from availableProducts that weren't captured also get hotspots
+        (availableProducts || []).forEach((prod) => {
+          const pClean = prod.partNumber.toLowerCase().trim();
+          const pShort = pClean
+            .replace(
+              /^(diamond|fenner|nbc|fag|skf|timken|siemens|pix|abb|crompton|bharat\s+bijlee|shanthi\s+gears|vignesh\s+gears|ntn)\s+/i,
+              ''
+            )
+            .trim();
+
+          const matches = (textData.items || []).filter((it) => {
+            const s = (it.str || '').toLowerCase().trim();
+            if (!s || s.length < 2) return false;
+            return s === pClean || s === pShort || (pShort.length >= 4 && s.includes(pShort));
+          });
+
+          matches.forEach((it) => {
+            const r = getItemRect(viewport, it, scale);
+            if (r) {
+              const key = `${Math.round(r.x / 10)}_${Math.round(r.y / 6)}_${prod.partNumber}`;
+              if (!seenKeys.has(key)) {
+                seenKeys.add(key);
                 hotspots.push({
                   product: prod,
                   rect: {
-                    x: 12,
-                    y: Math.max(0, minY - 3),
-                    width: Math.max(viewport.width - 24, 200),
-                    height: height + 6,
+                    x: Math.max(0, r.x - 3),
+                    y: Math.max(0, r.y - 2),
+                    width: Math.max(r.width + 12, 55),
+                    height: Math.max(r.height + 4, 16),
                   },
                 });
               }
             }
           });
-          setProductHotspots(hotspots);
-        } else {
-          setProductHotspots([]);
-        }
+        });
+
+        setProductHotspots(hotspots);
       } catch (err) {
         if (!isCancelled) {
           console.error(`[Page ${pageNum} Render Error]`, err);
@@ -773,16 +904,21 @@ const PdfPageRenderer = ({
         } catch (e) {}
       }
     };
-  }, [pdfDoc, pageNum, scale, searchTerm, matches, availableProducts]);
+  }, [pdfDoc, pageNum, scale, searchTerm, matches, availableProducts, brandName, discountPercentage]);
 
-  // Click on page container to select nearest product row
+  // Click on page container to select nearest product cell
   const handlePageClick = (e) => {
     if (e.target.closest('[data-hotspot="true"]')) return;
     const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
 
     const closest = productHotspots.find(
-      (hs) => clickY >= hs.rect.y - 12 && clickY <= hs.rect.y + hs.rect.height + 12
+      (hs) =>
+        clickX >= hs.rect.x - 8 &&
+        clickX <= hs.rect.x + hs.rect.width + 8 &&
+        clickY >= hs.rect.y - 6 &&
+        clickY <= hs.rect.y + hs.rect.height + 6
     );
 
     if (closest && onSelectProduct) {
@@ -803,7 +939,7 @@ const PdfPageRenderer = ({
       {/* 1. Canvas Layer */}
       <canvas ref={canvasRef} className="block select-none" />
 
-      {/* 2. REAL-TIME CLICKABLE PRODUCT HOTSPOTS OVER PDF (User Requirement: Clickable Product in PDF) */}
+      {/* 2. REAL-TIME COLUMN-ACCURATE CLICKABLE PRODUCT HOTSPOTS OVER PDF (User Requirement) */}
       {/* "intha Pdf la ye Antha Product eh Clcikable Ah venum Atha Click panaa Left side la Nammaa Click Panra Product Left Side la Show Akanum" */}
       {rendered && productHotspots.length > 0 && (
         <div className="absolute inset-0 z-20 pointer-events-none">
@@ -826,24 +962,24 @@ const PdfPageRenderer = ({
                   width: `${hs.rect.width}px`,
                   height: `${hs.rect.height}px`,
                 }}
-                className={`pointer-events-auto cursor-pointer rounded-xl transition-all duration-200 flex items-center justify-between px-3 group ${
+                className={`pointer-events-auto cursor-pointer rounded-lg transition-all duration-150 flex items-center justify-between px-1.5 group ${
                   isSelected
-                    ? 'bg-blue-600/30 border-2 border-primary shadow-[0_0_15px_rgba(37,99,235,0.8)] ring-2 ring-primary/50'
-                    : 'border border-transparent hover:border-amber-400 hover:bg-amber-400/20 hover:shadow-lg'
+                    ? 'bg-blue-600/35 border-2 border-primary shadow-[0_0_14px_rgba(37,99,235,0.85)] ring-2 ring-primary/60 z-30'
+                    : 'border border-transparent hover:border-amber-400 hover:bg-amber-400/25 hover:shadow-md z-10'
                 }`}
-                title={`Click to select ${hs.product.partNumber} and view on the left side`}
+                title={`Click to select ${hs.product.partNumber} • List MRP: ₹${hs.product.mrp} • Wholesale: ₹${hs.product.wholesalePrice} (${hs.product.discountPercentage}% OFF)`}
               >
-                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="bg-slate-950/90 text-amber-300 text-[10px] font-black px-2 py-0.5 rounded-md shadow border border-amber-400/50 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-amber-400" />
-                    <span>Click to view on left side</span>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="bg-slate-950/95 text-amber-300 text-[9px] font-black px-1.5 py-0.5 rounded shadow border border-amber-400/50 flex items-center gap-0.5 whitespace-nowrap">
+                    <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+                    <span>Select</span>
                   </span>
                 </div>
 
                 {isSelected && (
-                  <div className="ml-auto flex items-center gap-1 bg-primary text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow animate-fadeIn">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-300" />
-                    <span>Selected for Quote</span>
+                  <div className="ml-auto flex items-center gap-0.5 bg-primary text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow animate-fadeIn whitespace-nowrap">
+                    <CheckCircle2 className="w-3 h-3 text-amber-300" />
+                    <span>Selected</span>
                   </div>
                 )}
               </div>
