@@ -84,8 +84,8 @@ export const PdfCatalogViewer = ({
   const [searchQuery, setSearchQuery] = useState(initialSearch || '');
   const [sheetSearch, setSheetSearch] = useState(initialSearch || '');
 
-  // Right-side view mode: 'sheet' (Master PDF Catalog Sheet) | 'canvas' (Raw PDF Canvas Viewer)
-  const [rightViewMode, setRightViewMode] = useState('sheet');
+  // Right-side view mode: 'canvas' (Raw PDF Canvas Viewer) | 'sheet' (Master PDF Catalog Sheet)
+  const [rightViewMode, setRightViewMode] = useState('canvas');
 
   // Selected product state for LEFT side display
   const [selectedProduct, setSelectedProduct] = useState(null);

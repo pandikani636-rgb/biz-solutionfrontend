@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import {
   Search,
@@ -37,79 +37,50 @@ export const ServicesPage = () => {
     if (searchParams.get('category')) setSelectedCategory(searchParams.get('category'));
   }, [searchParams]);
 
-  // When user searches for a brand or category, automatically select it
-  useEffect(() => {
+  // When user searches for a specific brand in search bar
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
     const q = (search || '').trim().toLowerCase();
     if (!q) return;
 
-    // Check if search matches any category
-    const matchedCategory = INDUSTRIAL_CATEGORIES.find(
-      (cat) =>
-        cat.id !== 'ALL' &&
-        (cat.id.toLowerCase().includes(q) ||
-          cat.name.toLowerCase().includes(q) ||
-          q.includes(cat.id.toLowerCase()))
-    );
-
-    if (matchedCategory && selectedCategory !== matchedCategory.id) {
-      setSelectedCategory(matchedCategory.id);
-      setSelectedBrand(matchedCategory.defaultBrand);
-      return;
-    }
-
-    // Check if search matches any of the 14 brands
+    // Check if search matches any brand
     const matchedMake = FOURTEEN_OFFICIAL_MAKES.find(
       (m) =>
         m.code !== 'ALL' &&
-        (m.code.toLowerCase().includes(q) ||
-          q.includes(m.code.toLowerCase()) ||
-          m.name.toLowerCase().includes(q) ||
-          q.includes(m.name.toLowerCase()))
+        (m.code.toLowerCase() === q ||
+          m.name.toLowerCase() === q ||
+          m.code.toLowerCase().includes(q) ||
+          m.name.toLowerCase().includes(q))
     );
 
-    if (matchedMake && selectedBrand !== matchedMake.code) {
+    if (matchedMake) {
       setSelectedBrand(matchedMake.code);
-      if (matchedMake.categoryId && selectedCategory !== matchedMake.categoryId) {
-        setSelectedCategory(matchedMake.categoryId);
-      }
-    }
-  }, [search]);
-
-  // Filter brand pills based on active category
-  const visibleMakes = useMemo(() => {
-    if (!selectedCategory || selectedCategory === 'ALL') {
-      return FOURTEEN_OFFICIAL_MAKES;
-    }
-    const currentCatObj = INDUSTRIAL_CATEGORIES.find((c) => c.id === selectedCategory);
-    if (!currentCatObj) return FOURTEEN_OFFICIAL_MAKES;
-
-    return FOURTEEN_OFFICIAL_MAKES.filter(
-      (m) => m.code === 'ALL' || currentCatObj.brands.includes(m.code)
-    );
-  }, [selectedCategory]);
-
-  const handleCategorySelect = (catId) => {
-    setSelectedCategory(catId);
-    const catObj = INDUSTRIAL_CATEGORIES.find((c) => c.id === catId);
-    if (catObj) {
-      setSelectedBrand(catObj.defaultBrand);
-    } else {
-      setSelectedBrand('ALL');
+      if (matchedMake.categoryId) setSelectedCategory(matchedMake.categoryId);
     }
   };
 
   const handleBrandSelect = (brandCode) => {
     setSelectedBrand(brandCode);
-    if (brandCode !== 'ALL') {
+    if (brandCode === 'ALL') {
+      setSelectedCategory('ALL');
+    } else {
       const makeObj = FOURTEEN_OFFICIAL_MAKES.find((m) => m.code === brandCode);
-      if (makeObj && makeObj.categoryId && makeObj.categoryId !== 'ALL') {
+      if (makeObj && makeObj.categoryId) {
         setSelectedCategory(makeObj.categoryId);
       }
     }
   };
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
+  const handleCategorySelect = (catId) => {
+    setSelectedCategory(catId);
+    if (catId === 'ALL') {
+      setSelectedBrand('ALL');
+    } else {
+      const catObj = INDUSTRIAL_CATEGORIES.find((c) => c.id === catId);
+      if (catObj && catObj.defaultBrand) {
+        setSelectedBrand(catObj.defaultBrand);
+      }
+    }
   };
 
   const handleResetFilters = () => {
@@ -143,7 +114,7 @@ export const ServicesPage = () => {
           </h1>
 
           <p className="text-xs sm:text-sm text-blue-100 leading-relaxed max-w-xl">
-            Direct B2B wholesale prices on genuine Diamond, Fenner, NBC, SKF, Timken, Siemens, ABB, and Shanthi Gears. Fast pan-India delivery, official GST invoices, and 100% manufacturer warranty.
+            Direct B2B wholesale prices on genuine PIX, Diamond, Fenner, NBC, SKF, Timken, Siemens, ABB, and Shanthi Gears. Fast pan-India delivery, official GST invoices, and 100% manufacturer warranty.
           </p>
         </div>
 
@@ -155,7 +126,7 @@ export const ServicesPage = () => {
           <Search className="w-4 h-4 text-slate-400 ml-3 mr-2 shrink-0" />
           <input
             type="text"
-            placeholder="Search category, part #, size (e.g. Diamond, C-98, 6204)..."
+            placeholder="Search part # or brand (e.g. PIX, Diamond, 08B-1, C-98)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full py-2 bg-transparent text-slate-900 text-xs sm:text-sm font-bold focus:outline-none placeholder:text-slate-400 pr-20"
@@ -178,14 +149,15 @@ export const ServicesPage = () => {
         </form>
       </div>
 
-      {/* 3. DUAL FILTER CONTAINER: CATEGORY TABS + 14 BRAND PILLS */}
+      {/* 3. AUTHORIZED INDUSTRIAL MAKES & BRANDS (14 OFFICIAL MAKES)
+          ALL 14 MAKES ARE ALWAYS VISIBLE (PIX, FENNER, DIAMOND, NBC, SKF, SIEMENS, etc.) */}
       <div className="bg-[#1a2d5e] rounded-3xl p-5 sm:p-6 border border-blue-900/60 shadow-xl space-y-4">
-        {/* Header & Reset Button */}
+        {/* Title Header Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
           <div className="flex items-center gap-2">
             <span className="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
-              <Layers className="w-4 h-4 text-amber-400" />
-              <span>1. SELECT INDUSTRIAL CATEGORY:</span>
+              <Tag className="w-4 h-4 text-amber-400" />
+              <span>AUTHORIZED INDUSTRIAL MAKES &amp; BRANDS (14 OFFICIAL MAKES):</span>
             </span>
           </div>
 
@@ -196,13 +168,66 @@ export const ServicesPage = () => {
               className="text-xs text-amber-300 hover:text-white font-bold flex items-center gap-1.5 cursor-pointer transition-colors self-start sm:self-auto"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset All Filters</span>
+              <span>Reset Filters</span>
             </button>
           )}
         </div>
 
-        {/* 1. CATEGORY FILTER TABS (Solves "Nan Mela Entha Cetogory Click Pannalumm PIX pdf la Ullathuthan Show akuthu") */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* 14 Official Makes Brand Pills - ALL 14 ALWAYS DIRECTLY VISIBLE ON TOP! */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {FOURTEEN_OFFICIAL_MAKES.map((make) => {
+            const isSelected = selectedBrand.toLowerCase() === make.code.toLowerCase();
+            const isAll = make.code === 'ALL';
+
+            if (isAll) {
+              return (
+                <button
+                  key="ALL"
+                  type="button"
+                  onClick={() => handleBrandSelect('ALL')}
+                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-amber-400 text-slate-950 shadow-md ring-2 ring-amber-300'
+                      : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
+                  }`}
+                >
+                  All Brands (14 Makes)
+                </button>
+              );
+            }
+
+            return (
+              <button
+                key={make.code}
+                type="button"
+                onClick={() => handleBrandSelect(make.code)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                  isSelected
+                    ? 'bg-amber-400 text-slate-950 shadow-lg ring-2 ring-amber-300 scale-105'
+                    : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
+                }`}
+              >
+                <span>{make.name}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded font-black ${
+                    isSelected
+                      ? 'bg-slate-950 text-amber-400'
+                      : 'bg-amber-400/20 text-amber-300'
+                  }`}
+                >
+                  {make.discountPct}% OFF
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Category Shortcuts Row - quick jumps without hiding any brands */}
+        <div className="pt-3 border-t border-white/10 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-[11px] font-bold text-blue-200 uppercase tracking-wider flex items-center gap-1.5 mr-1">
+            <Layers className="w-3.5 h-3.5 text-amber-400" />
+            <span>Category Shortcuts:</span>
+          </span>
           {INDUSTRIAL_CATEGORIES.map((cat) => {
             const isCatActive = selectedCategory.toLowerCase() === cat.id.toLowerCase();
             return (
@@ -210,81 +235,22 @@ export const ServicesPage = () => {
                 key={cat.id}
                 type="button"
                 onClick={() => handleCategorySelect(cat.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
                   isCatActive
-                    ? 'bg-amber-400 text-slate-950 shadow-lg ring-2 ring-amber-300 scale-102'
-                    : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
+                    ? 'bg-amber-400 text-slate-950 font-black shadow-xs'
+                    : 'bg-white/5 hover:bg-white/15 text-slate-300 border border-white/10'
                 }`}
               >
-                <span>{cat.name}</span>
-                {isCatActive && <ChevronRight className="w-3.5 h-3.5 text-slate-950" />}
+                {cat.name}
               </button>
             );
           })}
-        </div>
-
-        {/* 2. BRAND PILLS SECTION */}
-        <div className="pt-2 border-t border-white/10 space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black uppercase tracking-wider text-blue-200 flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5 text-amber-300" />
-              <span>2. AUTHORIZED MAKES &amp; BRANDS ({visibleMakes.length - (visibleMakes.some(m => m.code === 'ALL') ? 1 : 0)} Available):</span>
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {visibleMakes.map((make) => {
-              const isSelected = selectedBrand.toLowerCase() === make.code.toLowerCase();
-              const isAll = make.code === 'ALL';
-
-              if (isAll) {
-                return (
-                  <button
-                    key="ALL"
-                    type="button"
-                    onClick={() => handleBrandSelect('ALL')}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-amber-400 text-slate-950 shadow-md ring-2 ring-amber-300'
-                        : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
-                    }`}
-                  >
-                    All {selectedCategory !== 'ALL' ? 'Category Makes' : 'Makes (14 Brands)'}
-                  </button>
-                );
-              }
-
-              return (
-                <button
-                  key={make.code}
-                  type="button"
-                  onClick={() => handleBrandSelect(make.code)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-                    isSelected
-                      ? 'bg-amber-400 text-slate-950 shadow-lg ring-2 ring-amber-300'
-                      : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
-                  }`}
-                >
-                  <span>{make.name}</span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded font-black ${
-                      isSelected
-                        ? 'bg-slate-950 text-amber-400'
-                        : 'bg-amber-400/20 text-amber-300'
-                    }`}
-                  >
-                    {make.discountPct}% OFF
-                  </span>
-                </button>
-              );
-            })}
-          </div>
         </div>
       </div>
 
       {/* 4. 2-COLUMN PDF & PRODUCT CATALOG ENGINE
           LEFT: Selected Product with "Add to Cart" Option
-          RIGHT: Master PDF Catalog Data Sheet & Interactive PDF Viewer */}
+          RIGHT: Master PDF Catalog Data Sheet / Canvas Viewer */}
       <PdfCatalogViewer
         initialSearch={search}
         initialBrand={selectedBrand}
@@ -300,7 +266,7 @@ export const ServicesPage = () => {
             Need a Specific Part Number or Custom Size?
           </h3>
           <p className="text-xs text-slate-300 max-w-2xl">
-            We supply complete industrial ranges from Diamond, Fenner, SKF, Timken, NBC, Siemens, ABB, and Shanthi Gears with mill test certificates, OEM warranty, and factory pricing.
+            We supply complete industrial ranges from PIX, Diamond, Fenner, SKF, Timken, NBC, Siemens, ABB, and Shanthi Gears with mill test certificates, OEM warranty, and factory pricing.
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">

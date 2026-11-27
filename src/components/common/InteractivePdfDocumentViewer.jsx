@@ -25,12 +25,11 @@ import { getAssetUrl } from '../../services/api';
 import { formatCurrency } from '../../utils/formatters';
 import { showToast } from '../../utils/alerts';
 
-// Configure PDF.js worker
+// Configure PDF.js worker (uses local self-hosted worker for 100% reliable rendering)
 if (typeof window !== 'undefined') {
   try {
     if (pdfjsLib.GlobalWorkerOptions) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `${window.location.origin}/pdf.worker.min.js`;
     }
   } catch (e) {
     console.warn('[PDF.js Worker Setup]', e);
