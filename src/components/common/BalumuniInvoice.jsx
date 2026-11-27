@@ -66,10 +66,11 @@ export const BalumuniInvoice = ({
   const isInvoiceMode = mode === 'invoice' || Boolean(doc.invoiceGenerated && mode !== 'quotation_only');
   const titleText = isInvoiceMode ? 'INVOICE' : 'QUOTATION';
 
-  // Format Sequential Quotation Number: ENQ No: [Sequential Number]/[Month]/[Year]
+  // Format Sequential Quotation Number: QT-[Sequential Number]-[Month]-[Year]
   const rawQuotationNumber = doc.quotationNumber || (doc.monthlySequence ? `${doc.monthlySequence}/${new Date().getMonth() + 1}/${String(new Date().getFullYear()).slice(-2)}` : '1/11/26');
-  const formattedEnqNo = rawQuotationNumber.startsWith('ENQ') ? rawQuotationNumber : `ENQ No: ${rawQuotationNumber}`;
-  const invoiceNumber = doc.invoiceNumber || (isInvoiceMode ? `INV-${rawQuotationNumber.replace(/[^0-9/]/g, '').replace(/\//g, '-')}` : '');
+  const cleanNum = rawQuotationNumber.replace(/^ENQ\s*No:?\s*/i, '').replace(/^QT:?\s*/i, '').replace(/\//g, '-');
+  const formattedEnqNo = `QT-${cleanNum}`;
+  const invoiceNumber = doc.invoiceNumber || (isInvoiceMode ? `INV-${cleanNum}` : '');
 
   // Extract Customer / Party Info
   const customerName = doc.companyName || doc.name || doc.customer?.name || 'SADHURAGIRI COIL';

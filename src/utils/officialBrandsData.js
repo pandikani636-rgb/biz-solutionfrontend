@@ -86,7 +86,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'pulleys',
     category: 'Bush Pulleys, Taper Bushes & Couplings',
     image: '/bannerImages/jkFenner.webp',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/jk-fenner-catalog.pdf',
     defaultSearch: 'Fenner',
   },
   {
@@ -97,7 +97,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'chains',
     category: 'Industrial Roller Chains, Conveyor Chains & Sprockets',
     image: '/bannerImages/diamondRollerChain.jpg',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/diamond-catalog.pdf',
     defaultSearch: 'Diamond',
   },
   {
@@ -108,7 +108,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'bearings',
     category: 'Industrial Bearings (6400 Heavy Series & Deep Groove)',
     image: '/bannerImages/nbcandTapper role.webp',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/nbc-catalog.pdf',
     defaultSearch: 'NBC',
   },
   {
@@ -119,7 +119,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'bearings',
     category: 'Spherical Roller & Cylindrical Roller Bearings',
     image: '/bannerImages/fagSperhical.jpg',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/fag-catalog.pdf',
     defaultSearch: 'FAG',
   },
   {
@@ -130,7 +130,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'bearings',
     category: 'Precision Deep Groove & Angular Contact Bearings',
     image: '/bannerImages/skf.jpg',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/skf-catalog.pdf',
     defaultSearch: 'SKF',
   },
   {
@@ -141,7 +141,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'bearings',
     category: 'Tapered Roller & Heavy Deep Groove Bearings',
     image: '/bannerImages/timken.jpg',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/timken-catalog.pdf',
     defaultSearch: 'Timken',
   },
   {
@@ -152,7 +152,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'bearings',
     category: 'Precision Bearing Units, Pillow Blocks & Flange Housings',
     image: '/bannerImages/NTN.jpg',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/ntn-catalog.pdf',
     defaultSearch: 'NTN',
   },
   {
@@ -163,7 +163,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'motors',
     category: 'Industrial Electric Motors (IE2 / IE3 Energy Efficient)',
     image: '/bannerImages/siemens.jpg',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/siemens-catalog.pdf',
     defaultSearch: 'Siemens',
   },
   {
@@ -174,7 +174,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'motors',
     category: 'Industrial Induction Motors & Cast Iron Drive Units',
     image: '/bannerImages/crompton.jpg',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/crompton-catalog.pdf',
     defaultSearch: 'Crompton',
   },
   {
@@ -185,7 +185,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'motors',
     category: 'Premium IE3 / IE4 High-Efficiency Industrial Motors',
     image: '/bannerImages/ABB.jpg',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/abb-catalog.pdf',
     defaultSearch: 'ABB',
   },
   {
@@ -196,7 +196,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'motors',
     category: 'Heavy-Duty Industrial Motors & Variable Speed Drives',
     image: '/bannerImages/bharath Bijili.jpg',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/bharat-bijlee-catalog.pdf',
     defaultSearch: 'Bharat Bijlee',
   },
   {
@@ -207,7 +207,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'gears',
     category: 'Heavy Industrial Reduction Gearboxes (Worm & Helical)',
     image: '/bannerImages/santhiGears.jpg',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/shanthi-gears-catalog.pdf',
     defaultSearch: 'Shanthi Gears',
   },
   {
@@ -218,7 +218,7 @@ export const FOURTEEN_OFFICIAL_MAKES = [
     categoryId: 'gears',
     category: 'Custom Industrial Gears, Pinion Shafts & Bevel Pairs',
     image: '/bannerImages/vignesh Gears.jpg',
-    defaultPdfUrl: '/sample-catalog.pdf',
+    defaultPdfUrl: '/catalogs/vignesh-gears-catalog.pdf',
     defaultSearch: 'Vignesh Gears',
   },
 ];

@@ -109,7 +109,15 @@ export const InteractivePdfDocumentViewer = ({
       if (pdfUrl) {
         if (pdfUrl.startsWith('http://') || pdfUrl.startsWith('https://')) {
           candidates.push(pdfUrl);
+        } else if (pdfUrl.startsWith('/uploads/') || pdfUrl.includes('uploads/')) {
+          // Uploaded file on backend - prioritize backend asset URL
+          candidates.push(getAssetUrl(pdfUrl));
+          candidates.push(pdfUrl);
+          if (typeof window !== 'undefined') {
+            candidates.push(`${window.location.origin}${pdfUrl.startsWith('/') ? pdfUrl : `/${pdfUrl}`}`);
+          }
         } else {
+          // Static public asset
           const cleanPath = pdfUrl.startsWith('/') ? pdfUrl : `/${pdfUrl}`;
           if (typeof window !== 'undefined') {
             candidates.push(`${window.location.origin}${cleanPath}`);
@@ -134,8 +142,13 @@ export const InteractivePdfDocumentViewer = ({
           if (res.ok) {
             const buf = await res.arrayBuffer();
             if (buf && buf.byteLength > 100) {
-              arrayBuffer = buf;
-              break;
+              const u8 = new Uint8Array(buf);
+              // Verify PDF magic bytes: '%PDF' (0x25, 0x50, 0x44, 0x46)
+              const isPdf = u8[0] === 0x25 && u8[1] === 0x50 && u8[2] === 0x44 && u8[3] === 0x46;
+              if (isPdf) {
+                arrayBuffer = buf;
+                break;
+              }
             }
           }
         } catch (fetchErr) {

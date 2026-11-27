@@ -72,7 +72,7 @@ export const Navbar = () => {
   };
 
   const navLinkClass = ({ isActive }) =>
-    `px-1.5 lg:px-2 xl:px-2.5 2xl:px-3 py-1.5 lg:py-1.5 xl:py-2 rounded-xl text-xs xl:text-[13px] 2xl:text-sm font-bold tracking-tight transition-all inline-flex items-center gap-1 xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0 ${
+    `px-1.5 lg:px-1.5 xl:px-2.5 2xl:px-3 py-1 lg:py-1 xl:py-2 rounded-xl text-xs xl:text-[13px] 2xl:text-sm font-bold tracking-tight transition-all inline-flex items-center gap-1 xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0 ${
       isActive
         ? 'text-primary bg-blue-50/90 font-black shadow-xs ring-1 ring-primary/20'
         : 'text-slate-800 hover:text-primary hover:bg-slate-100/90'
@@ -178,9 +178,9 @@ export const Navbar = () => {
                 }}
               />
             </div>
-            <span className="font-cinzel text-blue-700 hover:text-blue-800 text-sm sm:text-base md:text-lg lg:text-[15px] xl:text-lg 2xl:text-xl font-black tracking-wide leading-tight transition-colors flex items-center select-none drop-shadow-xs truncate uppercase">
+            <span className="font-cinzel text-blue-700 hover:text-blue-800 text-sm sm:text-base md:text-lg lg:text-[14px] xl:text-lg 2xl:text-xl font-black tracking-wide leading-tight transition-colors flex items-center select-none drop-shadow-xs truncate uppercase">
               <span className="truncate">BALUMUNI</span>
-              <span className="hidden sm:inline whitespace-nowrap ml-1 font-black">AND ASSOCIATES</span>
+              <span className="hidden xl:inline whitespace-nowrap ml-1 font-black">AND ASSOCIATES</span>
             </span>
           </Link>
 
@@ -439,11 +439,11 @@ export const Navbar = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 xl:gap-2 shrink-0 whitespace-nowrap">
+              <div className="flex items-center gap-1 lg:gap-1.5 xl:gap-2 shrink-0 whitespace-nowrap">
                 <Link to="/login" className="shrink-0 whitespace-nowrap">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 xl:px-4 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer select-none"
+                    className="inline-flex items-center gap-1 lg:gap-1.5 px-2.5 py-1.5 xl:px-4 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer select-none"
                     title="Sign In to Account"
                   >
                     <User className="w-3.5 h-3.5 text-slate-950 shrink-0" />
@@ -453,7 +453,7 @@ export const Navbar = () => {
                 <Link to="/register" className="shrink-0 whitespace-nowrap inline-flex">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer select-none"
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer select-none"
                   >
                     <span>{t('nav_signup') || t('nav_register') || 'Sign Up'}</span>
                   </button>
@@ -526,7 +526,47 @@ export const Navbar = () => {
 
       {/* 3. Mobile Drawer */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-8 space-y-2 animate-fadeIn shadow-xl max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain">
+        <div className="lg:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-8 space-y-3 animate-fadeIn shadow-xl max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain">
+          {/* Mobile Login / Sign Up Quick Bar */}
+          {!isAuthenticated ? (
+            <div className="grid grid-cols-2 gap-2 p-2 bg-slate-50 rounded-2xl border border-slate-200 shadow-2xs">
+              <Link
+                to="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-xs transition-colors"
+              >
+                <User className="w-3.5 h-3.5" />
+                <span>Login</span>
+              </Link>
+              <Link
+                to="/register"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center justify-center py-2.5 rounded-xl text-xs font-black bg-blue-700 hover:bg-blue-800 text-white shadow-xs transition-colors"
+              >
+                <span>Sign Up</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between p-3 bg-blue-50/70 rounded-2xl border border-blue-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-blue-100 text-primary border border-blue-200 flex items-center justify-center font-bold">
+                  <User className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-navy truncate">{user.name}</p>
+                  <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
+                </div>
+              </div>
+              <Link
+                to="/customer"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="px-2.5 py-1 text-xs font-bold bg-primary text-white rounded-lg"
+              >
+                Portal
+              </Link>
+            </div>
+          )}
+
           <div className="space-y-1">
             <NavLink
               to="/"

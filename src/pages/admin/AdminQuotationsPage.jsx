@@ -197,17 +197,21 @@ export const AdminQuotationsPage = () => {
   }, [activeTab]);
 
   // Format Sequential Quotation Number (Requirement 5 & 6)
-  // Format: ENQ No: [Sequential Number]/[Month]/[Year]
+  // Format Sequential Quotation Number: QT-[Sequential Number]-[Month]-[Year]
   const formatQuotationNumber = (q) => {
-    if (!q) return 'ENQ No: 1/11/26';
-    if (q.quotationNumber && q.quotationNumber.startsWith('ENQ')) {
-      return q.quotationNumber;
+    if (!q) return 'QT-1-11-26';
+    if (q.quotationNumber) {
+      const cleaned = q.quotationNumber
+        .replace(/^ENQ\s*No:?\s*/i, '')
+        .replace(/^QT:?\s*/i, '')
+        .replace(/\//g, '-');
+      return `QT-${cleaned}`;
     }
     const seq = q.monthlySequence || 1;
     const d = q.createdAt ? new Date(q.createdAt) : new Date();
     const month = d.getMonth() + 1;
     const year = String(d.getFullYear()).slice(-2);
-    return `ENQ No: ${seq}/${month}/${year}`;
+    return `QT-${seq}-${month}-${year}`;
   };
 
   // Open BalumuniInvoice Viewer Modal
@@ -729,10 +733,15 @@ export const AdminQuotationsPage = () => {
                       const totalAmt = q.totalAmount || q.approvedPrice || q.targetPrice || 0;
 
                       return (
-                        <tr key={q._id} className="hover:bg-slate-50/70 transition-colors">
+                        <tr
+                          key={q._id}
+                          onClick={() => handleOpenViewModal(q, 'quotation')}
+                          className="hover:bg-blue-50/70 transition-colors cursor-pointer group"
+                          title="Click this row to view customer quotation details and products"
+                        >
                           {/* Sequential Quotation Number */}
                           <td className="py-3.5 px-4 font-mono font-bold">
-                            <span className="text-sm font-black text-primary block">
+                            <span className="text-sm font-black text-primary block group-hover:text-blue-700 transition-colors">
                               {formattedEnq}
                             </span>
                             <span className="inline-block mt-0.5 text-[10px] font-sans font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
@@ -742,7 +751,7 @@ export const AdminQuotationsPage = () => {
 
                           {/* Client / Company */}
                           <td className="py-3.5 px-4">
-                            <p className="font-bold text-darkText text-sm">{q.name}</p>
+                            <p className="font-bold text-darkText text-sm group-hover:text-primary transition-colors">{q.name}</p>
                             <p className="text-[11px] text-secondaryText">
                               {q.companyName ? `${q.companyName} • ` : ''}{q.phone || q.email}
                             </p>
@@ -784,7 +793,7 @@ export const AdminQuotationsPage = () => {
                           </td>
 
                           {/* Invoice Status (Requirement 10) */}
-                          <td className="py-3.5 px-4 text-center">
+                          <td className="py-3.5 px-4 text-center" onClick={(e) => e.stopPropagation()}>
                             {q.invoiceGenerated ? (
                               <button
                                 type="button"
@@ -812,7 +821,7 @@ export const AdminQuotationsPage = () => {
                           </td>
 
                           {/* Action Buttons: View, Edit, Email (Requirement 6 & 11) */}
-                          <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                          <td className="py-3.5 px-4 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-end gap-1.5">
                               {/* View Official Quotation Button */}
                               <button
