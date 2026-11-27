@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import {
   Search,
@@ -8,12 +8,18 @@ import {
   Truck,
   ShieldCheck,
   FileSpreadsheet,
+  Layers,
+  ChevronRight,
+  Filter,
 } from 'lucide-react';
 import { useSite } from '../../context/SiteContext';
 import { Button } from '../../components/common/Button';
 import { BackButton } from '../../components/common/BackButton';
 import { PdfCatalogViewer } from '../../components/common/PdfCatalogViewer';
-import { FOURTEEN_OFFICIAL_MAKES } from '../../utils/officialBrandsData';
+import {
+  FOURTEEN_OFFICIAL_MAKES,
+  INDUSTRIAL_CATEGORIES,
+} from '../../utils/officialBrandsData';
 
 export const ServicesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,6 +42,21 @@ export const ServicesPage = () => {
     const q = (search || '').trim().toLowerCase();
     if (!q) return;
 
+    // Check if search matches any category
+    const matchedCategory = INDUSTRIAL_CATEGORIES.find(
+      (cat) =>
+        cat.id !== 'ALL' &&
+        (cat.id.toLowerCase().includes(q) ||
+          cat.name.toLowerCase().includes(q) ||
+          q.includes(cat.id.toLowerCase()))
+    );
+
+    if (matchedCategory && selectedCategory !== matchedCategory.id) {
+      setSelectedCategory(matchedCategory.id);
+      setSelectedBrand(matchedCategory.defaultBrand);
+      return;
+    }
+
     // Check if search matches any of the 14 brands
     const matchedMake = FOURTEEN_OFFICIAL_MAKES.find(
       (m) =>
@@ -48,8 +69,44 @@ export const ServicesPage = () => {
 
     if (matchedMake && selectedBrand !== matchedMake.code) {
       setSelectedBrand(matchedMake.code);
+      if (matchedMake.categoryId && selectedCategory !== matchedMake.categoryId) {
+        setSelectedCategory(matchedMake.categoryId);
+      }
     }
   }, [search]);
+
+  // Filter brand pills based on active category
+  const visibleMakes = useMemo(() => {
+    if (!selectedCategory || selectedCategory === 'ALL') {
+      return FOURTEEN_OFFICIAL_MAKES;
+    }
+    const currentCatObj = INDUSTRIAL_CATEGORIES.find((c) => c.id === selectedCategory);
+    if (!currentCatObj) return FOURTEEN_OFFICIAL_MAKES;
+
+    return FOURTEEN_OFFICIAL_MAKES.filter(
+      (m) => m.code === 'ALL' || currentCatObj.brands.includes(m.code)
+    );
+  }, [selectedCategory]);
+
+  const handleCategorySelect = (catId) => {
+    setSelectedCategory(catId);
+    const catObj = INDUSTRIAL_CATEGORIES.find((c) => c.id === catId);
+    if (catObj) {
+      setSelectedBrand(catObj.defaultBrand);
+    } else {
+      setSelectedBrand('ALL');
+    }
+  };
+
+  const handleBrandSelect = (brandCode) => {
+    setSelectedBrand(brandCode);
+    if (brandCode !== 'ALL') {
+      const makeObj = FOURTEEN_OFFICIAL_MAKES.find((m) => m.code === brandCode);
+      if (makeObj && makeObj.categoryId && makeObj.categoryId !== 'ALL') {
+        setSelectedCategory(makeObj.categoryId);
+      }
+    }
+  };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -63,12 +120,12 @@ export const ServicesPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
-      {/* 1. TOP NAVIGATION: Back to Home (Matches user screenshot) */}
+      {/* 1. TOP NAVIGATION: Back to Home */}
       <div className="flex items-center justify-between">
         <BackButton inline label="Back to Home" fallbackPath="/" />
       </div>
 
-      {/* 2. HERO BANNER: Royal Blue Gradient with Search inside (Matches user screenshot) */}
+      {/* 2. HERO BANNER: Royal Blue Gradient with Search inside */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-600 to-blue-700 rounded-3xl p-6 sm:p-8 md:p-10 text-white shadow-xl border border-blue-400/40 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         {/* Left Side: Badges, Title, Subtitle */}
         <div className="relative z-10 space-y-3 max-w-2xl">
@@ -77,20 +134,20 @@ export const ServicesPage = () => {
               45% - 48% OFF MRP LIST
             </span>
             <span className="text-xs font-bold text-white bg-white/15 px-3.5 py-1 rounded-full border border-white/20">
-              🚚 Free Delhivery Included
+              🚚 Free Delivery Included
             </span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight tracking-tight">
-            Industrial Bearings, Belts &amp; Pulleys
+            Industrial Bearings, Belts &amp; Motors
           </h1>
 
           <p className="text-xs sm:text-sm text-blue-100 leading-relaxed max-w-xl">
-            Direct B2B wholesale prices on genuine PIX, Fenner, NBC, HCH, Timken, and SKF. Fast pan-India delivery, official GST invoices, and 100% genuine products.
+            Direct B2B wholesale prices on genuine Diamond, Fenner, NBC, SKF, Timken, Siemens, ABB, and Shanthi Gears. Fast pan-India delivery, official GST invoices, and 100% manufacturer warranty.
           </p>
         </div>
 
-        {/* Right Side: Search Input with Blue Search Button (Matches user screenshot) */}
+        {/* Right Side: Search Input with Blue Search Button */}
         <form
           onSubmit={handleSearchSubmit}
           className="w-full md:w-96 relative flex items-center bg-white rounded-full p-1.5 shadow-xl border border-white/80"
@@ -121,94 +178,118 @@ export const ServicesPage = () => {
         </form>
       </div>
 
-      {/* 3. DARK BLUE FILTER BOX (Matches user screenshot pixel-perfect!) */}
-      {/* Tag icon + AUTHORIZED INDUSTRIAL MAKES & BRANDS (14 OFFICIAL MAKES): + Clear Filters + 15 Brand Pills */}
+      {/* 3. DUAL FILTER CONTAINER: CATEGORY TABS + 14 BRAND PILLS */}
       <div className="bg-[#1a2d5e] rounded-3xl p-5 sm:p-6 border border-blue-900/60 shadow-xl space-y-4">
-        <div className="flex items-center justify-between">
-          <span className="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
-            <Tag className="w-4 h-4 text-amber-400" />
-            <span>AUTHORIZED INDUSTRIAL MAKES &amp; BRANDS (14 OFFICIAL MAKES):</span>
-          </span>
+        {/* Header & Reset Button */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
+              <Layers className="w-4 h-4 text-amber-400" />
+              <span>1. SELECT INDUSTRIAL CATEGORY:</span>
+            </span>
+          </div>
 
           {(selectedBrand !== 'ALL' || selectedCategory !== 'ALL' || search) && (
             <button
               type="button"
               onClick={handleResetFilters}
-              className="text-xs text-amber-300 hover:text-white font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="text-xs text-amber-300 hover:text-white font-bold flex items-center gap-1.5 cursor-pointer transition-colors self-start sm:self-auto"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Clear Filters</span>
+              <span>Reset All Filters</span>
             </button>
           )}
         </div>
 
-        {/* 14 Official Makes Brand Pills (Exact layout from user screenshot) */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {FOURTEEN_OFFICIAL_MAKES.map((make) => {
-            const isSelected = selectedBrand.toLowerCase() === make.code.toLowerCase();
-            const isAll = make.code === 'ALL';
-
-            if (isAll) {
-              return (
-                <button
-                  key="ALL"
-                  type="button"
-                  onClick={() => {
-                    setSelectedBrand('ALL');
-                    setSelectedCategory('ALL');
-                  }}
-                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-amber-400 text-slate-950 shadow-md ring-2 ring-amber-300'
-                      : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
-                  }`}
-                >
-                  All Brands (14 Makes)
-                </button>
-              );
-            }
-
+        {/* 1. CATEGORY FILTER TABS (Solves "Nan Mela Entha Cetogory Click Pannalumm PIX pdf la Ullathuthan Show akuthu") */}
+        <div className="flex flex-wrap items-center gap-2">
+          {INDUSTRIAL_CATEGORIES.map((cat) => {
+            const isCatActive = selectedCategory.toLowerCase() === cat.id.toLowerCase();
             return (
               <button
-                key={make.code}
+                key={cat.id}
                 type="button"
-                onClick={() => {
-                  const nextBrand = isSelected ? 'ALL' : make.code;
-                  setSelectedBrand(nextBrand);
-                  if (make.defaultSearch && !isSelected) {
-                    setSearch(make.defaultSearch);
-                  }
-                }}
+                onClick={() => handleCategorySelect(cat.id)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-                  isSelected
-                    ? 'bg-amber-400 text-slate-950 shadow-lg ring-2 ring-amber-300'
+                  isCatActive
+                    ? 'bg-amber-400 text-slate-950 shadow-lg ring-2 ring-amber-300 scale-102'
                     : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
                 }`}
               >
-                <span>{make.name}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded font-black ${
-                    isSelected
-                      ? 'bg-slate-950 text-amber-400'
-                      : 'bg-amber-400/20 text-amber-300'
-                  }`}
-                >
-                  {make.discountPct}% OFF
-                </span>
+                <span>{cat.name}</span>
+                {isCatActive && <ChevronRight className="w-3.5 h-3.5 text-slate-950" />}
               </button>
             );
           })}
+        </div>
+
+        {/* 2. BRAND PILLS SECTION */}
+        <div className="pt-2 border-t border-white/10 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-black uppercase tracking-wider text-blue-200 flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5 text-amber-300" />
+              <span>2. AUTHORIZED MAKES &amp; BRANDS ({visibleMakes.length - (visibleMakes.some(m => m.code === 'ALL') ? 1 : 0)} Available):</span>
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {visibleMakes.map((make) => {
+              const isSelected = selectedBrand.toLowerCase() === make.code.toLowerCase();
+              const isAll = make.code === 'ALL';
+
+              if (isAll) {
+                return (
+                  <button
+                    key="ALL"
+                    type="button"
+                    onClick={() => handleBrandSelect('ALL')}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-amber-400 text-slate-950 shadow-md ring-2 ring-amber-300'
+                        : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
+                    }`}
+                  >
+                    All {selectedCategory !== 'ALL' ? 'Category Makes' : 'Makes (14 Brands)'}
+                  </button>
+                );
+              }
+
+              return (
+                <button
+                  key={make.code}
+                  type="button"
+                  onClick={() => handleBrandSelect(make.code)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                    isSelected
+                      ? 'bg-amber-400 text-slate-950 shadow-lg ring-2 ring-amber-300'
+                      : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
+                  }`}
+                >
+                  <span>{make.name}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded font-black ${
+                      isSelected
+                        ? 'bg-slate-950 text-amber-400'
+                        : 'bg-amber-400/20 text-amber-300'
+                    }`}
+                  >
+                    {make.discountPct}% OFF
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       {/* 4. 2-COLUMN PDF & PRODUCT CATALOG ENGINE
           LEFT: Selected Product with "Add to Cart" Option
-          RIGHT: Admin-Uploaded PDF with In-Document Search & Text Highlighting */}
+          RIGHT: Master PDF Catalog Data Sheet & Interactive PDF Viewer */}
       <PdfCatalogViewer
         initialSearch={search}
         initialBrand={selectedBrand}
         initialCategory={selectedCategory}
-        onBrandSelect={(b) => setSelectedBrand(b)}
+        onBrandSelect={(b) => handleBrandSelect(b)}
         onSearchChange={(s) => setSearch(s)}
       />
 
@@ -219,7 +300,7 @@ export const ServicesPage = () => {
             Need a Specific Part Number or Custom Size?
           </h3>
           <p className="text-xs text-slate-300 max-w-2xl">
-            We supply complete industrial ranges from PIX, SKF, Timken, NBC, Fenner, Diamond, and Shanthi Gears with mill test certificates, OEM warranty, and factory pricing.
+            We supply complete industrial ranges from Diamond, Fenner, SKF, Timken, NBC, Siemens, ABB, and Shanthi Gears with mill test certificates, OEM warranty, and factory pricing.
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">

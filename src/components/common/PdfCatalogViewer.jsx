@@ -27,6 +27,8 @@ import {
   Check,
   Eye,
   FileSpreadsheet,
+  MousePointerClick,
+  CheckCircle,
 } from 'lucide-react';
 import api, { getAssetUrl } from '../../services/api';
 import { formatCurrency } from '../../utils/formatters';
@@ -43,6 +45,7 @@ import { InteractivePdfDocumentViewer } from './InteractivePdfDocumentViewer';
 import {
   FOURTEEN_OFFICIAL_MAKES,
   OFFICIAL_BRAND_PRODUCTS,
+  INDUSTRIAL_CATEGORIES,
   getProductsForBrand,
 } from '../../utils/officialBrandsData';
 
@@ -73,13 +76,16 @@ export const PdfCatalogViewer = ({
 
   // Catalog data from backend
   const [catalogData, setCatalogData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Filter and search states
   const [activeBrand, setActiveBrand] = useState(initialBrand || 'ALL');
   const [activeCategory, setActiveCategory] = useState(initialCategory || 'ALL');
   const [searchQuery, setSearchQuery] = useState(initialSearch || '');
-  const [pdfInDocSearch, setPdfInDocSearch] = useState(initialSearch || '');
+  const [sheetSearch, setSheetSearch] = useState(initialSearch || '');
+
+  // Right-side view mode: 'sheet' (Master PDF Catalog Sheet) | 'canvas' (Raw PDF Canvas Viewer)
+  const [rightViewMode, setRightViewMode] = useState('sheet');
 
   // Selected product state for LEFT side display
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -113,7 +119,7 @@ export const PdfCatalogViewer = ({
   useEffect(() => {
     if (initialSearch !== undefined && initialSearch !== searchQuery) {
       setSearchQuery(initialSearch);
-      setPdfInDocSearch(initialSearch);
+      setSheetSearch(initialSearch);
     }
   }, [initialSearch]);
 
@@ -124,12 +130,13 @@ export const PdfCatalogViewer = ({
   }, [initialCategory]);
 
   // Fetch PDF Catalogs from Backend API
-  const fetchPdfCatalog = async (query = '', brand = '') => {
+  const fetchPdfCatalog = async (brand = '', category = '', query = '') => {
     setLoading(true);
     try {
       const params = {};
-      if (query) params.search = query;
       if (brand && brand !== 'ALL') params.brand = brand;
+      if (category && category !== 'ALL') params.category = category;
+      if (query) params.search = query;
 
       const res = await api.get('/pdf-catalog', { params });
       const catalog = res?.data?.categories ? res.data : res?.data || res;
@@ -137,15 +144,15 @@ export const PdfCatalogViewer = ({
         setCatalogData(catalog);
       }
     } catch (err) {
-      console.error('[PdfCatalogViewer Error]', err);
+      console.warn('[PdfCatalogViewer Error fetching backend catalog]', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPdfCatalog(searchQuery, activeBrand);
-  }, [activeBrand]);
+    fetchPdfCatalog(activeBrand, activeCategory, searchQuery);
+  }, [activeBrand, activeCategory]);
 
   // Determine current active brand rule
   const currentBrandRule = useMemo(() => {
@@ -165,42 +172,28 @@ export const PdfCatalogViewer = ({
   }, [activeBrand]);
 
   // Determine which PDF URL to show on the right side
-  // Priority:
-  // 1. Admin-uploaded PDF matching selected brand/category
-  // 2. Authentic brand-specific vector PDF (/catalogs/<brand>-catalog.pdf)
-  // 3. Admin-uploaded master catalog / fallback
   const activePdfInfo = useMemo(() => {
     const allCatalogs = catalogData?.catalogs || [];
 
-    // 1. If brand is selected, look for a catalog matching that brand from admin uploads
+    // 1. If brand is selected, look for a catalog matching that brand
     if (activeBrand && activeBrand !== 'ALL') {
       const bLower = activeBrand.toLowerCase().trim();
       const matchedCat = allCatalogs.find((c) => {
         const cBrand = (c.brand || '').toLowerCase().trim();
-        const cName = (c.categoryName || '').toLowerCase().trim();
         const cTitle = (c.title || '').toLowerCase().trim();
-        const cFile = (c.fileName || '').toLowerCase().trim();
-        return (
-          cBrand === bLower ||
-          cBrand.includes(bLower) ||
-          bLower.includes(cBrand && cBrand.length > 2 ? cBrand : '___') ||
-          cName.includes(bLower) ||
-          cTitle.includes(bLower) ||
-          cFile.includes(bLower)
-        );
+        return cBrand === bLower || cTitle.includes(bLower);
       });
 
       if (matchedCat && matchedCat.fileUrl) {
         return {
           url: matchedCat.fileUrl,
           title: matchedCat.title || `${activeBrand} Official Manufacturer Price List`,
-          fileName: matchedCat.fileName || `${activeBrand}-Price-List.pdf`,
+          fileName: matchedCat.fileName || `${activeBrand.toLowerCase()}-catalog.pdf`,
           isBrandSpecific: true,
           catalogId: matchedCat._id,
         };
       }
 
-      // If no admin upload for this brand, use the brand's dedicated official PDF catalog!
       if (currentBrandRule && currentBrandRule.defaultPdfUrl) {
         return {
           url: currentBrandRule.defaultPdfUrl,
@@ -216,63 +209,65 @@ export const PdfCatalogViewer = ({
       const cLower = activeCategory.toLowerCase().trim();
       const matchedCat = allCatalogs.find((c) => {
         const cName = (c.categoryName || '').toLowerCase().trim();
-        const cTitle = (c.title || '').toLowerCase().trim();
-        const cFile = (c.fileName || '').toLowerCase().trim();
-        return cName.includes(cLower) || cTitle.includes(cLower) || cFile.includes(cLower);
+        return cName.includes(cLower) || cLower.includes(cName);
       });
       if (matchedCat && matchedCat.fileUrl) {
         return {
           url: matchedCat.fileUrl,
-          title: matchedCat.title || `${activeCategory} Official Price List`,
-          fileName: matchedCat.fileName || 'Category-Price-List.pdf',
+          title: matchedCat.title,
+          fileName: matchedCat.fileName,
           isBrandSpecific: true,
           catalogId: matchedCat._id,
         };
       }
     }
 
-    // 3. If specific brand rule has a default URL and is not 'ALL'
-    if (currentBrandRule && currentBrandRule.code !== 'ALL' && currentBrandRule.defaultPdfUrl) {
-      return {
-        url: currentBrandRule.defaultPdfUrl,
-        title: `${currentBrandRule.name} Official Manufacturer Price List & Specifications`,
-        fileName: `${(currentBrandRule.code || currentBrandRule.name).toLowerCase().replace(/\s+/g, '-')}-catalog.pdf`,
-        isBrandSpecific: true,
-      };
-    }
-
-    // 4. Fallback to primary catalog or /sample-catalog.pdf
+    // 3. Fallback for ALL: sample-catalog.pdf or catalogData?.fileUrl
     return {
       url: catalogData?.fileUrl || '/sample-catalog.pdf',
-      title: catalogData?.title || 'Industrial Belts & Bearings Master Catalog',
-      fileName: catalogData?.fileName || 'PIX-Industrial-Belts-Price-List.pdf',
+      title: catalogData?.title || 'Industrial Power Transmission Master Catalog',
+      fileName: catalogData?.fileName || 'Master-Industrial-Catalog.pdf',
       isBrandSpecific: false,
-      catalogId: catalogData?._id,
     };
   }, [catalogData, activeBrand, activeCategory, currentBrandRule]);
 
-  // Extract products for the left side
+  // Extract products for the left side and right side sheet
   const availableProducts = useMemo(() => {
     let prods = [];
 
-    // 1. Collect from database extracted catalog categories if present
+    // 1. Get products for the active brand or category
+    if (activeBrand && activeBrand !== 'ALL') {
+      prods = getProductsForBrand(activeBrand);
+    } else if (activeCategory && activeCategory !== 'ALL') {
+      prods = getProductsForBrand(activeCategory);
+    } else {
+      prods = getProductsForBrand('ALL');
+    }
+
+    // 2. Also check if catalogData from DB has extra products matching activeBrand
     if (catalogData?.categories) {
+      const dbProds = [];
       catalogData.categories.forEach((cat) => {
         cat.subcategories?.forEach((sub) => {
           sub.products?.forEach((p) => {
             const matchesBrand =
-              !activeBrand ||
-              activeBrand === 'ALL' ||
-              (p.brand && p.brand.toLowerCase() === activeBrand.toLowerCase()) ||
-              (p.categoryName && p.categoryName.toLowerCase().includes(activeBrand.toLowerCase()));
+              !activeBrand || activeBrand === 'ALL'
+                ? true
+                : (p.brand && p.brand.toLowerCase() === activeBrand.toLowerCase());
 
-            if (matchesBrand) {
-              prods.push({
+            const matchesCategory =
+              !activeCategory || activeCategory === 'ALL'
+                ? true
+                : ((p.categoryName || cat.name).toLowerCase().includes(activeCategory.toLowerCase()));
+
+            if (matchesBrand && matchesCategory) {
+              dbProds.push({
                 partNumber: p.partNumber,
                 name: p.name,
-                brand: p.brand || activeBrand || 'General',
+                brand: p.brand || activeBrand || 'Industrial',
                 categoryName: p.categoryName || cat.name,
                 section: p.section || sub.name || '',
+                dimensions: p.dimensions || '',
                 mrp: Number(p.mrp) || 1200,
                 discountPercentage: Number(p.discountPercentage) || currentBrandRule.discountPct || 48,
                 wholesalePrice: Number(p.wholesalePrice) || Math.round((Number(p.mrp) || 1200) * (1 - (currentBrandRule.discountPct || 48) / 100)),
@@ -283,35 +278,47 @@ export const PdfCatalogViewer = ({
           });
         });
       });
-    }
 
-    // 2. Combine with official predefined verified products for that brand
-    const staticProds = getProductsForBrand(activeBrand);
-    if (prods.length === 0) {
-      prods = staticProds;
-    } else {
       // Merge unique by partNumber
       const existingPartNums = new Set(prods.map((p) => p.partNumber.toLowerCase()));
-      staticProds.forEach((sp) => {
-        if (!existingPartNums.has(sp.partNumber.toLowerCase())) {
-          prods.push(sp);
+      dbProds.forEach((dp) => {
+        if (!existingPartNums.has(dp.partNumber.toLowerCase())) {
+          prods.push(dp);
+          existingPartNums.add(dp.partNumber.toLowerCase());
         }
       });
     }
 
-    // 3. Apply product local search if user typed in left search box
+    // 3. Apply product local search if typed
     if (productLocalSearch.trim()) {
       const q = productLocalSearch.trim().toLowerCase();
       prods = prods.filter(
         (p) =>
           p.partNumber.toLowerCase().includes(q) ||
           p.name.toLowerCase().includes(q) ||
+          p.brand.toLowerCase().includes(q) ||
           (p.specifications && p.specifications.toLowerCase().includes(q))
       );
     }
 
     return prods;
-  }, [catalogData, activeBrand, currentBrandRule, productLocalSearch]);
+  }, [catalogData, activeBrand, activeCategory, currentBrandRule, productLocalSearch]);
+
+  // Filtered products specifically for the Right-Side Master Sheet
+  const sheetFilteredProducts = useMemo(() => {
+    if (!sheetSearch.trim()) {
+      return availableProducts;
+    }
+    const q = sheetSearch.trim().toLowerCase();
+    return availableProducts.filter(
+      (p) =>
+        p.partNumber.toLowerCase().includes(q) ||
+        p.name.toLowerCase().includes(q) ||
+        p.brand.toLowerCase().includes(q) ||
+        (p.specifications && p.specifications.toLowerCase().includes(q)) ||
+        (p.dimensions && p.dimensions.toLowerCase().includes(q))
+    );
+  }, [availableProducts, sheetSearch]);
 
   // Set initial selected product when brand changes or list loads
   useEffect(() => {
@@ -325,19 +332,12 @@ export const PdfCatalogViewer = ({
     }
   }, [availableProducts]);
 
-  // When a product is clicked/selected from left side:
-  // Updates selected product AND syncs search term to highlight & scroll right-side PDF!
+  // When a product is clicked/selected from left list OR right-side master sheet:
   const handleSelectProduct = (product) => {
+    if (!product) return;
     setSelectedProduct(product);
     setSelectedProductQty(1);
-
-    // Sync part number into PDF in-document search so it highlights in the PDF!
-    const searchTarget = product.partNumber || product.name;
-    setPdfInDocSearch(searchTarget);
-    if (onSearchChange) {
-      onSearchChange(searchTarget);
-    }
-    showToast(`Selected ${product.partNumber} — highlighting in PDF document`);
+    showToast(`Selected ${product.partNumber} — loaded on the left side`);
   };
 
   // Cart Add Handler - dispatches to global CartContext
@@ -452,18 +452,17 @@ export const PdfCatalogViewer = ({
   const discountPct = Number(selectedProduct?.discountPercentage) || currentBrandRule.discountPct || 48;
   const discountAmount = Math.round((mrp * discountPct) / 100);
   const netWholesalePrice = selectedProduct?.wholesalePrice || Math.max(0, mrp - discountAmount);
-  const gstAmount = Math.round(((netWholesalePrice * 18) / 100) * 100) / 100;
-  const grandTotalPerUnit = Math.round((netWholesalePrice + gstAmount) * 100) / 100;
-  const grandTotalOrder = Math.round(grandTotalPerUnit * selectedProductQty * 100) / 100;
 
-  // Cart total sum
-  const cartTotalWithTax = cartGrandTotal;
+  // Line item multiplication on quantity change:
+  const lineSubtotal = Math.round(netWholesalePrice * selectedProductQty * 100) / 100;
+  const lineTax = Math.round((lineSubtotal * 0.18) * 100) / 100;
+  const lineGrandTotal = Math.round((lineSubtotal + lineTax) * 100) / 100;
 
   return (
     <div className="space-y-6">
       {/* 2-COLUMN MAIN LAYOUT:
-          LEFT: Selected Product with "Add to Cart" + Category Products
-          RIGHT: Full Scrollable PDF Document Viewer with Search & Text Highlighting */}
+          LEFT: Selected Product with "Add to Cart" Option + Category Products
+          RIGHT: Master PDF Catalog Data Sheet / Canvas Viewer */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* ========================================================
@@ -472,7 +471,7 @@ export const PdfCatalogViewer = ({
             ======================================================== */}
         <div className="lg:col-span-5 space-y-6">
           
-          {/* 1. ACTIVE SELECTED PRODUCT CARD (Requirement 4) */}
+          {/* 1. ACTIVE SELECTED PRODUCT CARD (User Requirement) */}
           {/* "Select Panaa Product pdf ku lefy side show Akanum Add to Cart Option Oda" */}
           <div className="bg-white rounded-3xl border border-blue-200/90 shadow-xl overflow-hidden space-y-0 transition-all">
             {/* Card Top Banner with Brand & Authenticity Tag */}
@@ -532,10 +531,11 @@ export const PdfCatalogViewer = ({
                 </div>
               </div>
 
-              {/* Real-Time B2B Wholesale Pricing Breakdown */}
+              {/* Real-Time B2B Wholesale Pricing Breakdown with Quantity Multiplication */}
+              {/* "admin Side Pdf La Ennaa Irukutho Antha Price Mattum tha Show Akanummm Athu badithan Show Akanum Inga User Ku varumpothu Ennaa Discount ohh Athu Calculate Aki Show Akanum USer Ku" */}
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2.5">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500 font-medium">Official Manufacturer MRP:</span>
+                  <span className="text-slate-500 font-medium">Official Admin List MRP (from PDF):</span>
                   <span className="font-bold text-slate-800 line-through">
                     {formatCurrency(mrp)}
                   </span>
@@ -544,26 +544,36 @@ export const PdfCatalogViewer = ({
                 <div className="flex justify-between items-center text-xs">
                   <span className="font-extrabold text-amber-700 flex items-center gap-1">
                     <BadgePercent className="w-3.5 h-3.5" />
-                    B2B Wholesale Discount ({discountPct}% OFF):
+                    Authorized Wholesale Discount ({discountPct}% OFF):
                   </span>
                   <span className="font-black text-amber-700">
                     - {formatCurrency(discountAmount)}
                   </span>
                 </div>
 
-                <div className="pt-2 border-t border-slate-200 flex justify-between items-baseline">
+                <div className="flex justify-between items-center text-xs pt-1 border-t border-slate-200">
+                  <span className="text-slate-600 font-bold">Unit Net Wholesale Rate:</span>
+                  <span className="font-black text-slate-900 font-mono">
+                    {formatCurrency(netWholesalePrice)} / Unit
+                  </span>
+                </div>
+
+                {/* Real-Time Multiplied Order Total on Quantity Change */}
+                <div className="pt-2 border-t-2 border-dashed border-blue-200 flex justify-between items-baseline bg-blue-50/60 p-2.5 rounded-xl">
                   <div>
-                    <span className="text-xs font-black uppercase tracking-wide text-navy block">
-                      Net Wholesale Rate:
+                    <span className="text-xs font-black uppercase tracking-wide text-blue-950 block">
+                      Total for {selectedProductQty} {selectedProductQty > 1 ? 'Units' : 'Unit'}:
                     </span>
-                    <span className="text-[10px] text-slate-500">+18% GST Applicable</span>
+                    <span className="text-[10px] text-slate-500">
+                      Subtotal: {formatCurrency(lineSubtotal)} + 18% GST ({formatCurrency(lineTax)})
+                    </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xl sm:text-2xl font-black text-navy">
-                      {formatCurrency(netWholesalePrice)}
+                    <span className="text-xl sm:text-2xl font-black text-blue-900 font-mono">
+                      {formatCurrency(lineGrandTotal)}
                     </span>
-                    <span className="text-[11px] text-slate-500 block font-medium">
-                      Total with GST: {formatCurrency(grandTotalPerUnit)}
+                    <span className="text-[10px] text-emerald-700 block font-bold">
+                      (All Taxes &amp; Freight Included)
                     </span>
                   </div>
                 </div>
@@ -600,7 +610,7 @@ export const PdfCatalogViewer = ({
                   </div>
                 </div>
 
-                {/* Primary ADD TO CART & Instant Official RFQ Buttons */}
+                {/* Primary ADD TO CART & Instant Official RFQ Buttons side by side */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <button
                     type="button"
@@ -669,7 +679,7 @@ export const PdfCatalogViewer = ({
             </div>
 
             {/* Scrollable list of products */}
-            <div className="max-h-[380px] overflow-y-auto space-y-2.5 pr-1 scrollbar-thin">
+            <div className="max-h-[360px] overflow-y-auto space-y-2.5 pr-1 scrollbar-thin">
               {availableProducts.length === 0 ? (
                 <div className="text-center py-8 text-xs text-slate-400">
                   No products found matching filter.
@@ -876,24 +886,288 @@ export const PdfCatalogViewer = ({
 
         {/* ========================================================
             RIGHT COLUMN (7 cols on lg, approx 58% width):
-            Interactive PDF Document Viewer with Search & Text Highlighting
-            (Requirement 2 & Requirement 3)
+            MASTER PDF CATALOG DATA SHEET & INTERACTIVE VIEWER
             ======================================================== */}
         <div className="lg:col-span-7 space-y-4">
-          <InteractivePdfDocumentViewer
-            pdfUrl={activePdfInfo.url}
-            title={activePdfInfo.title}
-            fileName={activePdfInfo.fileName}
-            searchTerm={pdfInDocSearch}
-            onSearchChange={(term) => {
-              setPdfInDocSearch(term);
-              if (onSearchChange) onSearchChange(term);
-            }}
-            brandName={activeBrand === 'ALL' ? '' : activeBrand}
-            availableProducts={availableProducts}
-            selectedProduct={selectedProduct}
-            onSelectProduct={handleSelectProduct}
-          />
+          
+          {/* Main Card Container */}
+          <div className="bg-slate-900 rounded-3xl border border-slate-700/80 shadow-2xl overflow-hidden flex flex-col text-white">
+            
+            {/* Top Navigation & View Switcher Bar */}
+            <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3 overflow-hidden">
+                <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/30 text-amber-400 flex items-center justify-center shrink-0 shadow-xs">
+                  <FileSpreadsheet className="w-5 h-5" />
+                </div>
+                <div className="truncate">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-400/30 px-2 py-0.5 rounded-full">
+                      Official Manufacturer Catalog
+                    </span>
+                    {activeBrand && activeBrand !== 'ALL' && (
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full shadow-xs">
+                        {activeBrand}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-sm sm:text-base font-extrabold text-white truncate mt-0.5" title={activePdfInfo.title}>
+                    {activePdfInfo.title}
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-mono truncate">{activePdfInfo.fileName}</p>
+                </div>
+              </div>
+
+              {/* View Switcher Toggle & Actions */}
+              <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+                <div className="flex items-center bg-slate-950 rounded-xl border border-slate-700 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setRightViewMode('sheet')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                      rightViewMode === 'sheet'
+                        ? 'bg-amber-400 text-slate-950 shadow-sm'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                    }`}
+                  >
+                    <FileSpreadsheet className="w-3.5 h-3.5" />
+                    <span>Data Sheet</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRightViewMode('canvas')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                      rightViewMode === 'canvas'
+                        ? 'bg-amber-400 text-slate-950 shadow-sm'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Original PDF</span>
+                  </button>
+                </div>
+
+                <a
+                  href={activePdfInfo.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  download={activePdfInfo.fileName}
+                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white transition-colors"
+                  title="Download Catalog PDF"
+                >
+                  <Download className="w-4 h-4" />
+                </a>
+
+                <a
+                  href={activePdfInfo.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black transition-colors shadow-md"
+                  title="Open PDF in Full Screen"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+
+            {/* In-Document Search Box (Available on both views) */}
+            <div className="bg-slate-950 p-3 sm:p-4 border-b border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-amber-400 absolute left-3.5 top-3" />
+                <input
+                  type="text"
+                  placeholder={`Search in catalog data (e.g. ${activeBrand !== 'ALL' ? activeBrand : 'Diamond'}, 08B-1, 6405, 1LE7, C-98)...`}
+                  value={sheetSearch}
+                  onChange={(e) => {
+                    setSheetSearch(e.target.value);
+                    if (onSearchChange) onSearchChange(e.target.value);
+                  }}
+                  className="w-full pl-10 pr-24 py-2.5 bg-slate-900 border border-amber-400/40 rounded-xl text-xs sm:text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-inner"
+                />
+                {sheetSearch && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSheetSearch('');
+                      if (onSearchChange) onSearchChange('');
+                    }}
+                    className="absolute right-3 top-2.5 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs font-bold text-amber-300 font-mono bg-slate-900 px-3 py-2 rounded-xl border border-slate-700">
+                  {sheetFilteredProducts.length} Product{sheetFilteredProducts.length !== 1 ? 's' : ''} in Catalog
+                </span>
+              </div>
+            </div>
+
+            {/* VIEW 1: MASTER PDF CATALOG DATA SHEET (User's requested solution) */}
+            {rightViewMode === 'sheet' && (
+              <div className="relative flex-1 flex flex-col overflow-hidden">
+                {/* Information Header Banner */}
+                <div className="bg-blue-950/60 p-2.5 px-4 border-b border-blue-900/50 flex items-center justify-between text-xs">
+                  <span className="font-extrabold text-blue-200 flex items-center gap-1.5">
+                    <MousePointerClick className="w-4 h-4 text-amber-400 animate-bounce" />
+                    <span>Click ANY row below to load that product on the Left Side:</span>
+                  </span>
+                  <span className="text-[11px] text-slate-400 hidden sm:inline">
+                    Sorted by Official Manufacturer Engineering Schedule
+                  </span>
+                </div>
+
+                {/* Full Scrollable Table */}
+                <div
+                  className="overflow-x-auto overflow-y-auto max-h-[720px] select-text"
+                  style={{ scrollbarWidth: 'thin', scrollbarColor: '#475569 #0f172a' }}
+                >
+                  <table className="w-full text-left border-collapse text-xs">
+                    {/* Sticky Table Header */}
+                    <thead className="sticky top-0 bg-slate-950 text-slate-300 uppercase text-[10px] font-black tracking-wider border-b border-slate-700 z-10 shadow-sm">
+                      <tr>
+                        <th className="py-3 px-3 w-10 text-center">#</th>
+                        <th className="py-3 px-4 min-w-[140px]">Part Number</th>
+                        <th className="py-3 px-4 min-w-[220px]">Product &amp; Technical Specifications</th>
+                        <th className="py-3 px-4 min-w-[130px] hidden md:table-cell">Dimensions / Series</th>
+                        <th className="py-3 px-4 text-right min-w-[90px]">List MRP</th>
+                        <th className="py-3 px-3 text-center min-w-[70px]">Discount</th>
+                        <th className="py-3 px-4 text-right min-w-[100px]">Wholesale Rate</th>
+                        <th className="py-3 px-3 text-center min-w-[90px]">Action</th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-slate-800 font-sans">
+                      {sheetFilteredProducts.length === 0 ? (
+                        <tr>
+                          <td colSpan="8" className="py-16 text-center text-slate-400">
+                            No products match "{sheetSearch}". Try searching for another part number or brand.
+                          </td>
+                        </tr>
+                      ) : (
+                        sheetFilteredProducts.map((p, idx) => {
+                          const isSelected = selectedProduct?.partNumber === p.partNumber;
+                          return (
+                            <tr
+                              key={`sheet-row-${p.partNumber}-${idx}`}
+                              onClick={() => handleSelectProduct(p)}
+                              className={`group cursor-pointer transition-all duration-150 ${
+                                isSelected
+                                  ? 'bg-blue-950/80 text-white font-semibold ring-2 ring-inset ring-amber-400/80 shadow-md'
+                                  : 'hover:bg-slate-800/80 text-slate-200'
+                              }`}
+                            >
+                              {/* S.No */}
+                              <td className="py-3 px-3 text-center font-mono text-[11px] text-slate-400">
+                                {idx + 1}
+                              </td>
+
+                              {/* Part Number */}
+                              <td className="py-3 px-4">
+                                <div className="flex items-center gap-2">
+                                  <span className={`font-mono font-black text-xs ${isSelected ? 'text-amber-300' : 'text-white group-hover:text-amber-400'}`}>
+                                    {p.partNumber}
+                                  </span>
+                                  {isSelected && (
+                                    <span className="bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.2 rounded-md">
+                                      Active
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="text-[10px] text-slate-400 block truncate">
+                                  {p.brand} • {p.section || p.categoryName}
+                                </span>
+                              </td>
+
+                              {/* Description & Specifications */}
+                              <td className="py-3 px-4">
+                                <p className="font-bold text-white text-xs leading-snug">
+                                  {p.name}
+                                </p>
+                                <p className="text-[11px] text-slate-400 font-mono mt-0.5 line-clamp-2">
+                                  {p.specifications || p.description || 'Precision B2B Industrial Standard'}
+                                </p>
+                              </td>
+
+                              {/* Dimensions / Series */}
+                              <td className="py-3 px-4 font-mono text-[11px] text-slate-300 hidden md:table-cell">
+                                {p.dimensions || p.section || '-'}
+                              </td>
+
+                              {/* Admin PDF List MRP */}
+                              <td className="py-3 px-4 text-right font-mono text-slate-400 line-through">
+                                {formatCurrency(p.mrp)}
+                              </td>
+
+                              {/* Authorized Discount */}
+                              <td className="py-3 px-3 text-center">
+                                <span className="bg-amber-400/20 border border-amber-400/40 text-amber-300 font-extrabold text-[10px] px-2 py-0.5 rounded-full inline-block">
+                                  {p.discountPercentage}% OFF
+                                </span>
+                              </td>
+
+                              {/* Net Wholesale Rate */}
+                              <td className="py-3 px-4 text-right font-mono font-black text-amber-400 text-xs sm:text-sm">
+                                {formatCurrency(p.wholesalePrice)}
+                              </td>
+
+                              {/* Action Buttons */}
+                              <td className="py-3 px-3 text-center" onClick={(e) => e.stopPropagation()}>
+                                {isSelected ? (
+                                  <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-400 bg-emerald-950/80 border border-emerald-400/50 px-2 py-1 rounded-xl">
+                                    <CheckCircle className="w-3.5 h-3.5" />
+                                    <span>Selected</span>
+                                  </span>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSelectProduct(p)}
+                                    className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-amber-400 hover:text-slate-950 text-slate-200 text-xs font-bold transition-all border border-slate-700 cursor-pointer shadow-xs"
+                                  >
+                                    Select
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Table Footer Summary Bar */}
+                <div className="p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <span>Official Manufacturer B2B Wholesale Schedule • All Prices Subject to 18% GST</span>
+                  </div>
+                  <div className="font-mono text-amber-300 font-bold">
+                    Showing {sheetFilteredProducts.length} of {availableProducts.length} Items
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* VIEW 2: ORIGINAL PDF DOCUMENT (CANVAS VIEWER) */}
+            {rightViewMode === 'canvas' && (
+              <InteractivePdfDocumentViewer
+                pdfUrl={activePdfInfo.url}
+                title={activePdfInfo.title}
+                fileName={activePdfInfo.fileName}
+                searchTerm={sheetSearch}
+                onSearchChange={(term) => {
+                  setSheetSearch(term);
+                  if (onSearchChange) onSearchChange(term);
+                }}
+                brandName={activeBrand === 'ALL' ? '' : activeBrand}
+                availableProducts={availableProducts}
+                selectedProduct={selectedProduct}
+                onSelectProduct={handleSelectProduct}
+              />
+            )}
+          </div>
         </div>
       </div>
 
@@ -913,7 +1187,7 @@ export const PdfCatalogViewer = ({
               <button
                 type="button"
                 onClick={() => setIsOrderModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-navy"
+                className="p-1 rounded-lg text-slate-400 hover:text-navy cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -930,21 +1204,21 @@ export const PdfCatalogViewer = ({
                     required
                     value={orderForm.name}
                     onChange={(e) => setOrderForm({ ...orderForm, name: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:ring-1 focus:ring-primary focus:outline-none"
-                    placeholder="e.g. Ramesh Kumar"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="e.g. Senthil Kumar"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Phone Number *
+                    Phone / WhatsApp *
                   </label>
                   <input
                     type="tel"
                     required
                     value={orderForm.phone}
                     onChange={(e) => setOrderForm({ ...orderForm, phone: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
                     placeholder="+91 98765 43210"
                   />
                 </div>
@@ -953,14 +1227,14 @@ export const PdfCatalogViewer = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                    Company Name
+                    Company / Firm Name
                   </label>
                   <input
                     type="text"
                     value={orderForm.companyName}
                     onChange={(e) => setOrderForm({ ...orderForm, companyName: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:ring-1 focus:ring-primary focus:outline-none"
-                    placeholder="e.g. Sri Balaji Mills Pvt Ltd"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="e.g. Sri Balaji Mills Ltd"
                   />
                 </div>
 
@@ -972,58 +1246,63 @@ export const PdfCatalogViewer = ({
                     type="text"
                     value={orderForm.deliveryLocation}
                     onChange={(e) => setOrderForm({ ...orderForm, deliveryLocation: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:ring-1 focus:ring-primary focus:outline-none"
-                    placeholder="e.g. Coimbatore, Tamil Nadu"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="e.g. Coimbatore / Chennai"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  GSTIN (For Official Input Tax Credit)
-                </label>
-                <input
-                  type="text"
-                  value={orderForm.gstin}
-                  onChange={(e) => setOrderForm({ ...orderForm, gstin: e.target.value.toUpperCase() })}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono font-bold focus:ring-1 focus:ring-primary focus:outline-none"
-                  placeholder="33AAACB1234F1Z5"
-                />
-              </div>
-
-              {/* Items Summary */}
-              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-1.5 text-xs">
-                <span className="font-extrabold text-navy block">
-                  Items to Quote ({cartItems.length > 0 ? cartItems.length : 1} items):
+              {/* Items Summary preview */}
+              <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+                <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 block">
+                  Quotation Line Item Details:
                 </span>
-                <p className="text-slate-600 truncate">
-                  {cartItems.length > 0
-                    ? cartItems.map((it) => `${it.partNumber} (${it.quantity})`).join(', ')
-                    : `${selectedProduct?.partNumber} (${selectedProductQty} units)`}
-                </p>
-                <div className="pt-2 border-t border-slate-200 flex justify-between font-bold text-navy">
-                  <span>Estimated Total (incl. 18% GST):</span>
-                  <span>{formatCurrency(cartItems.length > 0 ? cartTotalWithTax : grandTotalOrder)}</span>
+                {selectedProductForQuote ? (
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span>
+                      {selectedProductForQuote.partNumber} x {orderQuantity} Units
+                    </span>
+                    <span className="font-mono text-primary">
+                      {formatCurrency((selectedProductForQuote.wholesalePrice || 1000) * orderQuantity)}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between text-xs font-bold">
+                    <span>Quotation Cart ({cartItems.length} Products)</span>
+                    <span className="font-mono text-primary">{formatCurrency(cartSubtotal)}</span>
+                  </div>
+                )}
+                <div className="pt-2 border-t border-slate-200 flex justify-between items-center text-xs font-extrabold text-navy">
+                  <span>Grand Total (incl. 18% GST):</span>
+                  <span className="font-mono text-base text-primary">
+                    {selectedProductForQuote
+                      ? formatCurrency(
+                          Math.round(
+                            (selectedProductForQuote.wholesalePrice || 1000) * orderQuantity * 1.18 * 100
+                          ) / 100
+                        )
+                      : formatCurrency(cartGrandTotal)}
+                  </span>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsOrderModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={orderSubmitting}
-                  className="px-6 py-2 rounded-xl bg-primary hover:bg-blue-700 text-white font-black text-xs shadow flex items-center gap-2 disabled:opacity-50"
-                >
-                  {orderSubmitting ? <Spinner size="xs" /> : <Printer className="w-4 h-4" />}
-                  <span>{orderSubmitting ? 'Generating Quotation...' : 'Generate & Download PDF Quotation'}</span>
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={orderSubmitting}
+                className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {orderSubmitting ? (
+                  <>
+                    <Spinner size="xs" />
+                    <span>Generating Official GST Invoice...</span>
+                  </>
+                ) : (
+                  <>
+                    <FileSpreadsheet className="w-4 h-4" />
+                    <span>Confirm &amp; Generate Official Quotation</span>
+                  </>
+                )}
+              </button>
             </form>
           </div>
         </div>
@@ -1033,23 +1312,36 @@ export const PdfCatalogViewer = ({
           MODAL: Official Balumuni Quotation Invoice Viewer
           ======================================================== */}
       {isQuotationViewModalOpen && generatedQuotation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-4xl w-full p-6 sm:p-8 space-y-4 max-h-[92vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-slate-200 pb-3">
-              <div>
-                <h3 className="text-lg font-black text-navy">Official Quotation Generated</h3>
-                <p className="text-xs text-secondaryText">Quotation #{generatedQuotation.quotationNumber}</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-4xl w-full p-4 sm:p-6 space-y-4 border border-slate-200 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-base sm:text-lg font-black text-navy">
+                  Official B2B Quotation #{generatedQuotation.quotationNumber || 'BALU-Q-1001'}
+                </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsQuotationViewModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-navy"
+                className="p-1 rounded-lg text-slate-400 hover:text-navy cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <BalumuniInvoice quotation={generatedQuotation} />
+            {/* Balumuni Invoice Component */}
+            <BalumuniInvoice enquiry={generatedQuotation} />
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsQuotationViewModalOpen(false)}
+                className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
