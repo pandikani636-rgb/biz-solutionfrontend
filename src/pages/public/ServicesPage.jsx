@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import {
   Search,
@@ -11,6 +11,7 @@ import {
   Layers,
   ChevronRight,
   Filter,
+  FolderOpen,
 } from 'lucide-react';
 import { useSite } from '../../context/SiteContext';
 import { Button } from '../../components/common/Button';
@@ -19,6 +20,7 @@ import { PdfCatalogViewer } from '../../components/common/PdfCatalogViewer';
 import {
   FOURTEEN_OFFICIAL_MAKES,
   INDUSTRIAL_CATEGORIES,
+  getSectionsForBrandOrCategory,
 } from '../../utils/officialBrandsData';
 
 export const ServicesPage = () => {
@@ -29,6 +31,7 @@ export const ServicesPage = () => {
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [selectedBrand, setSelectedBrand] = useState(searchParams.get('brand') || 'ALL');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'ALL');
+  const [selectedSection, setSelectedSection] = useState('ALL');
 
   // Sync state if URL query params change
   useEffect(() => {
@@ -36,6 +39,11 @@ export const ServicesPage = () => {
     if (searchParams.get('search')) setSearch(searchParams.get('search'));
     if (searchParams.get('category')) setSelectedCategory(searchParams.get('category'));
   }, [searchParams]);
+
+  // Dynamic sections available for currently selected brand or category
+  const currentSections = useMemo(() => {
+    return getSectionsForBrandOrCategory(selectedBrand, selectedCategory);
+  }, [selectedBrand, selectedCategory]);
 
   // When user searches for a specific brand in search bar
   const handleSearchSubmit = (e) => {
@@ -55,12 +63,14 @@ export const ServicesPage = () => {
 
     if (matchedMake) {
       setSelectedBrand(matchedMake.code);
+      setSelectedSection('ALL');
       if (matchedMake.categoryId) setSelectedCategory(matchedMake.categoryId);
     }
   };
 
   const handleBrandSelect = (brandCode) => {
     setSelectedBrand(brandCode);
+    setSelectedSection('ALL');
     if (brandCode === 'ALL') {
       setSelectedCategory('ALL');
     } else {
@@ -73,6 +83,7 @@ export const ServicesPage = () => {
 
   const handleCategorySelect = (catId) => {
     setSelectedCategory(catId);
+    setSelectedSection('ALL');
     if (catId === 'ALL') {
       setSelectedBrand('ALL');
     } else {
@@ -87,6 +98,7 @@ export const ServicesPage = () => {
     setSearch('');
     setSelectedBrand('ALL');
     setSelectedCategory('ALL');
+    setSelectedSection('ALL');
   };
 
   return (
@@ -246,6 +258,35 @@ export const ServicesPage = () => {
             );
           })}
         </div>
+
+        {/* Dynamic Sections Bar - Rendered directly underneath Category Shortcuts (User Requirement) */}
+        {currentSections && currentSections.length > 0 && (
+          <div className="pt-3 border-t border-white/10 flex flex-wrap items-center gap-2 text-xs animate-fadeIn">
+            <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5 mr-1">
+              <FolderOpen className="w-3.5 h-3.5 text-amber-400" />
+              <span>Sections in {selectedBrand !== 'ALL' ? selectedBrand : 'Catalog'}:</span>
+            </span>
+            {currentSections.map((sec) => {
+              const isSecActive =
+                (selectedSection || 'ALL').toLowerCase() === sec.toLowerCase() ||
+                (sec.toLowerCase().includes('all') && (!selectedSection || selectedSection === 'ALL'));
+              return (
+                <button
+                  key={sec}
+                  type="button"
+                  onClick={() => setSelectedSection(sec)}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                    isSecActive
+                      ? 'bg-amber-400 text-slate-950 font-black shadow-xs ring-1 ring-amber-300 scale-102'
+                      : 'bg-white/5 hover:bg-white/15 text-slate-300 border border-white/10'
+                  }`}
+                >
+                  {sec}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* 4. 2-COLUMN PDF & PRODUCT CATALOG ENGINE
@@ -255,8 +296,10 @@ export const ServicesPage = () => {
         initialSearch={search}
         initialBrand={selectedBrand}
         initialCategory={selectedCategory}
+        initialSection={selectedSection}
         onBrandSelect={(b) => handleBrandSelect(b)}
         onSearchChange={(s) => setSearch(s)}
+        onSectionChange={(sec) => setSelectedSection(sec)}
       />
 
       {/* 5. DIRECT BULK INQUIRIES & CUSTOM RFQ FOOTER BANNER */}

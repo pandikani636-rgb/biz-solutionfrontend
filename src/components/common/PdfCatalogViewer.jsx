@@ -47,6 +47,7 @@ import {
   OFFICIAL_BRAND_PRODUCTS,
   INDUSTRIAL_CATEGORIES,
   getProductsForBrand,
+  matchesSectionFilter,
 } from '../../utils/officialBrandsData';
 
 const FALLBACK_IMAGE = 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png';
@@ -55,8 +56,10 @@ export const PdfCatalogViewer = ({
   initialSearch = '',
   initialCategory = 'ALL',
   initialBrand = 'ALL',
+  initialSection = 'ALL',
   onBrandSelect,
   onSearchChange,
+  onSectionChange,
 }) => {
   const { isTamil, t } = useLanguage();
   const { categories, settings } = useSite();
@@ -81,11 +84,12 @@ export const PdfCatalogViewer = ({
   // Filter and search states
   const [activeBrand, setActiveBrand] = useState(initialBrand || 'ALL');
   const [activeCategory, setActiveCategory] = useState(initialCategory || 'ALL');
+  const [activeSection, setActiveSection] = useState(initialSection || 'ALL');
   const [searchQuery, setSearchQuery] = useState(initialSearch || '');
   const [sheetSearch, setSheetSearch] = useState(initialSearch || '');
 
-  // Right-side view mode: 'canvas' (Raw PDF Canvas Viewer) | 'sheet' (Master PDF Catalog Sheet)
-  const [rightViewMode, setRightViewMode] = useState('canvas');
+  // Right-side view mode: default to 'sheet' (Master PDF Catalog Sheet) so user directly sees the neat, scrollable table view!
+  const [rightViewMode, setRightViewMode] = useState('sheet');
 
   // Selected product state for LEFT side display
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -128,6 +132,12 @@ export const PdfCatalogViewer = ({
       setActiveCategory(initialCategory);
     }
   }, [initialCategory]);
+
+  useEffect(() => {
+    if (initialSection !== undefined && initialSection !== activeSection) {
+      setActiveSection(initialSection);
+    }
+  }, [initialSection]);
 
   // Fetch PDF Catalogs from Backend API
   const fetchPdfCatalog = async (brand = '', category = '', query = '') => {
@@ -235,13 +245,13 @@ export const PdfCatalogViewer = ({
   const availableProducts = useMemo(() => {
     let prods = [];
 
-    // 1. Get products for the active brand or category
+    // 1. Get products for the active brand or category with section filter
     if (activeBrand && activeBrand !== 'ALL') {
-      prods = getProductsForBrand(activeBrand);
+      prods = getProductsForBrand(activeBrand, activeSection);
     } else if (activeCategory && activeCategory !== 'ALL') {
-      prods = getProductsForBrand(activeCategory);
+      prods = getProductsForBrand(activeCategory, activeSection);
     } else {
-      prods = getProductsForBrand('ALL');
+      prods = getProductsForBrand('ALL', activeSection);
     }
 
     // 2. Also check if catalogData from DB has extra products matching activeBrand
@@ -289,7 +299,15 @@ export const PdfCatalogViewer = ({
       });
     }
 
-    // 3. Apply product local search if typed
+    // 3. Apply active section filter if selected
+    if (activeSection && activeSection !== 'ALL' && activeSection !== 'All Sections') {
+      const filteredBySection = prods.filter((p) => matchesSectionFilter(p, activeSection));
+      if (filteredBySection.length > 0) {
+        prods = filteredBySection;
+      }
+    }
+
+    // 4. Apply product local search if typed
     if (productLocalSearch.trim()) {
       const q = productLocalSearch.trim().toLowerCase();
       prods = prods.filter(
@@ -302,7 +320,7 @@ export const PdfCatalogViewer = ({
     }
 
     return prods;
-  }, [catalogData, activeBrand, activeCategory, currentBrandRule, productLocalSearch]);
+  }, [catalogData, activeBrand, activeCategory, activeSection, currentBrandRule, productLocalSearch]);
 
   // Filtered products specifically for the Right-Side Master Sheet
   const sheetFilteredProducts = useMemo(() => {
@@ -636,6 +654,18 @@ export const PdfCatalogViewer = ({
                     <span>Generate Quotation</span>
                   </button>
                 </div>
+
+                {/* Direct View Cart Button when cart has items */}
+                {cartItems.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={openCart}
+                    className="w-full py-2.5 px-4 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 font-extrabold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  >
+                    <ShoppingBag className="w-4 h-4 text-primary" />
+                    <span>View Quotation Cart ({totalItemCount} {totalItemCount > 1 ? 'Units' : 'Unit'})</span>
+                  </button>
+                )}
               </div>
 
               {/* Technical Specifications */}
@@ -1008,14 +1038,21 @@ export const PdfCatalogViewer = ({
             {rightViewMode === 'sheet' && (
               <div className="relative flex-1 flex flex-col overflow-hidden">
                 {/* Information Header Banner */}
-                <div className="bg-blue-950/60 p-2.5 px-4 border-b border-blue-900/50 flex items-center justify-between text-xs">
+                <div className="bg-blue-950/60 p-2.5 px-4 border-b border-blue-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                   <span className="font-extrabold text-blue-200 flex items-center gap-1.5">
-                    <MousePointerClick className="w-4 h-4 text-amber-400 animate-bounce" />
-                    <span>Click ANY row below to load that product on the Left Side:</span>
+                    <MousePointerClick className="w-4 h-4 text-amber-400 animate-bounce shrink-0" />
+                    <span>Click ANY row to load on Left Side or click "+ Add" to add to cart:</span>
                   </span>
-                  <span className="text-[11px] text-slate-400 hidden sm:inline">
-                    Sorted by Official Manufacturer Engineering Schedule
-                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {activeSection && activeSection !== 'ALL' && activeSection !== 'All Sections' && (
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full shadow-xs">
+                        {activeSection}
+                      </span>
+                    )}
+                    <span className="text-[11px] text-slate-400 hidden sm:inline">
+                      Official Engineering Schedule
+                    </span>
+                  </div>
                 </div>
 
                 {/* Full Scrollable Table */}
@@ -1114,20 +1151,32 @@ export const PdfCatalogViewer = ({
 
                               {/* Action Buttons */}
                               <td className="py-3 px-3 text-center" onClick={(e) => e.stopPropagation()}>
-                                {isSelected ? (
-                                  <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-400 bg-emerald-950/80 border border-emerald-400/50 px-2 py-1 rounded-xl">
-                                    <CheckCircle className="w-3.5 h-3.5" />
-                                    <span>Selected</span>
-                                  </span>
-                                ) : (
+                                <div className="flex items-center justify-center gap-1.5">
+                                  {isSelected ? (
+                                    <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-400 bg-emerald-950/80 border border-emerald-400/50 px-2 py-1 rounded-xl">
+                                      <CheckCircle className="w-3.5 h-3.5" />
+                                      <span>Selected</span>
+                                    </span>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSelectProduct(p)}
+                                      className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-amber-400 hover:text-slate-950 text-slate-200 text-xs font-bold transition-all border border-slate-700 cursor-pointer shadow-xs"
+                                    >
+                                      Select
+                                    </button>
+                                  )}
+
                                   <button
                                     type="button"
-                                    onClick={() => handleSelectProduct(p)}
-                                    className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-amber-400 hover:text-slate-950 text-slate-200 text-xs font-bold transition-all border border-slate-700 cursor-pointer shadow-xs"
+                                    onClick={() => handleAddToCart(p, 1)}
+                                    className="px-2 py-1 rounded-xl bg-primary hover:bg-blue-600 text-white text-[11px] font-black transition-all border border-primary/50 cursor-pointer shadow-xs flex items-center gap-1"
+                                    title="Add 1 to Cart"
                                   >
-                                    Select
+                                    <Plus className="w-3 h-3" />
+                                    <span>Add</span>
                                   </button>
-                                )}
+                                </div>
                               </td>
                             </tr>
                           );
