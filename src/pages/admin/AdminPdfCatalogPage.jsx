@@ -24,6 +24,8 @@ import {
   Tag,
   Edit3,
   Save,
+  Lock,
+  Globe,
 } from 'lucide-react';
 import api, { getAssetUrl } from '../../services/api';
 import { Button } from '../../components/common/Button';
@@ -71,6 +73,9 @@ export const AdminPdfCatalogPage = () => {
   const [availableCategories, setAvailableCategories] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadIsAdminOnly, setUploadIsAdminOnly] = useState(false);
+  const [visibilityFilter, setVisibilityFilter] = useState('ALL'); // 'ALL' | 'PUBLIC' | 'ADMIN_ONLY'
+  const [togglingAdminOnlyId, setTogglingAdminOnlyId] = useState(null);
   const [reprocessingId, setReprocessingId] = useState(null);
   const [togglingId, setTogglingId] = useState(null);
   const [uploadError, setUploadError] = useState('');
@@ -112,6 +117,21 @@ export const AdminPdfCatalogPage = () => {
 
   const handleCatalogFilterChange = (filterId) => {
     setSelectedCatalogFilter(filterId);
+  };
+
+  const handleToggleAdminOnly = async (catalogId) => {
+    setTogglingAdminOnlyId(catalogId);
+    try {
+      const res = await api.patch(`/pdf-catalog/admin/toggle-admin-only/${catalogId}`);
+      if (res.data?.success) {
+        showToast(res.data.message || 'Visibility updated');
+        fetchCatalogs(selectedCatalogFilter);
+      }
+    } catch (err) {
+      showErrorAlert('Update Failed', err.response?.data?.message || err.message);
+    } finally {
+      setTogglingAdminOnlyId(null);
+    }
   };
 
   // Add multiple files from file picker
@@ -221,6 +241,13 @@ export const AdminPdfCatalogPage = () => {
       if (uploadDiscount) {
         formData.append('discountPercentage', uploadDiscount);
       }
+      if (uploadIsAdminOnly) {
+        formData.append('isAdminOnly', 'true');
+        formData.append('fileType', 'internal_doc');
+      } else {
+        formData.append('isAdminOnly', 'false');
+        formData.append('fileType', 'catalog');
+      }
 
       setUploadProgressText('Uploading & Processing on Server...');
 
@@ -230,13 +257,16 @@ export const AdminPdfCatalogPage = () => {
 
       if (res.data?.success) {
         await showSuccessAlert(
-          'PDF Catalogs Uploaded & Extracted!',
-          res.data.message || 'All uploaded PDF documents have been categorized with internet product images and are now live on the Products page.'
+          uploadIsAdminOnly ? 'Admin Only Document Uploaded!' : 'PDF Catalogs Uploaded & Extracted!',
+          uploadIsAdminOnly
+            ? 'This document is marked as Private / Admin Only. It is only accessible to Administrators and hidden from the public products page.'
+            : (res.data.message || 'All uploaded PDF documents have been categorized with internet product images and are now live on the Products page.')
         );
         setPdfFiles([]);
         setCatalogTitle('');
         setUploadBrand('');
         setUploadDiscount('48');
+        setUploadIsAdminOnly(false);
         setSelectedUploadCategory('');
         setSelectedCatalogFilter('ALL');
         fetchCatalogs('ALL');
@@ -266,6 +296,8 @@ export const AdminPdfCatalogPage = () => {
               categoryName: catObj?.name || '',
               brand: uploadBrand || undefined,
               discountPercentage: uploadDiscount ? Number(uploadDiscount) : 48,
+              isAdminOnly: uploadIsAdminOnly,
+              fileType: uploadIsAdminOnly ? 'internal_doc' : 'catalog',
             });
           }
 
@@ -277,17 +309,22 @@ export const AdminPdfCatalogPage = () => {
             categoryName: catObj?.name,
             brand: uploadBrand || undefined,
             discountPercentage: uploadDiscount ? Number(uploadDiscount) : 48,
+            isAdminOnly: uploadIsAdminOnly,
+            fileType: uploadIsAdminOnly ? 'internal_doc' : 'catalog',
           });
 
           if (retryRes.data?.success) {
             await showSuccessAlert(
-              'PDF Catalogs Uploaded & Extracted!',
-              retryRes.data.message || 'All uploaded PDF documents have been categorized with internet product images and are now live on the Products page.'
+              uploadIsAdminOnly ? 'Admin Only Document Uploaded!' : 'PDF Catalogs Uploaded & Extracted!',
+              uploadIsAdminOnly
+                ? 'This document is marked as Private / Admin Only. It is only accessible to Administrators and hidden from the public products page.'
+                : (retryRes.data.message || 'All uploaded PDF documents have been categorized with internet product images and are now live on the Products page.')
             );
             setPdfFiles([]);
             setCatalogTitle('');
             setUploadBrand('');
             setUploadDiscount('48');
+            setUploadIsAdminOnly(false);
             setSelectedUploadCategory('');
             setSelectedCatalogFilter('ALL');
             fetchCatalogs('ALL');
@@ -383,7 +420,12 @@ export const AdminPdfCatalogPage = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
-  const totalActiveCatalogsCount = catalogs.filter((c) => c.isActive).length;
+  const totalActiveCatalogsCount = catalogs.filter((c) => c.isActive && !c.isAdminOnly).length;
+  const filteredCatalogs = catalogs.filter((c) => {
+    if (visibilityFilter === 'ADMIN_ONLY') return c.isAdminOnly === true;
+    if (visibilityFilter === 'PUBLIC') return c.isAdminOnly !== true;
+    return true;
+  });
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -515,6 +557,26 @@ export const AdminPdfCatalogPage = () => {
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Admin Only / Private File Field (User Requirement) */}
+            <div className="md:col-span-2 flex items-start gap-3 p-3.5 bg-purple-50 rounded-2xl border border-purple-200">
+              <input
+                type="checkbox"
+                id="uploadIsAdminOnly"
+                checked={uploadIsAdminOnly}
+                onChange={(e) => setUploadIsAdminOnly(e.target.checked)}
+                className="w-4 h-4 mt-0.5 text-purple-600 rounded focus:ring-purple-500 cursor-pointer"
+              />
+              <label htmlFor="uploadIsAdminOnly" className="text-xs font-bold text-slate-800 cursor-pointer select-none">
+                <span className="font-black text-purple-900 flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-purple-700" />
+                  <span>Admin Only / Internal Document (Private File)</span>
+                </span>
+                <span className="block text-[11px] text-slate-600 font-medium mt-0.5">
+                  Upload for Admin reference only. This document is private and will NEVER be shown to customers on the public Products page.
+                </span>
+              </label>
             </div>
           </div>
 
@@ -860,131 +922,235 @@ export const AdminPdfCatalogPage = () => {
       {/* Uploaded PDF Catalog Documents Archive */}
       {catalogs.length > 0 && (
         <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="font-bold text-sm text-navy uppercase tracking-wider flex items-center gap-2">
-              <Files className="w-4 h-4 text-primary" />
-              <span>Uploaded Catalog Documents Archive ({catalogs.length})</span>
-            </h4>
-            <span className="text-xs text-slate-500 font-semibold">
-              {totalActiveCatalogsCount} active and live on Products page
-            </span>
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+            <div>
+              <h4 className="font-bold text-sm text-navy uppercase tracking-wider flex items-center gap-2">
+                <Files className="w-4 h-4 text-primary" />
+                <span>Uploaded Documents Archive ({catalogs.length})</span>
+              </h4>
+              <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                {totalActiveCatalogsCount} active on live Products page • {catalogs.filter((c) => c.isAdminOnly).length} private admin files
+              </p>
+            </div>
+
+            {/* Visibility Filter Tabs */}
+            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-bold self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => setVisibilityFilter('ALL')}
+                className={`px-3 py-1.5 rounded-xl transition-smooth cursor-pointer ${
+                  visibilityFilter === 'ALL'
+                    ? 'bg-white text-navy shadow-xs font-black'
+                    : 'text-slate-600 hover:text-navy'
+                }`}
+              >
+                All ({catalogs.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisibilityFilter('PUBLIC')}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-xl transition-smooth cursor-pointer ${
+                  visibilityFilter === 'PUBLIC'
+                    ? 'bg-white text-primary shadow-xs font-black'
+                    : 'text-slate-600 hover:text-navy'
+                }`}
+              >
+                <Globe className="w-3.5 h-3.5 text-blue-600" />
+                <span>Public ({catalogs.filter((c) => !c.isAdminOnly).length})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisibilityFilter('ADMIN_ONLY')}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-xl transition-smooth cursor-pointer ${
+                  visibilityFilter === 'ADMIN_ONLY'
+                    ? 'bg-white text-purple-700 shadow-xs font-black'
+                    : 'text-slate-600 hover:text-navy'
+                }`}
+              >
+                <Lock className="w-3.5 h-3.5 text-purple-700" />
+                <span>Admin Only ({catalogs.filter((c) => c.isAdminOnly).length})</span>
+              </button>
+            </div>
           </div>
 
           <div className="divide-y border rounded-2xl overflow-hidden">
-            {catalogs.map((doc) => (
-              <div
-                key={doc._id}
-                className={`p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3 transition-smooth ${
-                  doc.isActive ? 'bg-white hover:bg-slate-50' : 'bg-slate-50/70 hover:bg-slate-100/70 opacity-80'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`p-2.5 rounded-xl shrink-0 ${doc.isActive ? 'bg-rose-50 text-rose-600' : 'bg-slate-200 text-slate-500'}`}>
-                    <FileText className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-bold text-xs text-darkText">{doc.title}</p>
-                      {doc.isActive ? (
-                        <span className="px-2 py-0.2 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black border border-emerald-200 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-                          <span>Live on Products Page</span>
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.2 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold border border-slate-300">
-                          Hidden (Inactive)
-                        </span>
-                      )}
+            {filteredCatalogs.length === 0 ? (
+              <div className="p-8 text-center text-xs text-slate-500 bg-slate-50">
+                No documents found for this visibility filter.
+              </div>
+            ) : (
+              filteredCatalogs.map((doc) => (
+                <div
+                  key={doc._id}
+                  className={`p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3 transition-smooth ${
+                    doc.isAdminOnly
+                      ? 'bg-purple-50/30 hover:bg-purple-50/50'
+                      : doc.isActive
+                      ? 'bg-white hover:bg-slate-50'
+                      : 'bg-slate-50/70 hover:bg-slate-100/70 opacity-80'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`p-2.5 rounded-xl shrink-0 ${
+                        doc.isAdminOnly
+                          ? 'bg-purple-100 text-purple-700'
+                          : doc.isActive
+                          ? 'bg-rose-50 text-rose-600'
+                          : 'bg-slate-200 text-slate-500'
+                      }`}
+                    >
+                      {doc.isAdminOnly ? <Lock className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
                     </div>
-                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                      <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-900 text-[10px] font-black border border-blue-200">
-                        Brand: {doc.brand || 'Auto-Detected'}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 text-[10px] font-black border border-amber-200">
-                        {doc.discountPercentage ?? 48}% OFF MRP (Deducted from Original Price)
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-secondaryText mt-0.5">
-                      {doc.fileName} • {doc.totalCategories || 0} Categories • {doc.totalProducts || 0} Products • {formatFileSize(doc.fileSize)} • {formatDate(doc.createdAt)}
-                    </p>
-                  </div>
-                </div>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-bold text-xs text-darkText">{doc.title}</p>
 
-                <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto">
-                  {/* Inline Discount & Brand Edit */}
-                  {editingCatalogId === doc._id ? (
-                    <div className="flex items-center gap-1.5 p-1.5 bg-amber-50 rounded-xl border border-amber-300 animate-fadeIn shadow-xs">
-                      <div className="flex items-center gap-1">
-                        <span className="text-[10px] font-bold text-slate-600">Discount:</span>
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={editingDiscountValue}
-                          onChange={(e) => setEditingDiscountValue(e.target.value)}
-                          className="w-14 px-1.5 py-1 text-xs font-black border rounded bg-white text-navy focus:outline-none"
-                          placeholder="%"
-                        />
-                        <span className="text-xs font-bold text-slate-500">%</span>
+                        {/* Admin-Only vs Public Badge */}
+                        {doc.isAdminOnly ? (
+                          <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 text-[10px] font-black border border-purple-300 flex items-center gap-1 shadow-2xs">
+                            <Lock className="w-3 h-3 text-purple-700" />
+                            <span>🔒 Admin Only (Confidential / Private)</span>
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 text-[10px] font-black border border-blue-200 flex items-center gap-1">
+                            <Globe className="w-3 h-3 text-blue-600" />
+                            <span>🌐 Public Catalog</span>
+                          </span>
+                        )}
+
+                        {/* Live status (Only applies if public) */}
+                        {!doc.isAdminOnly && (
+                          doc.isActive ? (
+                            <span className="px-2 py-0.2 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black border border-emerald-200 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                              <span>Live on Products Page</span>
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.2 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold border border-slate-300">
+                              Hidden (Inactive)
+                            </span>
+                          )
+                        )}
                       </div>
-                      <select
-                        value={editingBrandValue}
-                        onChange={(e) => setEditingBrandValue(e.target.value)}
-                        className="px-2 py-1 text-xs font-bold border rounded bg-white text-navy max-w-[110px] focus:outline-none"
-                      >
-                        <option value="">Auto Brand</option>
-                        {FOURTEEN_BRANDS.map((b) => (
-                          <option key={b} value={b}>{b}</option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        onClick={() => handleSaveCatalogDiscount(doc._id)}
-                        disabled={savingDiscount}
-                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-black shadow-xs cursor-pointer flex items-center gap-1"
-                        title="Recalculate all products with this discount"
-                      >
-                        <Save className="w-3 h-3" />
-                        <span>{savingDiscount ? 'Saving...' : 'Save'}</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditingCatalogId(null)}
-                        className="px-2 py-1 text-slate-500 hover:text-slate-800 text-xs font-bold cursor-pointer"
-                      >
-                        Cancel
-                      </button>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                        <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-900 text-[10px] font-black border border-blue-200">
+                          Brand: {doc.brand || 'Auto-Detected'}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 text-[10px] font-black border border-amber-200">
+                          {doc.discountPercentage ?? 48}% OFF MRP (Deducted from Original Price)
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-secondaryText mt-0.5">
+                        {doc.fileName} • {doc.totalCategories || 0} Categories • {doc.totalProducts || 0} Products • {formatFileSize(doc.fileSize)} • {formatDate(doc.createdAt)}
+                      </p>
                     </div>
-                  ) : (
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto">
+                    {/* Inline Discount & Brand Edit */}
+                    {editingCatalogId === doc._id ? (
+                      <div className="flex items-center gap-1.5 p-1.5 bg-amber-50 rounded-xl border border-amber-300 animate-fadeIn shadow-xs">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] font-bold text-slate-600">Discount:</span>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={editingDiscountValue}
+                            onChange={(e) => setEditingDiscountValue(e.target.value)}
+                            className="w-14 px-1.5 py-1 text-xs font-black border rounded bg-white text-navy focus:outline-none"
+                            placeholder="%"
+                          />
+                          <span className="text-xs font-bold text-slate-500">%</span>
+                        </div>
+                        <select
+                          value={editingBrandValue}
+                          onChange={(e) => setEditingBrandValue(e.target.value)}
+                          className="px-2 py-1 text-xs font-bold border rounded bg-white text-navy max-w-[110px] focus:outline-none"
+                        >
+                          <option value="">Auto Brand</option>
+                          {FOURTEEN_BRANDS.map((b) => (
+                            <option key={b} value={b}>{b}</option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => handleSaveCatalogDiscount(doc._id)}
+                          disabled={savingDiscount}
+                          className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-black shadow-xs cursor-pointer flex items-center gap-1"
+                          title="Recalculate all products with this discount"
+                        >
+                          <Save className="w-3 h-3" />
+                          <span>{savingDiscount ? 'Saving...' : 'Save'}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingCatalogId(null)}
+                          className="px-2 py-1 text-slate-500 hover:text-slate-800 text-xs font-bold cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingCatalogId(doc._id);
+                          setEditingDiscountValue(doc.discountPercentage ?? 48);
+                          setEditingBrandValue(doc.brand || '');
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl text-xs font-bold transition-smooth cursor-pointer"
+                        title="Set / Edit Wholesale Discount for this catalog"
+                      >
+                        <Percent className="w-3.5 h-3.5" />
+                        <span>Edit Discount ({doc.discountPercentage ?? 48}%)</span>
+                      </button>
+                    )}
+
+                    {/* Toggle Admin Only vs Public */}
                     <button
                       type="button"
-                      onClick={() => {
-                        setEditingCatalogId(doc._id);
-                        setEditingDiscountValue(doc.discountPercentage ?? 48);
-                        setEditingBrandValue(doc.brand || '');
-                      }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl text-xs font-bold transition-smooth cursor-pointer"
-                      title="Set / Edit Wholesale Discount for this catalog"
+                      onClick={() => handleToggleAdminOnly(doc._id)}
+                      disabled={togglingAdminOnlyId === doc._id}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-smooth cursor-pointer ${
+                        doc.isAdminOnly
+                          ? 'bg-purple-100 text-purple-900 border border-purple-300 hover:bg-purple-200'
+                          : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200'
+                      }`}
+                      title={
+                        doc.isAdminOnly
+                          ? 'Make Public (Allow customer viewing on live Products Page)'
+                          : 'Make Private (Admin Only view, hidden completely from customer catalog)'
+                      }
                     >
-                      <Percent className="w-3.5 h-3.5" />
-                      <span>Edit Discount ({doc.discountPercentage ?? 48}%)</span>
+                      {togglingAdminOnlyId === doc._id ? (
+                        <RotateCw className="w-3.5 h-3.5 animate-spin" />
+                      ) : doc.isAdminOnly ? (
+                        <Lock className="w-3.5 h-3.5 text-purple-700" />
+                      ) : (
+                        <Globe className="w-3.5 h-3.5 text-slate-500" />
+                      )}
+                      <span>{doc.isAdminOnly ? 'Admin Only' : 'Make Private'}</span>
                     </button>
-                  )}
-                  {/* Toggle Active/Inactive */}
-                  <button
-                    type="button"
-                    onClick={() => handleToggleActive(doc._id, doc.isActive)}
-                    disabled={togglingId === doc._id}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-smooth cursor-pointer ${
-                      doc.isActive
-                        ? 'bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100'
-                        : 'bg-emerald-50 text-emerald-900 border border-emerald-200 hover:bg-emerald-100'
-                    }`}
-                    title={doc.isActive ? 'Hide from Products Page' : 'Activate on Products Page'}
-                  >
-                    <Power className={`w-3.5 h-3.5 ${togglingId === doc._id ? 'animate-spin' : ''}`} />
-                    <span>{doc.isActive ? 'Deactivate' : 'Activate'}</span>
-                  </button>
+
+                    {/* Toggle Active/Inactive (Only relevant if Public) */}
+                    {!doc.isAdminOnly && (
+                      <button
+                        type="button"
+                        onClick={() => handleToggleActive(doc._id, doc.isActive)}
+                        disabled={togglingId === doc._id}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-smooth cursor-pointer ${
+                          doc.isActive
+                            ? 'bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100'
+                            : 'bg-emerald-50 text-emerald-900 border border-emerald-200 hover:bg-emerald-100'
+                        }`}
+                        title={doc.isActive ? 'Hide from Products Page' : 'Activate on Products Page'}
+                      >
+                        <Power className={`w-3.5 h-3.5 ${togglingId === doc._id ? 'animate-spin' : ''}`} />
+                        <span>{doc.isActive ? 'Deactivate' : 'Activate'}</span>
+                      </button>
+                    )}
 
                   {/* Reprocess */}
                   <button
@@ -1040,7 +1206,7 @@ export const AdminPdfCatalogPage = () => {
                   </button>
                 </div>
               </div>
-            ))}
+            )))}
           </div>
         </div>
       )}

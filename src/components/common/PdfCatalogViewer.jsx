@@ -52,6 +52,34 @@ import {
 
 const FALLBACK_IMAGE = 'https://cobrel.co.za/wp-content/uploads/2019/10/Classical-V-Belts-copy3.png';
 
+/**
+ * Reusable text highlighter for search matches in the scrollable catalog table
+ */
+const HighlightText = ({ text, highlight }) => {
+  if (!highlight || !highlight.trim() || !text) {
+    return <span>{text}</span>;
+  }
+  const escaped = highlight.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escaped})`, 'gi');
+  const parts = String(text).split(regex);
+  return (
+    <span>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <mark
+            key={i}
+            className="bg-amber-300 text-slate-950 font-black px-1 py-0.5 rounded shadow-2xs"
+          >
+            {part}
+          </mark>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </span>
+  );
+};
+
 export const PdfCatalogViewer = ({
   initialSearch = '',
   initialCategory = 'ALL',
@@ -920,18 +948,18 @@ export const PdfCatalogViewer = ({
             ======================================================== */}
         <div className="lg:col-span-7 space-y-4">
           
-          {/* Main Card Container */}
-          <div className="bg-slate-900 rounded-3xl border border-slate-700/80 shadow-2xl overflow-hidden flex flex-col text-white">
+          {/* Main Card Container - Clean Professional Light Theme */}
+          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden flex flex-col text-slate-900">
             
             {/* Top Navigation & View Switcher Bar */}
-            <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-blue-500/40">
               <div className="flex items-center gap-3 overflow-hidden">
-                <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/30 text-amber-400 flex items-center justify-center shrink-0 shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-white/20 border border-white/30 text-amber-300 flex items-center justify-center shrink-0 shadow-xs">
                   <FileSpreadsheet className="w-5 h-5" />
                 </div>
                 <div className="truncate">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-400/30 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 text-white border border-white/30 px-2 py-0.5 rounded-full">
                       Official Manufacturer Catalog
                     </span>
                     {activeBrand && activeBrand !== 'ALL' && (
@@ -943,20 +971,20 @@ export const PdfCatalogViewer = ({
                   <h3 className="text-sm sm:text-base font-extrabold text-white truncate mt-0.5" title={activePdfInfo.title}>
                     {activePdfInfo.title}
                   </h3>
-                  <p className="text-[11px] text-slate-400 font-mono truncate">{activePdfInfo.fileName}</p>
+                  <p className="text-[11px] text-blue-100 font-mono truncate">{activePdfInfo.fileName}</p>
                 </div>
               </div>
 
               {/* View Switcher Toggle & Actions */}
               <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
-                <div className="flex items-center bg-slate-950 rounded-xl border border-slate-700 p-1">
+                <div className="flex items-center bg-white/10 rounded-xl border border-white/20 p-1">
                   <button
                     type="button"
                     onClick={() => setRightViewMode('sheet')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
                       rightViewMode === 'sheet'
                         ? 'bg-amber-400 text-slate-950 shadow-sm'
-                        : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                        : 'text-white hover:bg-white/15'
                     }`}
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -968,7 +996,7 @@ export const PdfCatalogViewer = ({
                     className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
                       rightViewMode === 'canvas'
                         ? 'bg-amber-400 text-slate-950 shadow-sm'
-                        : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                        : 'text-white hover:bg-white/15'
                     }`}
                   >
                     <FileText className="w-3.5 h-3.5" />
@@ -981,7 +1009,7 @@ export const PdfCatalogViewer = ({
                   target="_blank"
                   rel="noreferrer"
                   download={activePdfInfo.fileName}
-                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white transition-colors"
+                  className="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors"
                   title="Download Catalog PDF"
                 >
                   <Download className="w-4 h-4" />
@@ -991,7 +1019,7 @@ export const PdfCatalogViewer = ({
                   href={activePdfInfo.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="p-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black transition-colors shadow-md"
+                  className="p-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black transition-colors shadow-md"
                   title="Open PDF in Full Screen"
                 >
                   <ExternalLink className="w-4 h-4" />
@@ -999,10 +1027,10 @@ export const PdfCatalogViewer = ({
               </div>
             </div>
 
-            {/* In-Document Search Box (Available on both views) */}
-            <div className="bg-slate-950 p-3 sm:p-4 border-b border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            {/* In-Document Search Box (Light Theme with Search Highlighting) */}
+            <div className="bg-slate-50 p-3 sm:p-4 border-b border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <div className="relative flex-1">
-                <Search className="w-4 h-4 text-amber-400 absolute left-3.5 top-3" />
+                <Search className="w-4 h-4 text-primary absolute left-3.5 top-3" />
                 <input
                   type="text"
                   placeholder={`Search in catalog data (e.g. ${activeBrand !== 'ALL' ? activeBrand : 'Diamond'}, 08B-1, 6405, 1LE7, C-98)...`}
@@ -1011,7 +1039,7 @@ export const PdfCatalogViewer = ({
                     setSheetSearch(e.target.value);
                     if (onSearchChange) onSearchChange(e.target.value);
                   }}
-                  className="w-full pl-10 pr-24 py-2.5 bg-slate-900 border border-amber-400/40 rounded-xl text-xs sm:text-sm font-semibold text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-inner"
+                  className="w-full pl-10 pr-24 py-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary shadow-xs"
                 />
                 {sheetSearch && (
                   <button
@@ -1020,7 +1048,7 @@ export const PdfCatalogViewer = ({
                       setSheetSearch('');
                       if (onSearchChange) onSearchChange('');
                     }}
-                    className="absolute right-3 top-2.5 p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                    className="absolute right-3 top-2.5 p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -1028,19 +1056,19 @@ export const PdfCatalogViewer = ({
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs font-bold text-amber-300 font-mono bg-slate-900 px-3 py-2 rounded-xl border border-slate-700">
+                <span className="text-xs font-bold text-slate-700 font-mono bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-2xs">
                   {sheetFilteredProducts.length} Product{sheetFilteredProducts.length !== 1 ? 's' : ''} in Catalog
                 </span>
               </div>
             </div>
 
-            {/* VIEW 1: MASTER PDF CATALOG DATA SHEET (User's requested solution) */}
+            {/* VIEW 1: MASTER PDF CATALOG DATA SHEET (Clean Light Theme with Highlighting) */}
             {rightViewMode === 'sheet' && (
-              <div className="relative flex-1 flex flex-col overflow-hidden">
+              <div className="relative flex-1 flex flex-col overflow-hidden bg-white">
                 {/* Information Header Banner */}
-                <div className="bg-blue-950/60 p-2.5 px-4 border-b border-blue-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                  <span className="font-extrabold text-blue-200 flex items-center gap-1.5">
-                    <MousePointerClick className="w-4 h-4 text-amber-400 animate-bounce shrink-0" />
+                <div className="bg-blue-50/90 p-2.5 px-4 border-b border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                  <span className="font-extrabold text-blue-900 flex items-center gap-1.5">
+                    <MousePointerClick className="w-4 h-4 text-amber-500 animate-bounce shrink-0" />
                     <span>Click ANY row to load on Left Side or click "+ Add" to add to cart:</span>
                   </span>
                   <div className="flex items-center gap-2 shrink-0">
@@ -1049,20 +1077,20 @@ export const PdfCatalogViewer = ({
                         {activeSection}
                       </span>
                     )}
-                    <span className="text-[11px] text-slate-400 hidden sm:inline">
+                    <span className="text-[11px] text-slate-500 hidden sm:inline">
                       Official Engineering Schedule
                     </span>
                   </div>
                 </div>
 
-                {/* Full Scrollable Table */}
+                {/* Full Scrollable Table in Light Theme */}
                 <div
-                  className="overflow-x-auto overflow-y-auto max-h-[720px] select-text"
-                  style={{ scrollbarWidth: 'thin', scrollbarColor: '#475569 #0f172a' }}
+                  className="overflow-x-auto overflow-y-auto max-h-[720px] select-text bg-white"
+                  style={{ scrollbarWidth: 'thin', scrollbarColor: '#94a3b8 #f1f5f9' }}
                 >
                   <table className="w-full text-left border-collapse text-xs">
                     {/* Sticky Table Header */}
-                    <thead className="sticky top-0 bg-slate-950 text-slate-300 uppercase text-[10px] font-black tracking-wider border-b border-slate-700 z-10 shadow-sm">
+                    <thead className="sticky top-0 bg-slate-100 text-slate-700 uppercase text-[10px] font-black tracking-wider border-b border-slate-200 z-10 shadow-xs">
                       <tr>
                         <th className="py-3 px-3 w-10 text-center">#</th>
                         <th className="py-3 px-4 min-w-[140px]">Part Number</th>
@@ -1071,11 +1099,11 @@ export const PdfCatalogViewer = ({
                         <th className="py-3 px-4 text-right min-w-[90px]">List MRP</th>
                         <th className="py-3 px-3 text-center min-w-[70px]">Discount</th>
                         <th className="py-3 px-4 text-right min-w-[100px]">Wholesale Rate</th>
-                        <th className="py-3 px-3 text-center min-w-[90px]">Action</th>
+                        <th className="py-3 px-3 text-center min-w-[100px]">Action</th>
                       </tr>
                     </thead>
 
-                    <tbody className="divide-y divide-slate-800 font-sans">
+                    <tbody className="divide-y divide-slate-100 font-sans bg-white">
                       {sheetFilteredProducts.length === 0 ? (
                         <tr>
                           <td colSpan="8" className="py-16 text-center text-slate-400">
@@ -1091,8 +1119,8 @@ export const PdfCatalogViewer = ({
                               onClick={() => handleSelectProduct(p)}
                               className={`group cursor-pointer transition-all duration-150 ${
                                 isSelected
-                                  ? 'bg-blue-950/80 text-white font-semibold ring-2 ring-inset ring-amber-400/80 shadow-md'
-                                  : 'hover:bg-slate-800/80 text-slate-200'
+                                  ? 'bg-blue-50/90 text-navy font-semibold ring-2 ring-inset ring-primary/40 shadow-xs border-l-4 border-primary'
+                                  : 'hover:bg-slate-50/80 text-slate-800'
                               }`}
                             >
                               {/* S.No */}
@@ -1100,36 +1128,36 @@ export const PdfCatalogViewer = ({
                                 {idx + 1}
                               </td>
 
-                              {/* Part Number */}
+                              {/* Part Number with Search Highlight */}
                               <td className="py-3 px-4">
                                 <div className="flex items-center gap-2">
-                                  <span className={`font-mono font-black text-xs ${isSelected ? 'text-amber-300' : 'text-white group-hover:text-amber-400'}`}>
-                                    {p.partNumber}
+                                  <span className={`font-mono font-black text-xs ${isSelected ? 'text-primary' : 'text-slate-900 group-hover:text-primary transition-colors'}`}>
+                                    <HighlightText text={p.partNumber} highlight={sheetSearch} />
                                   </span>
                                   {isSelected && (
-                                    <span className="bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.2 rounded-md">
+                                    <span className="bg-amber-400 text-slate-950 text-[9px] font-black px-1.5 py-0.2 rounded-md shadow-2xs">
                                       Active
                                     </span>
                                   )}
                                 </div>
-                                <span className="text-[10px] text-slate-400 block truncate">
-                                  {p.brand} • {p.section || p.categoryName}
+                                <span className="text-[10px] text-slate-500 block truncate">
+                                  <HighlightText text={`${p.brand} • ${p.section || p.categoryName}`} highlight={sheetSearch} />
                                 </span>
                               </td>
 
-                              {/* Description & Specifications */}
+                              {/* Description & Specifications with Search Highlight */}
                               <td className="py-3 px-4">
-                                <p className="font-bold text-white text-xs leading-snug">
-                                  {p.name}
+                                <p className="font-bold text-slate-900 text-xs leading-snug">
+                                  <HighlightText text={p.name} highlight={sheetSearch} />
                                 </p>
-                                <p className="text-[11px] text-slate-400 font-mono mt-0.5 line-clamp-2">
-                                  {p.specifications || p.description || 'Precision B2B Industrial Standard'}
+                                <p className="text-[11px] text-slate-500 font-mono mt-0.5 line-clamp-2">
+                                  <HighlightText text={p.specifications || p.description || 'Precision B2B Industrial Standard'} highlight={sheetSearch} />
                                 </p>
                               </td>
 
-                              {/* Dimensions / Series */}
-                              <td className="py-3 px-4 font-mono text-[11px] text-slate-300 hidden md:table-cell">
-                                {p.dimensions || p.section || '-'}
+                              {/* Dimensions / Series with Search Highlight */}
+                              <td className="py-3 px-4 font-mono text-[11px] text-slate-600 hidden md:table-cell">
+                                <HighlightText text={p.dimensions || p.section || '-'} highlight={sheetSearch} />
                               </td>
 
                               {/* Admin PDF List MRP */}
@@ -1139,13 +1167,13 @@ export const PdfCatalogViewer = ({
 
                               {/* Authorized Discount */}
                               <td className="py-3 px-3 text-center">
-                                <span className="bg-amber-400/20 border border-amber-400/40 text-amber-300 font-extrabold text-[10px] px-2 py-0.5 rounded-full inline-block">
+                                <span className="bg-amber-100 border border-amber-300 text-amber-900 font-extrabold text-[10px] px-2 py-0.5 rounded-full inline-block">
                                   {p.discountPercentage}% OFF
                                 </span>
                               </td>
 
                               {/* Net Wholesale Rate */}
-                              <td className="py-3 px-4 text-right font-mono font-black text-amber-400 text-xs sm:text-sm">
+                              <td className="py-3 px-4 text-right font-mono font-black text-emerald-700 text-xs sm:text-sm">
                                 {formatCurrency(p.wholesalePrice)}
                               </td>
 
@@ -1153,15 +1181,15 @@ export const PdfCatalogViewer = ({
                               <td className="py-3 px-3 text-center" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex items-center justify-center gap-1.5">
                                   {isSelected ? (
-                                    <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-400 bg-emerald-950/80 border border-emerald-400/50 px-2 py-1 rounded-xl">
-                                      <CheckCircle className="w-3.5 h-3.5" />
+                                    <span className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-1 rounded-xl shadow-2xs">
+                                      <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
                                       <span>Selected</span>
                                     </span>
                                   ) : (
                                     <button
                                       type="button"
                                       onClick={() => handleSelectProduct(p)}
-                                      className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-amber-400 hover:text-slate-950 text-slate-200 text-xs font-bold transition-all border border-slate-700 cursor-pointer shadow-xs"
+                                      className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-amber-400 hover:text-slate-950 text-slate-800 text-xs font-bold transition-all border border-slate-300 cursor-pointer shadow-2xs"
                                     >
                                       Select
                                     </button>
@@ -1170,7 +1198,7 @@ export const PdfCatalogViewer = ({
                                   <button
                                     type="button"
                                     onClick={() => handleAddToCart(p, 1)}
-                                    className="px-2 py-1 rounded-xl bg-primary hover:bg-blue-600 text-white text-[11px] font-black transition-all border border-primary/50 cursor-pointer shadow-xs flex items-center gap-1"
+                                    className="px-2 py-1 rounded-xl bg-primary hover:bg-blue-700 text-white text-[11px] font-black transition-all shadow-xs flex items-center gap-1 cursor-pointer"
                                     title="Add 1 to Cart"
                                   >
                                     <Plus className="w-3 h-3" />
@@ -1186,13 +1214,13 @@ export const PdfCatalogViewer = ({
                   </table>
                 </div>
 
-                {/* Table Footer Summary Bar */}
-                <div className="p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                {/* Table Footer Summary Bar in Light Theme */}
+                <div className="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
                   <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
                     <span>Official Manufacturer B2B Wholesale Schedule • All Prices Subject to 18% GST</span>
                   </div>
-                  <div className="font-mono text-amber-300 font-bold">
+                  <div className="font-mono text-primary font-bold">
                     Showing {sheetFilteredProducts.length} of {availableProducts.length} Items
                   </div>
                 </div>

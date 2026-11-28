@@ -80,23 +80,23 @@ export const Navbar = () => {
 
   return (
     <>
-      {/* 1. Top Utility Info Bar (Desktop) - Enhanced Height & Crisp Typography */}
-      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 text-white min-h-[52px] sm:min-h-[58px] hidden md:block border-b border-blue-500/40 select-none animate-fadeIn font-extrabold shadow-sm">
-        <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-5 lg:px-6 2xl:px-8 py-2.5 sm:py-3.5 flex items-center justify-between flex-nowrap whitespace-nowrap gap-3">
+      {/* 1. Top Utility Info Bar (Desktop) - Bulletproof Responsive Layout Without Overflow */}
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 text-white min-h-[46px] hidden md:block border-b border-blue-500/40 select-none animate-fadeIn font-extrabold shadow-sm overflow-hidden">
+        <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-4 lg:px-6 2xl:px-8 py-2 flex items-center justify-between flex-nowrap whitespace-nowrap gap-3">
           {/* Left: Hotline & Email */}
-          <div className="flex items-center gap-3 lg:gap-4 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="text-white font-black tracking-wide text-xs lg:text-sm whitespace-nowrap drop-shadow-sm">
+          <div className="flex items-center gap-2.5 lg:gap-3.5 flex-nowrap whitespace-nowrap shrink-0">
+            <span className="text-white font-black tracking-wide text-xs whitespace-nowrap drop-shadow-sm hidden xl:inline">
               Industrial Power Transmission &amp; Bearings
             </span>
 
-            <span className="text-blue-300 font-normal">|</span>
+            <span className="text-blue-300 font-normal hidden xl:inline">|</span>
 
             <a
               href="tel:+917418423238"
-              className="inline-flex items-center gap-1.5 text-amber-300 hover:text-yellow-200 font-black text-xs sm:text-sm lg:text-base transition-colors whitespace-nowrap drop-shadow-sm tracking-wide"
+              className="inline-flex items-center gap-1.5 text-amber-300 hover:text-yellow-200 font-black text-xs sm:text-xs lg:text-sm transition-colors whitespace-nowrap drop-shadow-sm tracking-wide"
               title="Official Sales Hotline"
             >
-              <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300 shrink-0" />
+              <Phone className="w-3.5 h-3.5 text-amber-300 shrink-0" />
               <span>+91 74184 23238</span>
             </a>
 
@@ -104,19 +104,20 @@ export const Navbar = () => {
 
             <a
               href="mailto:balumuniandassociates@gmail.com"
-              className="inline-flex items-center gap-1.5 text-white hover:text-amber-200 transition-colors whitespace-nowrap font-black text-xs sm:text-xs lg:text-sm drop-shadow-sm"
+              className="inline-flex items-center gap-1.5 text-white hover:text-amber-200 transition-colors whitespace-nowrap font-black text-xs drop-shadow-sm"
               title="Official Business Email"
             >
               <Mail className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-              <span>balumuniandassociates@gmail.com</span>
+              <span className="hidden sm:inline">balumuniandassociates@gmail.com</span>
+              <span className="sm:hidden">Email Us</span>
             </a>
           </div>
 
           {/* Right Info: GSTIN, Admin / Portal */}
-          <div className="flex items-center gap-2.5 lg:gap-4 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="inline-flex items-center gap-1.5 text-amber-300 font-black text-xs sm:text-sm lg:text-base whitespace-nowrap drop-shadow-sm tracking-wide">
+          <div className="flex items-center gap-2.5 lg:gap-3.5 flex-nowrap whitespace-nowrap shrink-0">
+            <span className="inline-flex items-center gap-1.5 text-amber-300 font-black text-xs whitespace-nowrap drop-shadow-sm tracking-wide">
               <span>GSTIN:</span>
-              <span>33HONPK5547G2ZK</span>
+              <span className="font-mono">33HONPK5547G2ZK</span>
             </span>
 
             <span className="text-blue-300 font-normal">|</span>
@@ -124,15 +125,15 @@ export const Navbar = () => {
             {isAdmin ? (
               <Link
                 to="/admin"
-                className="text-amber-300 hover:text-yellow-200 font-black text-xs sm:text-sm inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
+                className="text-amber-300 hover:text-yellow-200 font-black text-xs inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
               >
-                <ShieldAlert className="w-4 h-4 shrink-0" />
+                <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
                 <span>Admin Console</span>
               </Link>
             ) : isAuthenticated ? (
               <Link
                 to="/customer"
-                className="text-amber-300 hover:text-yellow-200 font-black text-xs sm:text-sm inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
+                className="text-amber-300 hover:text-yellow-200 font-black text-xs inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
               >
                 <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
                 <span>Customer Portal</span>
@@ -140,7 +141,7 @@ export const Navbar = () => {
             ) : (
               <Link
                 to="/login"
-                className="text-amber-300 hover:text-yellow-200 font-black text-xs sm:text-sm inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
+                className="text-amber-300 hover:text-yellow-200 font-black text-xs inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
                 title="Client Portal Login"
               >
                 <LogIn className="w-3.5 h-3.5 shrink-0" />
