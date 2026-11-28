@@ -27,6 +27,7 @@ import {
   TrendingUp,
   Sparkles,
   HardHat,
+  Lock,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -49,6 +50,7 @@ export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggl
         { label: t('admin_orders') || 'Orders & Invoices', to: '/admin/bookings', icon: CalendarCheck },
         { label: t('admin_quotations') || 'Quotations & RFQs', to: '/admin/quotations', icon: FileCheck },
         { label: t('admin_pdf_catalog') || 'PDF Catalog Import', to: '/admin/pdf-catalog', icon: FileUp },
+        { label: 'Admin Private Files (Internal)', to: '/admin/pdf-catalog?tab=admin_only', icon: Lock },
         { label: 'Products & Bearings', to: '/admin/services', icon: Briefcase },
         { label: t('admin_customers') || 'Customers & Rates', to: '/admin/customers', icon: Users },
         { label: 'Ticket Bookings', to: '/admin/ticket-bookings', icon: Ticket },
@@ -160,8 +162,8 @@ export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggl
         ))}
       </div>
 
-      {/* Footer Area: Public Link, Language Toggle, and Log Out */}
-      <div className="p-3 border-t border-slate-800/80 bg-slate-950/60 space-y-1.5 shrink-0">
+      {/* Footer Area: Public Link, Language Toggle, and Log Out - Fixed & Prominent */}
+      <div className="p-3 border-t border-slate-800 bg-slate-950 shadow-xl space-y-2 shrink-0 sticky bottom-0 z-20">
         <button
           onClick={toggleLanguage}
           className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-accent bg-slate-900 border border-slate-800 hover:bg-slate-850 hover:border-slate-700 transition-smooth ${
@@ -183,7 +185,7 @@ export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggl
         <Link
           to="/"
           target="_blank"
-          className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/70 transition-smooth ${
+          className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-850 border border-slate-800/80 transition-smooth ${
             isCollapsed ? 'justify-center px-0' : ''
           }`}
           title={isCollapsed ? 'View Public Site' : undefined}
@@ -192,14 +194,15 @@ export const AdminSidebar = ({ isCollapsed, isMobileOpen, onCloseMobile, onToggl
           {!isCollapsed && <span>View Storefront</span>}
         </Link>
 
+        {/* High-Visibility Logout Button */}
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-300 hover:text-white hover:bg-rose-950/50 hover:border-rose-900 border border-transparent transition-smooth ${
+          className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-black text-rose-200 bg-rose-950/80 hover:bg-rose-600 hover:text-white border border-rose-800/80 shadow-md transition-all duration-150 cursor-pointer ${
             isCollapsed ? 'justify-center px-0' : ''
           }`}
-          title={isCollapsed ? 'Log Out' : undefined}
+          title="Sign Out of Admin Console"
         >
-          <LogOut className="w-4 h-4 shrink-0 text-rose-400" />
+          <LogOut className="w-4 h-4 shrink-0 text-rose-400 group-hover:text-white" />
           {!isCollapsed && <span>Log Out</span>}
         </button>
       </div>

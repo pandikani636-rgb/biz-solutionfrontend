@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   UploadCloud,
   CheckCircle2,
@@ -14,6 +14,8 @@ import {
   ShieldCheck,
   Send,
   X,
+  FolderOpen,
+  RotateCw,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -30,6 +32,14 @@ export const ImageUploadSection = () => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [dimensions, setDimensions] = useState({ width: 0, height: 0, megapixels: 0 });
   const [validationError, setValidationError] = useState('');
+
+  // Live Camera state & refs
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [cameraStream, setCameraStream] = useState(null);
+  const [cameraLoading, setCameraLoading] = useState(false);
+  const videoRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const mobileCameraRef = useRef(null);
 
   // The 7 Required Form Fields
   const [companyName, setCompanyName] = useState('');
@@ -65,8 +75,24 @@ export const ImageUploadSection = () => {
     }
   }, [location]);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
+  // Stream attachment to video element
+  useEffect(() => {
+    if (isCameraOpen && cameraStream && videoRef.current) {
+      videoRef.current.srcObject = cameraStream;
+      videoRef.current.play().catch((err) => console.warn('[Video Play Error]', err));
+    }
+  }, [isCameraOpen, cameraStream]);
+
+  // Clean up camera on unmount
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [cameraStream]);
+
+  const processSelectedImage = (file) => {
     if (!file) return;
 
     setValidationError('');
@@ -120,12 +146,91 @@ export const ImageUploadSection = () => {
     img.src = objectUrl;
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processSelectedImage(file);
+    }
+  };
+
+  // Launch live camera view
+  const startCamera = async () => {
+    setValidationError('');
+    setCameraLoading(true);
+    setIsCameraOpen(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        },
+        audio: false,
+      });
+      setCameraStream(stream);
+    } catch (err) {
+      console.warn('[Camera Access Failed, fallback to native camera file input]', err);
+      stopCamera();
+      // On mobile or unsupported browsers, fall back to native device camera input
+      if (mobileCameraRef.current) {
+        mobileCameraRef.current.click();
+      } else {
+        setValidationError(
+          isTamil
+            ? 'கேமரா அணுகல் கிடைக்கவில்லை. கோப்பு மேலாளரிலிருந்து படத்தை தேர்ந்தெடுக்கவும்.'
+            : 'Camera access denied or unavailable. Please browse files to upload.'
+        );
+      }
+    } finally {
+      setCameraLoading(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+      setCameraStream(null);
+    }
+    setIsCameraOpen(false);
+  };
+
+  const capturePhoto = () => {
+    if (!videoRef.current) return;
+    try {
+      const video = videoRef.current;
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return;
+          const capturedFile = new File([blob], `part-capture-${Date.now()}.jpg`, {
+            type: 'image/jpeg',
+          });
+          processSelectedImage(capturedFile);
+          stopCamera();
+        },
+        'image/jpeg',
+        0.95
+      );
+    } catch (err) {
+      console.error('[Capture Photo Error]', err);
+      setValidationError('Failed to capture photo from video feed.');
+    }
+  };
+
   const handleClearSelected = () => {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
+    stopCamera();
     setSelectedFile(null);
     setPreviewUrl('');
     setDimensions({ width: 0, height: 0, megapixels: 0 });
     setValidationError('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (mobileCameraRef.current) mobileCameraRef.current.value = '';
   };
 
   const handleSubmit = async (e) => {
@@ -355,36 +460,133 @@ export const ImageUploadSection = () => {
             </Button>
           </div>
 
-          {/* Right: Moved Image Upload Section (Slightly Reduced Size) */}
+          {/* Right: Image Upload & Live Camera Capture Section */}
           <div className="lg:col-span-5 space-y-3">
-            <span className="block text-xs font-bold text-slate-700">
-              Upload Part Photo <span className="text-danger">*</span>
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="block text-xs font-bold text-slate-700">
+                Upload Part Photo <span className="text-danger">*</span>
+              </span>
+              <span className="text-[10px] text-slate-500 font-semibold">
+                File or Live Camera
+              </span>
+            </div>
 
-            {!previewUrl ? (
-              <label className="border-2 border-dashed border-slate-300 hover:border-primary bg-slate-50 hover:bg-lightBlue/20 rounded-2xl p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 group min-h-[210px]">
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-                <div className="w-12 h-12 rounded-xl bg-white shadow-xs border border-slate-200 flex items-center justify-center text-primary group-hover:scale-105 transition-smooth mb-2.5">
+            {/* Hidden Input for Local File Selection */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
+            {/* Hidden Input for Native Mobile Camera Fallback */}
+            <input
+              ref={mobileCameraRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
+            {/* 1. Live Camera Mode */}
+            {isCameraOpen ? (
+              <div className="relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-700 shadow-xl flex flex-col items-center animate-fadeIn">
+                <div className="relative w-full aspect-4/3 sm:aspect-16/10 bg-black flex items-center justify-center overflow-hidden">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Framing Reticle */}
+                  <div className="absolute inset-6 sm:inset-10 border-2 border-dashed border-amber-400/80 rounded-2xl pointer-events-none flex items-center justify-center">
+                    <span className="text-[10px] text-amber-300 font-bold bg-black/70 px-2.5 py-1 rounded-full shadow-xs">
+                      Align Part Specification Inside Frame
+                    </span>
+                  </div>
+                </div>
+
+                {/* Viewfinder Controls */}
+                <div className="w-full p-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={stopCamera}
+                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={capturePhoto}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-lg active:scale-95 transition-all cursor-pointer"
+                  >
+                    <div className="w-2.5 h-2.5 rounded-full bg-slate-950 animate-ping" />
+                    <Camera className="w-4 h-4 text-slate-950" />
+                    <span>Capture Photo</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      stopCamera();
+                      mobileCameraRef.current?.click();
+                    }}
+                    className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+                    title="Open Native Phone Camera"
+                  >
+                    Native App
+                  </button>
+                </div>
+              </div>
+            ) : !previewUrl ? (
+              /* 2. Dual Selection Mode: Browse File or Take Photo */
+              <div className="border-2 border-dashed border-slate-300 hover:border-primary/80 bg-slate-50/90 rounded-2xl p-5 flex flex-col items-center justify-center text-center transition-all duration-200 min-h-[220px] space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-white shadow-xs border border-slate-200 flex items-center justify-center text-primary">
                   <UploadCloud className="w-6 h-6" />
                 </div>
-                <p className="font-bold text-xs text-navy group-hover:text-primary">
-                  Click to select or drop part photo
-                </p>
-                <p className="text-[11px] text-secondaryText mt-0.5">
-                  JPEG, PNG, WEBP (Max <strong>20 MP</strong>)
-                </p>
-                <div className="mt-3 flex items-center gap-1.5 text-[10px] text-slate-500 bg-white px-2.5 py-1 rounded-full border border-slate-200">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Auto pixel & dimension verification</span>
+                <div>
+                  <p className="font-extrabold text-xs sm:text-sm text-navy">
+                    Select Part Image or Take Live Photo
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    JPEG, PNG, WEBP (Supports High-Res up to <strong>20 MP</strong>)
+                  </p>
                 </div>
-              </label>
+
+                {/* Dual Action Buttons */}
+                <div className="grid grid-cols-2 gap-2.5 w-full pt-1">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-primary border border-blue-200 text-xs font-bold transition-all hover:shadow-xs active:scale-95 cursor-pointer"
+                  >
+                    <FolderOpen className="w-4 h-4 text-primary" />
+                    <span>Browse Files</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={startCamera}
+                    disabled={cameraLoading}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 text-xs font-black transition-all hover:shadow-xs active:scale-95 cursor-pointer"
+                  >
+                    <Camera className="w-4 h-4 text-slate-950" />
+                    <span>{cameraLoading ? 'Starting...' : 'Take Photo'}</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-[10px] text-slate-500 bg-white px-2.5 py-1 rounded-full border border-slate-200">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Auto pixel resolution &amp; format check</span>
+                </div>
+              </div>
             ) : (
-              <div className="bg-slate-50 rounded-2xl p-3 border border-slate-200 space-y-2.5">
+              /* 3. Image Preview with Retake and Remove options */
+              <div className="bg-slate-50 rounded-2xl p-3 border border-slate-200 space-y-2.5 animate-fadeIn">
                 <div className="relative rounded-xl overflow-hidden bg-slate-900 flex justify-center items-center max-h-[220px]">
                   <img
                     src={previewUrl}
@@ -394,7 +596,7 @@ export const ImageUploadSection = () => {
                   <button
                     type="button"
                     onClick={handleClearSelected}
-                    className="absolute top-2 right-2 p-1 rounded-full bg-slate-900/80 text-white hover:bg-rose-600 transition-smooth shadow"
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-900/80 text-white hover:bg-rose-600 transition-smooth shadow cursor-pointer"
                     title="Remove Image"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -409,9 +611,18 @@ export const ImageUploadSection = () => {
                       {selectedFile?.name}
                     </span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0">
-                    ✓ {dimensions.megapixels} MP
-                  </span>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                      ✓ {dimensions.megapixels} MP
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleClearSelected}
+                      className="text-[11px] text-rose-600 font-bold hover:underline ml-1 cursor-pointer"
+                    >
+                      Retake
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

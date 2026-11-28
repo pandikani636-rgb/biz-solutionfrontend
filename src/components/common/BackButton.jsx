@@ -40,8 +40,8 @@ export const BackButton = ({
     );
   }
 
-  // Floating Back Button: Appears on every page except home ('/')
-  if (location.pathname === '/') {
+  // Floating Back Button: Appears on customer pages, hidden on home ('/') and all admin console pages ('/admin/*')
+  if (location.pathname === '/' || location.pathname.startsWith('/admin')) {
     return null;
   }
 

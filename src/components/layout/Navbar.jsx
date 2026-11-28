@@ -80,23 +80,24 @@ export const Navbar = () => {
 
   return (
     <>
-      {/* 1. Top Utility Info Bar (Desktop) - Bulletproof Responsive Layout Without Overflow */}
-      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 text-white min-h-[46px] hidden md:block border-b border-blue-500/40 select-none animate-fadeIn font-extrabold shadow-sm overflow-hidden">
-        <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-4 lg:px-6 2xl:px-8 py-2 flex items-center justify-between flex-nowrap whitespace-nowrap gap-3">
+      {/* 1. Top Utility Info Bar (Desktop) - Increased Height & Perfectly Matched Phone & GST Typography */}
+      <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 text-white min-h-[52px] sm:min-h-[56px] hidden md:block border-b border-blue-500/40 select-none animate-fadeIn font-extrabold shadow-sm overflow-hidden">
+        <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between flex-nowrap whitespace-nowrap gap-4">
           {/* Left: Hotline & Email */}
-          <div className="flex items-center gap-2.5 lg:gap-3.5 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="text-white font-black tracking-wide text-xs whitespace-nowrap drop-shadow-sm hidden xl:inline">
+          <div className="flex items-center gap-3 lg:gap-4 flex-nowrap whitespace-nowrap shrink-0">
+            <span className="text-white font-black tracking-wide text-xs lg:text-sm whitespace-nowrap drop-shadow-sm hidden xl:inline">
               Industrial Power Transmission &amp; Bearings
             </span>
 
             <span className="text-blue-300 font-normal hidden xl:inline">|</span>
 
+            {/* Phone Number - Exact Same Size as GSTIN */}
             <a
               href="tel:+917418423238"
-              className="inline-flex items-center gap-1.5 text-amber-300 hover:text-yellow-200 font-black text-xs sm:text-xs lg:text-sm transition-colors whitespace-nowrap drop-shadow-sm tracking-wide"
+              className="inline-flex items-center gap-1.5 text-amber-300 hover:text-yellow-200 font-black text-sm lg:text-[15px] font-mono tracking-wide transition-colors whitespace-nowrap drop-shadow-sm"
               title="Official Sales Hotline"
             >
-              <Phone className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+              <Phone className="w-4 h-4 text-amber-300 shrink-0" />
               <span>+91 74184 23238</span>
             </a>
 
@@ -104,18 +105,18 @@ export const Navbar = () => {
 
             <a
               href="mailto:balumuniandassociates@gmail.com"
-              className="inline-flex items-center gap-1.5 text-white hover:text-amber-200 transition-colors whitespace-nowrap font-black text-xs drop-shadow-sm"
+              className="inline-flex items-center gap-1.5 text-white hover:text-amber-200 transition-colors whitespace-nowrap font-bold text-xs lg:text-sm drop-shadow-sm"
               title="Official Business Email"
             >
-              <Mail className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+              <Mail className="w-4 h-4 text-amber-300 shrink-0" />
               <span className="hidden sm:inline">balumuniandassociates@gmail.com</span>
               <span className="sm:hidden">Email Us</span>
             </a>
           </div>
 
-          {/* Right Info: GSTIN, Admin / Portal */}
-          <div className="flex items-center gap-2.5 lg:gap-3.5 flex-nowrap whitespace-nowrap shrink-0">
-            <span className="inline-flex items-center gap-1.5 text-amber-300 font-black text-xs whitespace-nowrap drop-shadow-sm tracking-wide">
+          {/* Right Info: GSTIN (Exact Same Size as Phone) & Admin / Client Portal */}
+          <div className="flex items-center gap-3 lg:gap-4 flex-nowrap whitespace-nowrap shrink-0">
+            <span className="inline-flex items-center gap-1.5 text-amber-300 font-black text-sm lg:text-[15px] font-mono tracking-wide whitespace-nowrap drop-shadow-sm">
               <span>GSTIN:</span>
               <span className="font-mono">33HONPK5547G2ZK</span>
             </span>
@@ -125,26 +126,26 @@ export const Navbar = () => {
             {isAdmin ? (
               <Link
                 to="/admin"
-                className="text-amber-300 hover:text-yellow-200 font-black text-xs inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
+                className="text-amber-300 hover:text-yellow-200 font-black text-xs lg:text-sm inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
               >
-                <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                <ShieldAlert className="w-4 h-4 shrink-0" />
                 <span>Admin Console</span>
               </Link>
             ) : isAuthenticated ? (
               <Link
                 to="/customer"
-                className="text-amber-300 hover:text-yellow-200 font-black text-xs inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
+                className="text-amber-300 hover:text-yellow-200 font-black text-xs lg:text-sm inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
               >
-                <LayoutDashboard className="w-3.5 h-3.5 shrink-0" />
+                <LayoutDashboard className="w-4 h-4 shrink-0" />
                 <span>Customer Portal</span>
               </Link>
             ) : (
               <Link
                 to="/login"
-                className="text-amber-300 hover:text-yellow-200 font-black text-xs inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
+                className="text-amber-300 hover:text-yellow-200 font-black text-xs lg:text-sm inline-flex items-center gap-1.5 transition-colors whitespace-nowrap drop-shadow-sm"
                 title="Client Portal Login"
               >
-                <LogIn className="w-3.5 h-3.5 shrink-0" />
+                <LogIn className="w-4 h-4 shrink-0" />
                 <span>Client Login</span>
               </Link>
             )}
@@ -152,9 +153,9 @@ export const Navbar = () => {
         </div>
       </div>
 
-    
 
-      {/* 2. Main Navigation Bar - STICKY top-0: Remains sticky while top info bar scrolls away */}
+
+      {/* 2. Main Navigation Bar - STICKY top-0: Increased Height & Balanced Layout */}
       <header
         className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b transition-all duration-200 select-none animate-fadeIn ${
           isScrolled
@@ -162,14 +163,14 @@ export const Navbar = () => {
             : 'shadow-xs border-slate-200/90'
         }`}
       >
-        {/* Main Navigation Bar - Balanced layout fitting all viewports including laptop screens */}
-        <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-4 lg:px-4 xl:px-6 2xl:px-8 h-16 lg:h-[70px] xl:h-20 flex items-center justify-between gap-2 lg:gap-3 xl:gap-4 relative">
+        {/* Main Navigation Bar - Balanced layout fitting all viewports without pushing Login off */}
+        <div className="w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-6 xl:px-8 h-20 lg:h-[84px] xl:h-[92px] flex items-center justify-between gap-3 lg:gap-4 relative">
           {/* Brand Lockup: BM Logo + Balumuni and Associates (Responsive, never overflows) */}
           <Link
             to="/"
-            className="flex items-center gap-1.5 sm:gap-2 group shrink-0 min-w-0"
+            className="flex items-center gap-2 group shrink-0 min-w-0"
           >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-xl bg-white border border-slate-200/90 p-0.5 sm:p-1 flex items-center justify-center shadow-xs group-hover:border-primary/40 group-hover:shadow-md transition-all shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 xl:w-12 xl:h-12 rounded-xl bg-white border border-slate-200/90 p-1 flex items-center justify-center shadow-xs group-hover:border-primary/40 group-hover:shadow-md transition-all shrink-0">
               <img
                 src={settings?.logo || '/bm-logo.png'}
                 alt={settings?.siteName || 'Balumuni and Associates Logo'}
@@ -179,20 +180,25 @@ export const Navbar = () => {
                 }}
               />
             </div>
-            <span className="font-cinzel text-blue-700 hover:text-blue-800 text-sm sm:text-base md:text-lg lg:text-[14px] xl:text-lg 2xl:text-xl font-black tracking-wide leading-tight transition-colors flex items-center select-none drop-shadow-xs truncate uppercase">
+            <span className="font-cinzel text-blue-700 hover:text-blue-800 text-sm sm:text-base md:text-lg lg:text-[15px] xl:text-lg 2xl:text-xl font-black tracking-wide leading-tight transition-colors flex items-center select-none drop-shadow-xs truncate uppercase">
               <span className="truncate">BALUMUNI</span>
               <span className="hidden xl:inline whitespace-nowrap ml-1 font-black">AND ASSOCIATES</span>
             </span>
           </Link>
 
-          {/* Center Navigation Links: Clean Single Line, Non-Wrapping, Optimized for Laptops */}
-          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 2xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0">
+          {/* Center Navigation Links: Home -> About Us (User requested Home ku aprom About Us) -> Products -> Travel -> Insurance -> Discounts -> Contact */}
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0">
             {/* 1. Home */}
             <NavLink to="/" className={navLinkClass}>
               <span>{t('nav_home') || 'Home'}</span>
             </NavLink>
 
-            {/* 2. Products Catalog with Clickable & Hoverable Dropdown */}
+            {/* 2. About Us - Immediately after Home */}
+            <NavLink to="/about" className={navLinkClass}>
+              <span>{t('nav_about') || 'About Us'}</span>
+            </NavLink>
+
+            {/* 3. Products Catalog with Clickable & Hoverable Dropdown */}
             <div
               ref={categoryDropdownRef}
               className="relative shrink-0 whitespace-nowrap"
@@ -206,7 +212,7 @@ export const Navbar = () => {
                   e.stopPropagation();
                   setIsCategoryDropdownOpen((prev) => !prev);
                 }}
-                className={`px-1.5 lg:px-2 xl:px-2.5 2xl:px-3 py-1.5 lg:py-1.5 xl:py-2 rounded-xl text-xs xl:text-[13px] 2xl:text-sm font-bold tracking-tight transition-all inline-flex items-center gap-1 xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0 cursor-pointer ${
+                className={`px-1.5 lg:px-2 xl:px-2.5 2xl:px-3 py-1.5 lg:py-2 rounded-xl text-xs xl:text-[13px] 2xl:text-sm font-bold tracking-tight transition-all inline-flex items-center gap-1 xl:gap-1.5 flex-nowrap whitespace-nowrap shrink-0 cursor-pointer ${
                   isCategoryDropdownOpen
                     ? 'bg-blue-50/90 text-primary font-black shadow-xs ring-1 ring-primary/20'
                     : 'text-slate-800 hover:text-primary hover:bg-slate-100/90'
@@ -291,30 +297,24 @@ export const Navbar = () => {
               )}
             </div>
 
-            {/* 3. Travel Booking Desk (Train & Flight) */}
+            {/* 4. Travel Booking Desk (Train & Flight) */}
             <NavLink to="/ticket-booking" className={navLinkClass}>
               <TrainFront className="h-3.5 w-3.5 text-emerald-600 hidden 2xl:inline-block shrink-0" />
               <span className="hidden xl:inline">Travel Desk</span>
               <span className="xl:hidden">Travel</span>
             </NavLink>
 
-            {/* 4. Labour Insurance Section */}
+            {/* 5. Labour Insurance Section */}
             <NavLink to="/labour-insurance" className={navLinkClass}>
               <HardHat className="h-3.5 w-3.5 text-amber-500 hidden 2xl:inline-block shrink-0" />
               <span className="hidden xl:inline">Labour Insurance</span>
               <span className="xl:hidden">Insurance</span>
             </NavLink>
 
-            {/* 5. MRP Discounts */}
+            {/* 6. MRP Discounts */}
             <NavLink to="/mrp-pricing" className={navLinkClass}>
               <span className="hidden xl:inline">{t('nav_mrp_discounts') || 'MRP Discounts'}</span>
               <span className="xl:hidden">Discounts</span>
-            </NavLink>
-
-            {/* 6. About Us */}
-            <NavLink to="/about" className={navLinkClass}>
-              <span className="hidden xl:inline">{t('nav_about') || 'About Us'}</span>
-              <span className="xl:hidden">About</span>
             </NavLink>
 
             {/* 7. Contact */}
@@ -324,12 +324,12 @@ export const Navbar = () => {
           </nav>
 
           {/* Desktop Right Action Cluster - Always 100% visible, non-clipping across all laptop & desktop screens */}
-          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2 shrink-0 flex-nowrap whitespace-nowrap pl-1 pr-1 sm:pr-2">
+          <div className="hidden lg:flex items-center gap-2 xl:gap-2.5 shrink-0 flex-nowrap whitespace-nowrap pl-1">
             {/* Global Cart Button (Desktop) */}
             <button
               type="button"
               onClick={openCart}
-              className="relative inline-flex items-center gap-1.5 px-2.5 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 shadow-xs hover:shadow transition-all cursor-pointer select-none shrink-0"
+              className="relative inline-flex items-center gap-1.5 px-3 py-2 xl:px-3.5 xl:py-2.5 rounded-xl text-xs xl:text-sm font-black bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 shadow-xs hover:shadow transition-all cursor-pointer select-none shrink-0"
               title="View Quotation Cart"
             >
               <ShoppingBag className="w-4 h-4 text-primary shrink-0" />
@@ -340,17 +340,6 @@ export const Navbar = () => {
                 </span>
               )}
             </button>
-
-            <Link to="/rfq" className="hidden 2xl:inline-flex shrink-0 whitespace-nowrap">
-              <Button
-                variant="primary"
-                size="sm"
-                className="font-bold text-xs shadow-xs inline-flex items-center gap-1.5 bg-primary hover:bg-primary-dark whitespace-nowrap shrink-0 px-2.5 py-1.5"
-              >
-                <FileSpreadsheet className="w-3.5 h-3.5 shrink-0" />
-                <span>{t('nav_quick_quote') || 'Quick RFQ'}</span>
-              </Button>
-            </Link>
 
             {isAuthenticated ? (
               <div ref={userDropdownRef} className="relative shrink-0 whitespace-nowrap">
@@ -440,11 +429,11 @@ export const Navbar = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-1 lg:gap-1.5 xl:gap-2 shrink-0 whitespace-nowrap">
+              <div className="flex items-center gap-1.5 lg:gap-2 shrink-0 whitespace-nowrap">
                 <Link to="/login" className="shrink-0 whitespace-nowrap">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 lg:gap-1.5 px-2.5 py-1.5 xl:px-4 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer select-none"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 xl:px-4 xl:py-2.5 rounded-xl text-xs xl:text-sm font-black bg-amber-400 hover:bg-amber-300 text-slate-950 border border-amber-500 shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer select-none"
                     title="Sign In to Account"
                   >
                     <User className="w-3.5 h-3.5 text-slate-950 shrink-0" />
@@ -454,7 +443,7 @@ export const Navbar = () => {
                 <Link to="/register" className="shrink-0 whitespace-nowrap inline-flex">
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 xl:px-3.5 xl:py-2 rounded-xl text-xs xl:text-sm font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer select-none"
+                    className="inline-flex items-center gap-1 px-3.5 py-2 xl:px-4 xl:py-2.5 rounded-xl text-xs xl:text-sm font-black bg-blue-700 hover:bg-blue-800 text-white border border-blue-800 shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer select-none"
                   >
                     <span>{t('nav_signup') || t('nav_register') || 'Sign Up'}</span>
                   </button>

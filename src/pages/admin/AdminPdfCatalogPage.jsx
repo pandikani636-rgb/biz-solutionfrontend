@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   FileText,
   UploadCloud,
@@ -73,8 +73,19 @@ export const AdminPdfCatalogPage = () => {
   const [availableCategories, setAvailableCategories] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploadIsAdminOnly, setUploadIsAdminOnly] = useState(false);
-  const [visibilityFilter, setVisibilityFilter] = useState('ALL'); // 'ALL' | 'PUBLIC' | 'ADMIN_ONLY'
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialMainTab = searchParams.get('tab') === 'admin_only' ? 'ADMIN_ONLY' : 'PUBLIC';
+  const [activeMainTab, setActiveMainTab] = useState(initialMainTab);
+  const [uploadIsAdminOnly, setUploadIsAdminOnly] = useState(initialMainTab === 'ADMIN_ONLY');
+  const [visibilityFilter, setVisibilityFilter] = useState(initialMainTab === 'ADMIN_ONLY' ? 'ADMIN_ONLY' : 'ALL'); // 'ALL' | 'PUBLIC' | 'ADMIN_ONLY'
+
+  useEffect(() => {
+    if (searchParams.get('tab') === 'admin_only') {
+      setActiveMainTab('ADMIN_ONLY');
+      setVisibilityFilter('ADMIN_ONLY');
+      setUploadIsAdminOnly(true);
+    }
+  }, [searchParams]);
   const [togglingAdminOnlyId, setTogglingAdminOnlyId] = useState(null);
   const [reprocessingId, setReprocessingId] = useState(null);
   const [togglingId, setTogglingId] = useState(null);
@@ -167,32 +178,38 @@ export const AdminPdfCatalogPage = () => {
   };
 
   const addFiles = (incomingFiles) => {
-    const validPdfs = [];
-    const nonPdfs = [];
+    const validFiles = [];
+    const invalidFiles = [];
+
+    const allowedExts = activeMainTab === 'ADMIN_ONLY'
+      ? ['.pdf', '.xlsx', '.xls', '.docx', '.doc', '.csv', '.txt', '.png', '.jpg', '.jpeg', '.webp']
+      : ['.pdf'];
 
     incomingFiles.forEach((file) => {
-      if (file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf') {
-        validPdfs.push(file);
+      const lower = file.name.toLowerCase();
+      const isAllowed = allowedExts.some((ext) => lower.endsWith(ext)) || file.type === 'application/pdf';
+      if (isAllowed) {
+        validFiles.push(file);
       } else {
-        nonPdfs.push(file.name);
+        invalidFiles.push(file.name);
       }
     });
 
-    if (nonPdfs.length > 0) {
-      setUploadError(`Skipped non-PDF files: ${nonPdfs.join(', ')}`);
+    if (invalidFiles.length > 0) {
+      setUploadError(`Skipped unsupported files: ${invalidFiles.join(', ')}`);
     } else {
       setUploadError('');
     }
 
-    if (validPdfs.length > 0) {
+    if (validFiles.length > 0) {
       setPdfFiles((prev) => {
         const existingSignatures = new Set(prev.map((f) => `${f.name}-${f.size}`));
-        const filtered = validPdfs.filter((f) => !existingSignatures.has(`${f.name}-${f.size}`));
+        const filtered = validFiles.filter((f) => !existingSignatures.has(`${f.name}-${f.size}`));
         return [...prev, ...filtered];
       });
 
-      if (!catalogTitle && validPdfs.length === 1 && pdfFiles.length === 0) {
-        setCatalogTitle(validPdfs[0].name.replace(/\.pdf$/i, ''));
+      if (!catalogTitle && validFiles.length === 1 && pdfFiles.length === 0) {
+        setCatalogTitle(validFiles[0].name.replace(/\.[a-zA-Z0-9]+$/i, ''));
       }
     }
   };
@@ -460,33 +477,125 @@ export const AdminPdfCatalogPage = () => {
         </div>
       </div>
 
-      {/* Multiple PDF Upload Card with Drag & Drop */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+      {/* Primary Section Switcher: Public Catalogs vs Admin Private Files Vault */}
+      <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-200/90 rounded-2xl max-w-fit shadow-xs">
+        <button
+          type="button"
+          onClick={() => {
+            setActiveMainTab('PUBLIC');
+            setVisibilityFilter('ALL');
+            setUploadIsAdminOnly(false);
+            setSearchParams({});
+          }}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+            activeMainTab === 'PUBLIC'
+              ? 'bg-white text-navy shadow-md ring-1 ring-slate-200'
+              : 'text-slate-600 hover:text-navy hover:bg-white/50'
+          }`}
+        >
+          <Globe className="w-4 h-4 text-blue-600" />
+          <span>🌐 Public Product Catalogs (Customer Storefront)</span>
+          <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 text-[10px] font-black">
+            {catalogs.filter((c) => !c.isAdminOnly).length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setActiveMainTab('ADMIN_ONLY');
+            setVisibilityFilter('ADMIN_ONLY');
+            setUploadIsAdminOnly(true);
+            setSearchParams({ tab: 'admin_only' });
+          }}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+            activeMainTab === 'ADMIN_ONLY'
+              ? 'bg-purple-700 text-white shadow-md shadow-purple-700/20'
+              : 'text-slate-600 hover:text-purple-700 hover:bg-white/50'
+          }`}
+        >
+          <Lock className="w-4 h-4 text-amber-300" />
+          <span>🔒 Admin Private Files (Internal Vault - Admin Only)</span>
+          <span className="px-2 py-0.5 rounded-full bg-purple-900/60 text-white text-[10px] font-black">
+            {catalogs.filter((c) => c.isAdminOnly).length}
+          </span>
+        </button>
+      </div>
+
+      {/* Admin Private Vault Mode Banner */}
+      {activeMainTab === 'ADMIN_ONLY' && (
+        <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-950 text-white rounded-3xl p-6 sm:p-7 shadow-md border border-purple-800 animate-fadeIn">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-purple-500/20 text-purple-300 rounded-2xl border border-purple-400/30">
+                <Lock className="w-6 h-6 text-amber-400" />
+              </div>
+              <div>
+                <span className="text-[11px] font-black uppercase tracking-wider text-amber-400">
+                  Admin Confidential Vault • Internal Documents
+                </span>
+                <h3 className="text-lg sm:text-xl font-black text-white">
+                  Admin Private Files &amp; Supplier Rate Sheets
+                </h3>
+                <p className="text-xs text-purple-200 mt-0.5 max-w-2xl">
+                  Upload supplier rate sheets, purchase agreements, GST / Tax documents, and private internal files. Files uploaded here are strictly visible ONLY to Administrators and are NEVER exposed to website visitors.
+                </p>
+              </div>
+            </div>
+            <span className="px-3 py-1.5 rounded-xl bg-purple-800/80 border border-purple-500 text-amber-300 font-black text-xs shrink-0 flex items-center gap-1.5 shadow-xs">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>100% Private to Admin</span>
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Upload Card with Drag & Drop */}
+      <div className={`rounded-3xl p-6 sm:p-8 border shadow-xs space-y-6 ${
+        activeMainTab === 'ADMIN_ONLY' ? 'bg-white border-purple-200' : 'bg-white border-slate-200'
+      }`}>
         <div className="border-b border-slate-100 pb-3 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
           <div>
             <h3 className="text-base font-black text-navy flex items-center gap-2">
-              <UploadCloud className="w-5 h-5 text-accent" />
-              <span>Upload One or Multiple PDF Catalogs</span>
+              {activeMainTab === 'ADMIN_ONLY' ? (
+                <>
+                  <Lock className="w-5 h-5 text-purple-600" />
+                  <span>Upload Confidential Admin Document (Private Vault)</span>
+                </>
+              ) : (
+                <>
+                  <UploadCloud className="w-5 h-5 text-accent" />
+                  <span>Upload One or Multiple PDF Catalogs</span>
+                </>
+              )}
             </h3>
             <p className="text-xs text-secondaryText">
-              Select or drag &amp; drop multiple manufacturer catalogues simultaneously. All uploaded PDFs will be extracted and made available together.
+              {activeMainTab === 'ADMIN_ONLY'
+                ? 'Select or drag & drop confidential documents (PDF, Excel, Word, CSV, Images). Only Administrators can view or download these files.'
+                : 'Select or drag & drop multiple manufacturer catalogues simultaneously. All uploaded PDFs will be extracted and made available together.'}
             </p>
           </div>
           {pdfFiles.length > 0 && (
-            <span className="text-xs font-bold bg-blue-50 text-primary px-3 py-1 rounded-xl border border-blue-200">
-              {pdfFiles.length} PDF{pdfFiles.length > 1 ? 's' : ''} Selected
+            <span className={`text-xs font-bold px-3 py-1 rounded-xl border ${
+              activeMainTab === 'ADMIN_ONLY'
+                ? 'bg-purple-50 text-purple-800 border-purple-200'
+                : 'bg-blue-50 text-primary border-blue-200'
+            }`}>
+              {pdfFiles.length} File{pdfFiles.length > 1 ? 's' : ''} Selected
             </span>
           )}
         </div>
 
         <form onSubmit={handleUploadSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Optional Catalog Title */}
+            {/* Document / Catalog Title */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">Catalog Title (Optional)</label>
+              <label className="block text-xs font-bold text-slate-700">
+                {activeMainTab === 'ADMIN_ONLY' ? 'Document Title *' : 'Catalog Title (Optional)'}
+              </label>
               <input
                 type="text"
-                placeholder="e.g. TIMKEN India Price List"
+                placeholder={activeMainTab === 'ADMIN_ONLY' ? 'e.g. Fenner Supplier Agreement 2026' : 'e.g. TIMKEN India Price List'}
                 value={catalogTitle}
                 onChange={(e) => setCatalogTitle(e.target.value)}
                 className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-medium bg-slate-50 focus:ring-2 focus:ring-primary focus:outline-none"
@@ -517,67 +626,85 @@ export const AdminPdfCatalogPage = () => {
               </select>
             </div>
 
-            {/* Wholesale Discount (% OFF MRP) */}
-            <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700 flex items-center justify-between">
-                <span className="flex items-center gap-1">
-                  <Percent className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Discount (% OFF) *</span>
-                </span>
-                <span className="text-[10px] text-emerald-700 font-semibold">Subtracted from MRP</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="1"
-                  required
-                  value={uploadDiscount}
-                  onChange={(e) => setUploadDiscount(e.target.value)}
-                  placeholder="e.g. 46"
-                  className="w-full px-3.5 py-2.5 pr-8 border border-slate-300 rounded-xl text-xs font-black bg-slate-50 focus:ring-2 focus:ring-primary focus:outline-none text-navy"
-                />
-                <span className="absolute right-3 top-2.5 text-xs font-bold text-slate-400">%</span>
+            {/* Wholesale Discount (% OFF MRP) - Only in public catalog mode */}
+            {activeMainTab === 'PUBLIC' && (
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-700 flex items-center justify-between">
+                  <span className="flex items-center gap-1">
+                    <Percent className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Discount (% OFF) *</span>
+                  </span>
+                  <span className="text-[10px] text-emerald-700 font-semibold">Subtracted from MRP</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    required
+                    value={uploadDiscount}
+                    onChange={(e) => setUploadDiscount(e.target.value)}
+                    placeholder="e.g. 46"
+                    className="w-full px-3.5 py-2.5 pr-8 border border-slate-300 rounded-xl text-xs font-black bg-slate-50 focus:ring-2 focus:ring-primary focus:outline-none text-navy"
+                  />
+                  <span className="absolute right-3 top-2.5 text-xs font-bold text-slate-400">%</span>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Target Category Assignment */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700">Assign Target Category (Optional)</label>
+              <label className="block text-xs font-bold text-slate-700">
+                {activeMainTab === 'ADMIN_ONLY' ? 'Document Category' : 'Assign Target Category (Optional)'}
+              </label>
               <select
                 value={selectedUploadCategory}
                 onChange={(e) => setSelectedUploadCategory(e.target.value)}
                 className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs font-bold bg-slate-50 focus:ring-2 focus:ring-primary focus:outline-none"
               >
-                <option value="">Auto-Detect / All Categories</option>
-                {availableCategories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>
-                    {cat.name}
-                  </option>
-                ))}
+                {activeMainTab === 'ADMIN_ONLY' ? (
+                  <>
+                    <option value="">Supplier Price Agreement</option>
+                    <option value="Purchase Contract">Purchase Contract &amp; Vendor Agreement</option>
+                    <option value="GST & Tax">GST &amp; Tax Documents</option>
+                    <option value="Internal Rates">Internal Wholesale Rate Sheet</option>
+                    <option value="Operations">Internal Operations / Notes</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="">Auto-Detect / All Categories</option>
+                    {availableCategories.map((cat) => (
+                      <option key={cat._id} value={cat._id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </>
+                )}
               </select>
             </div>
 
-            {/* Admin Only / Private File Field (User Requirement) */}
-            <div className="md:col-span-2 flex items-start gap-3 p-3.5 bg-purple-50 rounded-2xl border border-purple-200">
-              <input
-                type="checkbox"
-                id="uploadIsAdminOnly"
-                checked={uploadIsAdminOnly}
-                onChange={(e) => setUploadIsAdminOnly(e.target.checked)}
-                className="w-4 h-4 mt-0.5 text-purple-600 rounded focus:ring-purple-500 cursor-pointer"
-              />
-              <label htmlFor="uploadIsAdminOnly" className="text-xs font-bold text-slate-800 cursor-pointer select-none">
-                <span className="font-black text-purple-900 flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5 text-purple-700" />
-                  <span>Admin Only / Internal Document (Private File)</span>
-                </span>
-                <span className="block text-[11px] text-slate-600 font-medium mt-0.5">
-                  Upload for Admin reference only. This document is private and will NEVER be shown to customers on the public Products page.
-                </span>
-              </label>
-            </div>
+            {/* Admin Only / Private File Field */}
+            {activeMainTab === 'PUBLIC' && (
+              <div className="md:col-span-2 flex items-start gap-3 p-3.5 bg-purple-50 rounded-2xl border border-purple-200">
+                <input
+                  type="checkbox"
+                  id="uploadIsAdminOnly"
+                  checked={uploadIsAdminOnly}
+                  onChange={(e) => setUploadIsAdminOnly(e.target.checked)}
+                  className="w-4 h-4 mt-0.5 text-purple-600 rounded focus:ring-purple-500 cursor-pointer"
+                />
+                <label htmlFor="uploadIsAdminOnly" className="text-xs font-bold text-slate-800 cursor-pointer select-none">
+                  <span className="font-black text-purple-900 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-purple-700" />
+                    <span>Admin Only / Internal Document (Private File)</span>
+                  </span>
+                  <span className="block text-[11px] text-slate-600 font-medium mt-0.5">
+                    Upload for Admin reference only. This document is private and will NEVER be shown to customers on the public Products page.
+                  </span>
+                </label>
+              </div>
+            )}
           </div>
 
           {/* Drag & Drop File Zone */}
@@ -589,6 +716,8 @@ export const AdminPdfCatalogPage = () => {
             className={`border-2 border-dashed rounded-3xl p-8 text-center cursor-pointer transition-all ${
               isDragging
                 ? 'border-primary bg-blue-50/70 scale-[1.01]'
+                : activeMainTab === 'ADMIN_ONLY'
+                ? 'border-purple-300 hover:border-purple-500 bg-purple-50/40 hover:bg-purple-50/70'
                 : 'border-slate-300 hover:border-primary/60 bg-slate-50/60 hover:bg-slate-50'
             }`}
           >
@@ -596,20 +725,26 @@ export const AdminPdfCatalogPage = () => {
               ref={fileInputRef}
               type="file"
               multiple
-              accept="application/pdf,.pdf"
+              accept={activeMainTab === 'ADMIN_ONLY' ? '.pdf,.xlsx,.xls,.docx,.doc,.csv,.txt,image/*' : 'application/pdf,.pdf'}
               onChange={handleFilesChange}
               className="hidden"
             />
             <div className="flex flex-col items-center justify-center space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-center text-primary">
-                <UploadCloud className="w-7 h-7" />
+              <div className={`w-14 h-14 rounded-2xl bg-white border shadow-xs flex items-center justify-center ${
+                activeMainTab === 'ADMIN_ONLY' ? 'border-purple-200 text-purple-700' : 'border-slate-200 text-primary'
+              }`}>
+                {activeMainTab === 'ADMIN_ONLY' ? <Lock className="w-7 h-7" /> : <UploadCloud className="w-7 h-7" />}
               </div>
               <div>
                 <p className="text-sm font-bold text-navy">
-                  Click to browse or Drag &amp; Drop multiple PDF files here
+                  {activeMainTab === 'ADMIN_ONLY'
+                    ? 'Click to browse or Drag & Drop internal documents here'
+                    : 'Click to browse or Drag & Drop multiple PDF files here'}
                 </p>
                 <p className="text-xs text-secondaryText mt-1">
-                  Supports multiple PDF catalogs up to 35MB each (PIX, Fenner, SKF, NBC, Diamond, etc.)
+                  {activeMainTab === 'ADMIN_ONLY'
+                    ? 'Supports PDF, Excel (.xlsx, .xls), Word (.docx, .doc), CSV, TXT, and Images up to 35MB'
+                    : 'Supports multiple PDF catalogs up to 35MB each (PIX, Fenner, SKF, NBC, Diamond, etc.)'}
                 </p>
               </div>
             </div>
@@ -697,8 +832,9 @@ export const AdminPdfCatalogPage = () => {
         </form>
       </div>
 
-      {/* Extracted Categories & Subcategories Hierarchy View */}
-      {loading ? (
+      {/* Extracted Categories & Subcategories Hierarchy View (Only shown in Public Catalogs Mode) */}
+      {activeMainTab === 'PUBLIC' && (
+        loading ? (
         <div className="py-20 flex flex-col items-center justify-center gap-3 bg-white rounded-3xl border border-slate-200">
           <Spinner size="lg" />
           <p className="text-xs text-slate-500 font-medium">Loading catalog data &amp; images...</p>
@@ -917,69 +1053,86 @@ export const AdminPdfCatalogPage = () => {
         <div className="py-16 text-center text-xs text-secondaryText bg-white rounded-3xl border border-slate-200">
           No PDF catalogs uploaded yet. Upload one or more PDF files above to extract categories and products.
         </div>
-      )}
+      ))}
 
-      {/* Uploaded PDF Catalog Documents Archive */}
+      {/* Uploaded Documents Archive & Vault */}
       {catalogs.length > 0 && (
-        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
+        <div className={`rounded-3xl p-6 border shadow-xs space-y-4 ${
+          activeMainTab === 'ADMIN_ONLY' ? 'bg-white border-purple-200' : 'bg-white border-slate-200'
+        }`}>
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <div>
               <h4 className="font-bold text-sm text-navy uppercase tracking-wider flex items-center gap-2">
-                <Files className="w-4 h-4 text-primary" />
-                <span>Uploaded Documents Archive ({catalogs.length})</span>
+                {activeMainTab === 'ADMIN_ONLY' ? (
+                  <>
+                    <Lock className="w-4 h-4 text-purple-700" />
+                    <span>Admin Confidential Vault Documents ({catalogs.filter((c) => c.isAdminOnly).length})</span>
+                  </>
+                ) : (
+                  <>
+                    <Files className="w-4 h-4 text-primary" />
+                    <span>Uploaded Documents Archive ({catalogs.length})</span>
+                  </>
+                )}
               </h4>
               <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                {totalActiveCatalogsCount} active on live Products page • {catalogs.filter((c) => c.isAdminOnly).length} private admin files
+                {activeMainTab === 'ADMIN_ONLY'
+                  ? 'Strictly confidential internal files only visible to Administrators in this vault.'
+                  : `${totalActiveCatalogsCount} active on live Products page • ${catalogs.filter((c) => c.isAdminOnly).length} private admin files`}
               </p>
             </div>
 
-            {/* Visibility Filter Tabs */}
-            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-bold self-start sm:self-auto">
-              <button
-                type="button"
-                onClick={() => setVisibilityFilter('ALL')}
-                className={`px-3 py-1.5 rounded-xl transition-smooth cursor-pointer ${
-                  visibilityFilter === 'ALL'
-                    ? 'bg-white text-navy shadow-xs font-black'
-                    : 'text-slate-600 hover:text-navy'
-                }`}
-              >
-                All ({catalogs.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setVisibilityFilter('PUBLIC')}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-xl transition-smooth cursor-pointer ${
-                  visibilityFilter === 'PUBLIC'
-                    ? 'bg-white text-primary shadow-xs font-black'
-                    : 'text-slate-600 hover:text-navy'
-                }`}
-              >
-                <Globe className="w-3.5 h-3.5 text-blue-600" />
-                <span>Public ({catalogs.filter((c) => !c.isAdminOnly).length})</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setVisibilityFilter('ADMIN_ONLY')}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-xl transition-smooth cursor-pointer ${
-                  visibilityFilter === 'ADMIN_ONLY'
-                    ? 'bg-white text-purple-700 shadow-xs font-black'
-                    : 'text-slate-600 hover:text-navy'
-                }`}
-              >
-                <Lock className="w-3.5 h-3.5 text-purple-700" />
-                <span>Admin Only ({catalogs.filter((c) => c.isAdminOnly).length})</span>
-              </button>
-            </div>
+            {/* Visibility Filter Tabs (Only shown in Public Mode) */}
+            {activeMainTab === 'PUBLIC' && (
+              <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-bold self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setVisibilityFilter('ALL')}
+                  className={`px-3 py-1.5 rounded-xl transition-smooth cursor-pointer ${
+                    visibilityFilter === 'ALL'
+                      ? 'bg-white text-navy shadow-xs font-black'
+                      : 'text-slate-600 hover:text-navy'
+                  }`}
+                >
+                  All ({catalogs.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVisibilityFilter('PUBLIC')}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-xl transition-smooth cursor-pointer ${
+                    visibilityFilter === 'PUBLIC'
+                      ? 'bg-white text-primary shadow-xs font-black'
+                      : 'text-slate-600 hover:text-navy'
+                  }`}
+                >
+                  <Globe className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Public ({catalogs.filter((c) => !c.isAdminOnly).length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVisibilityFilter('ADMIN_ONLY')}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-xl transition-smooth cursor-pointer ${
+                    visibilityFilter === 'ADMIN_ONLY'
+                      ? 'bg-white text-purple-700 shadow-xs font-black'
+                      : 'text-slate-600 hover:text-navy'
+                  }`}
+                >
+                  <Lock className="w-3.5 h-3.5 text-purple-700" />
+                  <span>Admin Only ({catalogs.filter((c) => c.isAdminOnly).length})</span>
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="divide-y border rounded-2xl overflow-hidden">
-            {filteredCatalogs.length === 0 ? (
+            {(activeMainTab === 'ADMIN_ONLY' ? catalogs.filter((c) => c.isAdminOnly === true) : filteredCatalogs).length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-500 bg-slate-50">
-                No documents found for this visibility filter.
+                {activeMainTab === 'ADMIN_ONLY'
+                  ? 'No private documents in vault yet. Use the upload field above to add internal supplier files, price sheets, or agreements.'
+                  : 'No documents found for this visibility filter.'}
               </div>
             ) : (
-              filteredCatalogs.map((doc) => (
+              (activeMainTab === 'ADMIN_ONLY' ? catalogs.filter((c) => c.isAdminOnly === true) : filteredCatalogs).map((doc) => (
                 <div
                   key={doc._id}
                   className={`p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3 transition-smooth ${
